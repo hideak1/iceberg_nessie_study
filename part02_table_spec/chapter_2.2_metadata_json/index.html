@@ -773,6 +773,8 @@
       
         
       
+        
+      
     
     
     
@@ -1125,6 +1127,34 @@
     
   
     2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_2.6_partitioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 PartitionSpec: transforms, hidden partitioning, partition evolution
   
 
     
@@ -3732,7 +3762,7 @@
 </span><span id="__span-4-87"><a id="__codelineno-4-87" name="__codelineno-4-87"></a><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
 </span></code></pre></div></td></tr></table></div>
 <p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/test/resources/TableMetadataV2Valid.json#L52-L87"><code>apache/iceberg</code> · <code>core/src/test/resources/TableMetadataV2Valid.json</code> L52–L87</a> <span>@ apache-iceberg-1.11.0</span></p>
-<p><code>default-spec-id</code>, <code>partition-specs</code>, <code>last-partition-id</code>, <code>default-sort-order-id</code>, <code>sort-orders</code>, <code>properties</code> — six keys in the order the statements above emit them. Note what is <em>absent</em>: no <code>partition-spec</code> and no <code>schema</code> beside the plural forms, because this is a v2 file and the duplication is written only at v1. <code>properties</code> is <code>{}</code>, which is the only field in the document a user populates directly and the common case for a new table.</p>
+<p><code>default-spec-id</code>, <code>partition-specs</code>, <code>last-partition-id</code>, <code>default-sort-order-id</code>, <code>sort-orders</code>, <code>properties</code> — six keys in the order the statements above emit them. The four keys inside each <code>partition-specs[].fields[]</code> entry — <code>name</code>, <code>transform</code>, <code>source-id</code>, <code>field-id</code> — are the whole of a partition declaration, and <a href="../chapter_2.6_partitioning/">Chapter 2.6</a> reads them against the code that writes and consumes them. Note what is <em>absent</em>: no <code>partition-spec</code> and no <code>schema</code> beside the plural forms, because this is a v2 file and the duplication is written only at v1. <code>properties</code> is <code>{}</code>, which is the only field in the document a user populates directly and the common case for a new table.</p>
 <p>The fifth branch is neither forward nor backward. It does not decide whether a field appears — it decides how an unchanged field is <em>spelled</em>, and it is the next section.</p>
 <h2 id="6-current-snapshot-id-changes-representation-at-v3">6. <code>current-snapshot-id</code> changes representation at v3<a class="headerlink" href="#6-current-snapshot-id-changes-representation-at-v3" title="Permanent link">&para;</a></h2>
 <p>The block just before <code>next-row-id</code> is the sharpest illustration of the whole compatibility problem:</p>

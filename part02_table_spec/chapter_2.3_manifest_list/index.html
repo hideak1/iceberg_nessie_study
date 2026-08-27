@@ -773,6 +773,8 @@
       
         
       
+        
+      
     
     
     
@@ -1125,6 +1127,34 @@
     
   
     2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_2.6_partitioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 PartitionSpec: transforms, hidden partitioning, partition evolution
   
 
     
@@ -3552,7 +3582,7 @@
 </tr>
 </tbody>
 </table>
-<p><code>partition_spec_id</code> is required, and it is required for a specific reason: a table that has evolved its partitioning holds manifests written under several specs at once. Nothing about the partition summaries is interpretable without knowing which spec produced them.</p>
+<p><code>partition_spec_id</code> is required, and it is required for a specific reason: a table that has evolved its partitioning holds manifests written under several specs at once. Nothing about the partition summaries is interpretable without knowing which spec produced them. It is also where the spec id reaches each file: <code>data_file</code> has a <code>spec_id</code> field that none of the four <code>V&lt;N&gt;Metadata</code> write schemas include, and readers inherit it from this row. <a href="../chapter_2.6_partitioning/">Chapter 2.6</a> covers the spec itself and why evolution is a <code>metadata.json</code> rewrite and nothing more.</p>
 <h2 id="4-where-the-numbers-come-from">4. Where the numbers come from<a class="headerlink" href="#4-where-the-numbers-come-from" title="Permanent link">&para;</a></h2>
 <p>Nothing recomputes these fields later. They are accumulated as the manifest is written, one entry at a time:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">accumulating the summary while writing</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-93"> 93</a></span>

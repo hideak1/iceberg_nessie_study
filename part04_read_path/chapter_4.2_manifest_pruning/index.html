@@ -771,6 +771,8 @@
       
         
       
+        
+      
     
     
     
@@ -952,6 +954,34 @@
     
   
     2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.6_partitioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 PartitionSpec: transforms, hidden partitioning, partition evolution
   
 
     
@@ -3439,7 +3469,7 @@
 <p><code>Binder.bind(struct, expr, caseSensitive)</code> is the entry point, and its failure modes are the point of the exercise. An unknown column, a type that cannot hold the literal, a case mismatch under <code>caseSensitive</code> — all of them fail <em>here</em>, once, at plan time, rather than per row or per file. <code>ValidationException: Cannot find field 'evnt_ts'</code> is a binding failure, and it is why a typo in a filter fails the query instead of silently matching nothing.</p>
 <p>Two consequences run through the rest of Part 4. Every evaluator in this part — <code>ManifestEvaluator</code>, <code>InclusiveMetricsEvaluator</code>, <code>StrictMetricsEvaluator</code>, <code>ResidualEvaluator</code> — binds its expression once in its constructor and then visits the bound form. And <code>pred.ref().fieldId()</code>, which section 4 is about to use as the key into the partition spec, is only available <em>because</em> the predicate was bound: an unbound predicate has a name where that integer would be.</p>
 <h3 id="transforms-and-the-one-property-projection-depends-on">Transforms, and the one property projection depends on<a class="headerlink" href="#transforms-and-the-one-property-projection-depends-on" title="Permanent link">&para;</a></h3>
-<p>A partition value is not a column value. It is a <strong>transform</strong> of one — <code>day(event_ts)</code>, <code>bucket(16, id)</code>, <code>truncate(10, name)</code>, or <code>identity(dept)</code> — computed by the writer and stored in the manifest as its own typed field (<a href="../../part01_foundations/chapter_1.1_why_table_formats/">Chapter 1.1</a> §5). The partition summaries this chapter prunes on are bounds over <em>transformed</em> values, so a predicate on the raw column cannot be compared against them directly.</p>
+<p>A partition value is not a column value. It is a <strong>transform</strong> of one — <code>day(event_ts)</code>, <code>bucket(16, id)</code>, <code>truncate(10, name)</code>, or <code>identity(dept)</code> — computed by the writer and stored in the manifest as its own typed field (<a href="../../part01_foundations/chapter_1.1_why_table_formats/">Chapter 1.1</a> §5). <a href="../../part02_table_spec/chapter_2.6_partitioning/">Chapter 2.6</a> is the transform catalogue and the spec that records it; what follows here is only what the projection needs from it. The partition summaries this chapter prunes on are bounds over <em>transformed</em> values, so a predicate on the raw column cannot be compared against them directly.</p>
 <p>What makes the rewrite possible at all is a single method on <code>Transform</code>:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Transform.preservesOrder()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-79">79</a></span>
 <span class="normal"><a href="#__codelineno-2-80">80</a></span>

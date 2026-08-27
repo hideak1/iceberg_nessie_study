@@ -771,6 +771,8 @@
       
         
       
+        
+      
     
     
     
@@ -952,6 +954,34 @@
     
   
     2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.6_partitioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 PartitionSpec: transforms, hidden partitioning, partition evolution
   
 
     
@@ -1918,10 +1948,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10-gotchas" class="md-nav__link">
+  <a href="#10-choosing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. Gotchas
+        10. Choosing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Gotchas
       
     </span>
   </a>
@@ -3208,10 +3249,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10-gotchas" class="md-nav__link">
+  <a href="#10-choosing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. Gotchas
+        10. Choosing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Gotchas
       
     </span>
   </a>
@@ -3310,8 +3362,8 @@
 
 <h1 id="chapter-62-hadoopcatalog-and-hivecatalog-where-atomicity-leaks">Chapter 6.2 — <code>HadoopCatalog</code> and <code>HiveCatalog</code>: where atomicity leaks<a class="headerlink" href="#chapter-62-hadoopcatalog-and-hivecatalog-where-atomicity-leaks" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
-<p><strong>The question this chapter answers:</strong> each of these catalogs claims an atomic single-table commit — which mechanism provides it, and under exactly which conditions does that mechanism stop providing it?</p>
-<p><strong>Prerequisites:</strong> <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> (the commit protocol: CAS, retries), <a href="../chapter_6.1_catalog_spi/">Chapter 6.1</a> (the <code>Catalog</code> SPI and <code>doCommit</code>)</p>
+<p><strong>The question this chapter answers:</strong> each of these catalogs claims an atomic single-table commit — which mechanism provides it, under exactly which conditions does that mechanism stop providing it, and which catalog should a deployment therefore run?</p>
+<p><strong>Prerequisites:</strong> <a href="../../part01_foundations/chapter_1.1_why_table_formats/">Chapter 1.1</a> (why an object store has no atomic rename), <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> (the commit protocol: CAS, retries), <a href="../chapter_6.1_catalog_spi/">Chapter 6.1</a> (the <code>Catalog</code> SPI and <code>doCommit</code>)</p>
 <p><strong>Source covered:</strong> <code>core/.../hadoop/HadoopTableOperations.java</code>, <code>core/.../util/LockManagers.java</code>, <code>hive-metastore/.../HiveTableOperations.java</code>, <code>hive-metastore/.../HiveOperationsBase.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3320,7 +3372,7 @@
 <blockquote>
 <p><em>TableOperations implementation for file systems that support atomic rename.</em></p>
 </blockquote>
-<p>Neither is broken and neither is unconditionally safe: what follows is an audit, not a verdict.</p>
+<p>Neither is broken and neither is unconditionally safe. Sections 3 to 9 are an audit — what each mechanism guarantees and where it stops. Section 10 turns that audit into the choice it implies, because one of these catalogs has a precondition that most deployments violate.</p>
 <h2 id="2-two-mechanisms-for-one-contract">2. Two mechanisms for one contract<a class="headerlink" href="#2-two-mechanisms-for-one-contract" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart TB
     subgraph HADOOP["HadoopTableOperations.commit"]
@@ -3962,7 +4014,89 @@ running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</
 </tbody>
 </table>
 <p>Read the fourth row across. All three have a defensible answer to "did I win the race"; only one has an answer to "did anything happen at all". That is the axis <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> built the three-valued enum for, and two of the three catalogs most deployments start on decline to use it.</p>
-<h2 id="10-gotchas">10. Gotchas<a class="headerlink" href="#10-gotchas" title="Permanent link">&para;</a></h2>
+<h2 id="10-choosing">10. Choosing<a class="headerlink" href="#10-choosing" title="Permanent link">&para;</a></h2>
+<p>The audit answers "what does each of these guarantee". A reader still has to pick one, and
+three things decide it. The first is not a preference — it is a disqualification.</p>
+<p><strong><code>HadoopCatalog</code> requires a filesystem whose rename fails when the destination exists.</strong>
+Section 3 showed that <code>fs.rename</code> returning <code>false</code> <em>is</em> the compare-and-swap, and section
+6 showed that the default <code>LockManager</code> does not serialise across processes. On an object
+store neither holds: there is no rename at all, only copy-then-delete (<a href="../../part01_foundations/chapter_1.1_why_table_formats/">Chapter 1.1</a> §6), so
+two concurrent writers can both believe they won. Nothing enforces the precondition at
+runtime — the class javadoc quoted in section 1 is the whole defence. Upstream states the
+consequence without hedging:</p>
+<div class="language-markdown highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">upstream&#x27;s own summary, docs/docs/java-api-quickstart.md</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-67">67</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-67"><a id="__codelineno-10-67" name="__codelineno-10-67"></a>A Hadoop catalog doesn't need to connect to a Hive MetaStore, but can only be used with HDFS or similar file systems that support atomic rename. Concurrent writes with a Hadoop catalog are not safe with a local FS or S3. To create a Hadoop catalog:
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/docs/docs/java-api-quickstart.md#L67-L67"><code>apache/iceberg</code> · <code>docs/docs/java-api-quickstart.md</code> L67–L67</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p><em>Not safe with a local FS or S3.</em> <a href="../../part01_foundations/chapter_1.1_why_table_formats/">Chapter 1.1</a>'s gotcha calls pointing a <code>HadoopCatalog</code> at
+an object store "the single most common way to build an Iceberg deployment that loses
+data", and the failure is silent: every method still runs, and the table works until two
+writers commit at once. If the warehouse is on S3, GCS or ADLS, this catalog is out, and no
+configuration brings it back — <code>lock-impl</code> bounds the race, it does not make the rename
+atomic.</p>
+<p>The second thing is the shape of the board. <code>CatalogUtil</code> holds the authoritative list:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the catalog types a `type=` string can name</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-71">71</a></span>
+<span class="normal"><a href="#__codelineno-11-72">72</a></span>
+<span class="normal"><a href="#__codelineno-11-73">73</a></span>
+<span class="normal"><a href="#__codelineno-11-74">74</a></span>
+<span class="normal"><a href="#__codelineno-11-75">75</a></span>
+<span class="normal"><a href="#__codelineno-11-76">76</a></span>
+<span class="normal"><a href="#__codelineno-11-77">77</a></span>
+<span class="normal"><a href="#__codelineno-11-78">78</a></span>
+<span class="normal"><a href="#__codelineno-11-79">79</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-71"><a id="__codelineno-11-71" name="__codelineno-11-71"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"type"</span><span class="p">;</span>
+</span><span id="__span-11-72"><a id="__codelineno-11-72" name="__codelineno-11-72"></a>
+</span><span id="__span-11-73"><a id="__codelineno-11-73" name="__codelineno-11-73"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_HADOOP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"hadoop"</span><span class="p">;</span>
+</span><span id="__span-11-74"><a id="__codelineno-11-74" name="__codelineno-11-74"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_HIVE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"hive"</span><span class="p">;</span>
+</span><span id="__span-11-75"><a id="__codelineno-11-75" name="__codelineno-11-75"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_REST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"rest"</span><span class="p">;</span>
+</span><span id="__span-11-76"><a id="__codelineno-11-76" name="__codelineno-11-76"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_GLUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"glue"</span><span class="p">;</span>
+</span><span id="__span-11-77"><a id="__codelineno-11-77" name="__codelineno-11-77"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_NESSIE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"nessie"</span><span class="p">;</span>
+</span><span id="__span-11-78"><a id="__codelineno-11-78" name="__codelineno-11-78"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_JDBC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"jdbc"</span><span class="p">;</span>
+</span><span id="__span-11-79"><a id="__codelineno-11-79" name="__codelineno-11-79"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_BIGQUERY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"bigquery"</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/CatalogUtil.java#L71-L79"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/CatalogUtil.java</code> L71–L79</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Seven names, resolved by the <code>switch</code> in <code>buildIcebergCatalog</code> (<a href="../../part01_foundations/chapter_1.4_reading_the_codebases/">Chapter 1.4</a> §6), which
+reads the <code>type</code> property with <code>ICEBERG_CATALOG_TYPE_HIVE</code> as its fallback: <strong>omit <code>type</code>
+and you get Hive.</strong> Three of the seven are audited above; the rest move the swap somewhere
+this chapter cannot see.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><strong><code>hadoop</code></strong></p>
+<p>The swap is <code>fs.rename</code>. Correct on HDFS and anything else that fails a rename onto an
+existing path. Cannot rename a table, cannot report an unknown commit state, and its
+default lock manager is JVM-local. <strong>Disqualified on object storage</strong>, which is where
+most warehouses now live.</p>
+</li>
+<li>
+<p><strong><code>hive</code></strong></p>
+<p>The swap is <code>alter_table</code> on <code>metadata_location</code>, serialised by an HMS lock with a
+heartbeat, or by the metastore's own <code>expected_parameter_key</code> comparison when
+<code>engine.hive.lock-enabled=false</code>. The only one of the three audited here that
+distinguishes <em>failed</em> from <em>cannot tell</em>. Needs a metastore that supports transactions
+— an embedded derby one does not (section 11).</p>
+</li>
+<li>
+<p><strong><code>jdbc</code></strong></p>
+<p>The swap is <code>UPDATE … WHERE metadata_location = ?</code>, decided by row count: the cleanest
+compare-and-swap of the three, with mutual exclusion from the database and no
+filesystem semantics borrowed. Pays for it in failure reporting — every SQL error
+becomes an <code>UncheckedSQLException</code> that is neither retried nor reconciled, so a timeout
+on the <code>UPDATE</code> leaves nobody knowing whether it landed.</p>
+</li>
+<li>
+<p><strong><code>rest</code>, <code>nessie</code>, <code>glue</code>, <code>bigquery</code></strong></p>
+<p>The swap moves off the client entirely. <a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a> reads the REST protocol;
+<a href="../chapter_6.4_server_side_commits/">Chapter 6.4</a>, what a server-side commit changes. <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/">Chapter 10.1</a> reads <code>NessieCatalog</code>,
+and <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/">Chapter 10.3</a> sets out how to answer capability questions about a catalog server
+from its source. These are also the only route to a multi-table commit — the audit's
+last row is <code>no</code> three times, and <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/">Chapter 10.2</a> shows what fills that gap.</p>
+</li>
+</ul>
+</div>
+<p>The third thing is the row of the audit table nobody reads first. All three answer "did I
+win the race"; only Hive answers "did anything happen at all". That distinction costs
+nothing until a network partition, and then it decides whether an operator is told to go
+and look at the table or told, wrongly, that the commit failed.</p>
+<h2 id="11-gotchas">11. Gotchas<a class="headerlink" href="#11-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">The default <code>LockManager</code> only locks within one JVM</p>
 <p><code>LockManagers.from(properties)</code> falls back to a static <code>InMemoryLockManager</code> documented for testing or same-JVM use. From more than one process, set <code>lock-impl</code> or accept <code>fs.rename</code> as the only serialisation — and note that <code>fs.exists(dst)</code> before it is check-then-act, so where rename overwrites, two writers can both pass the check and both believe they won.</p>
@@ -3986,6 +4120,7 @@ running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</
 <li><code>HiveTableOperations</code> builds its own CAS on the <code>metadata_location</code> table property — a string comparison, not 6.1's identity check — guarded either by an HMS lock with a heartbeat or, with locking disabled, by the metastore's own <code>expected_parameter_key</code> comparison.</li>
 <li><code>JdbcTableOperations</code> has the cleanest swap of the three — <code>UPDATE … WHERE metadata_location = ?</code>, decided by <code>updatedRecords == 1</code> — and the weakest failure reporting: every SQL error becomes an <code>UncheckedSQLException</code>, which is neither retryable nor cleanable nor a signal that the outcome is unknown.</li>
 <li>Hive is the only one of the three that distinguishes "failed" from "cannot tell", and its reconciliation has three outcomes: the commit succeeded after all, it failed, or nobody knows.</li>
+<li>The audit implies a choice. <code>HadoopCatalog</code>'s precondition is a filesystem that fails a rename onto an existing path, which object storage is not — upstream's own quickstart says concurrent writes with it "are not safe with a local FS or S3". On S3, GCS or ADLS that rules it out, and no property setting restores it.</li>
 </ul>
 <h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
 <table>
@@ -4023,6 +4158,10 @@ running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</
 <tr>
 <td><code>JdbcCatalog</code> and its swap</td>
 <td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/jdbc/JdbcTableOperations.java"><code>core/.../jdbc/JdbcTableOperations.java</code></a></td>
+</tr>
+<tr>
+<td>The catalog <code>type</code> names and their default</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/CatalogUtil.java"><code>core/.../CatalogUtil.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/docs/docs/java-api-quickstart.md"><code>docs/docs/java-api-quickstart.md</code></a></td>
 </tr>
 <tr>
 <td><code>hmsEnvContext</code>, <code>persistTable</code>, <code>cleanupMetadata</code></td>

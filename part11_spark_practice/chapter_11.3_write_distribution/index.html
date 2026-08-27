@@ -771,6 +771,8 @@
       
         
       
+        
+      
     
     
     
@@ -952,6 +954,34 @@
     
   
     2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.6_partitioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 PartitionSpec: transforms, hidden partitioning, partition evolution
   
 
     
@@ -3315,7 +3345,7 @@
 </span><span id="__span-1-339"><a id="__codelineno-1-339" name="__codelineno-1-339"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
 <p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L331-L339"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java</code> L331–L339</a> <span>@ apache-iceberg-1.11.0</span></p>
-<p>Read what this is derived from: <code>table.sortOrder()</code> and <code>table.spec()</code>. Table state, not configuration. A partitioned table gets <code>HASH</code> — a shuffle that clusters rows by the spec's transforms, so that all rows for one partition arrive at one task and the (task, partition) count collapses to roughly the partition count.</p>
+<p>Read what this is derived from: <code>table.sortOrder()</code> and <code>table.spec()</code>. Table state, not configuration. A partitioned table gets <code>HASH</code> — a shuffle that clusters rows by the spec's transforms, so that all rows for one partition arrive at one task and the (task, partition) count collapses to roughly the partition count. Which transforms those are is a real choice with a read-side cost attached: <a href="../../part02_table_spec/chapter_2.6_partitioning/">Chapter 2.6</a> §4 shows why a <code>bucket</code> field prunes point lookups and never a range.</p>
 <p>That shuffle is why a plain <code>INSERT</code> into a partitioned table is slower than the same <code>INSERT</code> into an unpartitioned one, and it is exactly what <code>write.distribution-mode=none</code> turns off. Turn it off and every upstream task contributes a file to every partition it happens to hold rows for; the multiplication is the file explosion.</p>
 <p>The reverse direction has a trap in it:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWriteConf.adjustWriteDistributionMode()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-321">321</a></span>

@@ -18,7 +18,7 @@
         <link rel="prev" href="../chapter_2.4_manifest_file/">
       
       
-        <link rel="next" href="../../part03_iceberg_core/">
+        <link rel="next" href="../chapter_2.6_partitioning/">
       
       
         
@@ -773,6 +773,8 @@
       
         
       
+        
+      
     
     
     
@@ -1133,6 +1135,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_2.6_partitioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 PartitionSpec: transforms, hidden partitioning, partition evolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3992,7 +4022,7 @@ static final Map<Type.TypeID, Integer> MIN_FORMAT_VERSIONS =
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Part 2 has described the files; Part 3 reads the code that writes them. <a href="../../part03_iceberg_core/chapter_3.1_module_map/">Chapter 3.1</a> maps Iceberg's core module and the abstractions every write path is built from — starting with the classes that turn the structures in this chapter into a commit.</p>
+<p><strong>Next:</strong> <a href="../chapter_2.6_partitioning/">Chapter 2.6</a> closes Part 2 with the one structure the previous five chapters kept pointing at without opening — <code>PartitionSpec</code>, the recorded function that turns a column into the partition tuple every manifest carries, and the reason a table can change its partitioning without rewriting a byte.</p>
 
 
 
@@ -4047,13 +4077,13 @@ static final Map<Type.TypeID, Integer> MIN_FORMAT_VERSIONS =
         
         
           
-          <a href="../../part03_iceberg_core/" class="md-footer__link md-footer__link--next" aria-label="Next: Part 3 · Iceberg Core">
+          <a href="../chapter_2.6_partitioning/" class="md-footer__link md-footer__link--next" aria-label="Next: 2.6 PartitionSpec: transforms, hidden partitioning, partition evolution">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Part 3 · Iceberg Core
+                2.6 PartitionSpec: transforms, hidden partitioning, partition evolution
               </div>
             </div>
             <div class="md-footer__button md-icon">

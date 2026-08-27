@@ -771,6 +771,8 @@
       
         
       
+        
+      
     
     
     
@@ -952,6 +954,34 @@
     
   
     2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.6_partitioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 PartitionSpec: transforms, hidden partitioning, partition evolution
   
 
     
@@ -2400,10 +2430,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8-what-the-v2-rewrite-was-actually-about" class="md-nav__link">
+  <a href="#8-which-one-to-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. What the v2 rewrite was actually about
+        8. Which one to run
       
     </span>
   </a>
@@ -2411,10 +2441,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-gotchas" class="md-nav__link">
+  <a href="#9-what-the-v2-rewrite-was-actually-about" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. Gotchas
+        9. What the v2 rewrite was actually about
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Gotchas
       
     </span>
   </a>
@@ -3175,10 +3216,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8-what-the-v2-rewrite-was-actually-about" class="md-nav__link">
+  <a href="#8-which-one-to-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. What the v2 rewrite was actually about
+        8. Which one to run
       
     </span>
   </a>
@@ -3186,10 +3227,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-gotchas" class="md-nav__link">
+  <a href="#9-what-the-v2-rewrite-was-actually-about" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. Gotchas
+        9. What the v2 rewrite was actually about
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Gotchas
       
     </span>
   </a>
@@ -3288,7 +3340,7 @@
 
 <h1 id="chapter-85-backends-rocksdb-jdbc-dynamodb-cassandra">Chapter 8.5 — Backends: RocksDB, JDBC, DynamoDB, Cassandra<a class="headerlink" href="#chapter-85-backends-rocksdb-jdbc-dynamodb-cassandra" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
-<p><strong>The question this chapter answers:</strong> chapter 8.4 reduced every guarantee Nessie makes to one conditional update on one row — which databases can actually perform that, how does each one express it, and what happens when the database cannot say whether it did?</p>
+<p><strong>The question this chapter answers:</strong> chapter 8.4 reduced every guarantee Nessie makes to one conditional update on one row — which databases can actually perform that, how does each one express it, what happens when the database cannot say whether it did, and which of them does upstream consider ready to run?</p>
 <p><strong>Prerequisites:</strong> <a href="../chapter_8.1_persist_spi/">Chapter 8.1</a> (the <code>Persist</code> operation list), <a href="../chapter_8.4_references_cas/">Chapter 8.4</a> (why the reference CAS is the only operation that has to be perfect)</p>
 <p><strong>Source covered:</strong> <code>versioned/storage/jdbc2/</code>, <code>.../cassandra2/</code>, <code>.../dynamodb2/</code>, <code>.../rocksdb/</code>, <code>.../mongodb2/</code>, <code>.../bigtable/</code>, <code>.../inmemory/</code></p>
 </div>
@@ -3428,7 +3480,7 @@
 </span><span id="__span-1-296"><a id="__codelineno-1-296" name="__codelineno-1-296"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
 <p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java#L255-L296"><code>projectnessie/nessie</code> · <code>versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java</code> L255–L296</a> <span>@ nessie-0.108.4</span></p>
-<p>The statement is <code>UPDATE refs2 SET pointer=?, prev_ptr=? WHERE repo=? AND ref_name=? AND pointer=? AND deleted=? AND created_at… AND ext_info…</code> — the <code>2</code> in the table name is the v2 layout of section 8. The first two parameters are the new state — note <code>reference.forNewPointer(newPointer, config)</code> computing the previous-pointer list from 8.4 §6 — and everything after is the expected record. <code>deleted</code> is bound to a literal <code>false</code>: this update asserts the reference is live, exactly as the SPI javadoc promises.</p>
+<p>The statement is <code>UPDATE refs2 SET pointer=?, prev_ptr=? WHERE repo=? AND ref_name=? AND pointer=? AND deleted=? AND created_at… AND ext_info…</code> — the <code>2</code> in the table name is the v2 layout of section 9. The first two parameters are the new state — note <code>reference.forNewPointer(newPointer, config)</code> computing the previous-pointer list from 8.4 §6 — and everything after is the expected record. <code>deleted</code> is bound to a literal <code>false</code>: this update asserts the reference is live, exactly as the SPI javadoc promises.</p>
 <p>The failure signal is <code>executeUpdate() != 1</code>. Zero rows updated means the <code>WHERE</code> clause did not match, and the code then re-reads the row to decide <em>which</em> failure it was: absent means <code>RefNotFoundException</code>, present means <code>RefConditionFailedException</code> carrying the reference as it actually is. The database never tells you why the condition failed; you find out by asking a second question.</p>
 <p>Two nullable columns spoil the simple story, and six lines fix it:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Jdbc2.referencesDml() — the NULL problem</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-298">298</a></span>
@@ -3870,11 +3922,76 @@
 </table>
 <p>One row needs a footnote. <strong>MongoDB2</strong> treats <code>modifiedCount != 1</code> with <code>matchedCount == 1</code> as <em>success</em> — the filter matched, so the expected record was current, but the document came out unchanged because the new pointer equalled the old one. Treating that as a failure would turn a legitimate no-op commit into a retry loop that can never make progress.</p>
 <p>The <code>storeObj</code> half is more uniform than the reference half, because every one of these databases can express insert-if-absent. The shape is the same everywhere: attempt the conditional insert, and if it conflicts the object already exists, so issue a cheap second write that only bumps the <code>referenced</code> timestamp (8.1) and return <code>false</code>. Cassandra's version of that second write carries a comment worth transplanting into any similar design — "IF EXISTS is necessary to prevent writing just the referenced timestamp after an object has been deleted".</p>
-<h2 id="8-what-the-v2-rewrite-was-actually-about">8. What the v2 rewrite was actually about<a class="headerlink" href="#8-what-the-v2-rewrite-was-actually-about" title="Permanent link">&para;</a></h2>
+<h2 id="8-which-one-to-run">8. Which one to run<a class="headerlink" href="#8-which-one-to-run" title="Permanent link">&para;</a></h2>
+<p>Sections 1 to 7 graded these backends on one axis, and it is the right axis for
+understanding them: what each provides for the reference CAS. It is the wrong axis for
+choosing one. A backend can express a flawless conditional update and still be something
+upstream does not want you to deploy.</p>
+<p>Nessie publishes that second answer, and it is in the pinned tree:</p>
+<div class="language-markdown highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Nessie&#x27;s own grading of its backends</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-329">329</a></span>
+<span class="normal"><a href="#__codelineno-11-330">330</a></span>
+<span class="normal"><a href="#__codelineno-11-331">331</a></span>
+<span class="normal"><a href="#__codelineno-11-332">332</a></span>
+<span class="normal"><a href="#__codelineno-11-333">333</a></span>
+<span class="normal"><a href="#__codelineno-11-334">334</a></span>
+<span class="normal"><a href="#__codelineno-11-335">335</a></span>
+<span class="normal"><a href="#__codelineno-11-336">336</a></span>
+<span class="normal"><a href="#__codelineno-11-337">337</a></span>
+<span class="normal"><a href="#__codelineno-11-338">338</a></span>
+<span class="normal"><a href="#__codelineno-11-339">339</a></span>
+<span class="normal"><a href="#__codelineno-11-340">340</a></span>
+<span class="normal"><a href="#__codelineno-11-341">341</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-329"><a id="__codelineno-11-329" name="__codelineno-11-329"></a>| Database         | Status                                           | Configuration value for <span class="sb">`nessie.version.store.type`</span> | Notes                                                                                                                                                                                                                                                                                                      |
+</span><span id="__span-11-330"><a id="__codelineno-11-330" name="__codelineno-11-330"></a>|------------------|--------------------------------------------------|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+</span><span id="__span-11-331"><a id="__codelineno-11-331" name="__codelineno-11-331"></a>| "in memory"      | only for development and local testing           | <span class="sb">`IN_MEMORY`</span>                                         | Do not use for any serious use case.                                                                                                                                                                                                                                                                       |
+</span><span id="__span-11-332"><a id="__codelineno-11-332" name="__codelineno-11-332"></a>| RocksDB          | production, single node only                     | <span class="sb">`ROCKSDB`</span>                                           |                                                                                                                                                                                                                                                                                                            |
+</span><span id="__span-11-333"><a id="__codelineno-11-333" name="__codelineno-11-333"></a>| Google BigTable  | production                                       | <span class="sb">`BIGTABLE`</span>                                          |                                                                                                                                                                                                                                                                                                            |
+</span><span id="__span-11-334"><a id="__codelineno-11-334" name="__codelineno-11-334"></a>| MongoDB          | production                                       | <span class="sb">`MONGODB2`</span> &amp; <span class="sb">`MONGODB`</span> (deprecated)                 |                                                                                                                                                                                                                                                                                                            |
+</span><span id="__span-11-335"><a id="__codelineno-11-335" name="__codelineno-11-335"></a>| Amazon DynamoDB  | beta, only tested against the simulator          | <span class="sb">`DYNAMODB`</span>                                          | Not recommended for use with Nessie Catalog (Iceberg REST) due to its restrictive row-size limit.                                                                                                                                                                                                          |
+</span><span id="__span-11-336"><a id="__codelineno-11-336" name="__codelineno-11-336"></a>| PostgreSQL       | production                                       | <span class="sb">`JDBC2`</span> &amp; <span class="sb">`JDBC`</span> (deprecated)                       |                                                                                                                                                                                                                                                                                                            |
+</span><span id="__span-11-337"><a id="__codelineno-11-337" name="__codelineno-11-337"></a>| H2               | only for development and local testing           | <span class="sb">`JDBC2`</span> &amp; <span class="sb">`JDBC`</span> (deprecated)                       | Do not use for any serious use case.                                                                                                                                                                                                                                                                       |
+</span><span id="__span-11-338"><a id="__codelineno-11-338" name="__codelineno-11-338"></a>| MariaDB          | experimental, feedback welcome                   | <span class="sb">`JDBC2`</span> &amp; <span class="sb">`JDBC`</span> (deprecated)                       |                                                                                                                                                                                                                                                                                                            |
+</span><span id="__span-11-339"><a id="__codelineno-11-339" name="__codelineno-11-339"></a>| MySQL            | experimental, feedback welcome                   | <span class="sb">`JDBC2`</span> &amp; <span class="sb">`JDBC`</span> (deprecated)                       | Works by connecting the MariaDB driver to a MySQL server.                                                                                                                                                                                                                                                  |
+</span><span id="__span-11-340"><a id="__codelineno-11-340" name="__codelineno-11-340"></a>| CockroachDB      | experimental, known issues                       | <span class="sb">`JDBC2`</span> &amp; <span class="sb">`JDBC`</span> (deprecated)                       | Known to raise user-facing "write too old" errors under contention.                                                                                                                                                                                                                                        |
+</span><span id="__span-11-341"><a id="__codelineno-11-341" name="__codelineno-11-341"></a>| Apache Cassandra | experimental, known issues                       | <span class="sb">`CASSANDRA2`</span> &amp; <span class="sb">`CASSANDRA`</span> (deprecated)             | Known to raise user-facing errors due to Cassandra's concept of letting the driver timeout too early, or database timeouts.                                                                                                                                                                                |
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/site/in-dev/configuration.md#L329-L341"><code>projectnessie/nessie</code> · <code>site/in-dev/configuration.md</code> L329–L341</a> <span>@ nessie-0.108.4</span></p>
+<p>Read that against this chapter's title. <strong>Not one of the four backends the title names is
+graded production without qualification.</strong> Each carries a condition, and in every case it
+is one this chapter has already read the code for:</p>
+<ul>
+<li><strong>RocksDB — <em>"production, single node only"</em>.</strong> Section 5 is the reason. The condition is
+  evaluated by a <code>Striped&lt;Lock&gt;</code> inside one JVM, so a second Nessie process opened against
+  the same directory has nothing standing between it and the first.</li>
+<li><strong>Amazon DynamoDB — <em>"beta, only tested against the simulator"</em></strong>, with the note <em>"Not
+  recommended for use with Nessie Catalog (Iceberg REST) due to its restrictive row-size
+  limit."</em> Section 4 computed that limit from the other end: <code>ITEM_SIZE_LIMIT</code> is 400 KiB,
+  and <code>effectiveIndexSegmentSizeLimit()</code> lands exactly on the 200 KiB ceiling it implies.
+  The warning and the arithmetic are one fact approached from two directions.</li>
+<li><strong>Apache Cassandra — <em>"experimental, known issues"</em></strong>, the note naming <em>"Cassandra's
+  concept of letting the driver timeout too early, or database timeouts."</em> Section 6 read
+  the code written to survive exactly that: <code>Cassandra2Backend.unhandledException</code> exists
+  to turn a <code>DriverTimeoutException</code> into an unknown outcome rather than a failure,
+  including when it arrives nested inside an <code>AllNodesFailedException</code>.</li>
+</ul>
+<p>The JDBC row repays a second look, because <strong>one module carries four different grades</strong>.
+Section 2 opened with "<code>jdbc2</code> covers PostgreSQL, CockroachDB, MariaDB/MySQL and H2" — and
+upstream grades those four as production, experimental-with-known-issues, experimental, and
+development-only respectively. The maturity attaches to the database, not to the module
+that speaks to it. CockroachDB's caveat is again something section 6 already tabulated:
+<em>"Known to raise user-facing 'write too old' errors under contention"</em> is SQLSTATE <code>40001</code>,
+the first entry in this chapter's own list of what JDBC2 classifies as an unknown result.</p>
+<p>So the grading is not a separate opinion bolted onto the mechanism. Every qualification on
+a backend this chapter dissects is the operational consequence of code read in sections 4,
+5 and 6 — which is why a chapter that reads that code is the right place to state them. The
+remaining entries have no mechanism counterpart here and are worth carrying anyway:
+BigTable, MongoDB and PostgreSQL are graded production, and both "in memory" and H2 carry
+<em>"Do not use for any serious use case."</em></p>
+<h2 id="9-what-the-v2-rewrite-was-actually-about">9. What the v2 rewrite was actually about<a class="headerlink" href="#9-what-the-v2-rewrite-was-actually-about" title="Permanent link">&para;</a></h2>
 <p>Four backends exist twice: <code>jdbc</code>/<code>jdbc2</code>, <code>cassandra</code>/<code>cassandra2</code>, <code>dynamodb</code>/<code>dynamodb2</code>, <code>mongodb</code>/<code>mongodb2</code>. The v1 variants are <code>@Deprecated</code> at the Quarkus config level, and the one-line javadocs there say exactly what the difference is — "variant using many distinct columns" against "variant using few columns, saves storage overhead".</p>
 <p>That is the whole change: v1 gives every object type its own columns or attributes; v2 stores one serialized blob plus a type and a version. The object <em>layout</em> was rewritten. The reference CAS is essentially unchanged between each pair — the same expected record, the same conditional statement, the same re-read-and-classify on failure.</p>
+<p>That also settles a configuration question section 8 leaves open. For each of the four pairs, upstream states the preference and the reason in the same file as the grading — <em>"Prefer the <code>JDBC2</code> version store type over the <code>JDBC</code> version store type, because it has way less storage overhead"</em>, and the identical sentence for <code>CASSANDRA2</code> and <code>MONGODB2</code>. Each v1 type is <em>"deprecated for removal"</em>, with the Nessie Server Admin Tool named as the migration path. A new deployment picks the v2 type; an existing one on a v1 type has a migration ahead of it, not a no-op.</p>
 <p>Which is the closing argument of Part 8. The part of the design that turned out to need a second attempt was how objects are laid out in rows. The one-conditional-update-on-one-row primitive that everything else rests on was right the first time, and it is the same primitive in seven dialects.</p>
-<h2 id="9-gotchas">9. Gotchas<a class="headerlink" href="#9-gotchas" title="Permanent link">&para;</a></h2>
+<h2 id="10-gotchas">10. Gotchas<a class="headerlink" href="#10-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">RocksDB opens a <code>TransactionDB</code> and never starts a transaction</p>
 <p><code>RocksDBBackend</code> calls <code>TransactionDB.open(...)</code>, which reads like the module uses RocksDB transactions. Grep it for <code>beginTransaction</code>, <code>getForUpdate</code> or <code>WriteBatch</code> and there are no hits — every operation is a plain <code>db.get</code> / <code>db.put</code>, and all atomicity comes from <code>RocksDBRepo</code>'s striped locks. The consequence must be stated plainly: two Nessie processes pointed at the same RocksDB directory would violate every guarantee in chapter 8.4, and nothing in the code prevents it.</p>
@@ -3897,7 +4014,7 @@
 </div>
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Grade a backend on one axis: what it provides for the reference CAS. Every production backend gets it natively and differs only in dialect.</li>
+<li>Grade a backend on one axis to <em>understand</em> it — what it provides for the reference CAS — and on a second axis to <em>choose</em> it. On the first, every remote backend gets the CAS natively and differs only in dialect. On the second they differ sharply: upstream grades PostgreSQL, BigTable and MongoDB production, RocksDB production but single-node, DynamoDB beta and counter-indicated for the Iceberg REST catalog, and Cassandra, CockroachDB and MySQL/MariaDB experimental. Dialect equivalence is not deployment equivalence.</li>
 <li>Two families exist. Native conditional writes — JDBC, Cassandra, DynamoDB, MongoDB, Bigtable — are evaluated by the database and are safe across N Nessie servers. Emulated ones — RocksDB, in-memory — are evaluated under a process-local lock and are correct in exactly one JVM.</li>
 <li>Every backend widens the condition to the whole reference record, and two of them had to work around their database's handling of <code>NULL</code> to do it.</li>
 <li>The second, subtler split is whether a backend can raise <code>UnknownOperationResultException</code>. Local backends never can; every remote one defines it against its own timeout vocabulary, and that classification decides whether a commit is retried or failed.</li>
@@ -3952,6 +4069,10 @@
 <tr>
 <td>Upstream's own backend impressions</td>
 <td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/README.md"><code>versioned/storage/README.md</code></a></td>
+</tr>
+<tr>
+<td>Backend grading and the v1/v2 preference</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/site/in-dev/configuration.md"><code>site/in-dev/configuration.md</code></a></td>
 </tr>
 </tbody>
 </table>

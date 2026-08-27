@@ -771,6 +771,8 @@
       
         
       
+        
+      
     
     
     
@@ -952,6 +954,34 @@
     
   
     2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.6_partitioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 PartitionSpec: transforms, hidden partitioning, partition evolution
   
 
     
@@ -3509,7 +3539,7 @@
 <p>If <code>currentFileRows == 0</code>, the file is deleted instead of being added to the result. A zero-row data file is not wrong, exactly — it is a valid Parquet file with a valid footer — but it is a manifest entry that will be planned, opened and discarded forever after, for nothing. So it is removed.</p>
 <p>Note <em>how</em> it is removed: <code>Tasks.foreach(...).suppressFailureWhenFinished()</code>, with a comment saying the file "may not have been created or cannot be deleted, and it isn't worth failing the job to clean up". The same preference that <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> §6 established for commits shows up here in miniature — a leaked empty file is cheaper than a failed write job.</p>
 <h2 id="5-the-routing-axis-clustered-or-fanout">5. The routing axis: clustered or fanout<a class="headerlink" href="#5-the-routing-axis-clustered-or-fanout" title="Permanent link">&para;</a></h2>
-<p><code>PartitioningWriter.write(row, spec, partition)</code> takes the partition as an argument, so the engine has already computed it. What remains is a bookkeeping question: how many files do you keep open at once?</p>
+<p><code>PartitioningWriter.write(row, spec, partition)</code> takes the partition as an argument, so the engine has already computed it — by <code>StructTransform.wrap</code>, into a tuple object it reuses for every row (<a href="../../part02_table_spec/chapter_2.6_partitioning/">Chapter 2.6</a> §5), which is why both writers below copy it before storing it. What remains is a bookkeeping question: how many files do you keep open at once?</p>
 <p>There are exactly two answers, and they are not preferences. <code>FanoutWriter</code> keeps a <code>Map&lt;Integer, StructLikeMap&lt;FileWriter&gt;&gt;</code> — every spec/partition pair it has ever seen stays open until close. <code>ClusteredWriter</code> keeps one:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ClusteredWriter.write() — the clustering assumption, enforced</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-65"> 65</a></span>
 <span class="normal"><a href="#__codelineno-3-66"> 66</a></span>
