@@ -107,6 +107,20 @@ The walk is supposed to terminate at the starting snapshot. If it does not — t
 
 Everything downstream is a query over that slice: a `ManifestGroup` for data files, a `DeleteFileIndex` for delete files.
 
+The three filters and the window they define, on one branch:
+
+```mermaid
+flowchart LR
+    S0["S0 · older history"] --> S1
+    S1["<b>S1</b> = startingSnapshotId<br/><i>excluded — the walk ends here</i>"] --> S2
+    S2["S2 · operation = <b>replace</b><br/>not in {append, overwrite}<br/>skipped, no manifest opened"] --> S3
+    S3["S3 = <b>parent</b> · operation = <b>append</b><br/>in VALIDATE_ADDED_FILES_OPERATIONS"]
+    S3 -->|"only the manifests it wrote:<br/>manifest.snapshotId() == S3"| OUT["manifests + newSnapshots<br/>→ ManifestGroup.filterManifestEntries"]
+    S1 -.->|"validateFromSnapshot() never called ⇒ startingSnapshotId = null<br/>⇒ the window is the whole branch"| S0
+```
+
+`replace` is the operation a compaction commits under, and the example is the ordinary case rather than a contrived one: `validateAddedDataFiles` walks straight past a concurrent compaction, because a rewrite that preserves rows cannot have added data a scan should have seen. The dashed edge is the cost of forgetting `validateFromSnapshot()` — not a wrong answer, but a walk whose length grows with the table's whole history.
+
 ## 7. A caller, assembled
 
 {% snip ice:core/src/main/java/org/apache/iceberg/BaseRowDelta.java#method:validate | BaseRowDelta.validate() %}

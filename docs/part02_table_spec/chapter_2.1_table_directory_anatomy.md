@@ -10,16 +10,9 @@
 
 ## 1. The problem
 
-Listing an Iceberg table for the first time produces something like this:
+Listing an Iceberg table for the first time gives you four species of file name and no legend. Three sit in `metadata/` — one `*.metadata.json`, one `snap-*.avro`, one `*-m0.avro` — and the fourth is the data file itself, below a partition directory. Section 2 draws them; section 6 assembles the four naming expressions that produce them.
 
-```
-metadata/00003-9c12d441-03fe-4693-9a96-a0705ddf69c1.metadata.json
-metadata/snap-3055729675574597004-1-f5a8b3c1-….avro
-metadata/f5a8b3c1-…-m0.avro
-data/dept=eng/00000-7-b71e9d02-…-00001.parquet
-```
-
-Only the first three lines share a UUID with each other: `f5a8b3c1` is the commit UUID, and the data file's `b71e9d02` is an unrelated *operation* ID minted by the writing engine. Section 6 says why they cannot be the same value.
+Two of those four share a UUID, and it is not the two you would guess. The manifest list and the manifest carry the *commit* UUID; the `metadata.json` beside them carries an unrelated one, and the data file carries no UUID at all but an *operation* ID minted by the writing engine. Section 6 says why none of the three can be the same value.
 
 None of that is a convention someone wrote down in a style guide. Every one of those names is a `String.format` call in the source, and each format string was chosen to solve a specific problem: ordering without a catalog round-trip, uniqueness under object-store negative caching, attributing a file to the commit that wrote it, and telling a catalog's files apart from another catalog's.
 
@@ -146,6 +139,21 @@ What that provider does with the partition path is the part worth getting right,
 There is a further branch inside that provider, and it is tested *before* the partitioned-paths one. The constructor compares the resolved storage location against the table location — `if (storageLocation.startsWith(tableLocation))` — and when the answer is no it keeps a `context`, built by `pathContext` from the table location's last two components, `<database>/<table>`. `newDataLocation(String)` checks `context != null` first, so pointing `write.data.path` at a location *outside* the table directory produces `<storage>/<hash>/<db>/<table>/…` instead. The comment on the other branch says what it is for: *"if the storage location is within the table prefix, don't add table and database name context"* — without it, every table sharing one bucket prefix would write into the same hashed directories.
 
 So the `data/` directory and the `dept=eng/` path components are *defaults*, not spec. The manifest's `file_path` field is the only authority on where a data file is.
+
+### The four names, assembled
+
+Every name in the directory is now accounted for, and the four naming expressions read back like this:
+
+| File | Naming expression | Fields, left to right |
+| --- | --- | --- |
+| `metadata.json` | `String.format("%05d-%s%s", …)` | version counter · a fresh `UUID.randomUUID()` · codec extension + `.metadata.json` |
+| manifest list | `String.format("snap-%d-%d-%s", …)`, then `.avro` | snapshot ID · attempt number · the producer's `commitUUID` |
+| manifest | `commitUUID + "-m" + manifestCount.getAndIncrement()`, then `.avro` | the same `commitUUID` · a per-producer counter |
+| data file | `String.format("%05d-%d-%s-%05d%s", …)` | partition ID · task ID · the engine's operation ID · per-factory counter · optional suffix |
+
+Read down the third column and section 1's UUID question answers itself. The manifest list and the manifest share `commitUUID` because it is one field of one `SnapshotProducer`, evaluated once per operation. The `metadata.json` name does not share it: `newTableMetadataFilePath` calls `UUID.randomUUID()` on each invocation, so its UUID is unrelated to the commit that produced the file. And the data file's third field is not a UUID in Iceberg's sense at all — it is the engine's operation ID. That is why prefix-matching a commit UUID finds the manifest list and the manifests, and never the data.
+
+No worked example is given here, and the reason is in the second column. Two of those fields are `UUID.randomUUID()` — `BaseMetastoreTableOperations.java:349` and `SnapshotProducer.java:111` — so any concrete listing would carry values this book cannot source and no reader could reproduce. The shapes are the part that is knowable, and they are the part that does the work.
 
 The partition path is worth one more sentence, because it is the most misread part of the layout. `spec.partitionToPath(partitionData)` renders the *partition tuple of the spec that wrote the file*, not the table's current spec. After a partition-spec evolution, files written under the old spec keep their old directory shape forever, and the two shapes coexist under `data/`. Hive-style directory parsing therefore cannot reconstruct partition values reliably; the manifest's `partition` struct, tagged with its `partition_spec_id`, can.
 

@@ -16,14 +16,17 @@ API v2 has two: `TreeApi` and `ConfigApi`.
 
 `ConfigApi` carried over unchanged in role; it was never part of the collapse. `RefLogApi` did not survive it either, but for the opposite reason — it is `@Deprecated` on the interface and on its one method, its javadoc says *"The Nessie reflog in this form is deprecated, likely for removal"*, and v2 has no successor for it. The other four really did collapse into one, and that is not tidying. It follows from one decision about addressing. In v1 the reference name and the point in its history were two separate inputs: `tree/{ref}` in the path with `hashOnRef` as a *query* parameter, and in `HttpContentApi` both `ref` and `hashOnRef` as query parameters. In v2 the reference is a single *path element*, and that path element carries both which reference **and** which point in its history:
 
-```
-main                                   HEAD of branch main
-main@2e1cfa82b035c26cbbbdae632cea0705  an exact commit on main
-main@2e1cfa82~2                        relative: the 2nd predecessor of that commit
-main*2021-04-07T14:42:25.534748Z       the commit valid at that instant
--                                      the server's default branch
-@2e1cfa82b035c26cbbbdae632cea0705      DETACHED: that commit, no branch
-```
+| Form | Resolves to |
+| --- | --- |
+| `-` | the HEAD of the default branch |
+| `name` | the HEAD commit of that branch or tag |
+| `name@hash` | the `hash` commit on that branch or tag |
+| `@hash` | the `hash` commit, branch unspecified — `DETACHED` |
+| `name~3` | the 3rd predecessor of that branch's HEAD |
+| `name@hash^2` | the merge parent of the `hash` commit |
+| `name*2021-04-07T14:42:25.534748Z` | the commit valid at that instant |
+
+That is not a table anyone here invented: it is Nessie's own list of the forms, `name` and `hash` included, and section 3 injects the constant it is written in. The one concrete value in it — the ISO-8601 timestamp — is verbatim from that constant too.
 
 Once the URL can say *"the tree as of this moment on this branch"*, content stops being a separate resource. It is just something you look up inside a tree: `…/{ref}/contents/{key}`. Diff is a relation between two trees. Namespaces are content. The nouns collapsed because the addressing scheme absorbed them — all but the reflog, which was dropped rather than folded in.
 
@@ -122,7 +125,7 @@ The other two rules are one level down, in `ParsedReference`:
 
 `check()` is where *"an empty reference parameter is not valid"* becomes real, with the message *"Either name or commit ID with optional relative commit spec or both must be supplied"* — the regex happily matches the empty string, so nothing before this point would have caught it. And in `parsedReference`, a hash with no name is not an error. It becomes the reserved name `"DETACHED"` from Chapter 7.2, and the request proceeds — reading at that commit without any check that the commit is reachable from any branch. That is a real capability with real authorization consequences, and `ApiDoc` says so: such a reference *"may have different authorization implications when compared to an equivalent reference of the former forms."*
 
-Note also that hash and relative parts are re-concatenated into one string. For `main@2e1cfa82~2`, `ParsedReference.hashWithRelativeSpec()` is `"2e1cfa82~2"` — a string, not a parsed structure. Splitting that into an absolute part and a list of relative lookups happens in the service layer, in `ParsedHash` — Chapter 7.4. Chain two relative parts, though, and only one of them arrives; the last gotcha in section 7 is that bug.
+Note also that hash and relative parts are re-concatenated into one string. (`2e1cfa82` here and below is the leading eight characters — the shortest form `Validation` accepts — of `2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d`, which is Nessie's `NO_ANCESTOR` / `EMPTY_OBJ_ID`, asserted in `TestObjId.java:70`.) For `main@2e1cfa82~2`, `ParsedReference.hashWithRelativeSpec()` is `"2e1cfa82~2"` — a string, not a parsed structure. Splitting that into an absolute part and a list of relative lookups happens in the service layer, in `ParsedHash` — Chapter 7.4. Chain two relative parts, though, and only one of them arrives; the last gotcha in section 7 is that bug.
 
 ## 5. Two layers: the contract and its HTTP binding
 

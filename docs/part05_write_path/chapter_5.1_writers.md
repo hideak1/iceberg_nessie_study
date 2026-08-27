@@ -145,7 +145,22 @@ Every field of the manifest entry is assembled here: format, path, partition, en
 
 ## 7. `MetricsConfig`: deciding what to collect, before any row is written
 
-`Metrics` is not "everything the format knows". It is a filtered projection, and the filter is `MetricsConfig`, resolved from table properties, schema and sort order:
+`Metrics` is not "everything the format knows". It is a filtered projection, and the filter is `MetricsConfig`, resolved from table properties, schema and sort order. Two inputs on the left, one dashed edge on the right, and the whole chapter in between:
+
+```mermaid
+flowchart LR
+    P["table properties<br/>write.metadata.metrics.*"] --> MC
+    SS["Schema + SortOrder"] --> MC
+    MC["MetricsConfig.from()"] -->|"one MetricsMode per column"| MM["none · counts · truncate(n) · full"]
+    FT["Parquet footer statistics"] --> PM
+    MM -->|"MetricsUtil.metricsMode(schema, config, fieldId)"| PM["ParquetMetrics.primitive()"]
+    PM --> ME["Metrics — value / null / nan counts,<br/>lower and upper bounds"]
+    ME -->|"DataWriter.close():<br/>withMetrics(appender.metrics())"| DF["DataFile"]
+    DF --> MAN["manifest entry · Chapter 5.2"]
+    MAN -.->|"<b>read path, Chapter 4.3.</b> Nothing here can add<br/>a statistic that was not computed above"| EV["InclusiveMetricsEvaluator"]
+```
+
+The dashed edge is the message. Everything to its left happens once, at write time; everything to its right is stuck with the result. Now the resolver:
 
 {% snip ice:core/src/main/java/org/apache/iceberg/MetricsConfig.java#method:from | MetricsConfig.from() %}
 
