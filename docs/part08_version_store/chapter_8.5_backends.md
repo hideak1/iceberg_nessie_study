@@ -1,7 +1,7 @@
 # Chapter 8.5 — Backends: RocksDB, JDBC, DynamoDB, Cassandra
 
 <div class="chapter-meta" markdown>
-**The question this chapter answers:** chapter 8.4 reduced every guarantee Nessie makes to one conditional update on one row — which databases can actually perform that, how does each one express it, and what happens when the database cannot say whether it did?
+**The question this chapter answers:** chapter 8.4 reduced every guarantee Nessie makes to one conditional update on one row — which databases can actually perform that, how does each one express it, what happens when the database cannot say whether it did, and which of them does upstream consider ready to run?
 
 **Prerequisites:** Chapter 8.1 (the `Persist` operation list), Chapter 8.4 (why the reference CAS is the only operation that has to be perfect)
 
@@ -31,7 +31,7 @@ Before any of that, the SPI's own concession that databases are physical:
 
 {% snip nes:versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java#method:updateReferencePointer | Jdbc2 — UPDATE … WHERE, checked by row count %}
 
-The statement is `UPDATE refs2 SET pointer=?, prev_ptr=? WHERE repo=? AND ref_name=? AND pointer=? AND deleted=? AND created_at… AND ext_info…` — the `2` in the table name is the v2 layout of section 8. The first two parameters are the new state — note `reference.forNewPointer(newPointer, config)` computing the previous-pointer list from 8.4 §6 — and everything after is the expected record. `deleted` is bound to a literal `false`: this update asserts the reference is live, exactly as the SPI javadoc promises.
+The statement is `UPDATE refs2 SET pointer=?, prev_ptr=? WHERE repo=? AND ref_name=? AND pointer=? AND deleted=? AND created_at… AND ext_info…` — the `2` in the table name is the v2 layout of section 9. The first two parameters are the new state — note `reference.forNewPointer(newPointer, config)` computing the previous-pointer list from 8.4 §6 — and everything after is the expected record. `deleted` is bound to a literal `false`: this update asserts the reference is live, exactly as the SPI javadoc promises.
 
 The failure signal is `executeUpdate() != 1`. Zero rows updated means the `WHERE` clause did not match, and the code then re-reads the row to decide *which* failure it was: absent means `RefNotFoundException`, present means `RefConditionFailedException` carrying the reference as it actually is. The database never tells you why the condition failed; you find out by asking a second question.
 
@@ -139,15 +139,61 @@ One row needs a footnote. **MongoDB2** treats `modifiedCount != 1` with `matched
 
 The `storeObj` half is more uniform than the reference half, because every one of these databases can express insert-if-absent. The shape is the same everywhere: attempt the conditional insert, and if it conflicts the object already exists, so issue a cheap second write that only bumps the `referenced` timestamp (8.1) and return `false`. Cassandra's version of that second write carries a comment worth transplanting into any similar design — "IF EXISTS is necessary to prevent writing just the referenced timestamp after an object has been deleted".
 
-## 8. What the v2 rewrite was actually about
+## 8. Which one to run
+
+Sections 1 to 7 graded these backends on one axis, and it is the right axis for
+understanding them: what each provides for the reference CAS. It is the wrong axis for
+choosing one. A backend can express a flawless conditional update and still be something
+upstream does not want you to deploy.
+
+Nessie publishes that second answer, and it is in the pinned tree:
+
+{% snip nes:site/in-dev/configuration.md#L329-L341 | Nessie's own grading of its backends %}
+
+Read that against this chapter's title. **Not one of the four backends the title names is
+graded production without qualification.** Each carries a condition, and in every case it
+is one this chapter has already read the code for:
+
+- **RocksDB — *"production, single node only"*.** Section 5 is the reason. The condition is
+  evaluated by a `Striped<Lock>` inside one JVM, so a second Nessie process opened against
+  the same directory has nothing standing between it and the first.
+- **Amazon DynamoDB — *"beta, only tested against the simulator"***, with the note *"Not
+  recommended for use with Nessie Catalog (Iceberg REST) due to its restrictive row-size
+  limit."* Section 4 computed that limit from the other end: `ITEM_SIZE_LIMIT` is 400 KiB,
+  and `effectiveIndexSegmentSizeLimit()` lands exactly on the 200 KiB ceiling it implies.
+  The warning and the arithmetic are one fact approached from two directions.
+- **Apache Cassandra — *"experimental, known issues"***, the note naming *"Cassandra's
+  concept of letting the driver timeout too early, or database timeouts."* Section 6 read
+  the code written to survive exactly that: `Cassandra2Backend.unhandledException` exists
+  to turn a `DriverTimeoutException` into an unknown outcome rather than a failure,
+  including when it arrives nested inside an `AllNodesFailedException`.
+
+The JDBC row repays a second look, because **one module carries four different grades**.
+Section 2 opened with "`jdbc2` covers PostgreSQL, CockroachDB, MariaDB/MySQL and H2" — and
+upstream grades those four as production, experimental-with-known-issues, experimental, and
+development-only respectively. The maturity attaches to the database, not to the module
+that speaks to it. CockroachDB's caveat is again something section 6 already tabulated:
+*"Known to raise user-facing 'write too old' errors under contention"* is SQLSTATE `40001`,
+the first entry in this chapter's own list of what JDBC2 classifies as an unknown result.
+
+So the grading is not a separate opinion bolted onto the mechanism. Every qualification on
+a backend this chapter dissects is the operational consequence of code read in sections 4,
+5 and 6 — which is why a chapter that reads that code is the right place to state them. The
+remaining entries have no mechanism counterpart here and are worth carrying anyway:
+BigTable, MongoDB and PostgreSQL are graded production, and both "in memory" and H2 carry
+*"Do not use for any serious use case."*
+
+## 9. What the v2 rewrite was actually about
 
 Four backends exist twice: `jdbc`/`jdbc2`, `cassandra`/`cassandra2`, `dynamodb`/`dynamodb2`, `mongodb`/`mongodb2`. The v1 variants are `@Deprecated` at the Quarkus config level, and the one-line javadocs there say exactly what the difference is — "variant using many distinct columns" against "variant using few columns, saves storage overhead".
 
 That is the whole change: v1 gives every object type its own columns or attributes; v2 stores one serialized blob plus a type and a version. The object *layout* was rewritten. The reference CAS is essentially unchanged between each pair — the same expected record, the same conditional statement, the same re-read-and-classify on failure.
 
+That also settles a configuration question section 8 leaves open. For each of the four pairs, upstream states the preference and the reason in the same file as the grading — *"Prefer the `JDBC2` version store type over the `JDBC` version store type, because it has way less storage overhead"*, and the identical sentence for `CASSANDRA2` and `MONGODB2`. Each v1 type is *"deprecated for removal"*, with the Nessie Server Admin Tool named as the migration path. A new deployment picks the v2 type; an existing one on a v1 type has a migration ahead of it, not a no-op.
+
 Which is the closing argument of Part 8. The part of the design that turned out to need a second attempt was how objects are laid out in rows. The one-conditional-update-on-one-row primitive that everything else rests on was right the first time, and it is the same primitive in seven dialects.
 
-## 9. Gotchas
+## 10. Gotchas
 
 !!! warning "RocksDB opens a `TransactionDB` and never starts a transaction"
     `RocksDBBackend` calls `TransactionDB.open(...)`, which reads like the module uses RocksDB transactions. Grep it for `beginTransaction`, `getForUpdate` or `WriteBatch` and there are no hits — every operation is a plain `db.get` / `db.put`, and all atomicity comes from `RocksDBRepo`'s striped locks. The consequence must be stated plainly: two Nessie processes pointed at the same RocksDB directory would violate every guarantee in chapter 8.4, and nothing in the code prevents it.
@@ -166,7 +212,7 @@ Which is the closing argument of Part 8. The part of the design that turned out 
 
 ## Key takeaways
 
-- Grade a backend on one axis: what it provides for the reference CAS. Every production backend gets it natively and differs only in dialect.
+- Grade a backend on one axis to *understand* it — what it provides for the reference CAS — and on a second axis to *choose* it. On the first, every remote backend gets the CAS natively and differs only in dialect. On the second they differ sharply: upstream grades PostgreSQL, BigTable and MongoDB production, RocksDB production but single-node, DynamoDB beta and counter-indicated for the Iceberg REST catalog, and Cassandra, CockroachDB and MySQL/MariaDB experimental. Dialect equivalence is not deployment equivalence.
 - Two families exist. Native conditional writes — JDBC, Cassandra, DynamoDB, MongoDB, Bigtable — are evaluated by the database and are safe across N Nessie servers. Emulated ones — RocksDB, in-memory — are evaluated under a process-local lock and are correct in exactly one JVM.
 - Every backend widens the condition to the whole reference record, and two of them had to work around their database's handling of `NULL` to do it.
 - The second, subtler split is whether a backend can raise `UnknownOperationResultException`. Local backends never can; every remote one defines it against its own timeout vocabulary, and that classification decides whether a commit is retried or failed.
@@ -187,5 +233,6 @@ Which is the closing argument of Part 8. The part of the design that turned out 
 | Indeterminate outcomes | [`versioned/storage/common/.../exceptions/UnknownOperationResultException.java`](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/exceptions/UnknownOperationResultException.java) |
 | Batching wrapper | [`versioned/storage/batching/.../BatchingPersistImpl.java`](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/batching/src/main/java/org/projectnessie/versioned/storage/batching/BatchingPersistImpl.java) |
 | Upstream's own backend impressions | [`versioned/storage/README.md`](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/README.md) |
+| Backend grading and the v1/v2 preference | [`site/in-dev/configuration.md`](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/site/in-dev/configuration.md) |
 
 **Next:** Part 9 builds Nessie's branching algorithms — commit, merge, transplant, garbage collection — on top of everything in this part, and from here on "the CAS" can be said without qualification.

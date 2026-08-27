@@ -94,7 +94,7 @@ Group them by job:
 | Prune by liveness | `added_files_count` (504), `existing_files_count` (505), `deleted_files_count` (506) and their `_rows_` counterparts (512–514) |
 | Row lineage | `first_row_id` (520) — v3, Chapter 2.5 |
 
-`partition_spec_id` is required, and it is required for a specific reason: a table that has evolved its partitioning holds manifests written under several specs at once. Nothing about the partition summaries is interpretable without knowing which spec produced them.
+`partition_spec_id` is required, and it is required for a specific reason: a table that has evolved its partitioning holds manifests written under several specs at once. Nothing about the partition summaries is interpretable without knowing which spec produced them. It is also where the spec id reaches each file: `data_file` has a `spec_id` field that none of the four `V<N>Metadata` write schemas include, and readers inherit it from this row. Chapter 2.6 covers the spec itself and why evolution is a `metadata.json` rewrite and nothing more.
 
 ## 4. Where the numbers come from
 

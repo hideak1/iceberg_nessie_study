@@ -113,7 +113,7 @@ Note *how* it is removed: `Tasks.foreach(...).suppressFailureWhenFinished()`, wi
 
 ## 5. The routing axis: clustered or fanout
 
-`PartitioningWriter.write(row, spec, partition)` takes the partition as an argument, so the engine has already computed it. What remains is a bookkeeping question: how many files do you keep open at once?
+`PartitioningWriter.write(row, spec, partition)` takes the partition as an argument, so the engine has already computed it — by `StructTransform.wrap`, into a tuple object it reuses for every row (Chapter 2.6 §5), which is why both writers below copy it before storing it. What remains is a bookkeeping question: how many files do you keep open at once?
 
 There are exactly two answers, and they are not preferences. `FanoutWriter` keeps a `Map<Integer, StructLikeMap<FileWriter>>` — every spec/partition pair it has ever seen stays open until close. `ClusteredWriter` keeps one:
 

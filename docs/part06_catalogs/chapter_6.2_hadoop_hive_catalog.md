@@ -1,9 +1,9 @@
 # Chapter 6.2 — `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
 
 <div class="chapter-meta" markdown>
-**The question this chapter answers:** each of these catalogs claims an atomic single-table commit — which mechanism provides it, and under exactly which conditions does that mechanism stop providing it?
+**The question this chapter answers:** each of these catalogs claims an atomic single-table commit — which mechanism provides it, under exactly which conditions does that mechanism stop providing it, and which catalog should a deployment therefore run?
 
-**Prerequisites:** Chapter 3.4 (the commit protocol: CAS, retries), Chapter 6.1 (the `Catalog` SPI and `doCommit`)
+**Prerequisites:** Chapter 1.1 (why an object store has no atomic rename), Chapter 3.4 (the commit protocol: CAS, retries), Chapter 6.1 (the `Catalog` SPI and `doCommit`)
 
 **Source covered:** `core/.../hadoop/HadoopTableOperations.java`, `core/.../util/LockManagers.java`, `hive-metastore/.../HiveTableOperations.java`, `hive-metastore/.../HiveOperationsBase.java`
 </div>
@@ -16,7 +16,7 @@ Neither answer is "Iceberg does". Both borrow atomicity from a component Iceberg
 
 > *TableOperations implementation for file systems that support atomic rename.*
 
-Neither is broken and neither is unconditionally safe: what follows is an audit, not a verdict.
+Neither is broken and neither is unconditionally safe. Sections 3 to 9 are an audit — what each mechanism guarantees and where it stops. Section 10 turns that audit into the choice it implies, because one of these catalogs has a precondition that most deployments violate.
 
 ## 2. Two mechanisms for one contract
 
@@ -147,7 +147,78 @@ That is the correct outcome — it is what `CommitStateUnknownException` exists 
 
 Read the fourth row across. All three have a defensible answer to "did I win the race"; only one has an answer to "did anything happen at all". That is the axis Chapter 3.4 built the three-valued enum for, and two of the three catalogs most deployments start on decline to use it.
 
-## 10. Gotchas
+## 10. Choosing
+
+The audit answers "what does each of these guarantee". A reader still has to pick one, and
+three things decide it. The first is not a preference — it is a disqualification.
+
+**`HadoopCatalog` requires a filesystem whose rename fails when the destination exists.**
+Section 3 showed that `fs.rename` returning `false` *is* the compare-and-swap, and section
+6 showed that the default `LockManager` does not serialise across processes. On an object
+store neither holds: there is no rename at all, only copy-then-delete (Chapter 1.1 §6), so
+two concurrent writers can both believe they won. Nothing enforces the precondition at
+runtime — the class javadoc quoted in section 1 is the whole defence. Upstream states the
+consequence without hedging:
+
+{% snip ice:docs/docs/java-api-quickstart.md#L67-L67 | upstream's own summary, docs/docs/java-api-quickstart.md %}
+
+*Not safe with a local FS or S3.* Chapter 1.1's gotcha calls pointing a `HadoopCatalog` at
+an object store "the single most common way to build an Iceberg deployment that loses
+data", and the failure is silent: every method still runs, and the table works until two
+writers commit at once. If the warehouse is on S3, GCS or ADLS, this catalog is out, and no
+configuration brings it back — `lock-impl` bounds the race, it does not make the rename
+atomic.
+
+The second thing is the shape of the board. `CatalogUtil` holds the authoritative list:
+
+{% snip ice:core/src/main/java/org/apache/iceberg/CatalogUtil.java#L71-L79 | the catalog types a `type=` string can name %}
+
+Seven names, resolved by the `switch` in `buildIcebergCatalog` (Chapter 1.4 §6), which
+reads the `type` property with `ICEBERG_CATALOG_TYPE_HIVE` as its fallback: **omit `type`
+and you get Hive.** Three of the seven are audited above; the rest move the swap somewhere
+this chapter cannot see.
+
+<div class="grid cards" markdown>
+
+-   **`hadoop`**
+
+    The swap is `fs.rename`. Correct on HDFS and anything else that fails a rename onto an
+    existing path. Cannot rename a table, cannot report an unknown commit state, and its
+    default lock manager is JVM-local. **Disqualified on object storage**, which is where
+    most warehouses now live.
+
+-   **`hive`**
+
+    The swap is `alter_table` on `metadata_location`, serialised by an HMS lock with a
+    heartbeat, or by the metastore's own `expected_parameter_key` comparison when
+    `engine.hive.lock-enabled=false`. The only one of the three audited here that
+    distinguishes *failed* from *cannot tell*. Needs a metastore that supports transactions
+    — an embedded derby one does not (section 11).
+
+-   **`jdbc`**
+
+    The swap is `UPDATE … WHERE metadata_location = ?`, decided by row count: the cleanest
+    compare-and-swap of the three, with mutual exclusion from the database and no
+    filesystem semantics borrowed. Pays for it in failure reporting — every SQL error
+    becomes an `UncheckedSQLException` that is neither retried nor reconciled, so a timeout
+    on the `UPDATE` leaves nobody knowing whether it landed.
+
+-   **`rest`, `nessie`, `glue`, `bigquery`**
+
+    The swap moves off the client entirely. Chapter 6.3 reads the REST protocol;
+    Chapter 6.4, what a server-side commit changes. Chapter 10.1 reads `NessieCatalog`,
+    and Chapter 10.3 sets out how to answer capability questions about a catalog server
+    from its source. These are also the only route to a multi-table commit — the audit's
+    last row is `no` three times, and Chapter 10.2 shows what fills that gap.
+
+</div>
+
+The third thing is the row of the audit table nobody reads first. All three answer "did I
+win the race"; only Hive answers "did anything happen at all". That distinction costs
+nothing until a network partition, and then it decides whether an operator is told to go
+and look at the table or told, wrongly, that the commit failed.
+
+## 11. Gotchas
 
 !!! warning "The default `LockManager` only locks within one JVM"
     `LockManagers.from(properties)` falls back to a static `InMemoryLockManager` documented for testing or same-JVM use. From more than one process, set `lock-impl` or accept `fs.rename` as the only serialisation — and note that `fs.exists(dst)` before it is check-then-act, so where rename overwrites, two writers can both pass the check and both believe they won.
@@ -168,6 +239,7 @@ Read the fourth row across. All three have a defensible answer to "did I win the
 - `HiveTableOperations` builds its own CAS on the `metadata_location` table property — a string comparison, not 6.1's identity check — guarded either by an HMS lock with a heartbeat or, with locking disabled, by the metastore's own `expected_parameter_key` comparison.
 - `JdbcTableOperations` has the cleanest swap of the three — `UPDATE … WHERE metadata_location = ?`, decided by `updatedRecords == 1` — and the weakest failure reporting: every SQL error becomes an `UncheckedSQLException`, which is neither retryable nor cleanable nor a signal that the outcome is unknown.
 - Hive is the only one of the three that distinguishes "failed" from "cannot tell", and its reconciliation has three outcomes: the commit succeeded after all, it failed, or nobody knows.
+- The audit implies a choice. `HadoopCatalog`'s precondition is a filesystem that fails a rename onto an existing path, which object storage is not — upstream's own quickstart says concurrent writes with it "are not safe with a local FS or S3". On S3, GCS or ADLS that rules it out, and no property setting restores it.
 
 ## Source map
 
@@ -180,6 +252,7 @@ Read the fourth row across. All three have a defensible answer to "did I win the
 | `HiveTableOperations` | [`hive-metastore/.../HiveTableOperations.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java) |
 | `MetastoreLock`, `NoLock` | [`hive-metastore/.../MetastoreLock.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/MetastoreLock.java), [`NoLock.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/NoLock.java) |
 | `JdbcCatalog` and its swap | [`core/.../jdbc/JdbcTableOperations.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/jdbc/JdbcTableOperations.java) |
+| The catalog `type` names and their default | [`core/.../CatalogUtil.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/CatalogUtil.java), [`docs/docs/java-api-quickstart.md`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/docs/docs/java-api-quickstart.md) |
 | `hmsEnvContext`, `persistTable`, `cleanupMetadata` | [`hive-metastore/.../HiveOperationsBase.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveOperationsBase.java) |
 
 **Next:** Chapter 6.3 takes the swap away from storage entirely and puts it behind an HTTP endpoint — which changes what a commit request even contains.

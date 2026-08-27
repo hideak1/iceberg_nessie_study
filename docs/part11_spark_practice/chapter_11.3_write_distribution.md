@@ -70,7 +70,7 @@ This is the factor that matters, and Iceberg picks it for you when you have not.
 
 {% snip ice:spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#method:defaultWriteDistributionMode | SparkWriteConf.defaultWriteDistributionMode() %}
 
-Read what this is derived from: `table.sortOrder()` and `table.spec()`. Table state, not configuration. A partitioned table gets `HASH` — a shuffle that clusters rows by the spec's transforms, so that all rows for one partition arrive at one task and the (task, partition) count collapses to roughly the partition count.
+Read what this is derived from: `table.sortOrder()` and `table.spec()`. Table state, not configuration. A partitioned table gets `HASH` — a shuffle that clusters rows by the spec's transforms, so that all rows for one partition arrive at one task and the (task, partition) count collapses to roughly the partition count. Which transforms those are is a real choice with a read-side cost attached: Chapter 2.6 §4 shows why a `bucket` field prunes point lookups and never a range.
 
 That shuffle is why a plain `INSERT` into a partitioned table is slower than the same `INSERT` into an unpartitioned one, and it is exactly what `write.distribution-mode=none` turns off. Turn it off and every upstream task contributes a file to every partition it happens to hold rows for; the multiplication is the file explosion.
 

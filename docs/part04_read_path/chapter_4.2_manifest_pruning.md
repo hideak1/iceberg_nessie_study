@@ -56,7 +56,7 @@ Two consequences run through the rest of Part 4. Every evaluator in this part �
 
 ### Transforms, and the one property projection depends on
 
-A partition value is not a column value. It is a **transform** of one — `day(event_ts)`, `bucket(16, id)`, `truncate(10, name)`, or `identity(dept)` — computed by the writer and stored in the manifest as its own typed field (Chapter 1.1 §5). The partition summaries this chapter prunes on are bounds over *transformed* values, so a predicate on the raw column cannot be compared against them directly.
+A partition value is not a column value. It is a **transform** of one — `day(event_ts)`, `bucket(16, id)`, `truncate(10, name)`, or `identity(dept)` — computed by the writer and stored in the manifest as its own typed field (Chapter 1.1 §5). Chapter 2.6 is the transform catalogue and the spec that records it; what follows here is only what the projection needs from it. The partition summaries this chapter prunes on are bounds over *transformed* values, so a predicate on the raw column cannot be compared against them directly.
 
 What makes the rewrite possible at all is a single method on `Transform`:
 

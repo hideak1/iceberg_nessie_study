@@ -9,3 +9,4 @@ The on-disk format, read directly. Every structure here is what the source in Pa
 | **2.3** | [The manifest list: snapshot-level pruning data](chapter_2.3_manifest_list.md) | :material-check-circle: written |
 | **2.4** | [The manifest file: data files, column metrics, field IDs](chapter_2.4_manifest_file.md) | :material-check-circle: written |
 | **2.5** | [V1 → V2 → V3: row-level deletes, deletion vectors, row lineage](chapter_2.5_format_versions.md) | :material-check-circle: written |
+| **2.6** | [`PartitionSpec`: transforms, hidden partitioning, partition evolution](chapter_2.6_partitioning.md) | :material-check-circle: written |

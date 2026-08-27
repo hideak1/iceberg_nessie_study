@@ -114,7 +114,7 @@ The middle of the document is where that order is easiest to check. Continuing t
 
 {% snip ice:core/src/test/resources/TableMetadataV2Valid.json#L52-L87 | the same file, continued: specs, sort orders, properties %}
 
-`default-spec-id`, `partition-specs`, `last-partition-id`, `default-sort-order-id`, `sort-orders`, `properties` — six keys in the order the statements above emit them. Note what is *absent*: no `partition-spec` and no `schema` beside the plural forms, because this is a v2 file and the duplication is written only at v1. `properties` is `{}`, which is the only field in the document a user populates directly and the common case for a new table.
+`default-spec-id`, `partition-specs`, `last-partition-id`, `default-sort-order-id`, `sort-orders`, `properties` — six keys in the order the statements above emit them. The four keys inside each `partition-specs[].fields[]` entry — `name`, `transform`, `source-id`, `field-id` — are the whole of a partition declaration, and Chapter 2.6 reads them against the code that writes and consumes them. Note what is *absent*: no `partition-spec` and no `schema` beside the plural forms, because this is a v2 file and the duplication is written only at v1. `properties` is `{}`, which is the only field in the document a user populates directly and the common case for a new table.
 
 The fifth branch is neither forward nor backward. It does not decide whether a field appears — it decides how an unchanged field is *spelled*, and it is the next section.
 

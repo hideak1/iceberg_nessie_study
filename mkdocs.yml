@@ -95,6 +95,7 @@ nav:
       - "2.3 The manifest list: snapshot-level pruning data": part02_table_spec/chapter_2.3_manifest_list.md
       - "2.4 The manifest file: data files, column metrics, field IDs": part02_table_spec/chapter_2.4_manifest_file.md
       - "2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage": part02_table_spec/chapter_2.5_format_versions.md
+      - "2.6 PartitionSpec: transforms, hidden partitioning, partition evolution": part02_table_spec/chapter_2.6_partitioning.md
   - "Part 3 · Iceberg Core":
       - part03_iceberg_core/index.md
       - "3.1 Module map and the core abstractions": part03_iceberg_core/chapter_3.1_module_map.md
