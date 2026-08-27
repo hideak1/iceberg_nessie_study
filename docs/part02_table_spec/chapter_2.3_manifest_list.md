@@ -22,7 +22,42 @@ The name undersells it. A manifest list is not a list of manifests; it is an **i
 
 This chapter reads the row definition, the code that fills it in, and the two consumers that use it to skip work.
 
-## 2. The pruning funnel
+## 2. The shape, and the funnel that walks it
+
+Chapter 2.2 could show you a `metadata.json`, because it is JSON and upstream commits real ones as test fixtures. This chapter cannot return the favour. A manifest list is **Avro binary**, and so is every manifest it points at, so for this layer of the format a diagram is not the better representation — it is the only one there is.
+
+```mermaid
+flowchart TD
+    MJ["<b>metadata.json</b> — JSON, readable as itself<br/>snapshots[] · schemas[] · partition-specs[]<br/><i>no file list, no row count, no column statistic</i>"]
+
+    MJ -->|"snapshots[].manifest-list<br/><b>one manifest list per snapshot</b>"| ML
+
+    ML["<b>snap-*.avro</b> — the manifest list · Avro binary<br/>one row per manifest · ManifestFile.SCHEMA, ids 500-520<br/>─────<br/><b>prunes on</b> partitions[] (507), one summary per partition<br/>FIELD by ordinal → contains_null 509 · contains_nan 518 ·<br/>lower_bound 510 · upper_bound 511<br/><b>prunes on</b> added/existing/deleted_files_count (504-506)"]
+
+    ML -->|"manifest_path (500)<br/>content (517)=0<br/><b>many data manifests</b>"| DM["<b>*-m0.avro</b> — data manifest · Avro binary<br/>one ManifestEntry per data file<br/>─────<br/>status (0): ADDED · EXISTING · DELETED<br/>sequence_number (3) · file_sequence_number (4)"]
+
+    ML -->|"manifest_path (500)<br/>content (517)=1<br/><b>v2+ only</b>"| XM["<b>*-m1.avro</b> — delete manifest · Avro binary<br/>one ManifestEntry per delete file<br/>─────<br/>v1 has no content field, so no delete manifest exists"]
+
+    DM -->|"data_file (2)<br/><b>many data files</b>"| DF["<b>DataFile</b> struct · ids 100-145<br/>file_path (100) · record_count (103) · partition (102)<br/>─────<br/><b>prunes on</b> lower_bounds (125) · upper_bounds (128) ·<br/>null_value_counts (110) · value_counts (109) ·<br/>nan_value_counts (137) — every one a map of field-id"]
+
+    XM -->|"data_file (2)"| XF["<b>DeleteFile</b> struct · same id space<br/>content (134): 1=position, 2=equality<br/>referenced_data_file (143) · equality_ids (135)"]
+
+    DF ==>|"file_path (100)"| PQ["data/**/*.parquet<br/><i>the only level Iceberg does not describe</i>"]
+
+    XF -.->|"<b>not a stored edge.</b> DeleteFileIndex joins these at scan<br/>time — by path (DV / referenced_data_file) or by<br/>(spec_id, partition) — always gated by data sequence number"| DF
+```
+
+Three things in that picture are worth fixing before anything else.
+
+**The fan-out is the point.** One manifest list per snapshot, many manifests per list, many files per manifest. Chapter 2.1's reference chain drew the same four levels one-to-one, because its question was which field names which file; this is the same skeleton carrying its cardinalities and its payload.
+
+**The two `prunes on` bands are the whole read path.** Chapter 4.2 works at the manifest-list band, on `partitions[]` and the counts; Chapter 4.3 works one level down, on `lower_bounds` and `upper_bounds`. A scan is a walk down this tree discarding subtrees, and those two bands are where the discarding happens.
+
+**The dashed edge is not a caveat, it is a claim.** Nothing in the format points from a delete file to the data file it applies to — `referenced_data_file` (143) is a *string*, not a traversable edge. `DeleteFileIndex` computes the attachment at scan time through five differently-keyed lookups: by path for a DV and for path-scoped position deletes, by `(spec_id, partition)` for partition-scoped position and equality deletes, and table-wide for unpartitioned equality deletes — every one of them filtered on the data sequence number. Drawn solid, that edge would be a fabrication, and a structural diagram is the worst place to hide one: it looks like it is merely reporting shape, so nobody thinks to doubt it.
+
+`min_sequence_number` (516) is deliberately absent from both pruning bands. Section 8 is about why.
+
+That is the shape. The order the filters run in is a different question, and it is the funnel:
 
 ```mermaid
 flowchart TD

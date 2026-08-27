@@ -22,6 +22,8 @@ Iceberg's answer to the first is field IDs everywhere: every metric map is keyed
 
 ## 2. One manifest row
 
+This is not a second structure. It is one leaf of the tree in Chapter 2.3 §2, opened — the `*-m0.avro` node magnified until its entries and their `data_file` struct are legible.
+
 ```mermaid
 classDiagram
     class ManifestEntry {
