@@ -36,7 +36,10 @@ SOURCE_LANGS = {"java", "kotlin", "scala"}
 # in this book presenting a directory listing with invented UUIDs -- data typed
 # by hand, in a book whose whole claim is that it does not do that. It was
 # invisible here because the check only looked at java, kotlin and scala.
-UNSOURCED_LANGS = {""}
+# The obvious way this regresses is to tag the fence ```text instead of leaving
+# it bare. These tags all mean the same thing -- "this is data or output, not
+# source" -- and all of them need a provenance or a stated reason.
+UNSOURCED_LANGS = {"", "text", "txt", "plain", "plaintext", "output", "console"}
 
 # `\w*` not `\w+`: a fence with no language was never matched at all, which
 # is why an unsourced data block sat in this book undetected.

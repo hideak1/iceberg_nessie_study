@@ -138,11 +138,11 @@ The two wrappers differ in exactly one respect, and it is a policy decision rath
 
 ## 7. Three answers, three behaviours
 
-| `CommitStatus` | What `doCommit` throws | Producer deletes its files? | Retried? |
+| `CommitStatus` | What the `switch` throws | Producer deletes its files? | Retried? |
 | --- | --- | --- | --- |
 | `SUCCESS` | nothing — the original exception is swallowed | only the losing attempts, after refresh | no |
 | `FAILURE` | `CommitFailedException` | yes — it is a `CleanableFailure` | yes, up to `commit.retry.num-retries` |
-| `UNKNOWN` | `CommitStateUnknownException` | **no** | no |
+| `UNKNOWN` | `CommitStateUnknownException` — **unreachable when the failure was a conditional check**, which section 5's guard turns into `CommitFailedException` before the `switch` is entered | **no** | no |
 
 The middle row is ordinary optimistic concurrency. The top row is the subtle one: an exception was raised, the commit succeeded anyway, and the correct response is to return normally as though nothing happened. The bottom row is the one that reaches a human, and Chapter 3.3 explained the reasoning — leaked storage is recoverable, a corrupted table is not.
 
