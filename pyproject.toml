@@ -1,0 +1,18 @@
+[project]
+name = "iceberg-nessie-study"
+version = "0.1.0"
+description = "Apache Iceberg & Project Nessie — a source-level walkthrough"
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = { text = "MIT" }
+
+dependencies = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "pymdown-extensions>=10.7",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.4.0",
+]

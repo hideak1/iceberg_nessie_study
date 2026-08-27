@@ -1,0 +1,15 @@
+# Upstream sources this book is written against.
+# Every code snippet is extracted from these exact trees at build time.
+# Changing a pin means re-validating every snippet: `make check`.
+
+[iceberg]
+repo   = https://github.com/apache/iceberg
+tag    = apache-iceberg-1.11.0
+commit = 028d06dc55a93143f3e4792e8cd501e056fffa37
+date   = 2026-05-20
+
+[nessie]
+repo   = https://github.com/projectnessie/nessie
+tag    = nessie-0.108.4
+commit = 41cbe0f3e623bb55365355041bc1cc3ed6a4b5bb
+date   = 2026-07-31

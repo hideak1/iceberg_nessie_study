@@ -1,0 +1,156 @@
+site_name: "Iceberg & Nessie Internals"
+site_url: https://hideak1.github.io/iceberg_nessie_study/
+site_description: "Apache Iceberg and Project Nessie, read at the source level"
+site_author: "Iceberg & Nessie Study"
+repo_url: https://github.com/hideak1/iceberg_nessie_study
+repo_name: hideak1/iceberg_nessie_study
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.path
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font: false
+  icon:
+    logo: material/layers-triple
+    repo: fontawesome/brands/github
+
+hooks:
+  - hooks/snippets.py
+
+extra_css:
+  - assets/extra.css
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - "Part 1 · Foundations":
+      - part01_foundations/index.md
+      - "1.1 Why table formats exist: the Hive table's failure modes": part01_foundations/chapter_1.1_why_table_formats.md
+      - "1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer": part01_foundations/chapter_1.2_iceberg_core_idea.md
+      - "1.3 Nessie's core idea: Git semantics for the catalog": part01_foundations/chapter_1.3_nessie_core_idea.md
+      - "1.4 Reading these codebases: module maps and navigation": part01_foundations/chapter_1.4_reading_the_codebases.md
+  - "Part 2 · Table Spec":
+      - part02_table_spec/index.md
+      - "2.1 Anatomy of a table directory after a real write": part02_table_spec/chapter_2.1_table_directory_anatomy.md
+      - "2.2 `metadata.json`, field by field": part02_table_spec/chapter_2.2_metadata_json.md
+      - "2.3 The manifest list: snapshot-level pruning data": part02_table_spec/chapter_2.3_manifest_list.md
+      - "2.4 The manifest file: data files, column metrics, field IDs": part02_table_spec/chapter_2.4_manifest_file.md
+      - "2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage": part02_table_spec/chapter_2.5_format_versions.md
+  - "Part 3 · Iceberg Core":
+      - part03_iceberg_core/index.md
+      - "3.1 Module map and the core abstractions": part03_iceberg_core/chapter_3.1_module_map.md
+      - "3.2 `TableMetadata` and `MetadataUpdate`": part03_iceberg_core/chapter_3.2_table_metadata.md
+      - "3.3 `SnapshotProducer`: the life of a commit": part03_iceberg_core/chapter_3.3_snapshot_producer.md
+      - "3.4 The commit protocol: CAS, retries, and where atomicity comes from": part03_iceberg_core/chapter_3.4_commit_protocol.md
+      - "3.5 Conflict detection and isolation levels": part03_iceberg_core/chapter_3.5_conflict_detection.md
+  - "Part 4 · Read Path":
+      - part04_read_path/index.md
+      - "4.1 `TableScan` and `planFiles`": part04_read_path/chapter_4.1_table_scan.md
+      - "4.2 Manifest pruning with `ManifestEvaluator`": part04_read_path/chapter_4.2_manifest_pruning.md
+      - "4.3 File pruning with `InclusiveMetricsEvaluator`": part04_read_path/chapter_4.3_file_pruning.md
+      - "4.4 Residual expressions and implicit partition filtering": part04_read_path/chapter_4.4_residuals.md
+      - "4.5 Split planning, parallel planning, and metadata tables": part04_read_path/chapter_4.5_split_planning.md
+  - "Part 5 · Write Path":
+      - part05_write_path/index.md
+      - "5.1 The writer family and metrics collection": part05_write_path/chapter_5.1_writers.md
+      - "5.2 `FastAppend` vs `MergeAppend`": part05_write_path/chapter_5.2_append_strategies.md
+      - "5.3 Position deletes, equality deletes, and `RowDelta`": part05_write_path/chapter_5.3_deletes.md
+      - "5.4 Copy-on-write, merge-on-read, and V3 deletion vectors": part05_write_path/chapter_5.4_cow_mor.md
+      - "5.5 Maintenance: compaction, snapshot expiry, orphan files": part05_write_path/chapter_5.5_maintenance.md
+  - "Part 6 · Catalogs":
+      - part06_catalogs/index.md
+      - "6.1 The `Catalog` SPI": part06_catalogs/chapter_6.1_catalog_spi.md
+      - "6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks": part06_catalogs/chapter_6.2_hadoop_hive_catalog.md
+      - "6.3 The REST Catalog spec and `RESTSessionCatalog`": part06_catalogs/chapter_6.3_rest_catalog.md
+      - "6.4 Server-side commits and the multi-table gap": part06_catalogs/chapter_6.4_server_side_commits.md
+  - "Part 7 · Nessie Architecture":
+      - part07_nessie_architecture/index.md
+      - "7.1 Project map: Quarkus layers and Gradle modules": part07_nessie_architecture/chapter_7.1_project_map.md
+      - "7.2 The data model: `Reference`, `Content`, `Operation`": part07_nessie_architecture/chapter_7.2_data_model.md
+      - "7.3 REST API v2: `TreeApi`, and where `ContentApi` went": part07_nessie_architecture/chapter_7.3_rest_api_v2.md
+      - "7.4 From HTTP to the `VersionStore`": part07_nessie_architecture/chapter_7.4_request_path.md
+      - "7.5 Nessie as an Iceberg REST Catalog": part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog.md
+  - "Part 8 · Version Store":
+      - part08_version_store/index.md
+      - "8.1 The `Persist` SPI and the storage abstraction": part08_version_store/chapter_8.1_persist_spi.md
+      - "8.2 `CommitObj` and the commit log DAG": part08_version_store/chapter_8.2_commit_log_dag.md
+      - "8.3 Key indexes and index stripes: how large catalogs stay fast": part08_version_store/chapter_8.3_key_indexes.md
+      - "8.4 References and CAS: where atomicity actually lands": part08_version_store/chapter_8.4_references_cas.md
+      - "8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra": part08_version_store/chapter_8.5_backends.md
+  - "Part 9 · Branching":
+      - part09_branching/index.md
+      - "9.1 Commit: from `Operation` to `CommitObj`": part09_branching/chapter_9.1_commit_path.md
+      - "9.2 Merge: merge base, three-way merge, conflict detection": part09_branching/chapter_9.2_merge.md
+      - "9.3 Transplant (cherry-pick) and conflict resolution policies": part09_branching/chapter_9.3_transplant.md
+      - "9.4 Nessie GC and its interaction with Iceberg file cleanup": part09_branching/chapter_9.4_gc.md
+  - "Part 10 · Ecosystem":
+      - part10_ecosystem/index.md
+      - "10.1 `NessieCatalog` and `NessieTableOperations`": part10_ecosystem/chapter_10.1_nessie_catalog.md
+      - "10.2 Multi-table atomic commits: how they are implemented": part10_ecosystem/chapter_10.2_multi_table_commits.md
+      - "10.3 Nessie, Polaris, and Lakekeeper compared": part10_ecosystem/chapter_10.3_catalog_landscape.md
+      - "10.4 V3 adoption and contributing upstream": part10_ecosystem/chapter_10.4_v3_and_contributing.md
+  - "Part 11 · Spark in Practice":
+      - part11_spark_practice/index.md
+      - "11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`": part11_spark_practice/chapter_11.1_catalog_wiring.md
+      - "11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`": part11_spark_practice/chapter_11.2_importing_existing_tables.md
+      - "11.3 The write path in Spark: distribution mode and the small-file problem": part11_spark_practice/chapter_11.3_write_distribution.md
+      - "11.4 `MERGE INTO`, row-level operations, and commit conflicts": part11_spark_practice/chapter_11.4_merge_and_conflicts.md
+      - "11.5 Running it in production: maintenance procedures and their traps": part11_spark_practice/chapter_11.5_production_maintenance.md
