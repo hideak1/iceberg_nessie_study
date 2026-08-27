@@ -3299,6 +3299,7 @@
 <p>The second is <strong>size</strong>. Statistics are the reason a manifest is worth reading, and also the reason it is expensive to read. A planner that needs only file paths should not pay for bounds.</p>
 <p>Iceberg's answer to the first is field IDs everywhere: every metric map is keyed by schema field ID, never by name. Its answer to the second is that metrics are optional on both ends — configurable on write, projectable away on read. This chapter reads both.</p>
 <h2 id="2-one-manifest-row">2. One manifest row<a class="headerlink" href="#2-one-manifest-row" title="Permanent link">&para;</a></h2>
+<p>This is not a second structure. It is one leaf of the tree in <a href="../chapter_2.3_manifest_list/">Chapter 2.3</a> §2, opened — the <code>*-m0.avro</code> node magnified until its entries and their <code>data_file</code> struct are legible.</p>
 <pre class="mermaid"><code>classDiagram
     class ManifestEntry {
         0 status int

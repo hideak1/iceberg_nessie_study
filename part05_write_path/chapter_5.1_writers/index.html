@@ -3643,7 +3643,18 @@
 </span></code></pre></div>
 <p><code>appender.metrics()</code> is the appender's summary of what it just wrote — row count, per-column sizes, value counts, null counts, NaN counts, lower bounds, upper bounds. From here the <code>DataFile</code> travels into a manifest (<a href="../chapter_5.2_append_strategies/">Chapter 5.2</a>), and from the manifest into <code>InclusiveMetricsEvaluator</code> (<a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a>). <strong>Nothing between those two points can add a statistic that was not computed on this line.</strong></p>
 <h2 id="7-metricsconfig-deciding-what-to-collect-before-any-row-is-written">7. <code>MetricsConfig</code>: deciding what to collect, before any row is written<a class="headerlink" href="#7-metricsconfig-deciding-what-to-collect-before-any-row-is-written" title="Permanent link">&para;</a></h2>
-<p><code>Metrics</code> is not "everything the format knows". It is a filtered projection, and the filter is <code>MetricsConfig</code>, resolved from table properties, schema and sort order:</p>
+<p><code>Metrics</code> is not "everything the format knows". It is a filtered projection, and the filter is <code>MetricsConfig</code>, resolved from table properties, schema and sort order. Two inputs on the left, one dashed edge on the right, and the whole chapter in between:</p>
+<pre class="mermaid"><code>flowchart LR
+    P["table properties&lt;br/&gt;write.metadata.metrics.*"] --&gt; MC
+    SS["Schema + SortOrder"] --&gt; MC
+    MC["MetricsConfig.from()"] --&gt;|"one MetricsMode per column"| MM["none · counts · truncate(n) · full"]
+    FT["Parquet footer statistics"] --&gt; PM
+    MM --&gt;|"MetricsUtil.metricsMode(schema, config, fieldId)"| PM["ParquetMetrics.primitive()"]
+    PM --&gt; ME["Metrics — value / null / nan counts,&lt;br/&gt;lower and upper bounds"]
+    ME --&gt;|"DataWriter.close():&lt;br/&gt;withMetrics(appender.metrics())"| DF["DataFile"]
+    DF --&gt; MAN["manifest entry · [Chapter 5.2](../part05_write_path/chapter_5.2_append_strategies.md)"]
+    MAN -.-&gt;|"&lt;b&gt;read path, [Chapter 4.3](../part04_read_path/chapter_4.3_file_pruning.md).&lt;/b&gt; Nothing here can add&lt;br/&gt;a statistic that was not computed above"| EV["InclusiveMetricsEvaluator"]</code></pre>
+<p>The dashed edge is the message. Everything to its left happens once, at write time; everything to its right is stuck with the result. Now the resolver:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">MetricsConfig.from()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-226">226</a></span>
 <span class="normal"><a href="#__codelineno-6-227">227</a></span>
 <span class="normal"><a href="#__codelineno-6-228">228</a></span>

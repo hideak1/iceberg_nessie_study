@@ -3550,6 +3550,15 @@
 </span></code></pre></div>
 <p>The walk is supposed to terminate at the starting snapshot. If it does not — the starting snapshot was expired, or the branch was rolled back, or a cherry-pick reshaped the lineage — the writer cannot enumerate what happened in between and therefore cannot prove the absence of a conflict. It refuses rather than assuming there was none.</p>
 <p>Everything downstream is a query over that slice: a <code>ManifestGroup</code> for data files, a <code>DeleteFileIndex</code> for delete files.</p>
+<p>The three filters and the window they define, on one branch:</p>
+<pre class="mermaid"><code>flowchart LR
+    S0["S0 · older history"] --&gt; S1
+    S1["&lt;b&gt;S1&lt;/b&gt; = startingSnapshotId&lt;br/&gt;&lt;i&gt;excluded — the walk ends here&lt;/i&gt;"] --&gt; S2
+    S2["S2 · operation = &lt;b&gt;replace&lt;/b&gt;&lt;br/&gt;not in {append, overwrite}&lt;br/&gt;skipped, no manifest opened"] --&gt; S3
+    S3["S3 = &lt;b&gt;parent&lt;/b&gt; · operation = &lt;b&gt;append&lt;/b&gt;&lt;br/&gt;in VALIDATE_ADDED_FILES_OPERATIONS"]
+    S3 --&gt;|"only the manifests it wrote:&lt;br/&gt;manifest.snapshotId() == S3"| OUT["manifests + newSnapshots&lt;br/&gt;→ ManifestGroup.filterManifestEntries"]
+    S1 -.-&gt;|"validateFromSnapshot() never called ⇒ startingSnapshotId = null&lt;br/&gt;⇒ the window is the whole branch"| S0</code></pre>
+<p><code>replace</code> is the operation a compaction commits under, and the example is the ordinary case rather than a contrived one: <code>validateAddedDataFiles</code> walks straight past a concurrent compaction, because a rewrite that preserves rows cannot have added data a scan should have seen. The dashed edge is the cost of forgetting <code>validateFromSnapshot()</code> — not a wrong answer, but a walk whose length grows with the table's whole history.</p>
 <h2 id="7-a-caller-assembled">7. A caller, assembled<a class="headerlink" href="#7-a-caller-assembled" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseRowDelta.validate()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-131">131</a></span>
 <span class="normal"><a href="#__codelineno-4-132">132</a></span>

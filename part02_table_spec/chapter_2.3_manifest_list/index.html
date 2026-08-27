@@ -964,10 +964,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-the-pruning-funnel" class="md-nav__link">
+  <a href="#2-the-shape-and-the-funnel-that-walks-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. The pruning funnel
+        2. The shape, and the funnel that walks it
       
     </span>
   </a>
@@ -3109,10 +3109,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-the-pruning-funnel" class="md-nav__link">
+  <a href="#2-the-shape-and-the-funnel-that-walks-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. The pruning funnel
+        2. The shape, and the funnel that walks it
       
     </span>
   </a>
@@ -3302,7 +3302,32 @@
 <li><strong>content and sequence numbers</strong> — this manifest holds deletes, not data, and its deletes are ordered against the data.</li>
 </ul>
 <p>This chapter reads the row definition, the code that fills it in, and the two consumers that use it to skip work.</p>
-<h2 id="2-the-pruning-funnel">2. The pruning funnel<a class="headerlink" href="#2-the-pruning-funnel" title="Permanent link">&para;</a></h2>
+<h2 id="2-the-shape-and-the-funnel-that-walks-it">2. The shape, and the funnel that walks it<a class="headerlink" href="#2-the-shape-and-the-funnel-that-walks-it" title="Permanent link">&para;</a></h2>
+<p><a href="../chapter_2.2_metadata_json/">Chapter 2.2</a> could show you a <code>metadata.json</code>, because it is JSON and upstream commits real ones as test fixtures. This chapter cannot return the favour. A manifest list is <strong>Avro binary</strong>, and so is every manifest it points at, so for this layer of the format a diagram is not the better representation — it is the only one there is.</p>
+<pre class="mermaid"><code>flowchart TD
+    MJ["&lt;b&gt;metadata.json&lt;/b&gt; — JSON, readable as itself&lt;br/&gt;snapshots[] · schemas[] · partition-specs[]&lt;br/&gt;&lt;i&gt;no file list, no row count, no column statistic&lt;/i&gt;"]
+
+    MJ --&gt;|"snapshots[].manifest-list&lt;br/&gt;&lt;b&gt;one manifest list per snapshot&lt;/b&gt;"| ML
+
+    ML["&lt;b&gt;snap-*.avro&lt;/b&gt; — the manifest list · Avro binary&lt;br/&gt;one row per manifest · ManifestFile.SCHEMA, ids 500-520&lt;br/&gt;─────&lt;br/&gt;&lt;b&gt;prunes on&lt;/b&gt; partitions[] (507), one summary per partition&lt;br/&gt;FIELD by ordinal → contains_null 509 · contains_nan 518 ·&lt;br/&gt;lower_bound 510 · upper_bound 511&lt;br/&gt;&lt;b&gt;prunes on&lt;/b&gt; added/existing/deleted_files_count (504-506)"]
+
+    ML --&gt;|"manifest_path (500)&lt;br/&gt;content (517)=0&lt;br/&gt;&lt;b&gt;many data manifests&lt;/b&gt;"| DM["&lt;b&gt;*-m0.avro&lt;/b&gt; — data manifest · Avro binary&lt;br/&gt;one ManifestEntry per data file&lt;br/&gt;─────&lt;br/&gt;status (0): ADDED · EXISTING · DELETED&lt;br/&gt;sequence_number (3) · file_sequence_number (4)"]
+
+    ML --&gt;|"manifest_path (500)&lt;br/&gt;content (517)=1&lt;br/&gt;&lt;b&gt;v2+ only&lt;/b&gt;"| XM["&lt;b&gt;*-m1.avro&lt;/b&gt; — delete manifest · Avro binary&lt;br/&gt;one ManifestEntry per delete file&lt;br/&gt;─────&lt;br/&gt;v1 has no content field, so no delete manifest exists"]
+
+    DM --&gt;|"data_file (2)&lt;br/&gt;&lt;b&gt;many data files&lt;/b&gt;"| DF["&lt;b&gt;DataFile&lt;/b&gt; struct · ids 100-145&lt;br/&gt;file_path (100) · record_count (103) · partition (102)&lt;br/&gt;─────&lt;br/&gt;&lt;b&gt;prunes on&lt;/b&gt; lower_bounds (125) · upper_bounds (128) ·&lt;br/&gt;null_value_counts (110) · value_counts (109) ·&lt;br/&gt;nan_value_counts (137) — every one a map of field-id"]
+
+    XM --&gt;|"data_file (2)"| XF["&lt;b&gt;DeleteFile&lt;/b&gt; struct · same id space&lt;br/&gt;content (134): 1=position, 2=equality&lt;br/&gt;referenced_data_file (143) · equality_ids (135)"]
+
+    DF ==&gt;|"file_path (100)"| PQ["data/**/*.parquet&lt;br/&gt;&lt;i&gt;the only level Iceberg does not describe&lt;/i&gt;"]
+
+    XF -.-&gt;|"&lt;b&gt;not a stored edge.&lt;/b&gt; DeleteFileIndex joins these at scan&lt;br/&gt;time — by path (DV / referenced_data_file) or by&lt;br/&gt;(spec_id, partition) — always gated by data sequence number"| DF</code></pre>
+<p>Three things in that picture are worth fixing before anything else.</p>
+<p><strong>The fan-out is the point.</strong> One manifest list per snapshot, many manifests per list, many files per manifest. <a href="../chapter_2.1_table_directory_anatomy/">Chapter 2.1</a>'s reference chain drew the same four levels one-to-one, because its question was which field names which file; this is the same skeleton carrying its cardinalities and its payload.</p>
+<p><strong>The two <code>prunes on</code> bands are the whole read path.</strong> <a href="../../part04_read_path/chapter_4.2_manifest_pruning/">Chapter 4.2</a> works at the manifest-list band, on <code>partitions[]</code> and the counts; <a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a> works one level down, on <code>lower_bounds</code> and <code>upper_bounds</code>. A scan is a walk down this tree discarding subtrees, and those two bands are where the discarding happens.</p>
+<p><strong>The dashed edge is not a caveat, it is a claim.</strong> Nothing in the format points from a delete file to the data file it applies to — <code>referenced_data_file</code> (143) is a <em>string</em>, not a traversable edge. <code>DeleteFileIndex</code> computes the attachment at scan time through five differently-keyed lookups: by path for a DV and for path-scoped position deletes, by <code>(spec_id, partition)</code> for partition-scoped position and equality deletes, and table-wide for unpartitioned equality deletes — every one of them filtered on the data sequence number. Drawn solid, that edge would be a fabrication, and a structural diagram is the worst place to hide one: it looks like it is merely reporting shape, so nobody thinks to doubt it.</p>
+<p><code>min_sequence_number</code> (516) is deliberately absent from both pruning bands. Section 8 is about why.</p>
+<p>That is the shape. The order the filters run in is a different question, and it is the funnel:</p>
 <pre class="mermaid"><code>flowchart TD
     SNAP["snap-*.avro&lt;br/&gt;N rows, one per manifest"] --&gt;|"content (517)"| SPLIT{"data or deletes?"}
     SPLIT --&gt;|DATA| DM["data manifests"]

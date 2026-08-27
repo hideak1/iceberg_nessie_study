@@ -3842,7 +3842,7 @@
 <thead>
 <tr>
 <th><code>CommitStatus</code></th>
-<th>What <code>doCommit</code> throws</th>
+<th>What the <code>switch</code> throws</th>
 <th>Producer deletes its files?</th>
 <th>Retried?</th>
 </tr>
@@ -3862,7 +3862,7 @@
 </tr>
 <tr>
 <td><code>UNKNOWN</code></td>
-<td><code>CommitStateUnknownException</code></td>
+<td><code>CommitStateUnknownException</code> — <strong>unreachable when the failure was a conditional check</strong>, which section 5's guard turns into <code>CommitFailedException</code> before the <code>switch</code> is entered</td>
 <td><strong>no</strong></td>
 <td>no</td>
 </tr>
