@@ -1,0 +1,3826 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part08_version_store/chapter_8.2_commit_log_dag/">
+      
+      
+        <link rel="prev" href="../chapter_8.1_persist_spi/">
+      
+      
+        <link rel="next" href="../chapter_8.3_key_indexes/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>8.2 `CommitObj` and the commit log DAG - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-82-commitobj-and-the-commit-log-dag" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              8.2 `CommitObj` and the commit log DAG
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-a-commit-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What a commit holds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-building-the-tail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Building the tail
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-consuming-the-tail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Consuming the tail
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-what-is-actually-in-the-commit-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. What is actually in the commit ID
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-storing-a-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Storing a commit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-a-commit-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What a commit holds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-building-the-tail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Building the tail
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-consuming-the-tail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Consuming the tail
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-what-is-actually-in-the-commit-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. What is actually in the commit ID
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-storing-a-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Storing a commit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 8 · Version Store
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-82-commitobj-and-the-commit-log-dag">Chapter 8.2 — <code>CommitObj</code> and the commit log DAG<a class="headerlink" href="#chapter-82-commitobj-and-the-commit-log-dag" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> a <code>CommitObj</code> stores a <em>list</em> of parent IDs rather than a single parent link — what is in that list, and what problem does it solve that one pointer would not?</p>
+<p><strong>Prerequisites:</strong> Chapter 8.1 (<code>Persist</code>, <code>Obj</code>, content-addressed <code>ObjId</code>), Chapter 1.3 (<code>CommitObj</code> and <code>tail()</code>, stated once already at altitude)</p>
+<p><strong>Source covered:</strong> <code>versioned/storage/common/.../objtypes/CommitObj.java</code>, <code>.../logic/CommitLogicImpl.java</code>, <code>.../config/StoreConfig.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>Start from the read pattern, not the write.</p>
+<p>"Show me the commit log of <code>main</code>" is the query a Nessie UI issues on every page load, that <code>nessie-cli</code> issues on every <code>LOG</code> command, and that garbage collection issues over every reference in the repository. On a Git repository this is cheap: the objects are on local disk, and following a parent pointer costs a page fault.</p>
+<p>On DynamoDB it costs a network round trip. On Cassandra it costs a coordinator hop plus a quorum read. A naive linked list of commits — each holding one parent ID — means <strong>one round trip per commit displayed</strong>. Fifty commits on a log page is fifty sequential round trips, each one unable to start until the previous finishes, because you cannot ask for a commit whose ID you have not yet learned.</p>
+<p>That is the constraint the commit object is shaped around. Nessie's answer is to break the dependency chain by <em>denormalizing ancestry into every commit</em>: each commit carries not just its parent but its nearest twenty ancestors, so a reader can issue one bulk fetch for the next twenty and then repeat. The list is redundant — every entry after the first is derivable by walking — and that redundancy is the point.</p>
+<h2 id="2-what-a-commit-holds">2. What a commit holds<a class="headerlink" href="#2-what-a-commit-holds" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitObj — identity and lineage</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-146">146</a></span>
+<span class="normal"><a href="#__codelineno-0-147">147</a></span>
+<span class="normal"><a href="#__codelineno-0-148">148</a></span>
+<span class="normal"><a href="#__codelineno-0-149">149</a></span>
+<span class="normal"><a href="#__codelineno-0-150">150</a></span>
+<span class="normal"><a href="#__codelineno-0-151">151</a></span>
+<span class="normal"><a href="#__codelineno-0-152">152</a></span>
+<span class="normal"><a href="#__codelineno-0-153">153</a></span>
+<span class="normal"><a href="#__codelineno-0-154">154</a></span>
+<span class="normal"><a href="#__codelineno-0-155">155</a></span>
+<span class="normal"><a href="#__codelineno-0-156">156</a></span>
+<span class="normal"><a href="#__codelineno-0-157">157</a></span>
+<span class="normal"><a href="#__codelineno-0-158">158</a></span>
+<span class="normal"><a href="#__codelineno-0-159">159</a></span>
+<span class="normal"><a href="#__codelineno-0-160">160</a></span>
+<span class="normal"><a href="#__codelineno-0-161">161</a></span>
+<span class="normal"><a href="#__codelineno-0-162">162</a></span>
+<span class="normal"><a href="#__codelineno-0-163">163</a></span>
+<span class="normal"><a href="#__codelineno-0-164">164</a></span>
+<span class="normal"><a href="#__codelineno-0-165">165</a></span>
+<span class="normal"><a href="#__codelineno-0-166">166</a></span>
+<span class="normal"><a href="#__codelineno-0-167">167</a></span>
+<span class="normal"><a href="#__codelineno-0-168">168</a></span>
+<span class="normal"><a href="#__codelineno-0-169">169</a></span>
+<span class="normal"><a href="#__codelineno-0-170">170</a></span>
+<span class="normal"><a href="#__codelineno-0-171">171</a></span>
+<span class="normal"><a href="#__codelineno-0-172">172</a></span>
+<span class="normal"><a href="#__codelineno-0-173">173</a></span>
+<span class="normal"><a href="#__codelineno-0-174">174</a></span>
+<span class="normal"><a href="#__codelineno-0-175">175</a></span>
+<span class="normal"><a href="#__codelineno-0-176">176</a></span>
+<span class="normal"><a href="#__codelineno-0-177">177</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-146"><a id="__codelineno-0-146" name="__codelineno-0-146"></a><span class="cm">/** Creation timestamp in microseconds since epoch. */</span>
+</span><span id="__span-0-147"><a id="__codelineno-0-147" name="__codelineno-0-147"></a><span class="nd">@Value.Auxiliary</span>
+</span><span id="__span-0-148"><a id="__codelineno-0-148" name="__codelineno-0-148"></a><span class="kt">long</span><span class="w"> </span><span class="nf">created</span><span class="p">();</span>
+</span><span id="__span-0-149"><a id="__codelineno-0-149" name="__codelineno-0-149"></a>
+</span><span id="__span-0-150"><a id="__codelineno-0-150" name="__codelineno-0-150"></a><span class="cm">/**</span>
+</span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="cm"> * Monotonically increasing counter representing the number of commits since the "beginning of</span>
+</span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="cm"> * time".</span>
+</span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="cm"> */</span>
+</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="kt">long</span><span class="w"> </span><span class="nf">seq</span><span class="p">();</span>
+</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a>
+</span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="cm">/**</span>
+</span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="cm"> * Zero, one or more parent-entry hashes of this commit, the nearest parent first.</span>
+</span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a><span class="cm"> *</span>
+</span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a><span class="cm"> * &lt;p&gt;This is an internal attribute used to more efficiently page through the commit log.</span>
+</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a><span class="cm"> *</span>
+</span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a><span class="cm"> * &lt;p&gt;Only the first, the nearest parent, shall be exposed to clients.</span>
+</span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a><span class="cm"> */</span>
+</span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a><span class="n">List</span><span class="o">&lt;</span><span class="n">ObjId</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">tail</span><span class="p">();</span>
+</span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a>
+</span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a><span class="k">default</span><span class="w"> </span><span class="n">ObjId</span><span class="w"> </span><span class="nf">directParent</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ObjId</span><span class="o">&gt;</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tail</span><span class="p">();</span>
+</span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">EMPTY_OBJ_ID</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="p">}</span>
+</span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a>
+</span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="cm">/** Additional parent commits, for example the ID of a merged commit. */</span>
+</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="n">List</span><span class="o">&lt;</span><span class="n">ObjId</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">secondaryParents</span><span class="p">();</span>
+</span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a>
+</span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a><span class="cm">/** All headers and values. Headers are multi-valued. */</span>
+</span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a><span class="n">CommitHeaders</span><span class="w"> </span><span class="nf">headers</span><span class="p">();</span>
+</span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a>
+</span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="cm">/** The commit message as plain text. */</span>
+</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="n">String</span><span class="w"> </span><span class="nf">message</span><span class="p">();</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java` L146–L178](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java#L146-L178) <span>@ nessie-0.108.4</span></p>
+
+<p>Six fields and one derived accessor, and the interesting field is <code>tail()</code>. Read its javadoc twice:</p>
+<blockquote>
+<p>Zero, one or more parent-entry hashes of this commit, the nearest parent first.</p>
+<p>This is an internal attribute used to more efficiently page through the commit log.</p>
+<p><strong>Only the first, the nearest parent, shall be exposed to clients.</strong></p>
+</blockquote>
+<p>So <code>tail</code> is not a semantic field. It is a read cache with a specific shape, and the derived accessor above — <code>directParent()</code>, which returns <code>EMPTY_OBJ_ID</code> for an empty tail and element 0 otherwise — is how the rest of the codebase reads the part of it that carries meaning. Everything that wants "the parent of this commit" calls that; only the log iterator in section 4 touches the rest.</p>
+<p><code>secondaryParents</code> is the semantic one. It holds the merged-from commit of a merge, and it is what makes this a DAG rather than a list. Chapter 9.2 uses it; this chapter is about the other list.</p>
+<p>The four index fields — <code>incrementalIndex</code>, <code>referenceIndex</code>, <code>referenceIndexStripes</code>, <code>incompleteIndex</code> — are deliberately omitted here. They are chapter 8.3, and they are the reason that chapter exists.</p>
+<h2 id="3-building-the-tail">3. Building the tail<a class="headerlink" href="#3-building-the-tail" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    subgraph C5["CommitObj #5 (head)"]
+      T5["tail = [ #4, #3, #2, #1, EMPTY ]"]
+    end
+    subgraph C4["CommitObj #4"]
+      T4["tail = [ #3, #2, #1, EMPTY ]"]
+    end
+    subgraph C1["CommitObj #1 (root)"]
+      T1["tail = [ EMPTY ]"]
+    end
+    C5 -- "tail[0] = the real parent" --&gt; C4
+    C4 -.-&gt; C1
+    T5 == "one persist.fetchObjs() call" ==&gt; C4
+    T5 == " " ==&gt; C1</code></pre>
+<p><em>(Drawn with <code>parents-per-commit = 5</code> so the boxes fit. The default is 20.)</em></p>
+<p>The maintenance is O(1) per commit, and it happens at the top of <code>buildCommitObj</code>:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitLogicImpl.buildCommitObj() — building the tail</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-554">554</a></span>
+<span class="normal"><a href="#__codelineno-1-555">555</a></span>
+<span class="normal"><a href="#__codelineno-1-556">556</a></span>
+<span class="normal"><a href="#__codelineno-1-557">557</a></span>
+<span class="normal"><a href="#__codelineno-1-558">558</a></span>
+<span class="normal"><a href="#__codelineno-1-559">559</a></span>
+<span class="normal"><a href="#__codelineno-1-560">560</a></span>
+<span class="normal"><a href="#__codelineno-1-561">561</a></span>
+<span class="normal"><a href="#__codelineno-1-562">562</a></span>
+<span class="normal"><a href="#__codelineno-1-563">563</a></span>
+<span class="normal"><a href="#__codelineno-1-564">564</a></span>
+<span class="normal"><a href="#__codelineno-1-565">565</a></span>
+<span class="normal"><a href="#__codelineno-1-566">566</a></span>
+<span class="normal"><a href="#__codelineno-1-567">567</a></span>
+<span class="normal"><a href="#__codelineno-1-568">568</a></span>
+<span class="normal"><a href="#__codelineno-1-569">569</a></span>
+<span class="normal"><a href="#__codelineno-1-570">570</a></span>
+<span class="normal"><a href="#__codelineno-1-571">571</a></span>
+<span class="normal"><a href="#__codelineno-1-572">572</a></span>
+<span class="normal"><a href="#__codelineno-1-573">573</a></span>
+<span class="normal"><a href="#__codelineno-1-574">574</a></span>
+<span class="normal"><a href="#__codelineno-1-575">575</a></span>
+<span class="normal"><a href="#__codelineno-1-576">576</a></span>
+<span class="normal"><a href="#__codelineno-1-577">577</a></span>
+<span class="normal"><a href="#__codelineno-1-578">578</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-554"><a id="__codelineno-1-554" name="__codelineno-1-554"></a><span class="n">ObjId</span><span class="w"> </span><span class="n">parentCommitId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">createCommit</span><span class="p">.</span><span class="na">parentCommitId</span><span class="p">();</span>
+</span><span id="__span-1-555"><a id="__codelineno-1-555" name="__codelineno-1-555"></a><span class="n">CommitObj</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-556"><a id="__codelineno-1-556" name="__codelineno-1-556"></a><span class="w">    </span><span class="n">CommitObj</span><span class="p">.</span><span class="na">commitBuilder</span><span class="p">()</span>
+</span><span id="__span-1-557"><a id="__codelineno-1-557" name="__codelineno-1-557"></a><span class="w">        </span><span class="p">.</span><span class="na">created</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="na">currentTimeMicros</span><span class="p">())</span>
+</span><span id="__span-1-558"><a id="__codelineno-1-558" name="__codelineno-1-558"></a><span class="w">        </span><span class="p">.</span><span class="na">addAllSecondaryParents</span><span class="p">(</span><span class="n">createCommit</span><span class="p">.</span><span class="na">secondaryParents</span><span class="p">())</span>
+</span><span id="__span-1-559"><a id="__codelineno-1-559" name="__codelineno-1-559"></a><span class="w">        </span><span class="p">.</span><span class="na">addTail</span><span class="p">(</span><span class="n">parentCommitId</span><span class="p">)</span>
+</span><span id="__span-1-560"><a id="__codelineno-1-560" name="__codelineno-1-560"></a><span class="w">        </span><span class="p">.</span><span class="na">message</span><span class="p">(</span><span class="n">createCommit</span><span class="p">.</span><span class="na">message</span><span class="p">())</span>
+</span><span id="__span-1-561"><a id="__codelineno-1-561" name="__codelineno-1-561"></a><span class="w">        </span><span class="p">.</span><span class="na">headers</span><span class="p">(</span><span class="n">createCommit</span><span class="p">.</span><span class="na">headers</span><span class="p">())</span>
+</span><span id="__span-1-562"><a id="__codelineno-1-562" name="__codelineno-1-562"></a><span class="w">        </span><span class="p">.</span><span class="na">commitType</span><span class="p">(</span><span class="n">createCommit</span><span class="p">.</span><span class="na">commitType</span><span class="p">());</span>
+</span><span id="__span-1-563"><a id="__codelineno-1-563" name="__codelineno-1-563"></a>
+</span><span id="__span-1-564"><a id="__codelineno-1-564" name="__codelineno-1-564"></a><span class="n">ObjIdHasher</span><span class="w"> </span><span class="n">hasher</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-565"><a id="__codelineno-1-565" name="__codelineno-1-565"></a><span class="w">    </span><span class="n">objIdHasher</span><span class="p">(</span><span class="n">COMMIT</span><span class="p">)</span>
+</span><span id="__span-1-566"><a id="__codelineno-1-566" name="__codelineno-1-566"></a><span class="w">        </span><span class="p">.</span><span class="na">hash</span><span class="p">(</span><span class="n">parentCommitId</span><span class="p">)</span>
+</span><span id="__span-1-567"><a id="__codelineno-1-567" name="__codelineno-1-567"></a><span class="w">        </span><span class="p">.</span><span class="na">hash</span><span class="p">(</span><span class="n">createCommit</span><span class="p">.</span><span class="na">message</span><span class="p">())</span>
+</span><span id="__span-1-568"><a id="__codelineno-1-568" name="__codelineno-1-568"></a><span class="w">        </span><span class="p">.</span><span class="na">hash</span><span class="p">(</span><span class="n">createCommit</span><span class="p">.</span><span class="na">headers</span><span class="p">());</span>
+</span><span id="__span-1-569"><a id="__codelineno-1-569" name="__codelineno-1-569"></a>
+</span><span id="__span-1-570"><a id="__codelineno-1-570" name="__codelineno-1-570"></a><span class="n">CommitObj</span><span class="w"> </span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fetchCommit</span><span class="p">(</span><span class="n">parentCommitId</span><span class="p">);</span>
+</span><span id="__span-1-571"><a id="__codelineno-1-571" name="__codelineno-1-571"></a><span class="n">StoreIndex</span><span class="o">&lt;</span><span class="n">CommitOp</span><span class="o">&gt;</span><span class="w"> </span><span class="n">index</span><span class="p">;</span>
+</span><span id="__span-1-572"><a id="__codelineno-1-572" name="__codelineno-1-572"></a><span class="n">StoreIndex</span><span class="o">&lt;</span><span class="n">CommitOp</span><span class="o">&gt;</span><span class="w"> </span><span class="n">fullIndex</span><span class="p">;</span>
+</span><span id="__span-1-573"><a id="__codelineno-1-573" name="__codelineno-1-573"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">parent</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-574"><a id="__codelineno-1-574" name="__codelineno-1-574"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ObjId</span><span class="o">&gt;</span><span class="w"> </span><span class="n">parentTail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parent</span><span class="p">.</span><span class="na">tail</span><span class="p">();</span>
+</span><span id="__span-1-575"><a id="__codelineno-1-575" name="__codelineno-1-575"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="na">min</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="na">parentsPerCommit</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">parentTail</span><span class="p">.</span><span class="na">size</span><span class="p">());</span>
+</span><span id="__span-1-576"><a id="__codelineno-1-576" name="__codelineno-1-576"></a><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-577"><a id="__codelineno-1-577" name="__codelineno-1-577"></a><span class="w">    </span><span class="n">c</span><span class="p">.</span><span class="na">addTail</span><span class="p">(</span><span class="n">parentTail</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+</span><span id="__span-1-578"><a id="__codelineno-1-578" name="__codelineno-1-578"></a><span class="w">  </span><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L554–L578](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L554-L578) <span>@ nessie-0.108.4</span></p>
+
+<p>Two statements do the work. <code>.addTail(parentCommitId)</code> puts the real parent at position 0. Then, if a parent exists, the loop copies the first <code>parentsPerCommit - 1</code> entries of the <em>parent's</em> tail behind it. A sliding window, shifted by one, on every commit. History is never walked to build it.</p>
+<p>The size is a table-level knob, and upstream states the purpose in one sentence:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">StoreConfig.parentsPerCommit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-188">188</a></span>
+<span class="normal"><a href="#__codelineno-2-189">189</a></span>
+<span class="normal"><a href="#__codelineno-2-190">190</a></span>
+<span class="normal"><a href="#__codelineno-2-191">191</a></span>
+<span class="normal"><a href="#__codelineno-2-192">192</a></span>
+<span class="normal"><a href="#__codelineno-2-193">193</a></span>
+<span class="normal"><a href="#__codelineno-2-194">194</a></span>
+<span class="normal"><a href="#__codelineno-2-195">195</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-188"><a id="__codelineno-2-188" name="__codelineno-2-188"></a><span class="cm">/**</span>
+</span><span id="__span-2-189"><a id="__codelineno-2-189" name="__codelineno-2-189"></a><span class="cm"> * Number of parent-commit-hashes stored in each commit. This is used to allow bulk-fetches when</span>
+</span><span id="__span-2-190"><a id="__codelineno-2-190" name="__codelineno-2-190"></a><span class="cm"> * accessing the commit log.</span>
+</span><span id="__span-2-191"><a id="__codelineno-2-191" name="__codelineno-2-191"></a><span class="cm"> */</span>
+</span><span id="__span-2-192"><a id="__codelineno-2-192" name="__codelineno-2-192"></a><span class="nd">@Value.Default</span>
+</span><span id="__span-2-193"><a id="__codelineno-2-193" name="__codelineno-2-193"></a><span class="k">default</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">parentsPerCommit</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-194"><a id="__codelineno-2-194" name="__codelineno-2-194"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">DEFAULT_PARENTS_PER_COMMIT</span><span class="p">;</span>
+</span><span id="__span-2-195"><a id="__codelineno-2-195" name="__codelineno-2-195"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/config/StoreConfig.java` L188–L195](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/config/StoreConfig.java#L188-L195) <span>@ nessie-0.108.4</span></p>
+
+<p>Twenty parents at 33 serialized bytes each is 660 bytes of overhead per commit. That is the price, paid on every write, to make reads twenty times cheaper in round trips.</p>
+<h2 id="4-consuming-the-tail">4. Consuming the tail<a class="headerlink" href="#4-consuming-the-tail" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitLogIter.computeNext()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-134">134</a></span>
+<span class="normal"><a href="#__codelineno-3-135">135</a></span>
+<span class="normal"><a href="#__codelineno-3-136">136</a></span>
+<span class="normal"><a href="#__codelineno-3-137">137</a></span>
+<span class="normal"><a href="#__codelineno-3-138">138</a></span>
+<span class="normal"><a href="#__codelineno-3-139">139</a></span>
+<span class="normal"><a href="#__codelineno-3-140">140</a></span>
+<span class="normal"><a href="#__codelineno-3-141">141</a></span>
+<span class="normal"><a href="#__codelineno-3-142">142</a></span>
+<span class="normal"><a href="#__codelineno-3-143">143</a></span>
+<span class="normal"><a href="#__codelineno-3-144">144</a></span>
+<span class="normal"><a href="#__codelineno-3-145">145</a></span>
+<span class="normal"><a href="#__codelineno-3-146">146</a></span>
+<span class="normal"><a href="#__codelineno-3-147">147</a></span>
+<span class="normal"><a href="#__codelineno-3-148">148</a></span>
+<span class="normal"><a href="#__codelineno-3-149">149</a></span>
+<span class="normal"><a href="#__codelineno-3-150">150</a></span>
+<span class="normal"><a href="#__codelineno-3-151">151</a></span>
+<span class="normal"><a href="#__codelineno-3-152">152</a></span>
+<span class="normal"><a href="#__codelineno-3-153">153</a></span>
+<span class="normal"><a href="#__codelineno-3-154">154</a></span>
+<span class="normal"><a href="#__codelineno-3-155">155</a></span>
+<span class="normal"><a href="#__codelineno-3-156">156</a></span>
+<span class="normal"><a href="#__codelineno-3-157">157</a></span>
+<span class="normal"><a href="#__codelineno-3-158">158</a></span>
+<span class="normal"><a href="#__codelineno-3-159">159</a></span>
+<span class="normal"><a href="#__codelineno-3-160">160</a></span>
+<span class="normal"><a href="#__codelineno-3-161">161</a></span>
+<span class="normal"><a href="#__codelineno-3-162">162</a></span>
+<span class="normal"><a href="#__codelineno-3-163">163</a></span>
+<span class="normal"><a href="#__codelineno-3-164">164</a></span>
+<span class="normal"><a href="#__codelineno-3-165">165</a></span>
+<span class="normal"><a href="#__codelineno-3-166">166</a></span>
+<span class="normal"><a href="#__codelineno-3-167">167</a></span>
+<span class="normal"><a href="#__codelineno-3-168">168</a></span>
+<span class="normal"><a href="#__codelineno-3-169">169</a></span>
+<span class="normal"><a href="#__codelineno-3-170">170</a></span>
+<span class="normal"><a href="#__codelineno-3-171">171</a></span>
+<span class="normal"><a href="#__codelineno-3-172">172</a></span>
+<span class="normal"><a href="#__codelineno-3-173">173</a></span>
+<span class="normal"><a href="#__codelineno-3-174">174</a></span>
+<span class="normal"><a href="#__codelineno-3-175">175</a></span>
+<span class="normal"><a href="#__codelineno-3-176">176</a></span>
+<span class="normal"><a href="#__codelineno-3-177">177</a></span>
+<span class="normal"><a href="#__codelineno-3-178">178</a></span>
+<span class="normal"><a href="#__codelineno-3-179">179</a></span>
+<span class="normal"><a href="#__codelineno-3-180">180</a></span>
+<span class="normal"><a href="#__codelineno-3-181">181</a></span>
+<span class="normal"><a href="#__codelineno-3-182">182</a></span>
+<span class="normal"><a href="#__codelineno-3-183">183</a></span>
+<span class="normal"><a href="#__codelineno-3-184">184</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-134"><a id="__codelineno-3-134" name="__codelineno-3-134"></a><span class="nd">@Override</span>
+</span><span id="__span-3-135"><a id="__codelineno-3-135" name="__codelineno-3-135"></a><span class="kd">protected</span><span class="w"> </span><span class="n">CommitObj</span><span class="w"> </span><span class="nf">computeNext</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-136"><a id="__codelineno-3-136" name="__codelineno-3-136"></a><span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-137"><a id="__codelineno-3-137" name="__codelineno-3-137"></a><span class="w">    </span><span class="n">Iterator</span><span class="o">&lt;</span><span class="n">Obj</span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">batch</span><span class="p">;</span>
+</span><span id="__span-3-138"><a id="__codelineno-3-138" name="__codelineno-3-138"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">b</span><span class="p">.</span><span class="na">hasNext</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-139"><a id="__codelineno-3-139" name="__codelineno-3-139"></a><span class="w">      </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ObjId</span><span class="o">&gt;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
+</span><span id="__span-3-140"><a id="__codelineno-3-140" name="__codelineno-3-140"></a><span class="w">      </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-3-141"><a id="__codelineno-3-141" name="__codelineno-3-141"></a>
+</span><span id="__span-3-142"><a id="__codelineno-3-142" name="__codelineno-3-142"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-143"><a id="__codelineno-3-143" name="__codelineno-3-143"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">endOfData</span><span class="p">();</span>
+</span><span id="__span-3-144"><a id="__codelineno-3-144" name="__codelineno-3-144"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-145"><a id="__codelineno-3-145" name="__codelineno-3-145"></a><span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="na">indexOf</span><span class="p">(</span><span class="n">EMPTY_OBJ_ID</span><span class="p">);</span>
+</span><span id="__span-3-146"><a id="__codelineno-3-146" name="__codelineno-3-146"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-147"><a id="__codelineno-3-147" name="__codelineno-3-147"></a><span class="w">        </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="na">subList</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+</span><span id="__span-3-148"><a id="__codelineno-3-148" name="__codelineno-3-148"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-149"><a id="__codelineno-3-149" name="__codelineno-3-149"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-150"><a id="__codelineno-3-150" name="__codelineno-3-150"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">endOfData</span><span class="p">();</span>
+</span><span id="__span-3-151"><a id="__codelineno-3-151" name="__codelineno-3-151"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-152"><a id="__codelineno-3-152" name="__codelineno-3-152"></a>
+</span><span id="__span-3-153"><a id="__codelineno-3-153" name="__codelineno-3-153"></a><span class="w">      </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-154"><a id="__codelineno-3-154" name="__codelineno-3-154"></a><span class="w">        </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">batch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">persist</span><span class="p">.</span><span class="na">fetchObjs</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="na">toArray</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ObjId</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">))).</span><span class="na">iterator</span><span class="p">();</span>
+</span><span id="__span-3-155"><a id="__codelineno-3-155" name="__codelineno-3-155"></a><span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">ObjNotFoundException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-156"><a id="__codelineno-3-156" name="__codelineno-3-156"></a><span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ObjId</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="na">objIds</span><span class="p">();</span>
+</span><span id="__span-3-157"><a id="__codelineno-3-157" name="__codelineno-3-157"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NoSuchElementException</span><span class="p">(</span>
+</span><span id="__span-3-158"><a id="__codelineno-3-158" name="__codelineno-3-158"></a><span class="w">            </span><span class="n">ids</span><span class="p">.</span><span class="na">size</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-3-159"><a id="__codelineno-3-159" name="__codelineno-3-159"></a><span class="w">                </span><span class="o">?</span><span class="w"> </span><span class="s">"Commit '"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ids</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"' not found"</span>
+</span><span id="__span-3-160"><a id="__codelineno-3-160" name="__codelineno-3-160"></a><span class="w">                </span><span class="p">:</span><span class="w"> </span><span class="s">"Commit(s) "</span>
+</span><span id="__span-3-161"><a id="__codelineno-3-161" name="__codelineno-3-161"></a><span class="w">                    </span><span class="o">+</span><span class="w"> </span><span class="n">ids</span><span class="p">.</span><span class="na">stream</span><span class="p">().</span><span class="na">map</span><span class="p">(</span><span class="n">ObjId</span><span class="p">::</span><span class="n">toString</span><span class="p">).</span><span class="na">collect</span><span class="p">(</span><span class="n">Collectors</span><span class="p">.</span><span class="na">joining</span><span class="p">(</span><span class="s">", "</span><span class="p">))</span>
+</span><span id="__span-3-162"><a id="__codelineno-3-162" name="__codelineno-3-162"></a><span class="w">                    </span><span class="o">+</span><span class="w"> </span><span class="s">" not found"</span><span class="p">);</span>
+</span><span id="__span-3-163"><a id="__codelineno-3-163" name="__codelineno-3-163"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-164"><a id="__codelineno-3-164" name="__codelineno-3-164"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-165"><a id="__codelineno-3-165" name="__codelineno-3-165"></a>
+</span><span id="__span-3-166"><a id="__codelineno-3-166" name="__codelineno-3-166"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="na">hasNext</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-167"><a id="__codelineno-3-167" name="__codelineno-3-167"></a><span class="w">      </span><span class="n">CommitObj</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">CommitObj</span><span class="p">)</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="na">next</span><span class="p">();</span>
+</span><span id="__span-3-168"><a id="__codelineno-3-168" name="__codelineno-3-168"></a>
+</span><span id="__span-3-169"><a id="__codelineno-3-169" name="__codelineno-3-169"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-170"><a id="__codelineno-3-170" name="__codelineno-3-170"></a><span class="w">        </span><span class="c1">// oops, commit not found...</span>
+</span><span id="__span-3-171"><a id="__codelineno-3-171" name="__codelineno-3-171"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">endOfData</span><span class="p">();</span>
+</span><span id="__span-3-172"><a id="__codelineno-3-172" name="__codelineno-3-172"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-173"><a id="__codelineno-3-173" name="__codelineno-3-173"></a>
+</span><span id="__span-3-174"><a id="__codelineno-3-174" name="__codelineno-3-174"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="na">id</span><span class="p">().</span><span class="na">equals</span><span class="p">(</span><span class="n">endCommitId</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-175"><a id="__codelineno-3-175" name="__codelineno-3-175"></a><span class="w">        </span><span class="n">batch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emptyIterator</span><span class="p">();</span>
+</span><span id="__span-3-176"><a id="__codelineno-3-176" name="__codelineno-3-176"></a><span class="w">        </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-3-177"><a id="__codelineno-3-177" name="__codelineno-3-177"></a><span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">b</span><span class="p">.</span><span class="na">hasNext</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-178"><a id="__codelineno-3-178" name="__codelineno-3-178"></a><span class="w">        </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">tail</span><span class="p">();</span>
+</span><span id="__span-3-179"><a id="__codelineno-3-179" name="__codelineno-3-179"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-180"><a id="__codelineno-3-180" name="__codelineno-3-180"></a>
+</span><span id="__span-3-181"><a id="__codelineno-3-181" name="__codelineno-3-181"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+</span><span id="__span-3-182"><a id="__codelineno-3-182" name="__codelineno-3-182"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-183"><a id="__codelineno-3-183" name="__codelineno-3-183"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-184"><a id="__codelineno-3-184" name="__codelineno-3-184"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L134–L184](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L134-L184) <span>@ nessie-0.108.4</span></p>
+
+<p>The iterator is a two-level loop, and the shape repays attention:</p>
+<p><strong>The outer level refills a batch.</strong> <code>next</code> holds a list of IDs; <code>persist.fetchObjs(n.toArray(...))</code> fetches all of them in one call. Chapter 8.1's bulk-read method exists for exactly this.</p>
+<p><strong><code>EMPTY_OBJ_ID</code> truncates.</strong> <code>int i = n.indexOf(EMPTY_OBJ_ID); if (i != -1) n = n.subList(0, i);</code> — the tail of an early commit is padded to nothing by the sentinel, and the iterator trims the batch there rather than asking the database for an ID that does not exist.</p>
+<p><strong>The refill comes from the <em>last</em> commit of the batch.</strong> <code>else if (!b.hasNext()) { next = c.tail(); }</code> — only when the current batch is exhausted does the iterator take a new tail. Take it from the first commit and the next batch would overlap the current one by nineteen entries; taking it from the last makes the windows abut exactly.</p>
+<p>The cost, drawn against the alternative:</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant N as CommitLogIter
+    participant DB as Persist
+    Note over N,DB: with tail (actual)
+    N-&gt;&gt;DB: fetchObjs([#5])
+    DB--&gt;&gt;N: commit #5
+    N-&gt;&gt;DB: fetchObjs([#4,#3,#2,#1])
+    DB--&gt;&gt;N: 4 commits
+    Note over N,DB: with a single parent pointer (hypothetical)
+    N-&gt;&gt;DB: fetchObj(#5)
+    N-&gt;&gt;DB: fetchObj(#4)
+    N-&gt;&gt;DB: fetchObj(#3)
+    N-&gt;&gt;DB: fetchObj(#2)</code></pre>
+<p><code>commitIdLog</code> uses the same trick without the fetch: it walks <code>tail()</code> for free and only loads a commit when it needs the <em>next</em> window. Listing commit IDs on a branch is one object read per twenty IDs.</p>
+<p>Both iterators also carry an <code>endCommitId</code>, and both stop on it the same way — when the commit just returned matches, the batch is emptied and <code>next</code> is set to <code>null</code>, so the following call ends the iteration. That is how a bounded log query terminates without knowing in advance how far apart its two hashes are. It also means an <code>endCommitId</code> that is not an ancestor of the start never fires at all: the walk simply runs to the root and stops on the <code>EMPTY_OBJ_ID</code> sentinel instead. The bound is a landmark to stop at, not a filter.</p>
+<h2 id="5-what-is-actually-in-the-commit-id">5. What is actually in the commit ID<a class="headerlink" href="#5-what-is-actually-in-the-commit-id" title="Permanent link">&para;</a></h2>
+<p><code>buildCommitObj</code> ends over 150 lines below where section 3 left it, with <code>return c.incrementalIndex(index.serialize()).id(hasher.generate()).build();</code>. Everything in between is a conflict check or a call into a hasher that was seeded ten lines into the snippet above, with three things:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">ObjIdHasher</span><span class="w"> </span><span class="n">hasher</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">objIdHasher</span><span class="p">(</span><span class="n">COMMIT</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">        </span><span class="p">.</span><span class="na">hash</span><span class="p">(</span><span class="n">parentCommitId</span><span class="p">)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">        </span><span class="p">.</span><span class="na">hash</span><span class="p">(</span><span class="n">createCommit</span><span class="p">.</span><span class="na">message</span><span class="p">())</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">        </span><span class="p">.</span><span class="na">hash</span><span class="p">(</span><span class="n">createCommit</span><span class="p">.</span><span class="na">headers</span><span class="p">());</span>
+</span></code></pre></div>
+<p>Each accepted operation then folds itself in. A <code>Remove</code> contributes <code>2</code>, its payload, its key and its content ID; an <code>Add</code> contributes <code>1</code>, its key, its payload, the value's bytes and its content ID. The leading <code>1</code> and <code>2</code> are discriminators, so that adding a key and removing it cannot hash to the same digest.</p>
+<p>So the commit ID covers <strong>parent, message, headers, adds and removes</strong>. Not <code>seq</code>. Not <code>created</code>. Not <code>secondaryParents</code>. Not <code>tail[1..]</code>.</p>
+<p>And not <code>unchanged</code> — which is worth stopping on, because an <code>Unchanged</code> is an operation the client sent and the commit accepted:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitLogicImpl.buildCommitObj() — the unchanged loop</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-641">641</a></span>
+<span class="normal"><a href="#__codelineno-5-642">642</a></span>
+<span class="normal"><a href="#__codelineno-5-643">643</a></span>
+<span class="normal"><a href="#__codelineno-5-644">644</a></span>
+<span class="normal"><a href="#__codelineno-5-645">645</a></span>
+<span class="normal"><a href="#__codelineno-5-646">646</a></span>
+<span class="normal"><a href="#__codelineno-5-647">647</a></span>
+<span class="normal"><a href="#__codelineno-5-648">648</a></span>
+<span class="normal"><a href="#__codelineno-5-649">649</a></span>
+<span class="normal"><a href="#__codelineno-5-650">650</a></span>
+<span class="normal"><a href="#__codelineno-5-651">651</a></span>
+<span class="normal"><a href="#__codelineno-5-652">652</a></span>
+<span class="normal"><a href="#__codelineno-5-653">653</a></span>
+<span class="normal"><a href="#__codelineno-5-654">654</a></span>
+<span class="normal"><a href="#__codelineno-5-655">655</a></span>
+<span class="normal"><a href="#__codelineno-5-656">656</a></span>
+<span class="normal"><a href="#__codelineno-5-657">657</a></span>
+<span class="normal"><a href="#__codelineno-5-658">658</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-641"><a id="__codelineno-5-641" name="__codelineno-5-641"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Unchanged</span><span class="w"> </span><span class="n">unchanged</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">createCommit</span><span class="p">.</span><span class="na">unchanged</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-642"><a id="__codelineno-5-642" name="__codelineno-5-642"></a><span class="w">  </span><span class="n">StoreKey</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unchanged</span><span class="p">.</span><span class="na">key</span><span class="p">();</span>
+</span><span id="__span-5-643"><a id="__codelineno-5-643" name="__codelineno-5-643"></a><span class="w">  </span><span class="n">UUID</span><span class="w"> </span><span class="n">contentId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unchanged</span><span class="p">.</span><span class="na">contentId</span><span class="p">();</span>
+</span><span id="__span-5-644"><a id="__codelineno-5-644" name="__codelineno-5-644"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unchanged</span><span class="p">.</span><span class="na">payload</span><span class="p">();</span>
+</span><span id="__span-5-645"><a id="__codelineno-5-645" name="__codelineno-5-645"></a>
+</span><span id="__span-5-646"><a id="__codelineno-5-646" name="__codelineno-5-646"></a><span class="w">  </span><span class="kt">boolean</span><span class="w"> </span><span class="n">reAdded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reAddedKeys</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+</span><span id="__span-5-647"><a id="__codelineno-5-647" name="__codelineno-5-647"></a><span class="w">  </span><span class="n">CommitOp</span><span class="w"> </span><span class="n">existingContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">existingContentForCommit</span><span class="p">(</span><span class="n">fullIndex</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">reAdded</span><span class="p">);</span>
+</span><span id="__span-5-648"><a id="__codelineno-5-648" name="__codelineno-5-648"></a>
+</span><span id="__span-5-649"><a id="__codelineno-5-649" name="__codelineno-5-649"></a><span class="w">  </span><span class="n">ObjId</span><span class="w"> </span><span class="n">expectedValue</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-650"><a id="__codelineno-5-650" name="__codelineno-5-650"></a><span class="w">      </span><span class="n">expectedValueReplacement</span><span class="p">.</span><span class="na">maybeReplaceValue</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">unchanged</span><span class="p">.</span><span class="na">expectedValue</span><span class="p">());</span>
+</span><span id="__span-5-651"><a id="__codelineno-5-651" name="__codelineno-5-651"></a><span class="w">  </span><span class="n">CommitConflict</span><span class="w"> </span><span class="n">conflict</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-652"><a id="__codelineno-5-652" name="__codelineno-5-652"></a><span class="w">      </span><span class="n">checkForConflict</span><span class="p">(</span>
+</span><span id="__span-5-653"><a id="__codelineno-5-653" name="__codelineno-5-653"></a><span class="w">          </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">contentId</span><span class="p">,</span><span class="w"> </span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">existingContent</span><span class="p">,</span><span class="w"> </span><span class="n">reAdded</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">expectedValue</span><span class="p">);</span>
+</span><span id="__span-5-654"><a id="__codelineno-5-654" name="__codelineno-5-654"></a>
+</span><span id="__span-5-655"><a id="__codelineno-5-655" name="__codelineno-5-655"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">conflict</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-656"><a id="__codelineno-5-656" name="__codelineno-5-656"></a><span class="w">    </span><span class="n">handleConflict</span><span class="p">(</span><span class="n">conflictHandler</span><span class="p">,</span><span class="w"> </span><span class="n">conflicts</span><span class="p">,</span><span class="w"> </span><span class="n">conflict</span><span class="p">);</span>
+</span><span id="__span-5-657"><a id="__codelineno-5-657" name="__codelineno-5-657"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-658"><a id="__codelineno-5-658" name="__codelineno-5-658"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L641–L658](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L641-L658) <span>@ nessie-0.108.4</span></p>
+
+<p>The loop resolves the key, checks it for conflicts, and never touches the hasher. That is the right call: an <code>Unchanged</code> is an assertion about the <em>parent</em>, not a change to the child, and two commits that differ only in what they asserted really do produce identical state. But it has a consequence. Those two commits are the same object, so if both are attempted the second is absorbed by section 6's collision path rather than stored — and the assertion the second client made is not recorded anywhere. <code>Unchanged</code> is enforced at commit time and forgotten immediately after.</p>
+<p>Those omissions are the honest statement of what the tail is. Entry 0 is part of the commit's identity because it <em>is</em> <code>parentCommitId</code>; entries 1 through 19 are a denormalized cache that nothing verifies and nothing would notice was wrong. Section 7 returns to why that trade was worth making.</p>
+<h2 id="6-storing-a-commit">6. Storing a commit<a class="headerlink" href="#6-storing-a-commit" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitLogicImpl.mitigateHashCollision()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-313">313</a></span>
+<span class="normal"><a href="#__codelineno-6-314">314</a></span>
+<span class="normal"><a href="#__codelineno-6-315">315</a></span>
+<span class="normal"><a href="#__codelineno-6-316">316</a></span>
+<span class="normal"><a href="#__codelineno-6-317">317</a></span>
+<span class="normal"><a href="#__codelineno-6-318">318</a></span>
+<span class="normal"><a href="#__codelineno-6-319">319</a></span>
+<span class="normal"><a href="#__codelineno-6-320">320</a></span>
+<span class="normal"><a href="#__codelineno-6-321">321</a></span>
+<span class="normal"><a href="#__codelineno-6-322">322</a></span>
+<span class="normal"><a href="#__codelineno-6-323">323</a></span>
+<span class="normal"><a href="#__codelineno-6-324">324</a></span>
+<span class="normal"><a href="#__codelineno-6-325">325</a></span>
+<span class="normal"><a href="#__codelineno-6-326">326</a></span>
+<span class="normal"><a href="#__codelineno-6-327">327</a></span>
+<span class="normal"><a href="#__codelineno-6-328">328</a></span>
+<span class="normal"><a href="#__codelineno-6-329">329</a></span>
+<span class="normal"><a href="#__codelineno-6-330">330</a></span>
+<span class="normal"><a href="#__codelineno-6-331">331</a></span>
+<span class="normal"><a href="#__codelineno-6-332">332</a></span>
+<span class="normal"><a href="#__codelineno-6-333">333</a></span>
+<span class="normal"><a href="#__codelineno-6-334">334</a></span>
+<span class="normal"><a href="#__codelineno-6-335">335</a></span>
+<span class="normal"><a href="#__codelineno-6-336">336</a></span>
+<span class="normal"><a href="#__codelineno-6-337">337</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-313"><a id="__codelineno-6-313" name="__codelineno-6-313"></a><span class="cm">/**</span>
+</span><span id="__span-6-314"><a id="__codelineno-6-314" name="__codelineno-6-314"></a><span class="cm"> * Called from the above {@link #storeCommit(CommitObj, List)}, handles the case when it could not</span>
+</span><span id="__span-6-315"><a id="__codelineno-6-315" name="__codelineno-6-315"></a><span class="cm"> * persist the {@link CommitObj} (duplicate object-id). Checks whether the persisted object is</span>
+</span><span id="__span-6-316"><a id="__codelineno-6-316" name="__codelineno-6-316"></a><span class="cm"> * actually the object that's expected to be persisted - and yields "OK" in that case. This</span>
+</span><span id="__span-6-317"><a id="__codelineno-6-317" name="__codelineno-6-317"></a><span class="cm"> * mitigates the risk of false-positive hash-collision errors in case the backend database runs</span>
+</span><span id="__span-6-318"><a id="__codelineno-6-318" name="__codelineno-6-318"></a><span class="cm"> * into timeout situations with an undefined outcome.</span>
+</span><span id="__span-6-319"><a id="__codelineno-6-319" name="__codelineno-6-319"></a><span class="cm"> */</span>
+</span><span id="__span-6-320"><a id="__codelineno-6-320" name="__codelineno-6-320"></a><span class="nd">@NotNull</span>
+</span><span id="__span-6-321"><a id="__codelineno-6-321" name="__codelineno-6-321"></a><span class="kd">private</span><span class="w"> </span><span class="n">StoredObjResult</span><span class="o">&lt;</span><span class="n">CommitObj</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">mitigateHashCollision</span><span class="p">(</span><span class="kt">boolean</span><span class="w"> </span><span class="n">storeResult</span><span class="p">,</span><span class="w"> </span><span class="n">CommitObj</span><span class="w"> </span><span class="n">commit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-322"><a id="__codelineno-6-322" name="__codelineno-6-322"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">storeResult</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-323"><a id="__codelineno-6-323" name="__codelineno-6-323"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">storedObjResult</span><span class="p">(</span><span class="n">commit</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+</span><span id="__span-6-324"><a id="__codelineno-6-324" name="__codelineno-6-324"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-325"><a id="__codelineno-6-325" name="__codelineno-6-325"></a>
+</span><span id="__span-6-326"><a id="__codelineno-6-326" name="__codelineno-6-326"></a><span class="w">  </span><span class="c1">// Check whether the existing object is the same commit (w/o considering the internal "created"</span>
+</span><span id="__span-6-327"><a id="__codelineno-6-327" name="__codelineno-6-327"></a><span class="w">  </span><span class="c1">// timestamp of the commit-obj).</span>
+</span><span id="__span-6-328"><a id="__codelineno-6-328" name="__codelineno-6-328"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-329"><a id="__codelineno-6-329" name="__codelineno-6-329"></a><span class="w">    </span><span class="n">CommitObj</span><span class="w"> </span><span class="n">existing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">persist</span><span class="p">.</span><span class="na">fetchTypedObj</span><span class="p">(</span><span class="n">commit</span><span class="p">.</span><span class="na">id</span><span class="p">(),</span><span class="w"> </span><span class="n">COMMIT</span><span class="p">,</span><span class="w"> </span><span class="n">CommitObj</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+</span><span id="__span-6-330"><a id="__codelineno-6-330" name="__codelineno-6-330"></a><span class="w">    </span><span class="n">CommitObj</span><span class="w"> </span><span class="n">commitWithNewCreatedTimestamp</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-6-331"><a id="__codelineno-6-331" name="__codelineno-6-331"></a><span class="w">        </span><span class="n">CommitObj</span><span class="p">.</span><span class="na">commitBuilder</span><span class="p">().</span><span class="na">from</span><span class="p">(</span><span class="n">commit</span><span class="p">).</span><span class="na">created</span><span class="p">(</span><span class="n">existing</span><span class="p">.</span><span class="na">created</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span>
+</span><span id="__span-6-332"><a id="__codelineno-6-332" name="__codelineno-6-332"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">storedObjResult</span><span class="p">(</span>
+</span><span id="__span-6-333"><a id="__codelineno-6-333" name="__codelineno-6-333"></a><span class="w">        </span><span class="n">commitWithNewCreatedTimestamp</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">existing</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+</span><span id="__span-6-334"><a id="__codelineno-6-334" name="__codelineno-6-334"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">ObjNotFoundException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-335"><a id="__codelineno-6-335" name="__codelineno-6-335"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-6-336"><a id="__codelineno-6-336" name="__codelineno-6-336"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-337"><a id="__codelineno-6-337" name="__codelineno-6-337"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L313–L337](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L313-L337) <span>@ nessie-0.108.4</span></p>
+
+<p><code>storeCommit</code> writes the commit and its value objects in one <code>storeObjs</code> call and then passes the commit's boolean to this method. Recall from 8.1 that <code>false</code> means "an object with this ID already exists".</p>
+<p>Because the ID is a hash over parent, message, headers and operations, that is usually not a collision at all — it is <em>the same commit, written twice</em>. A client that retries its own request produces it. Nessie's own retry after an indeterminate backend result produces it. So instead of failing, <code>mitigateHashCollision</code> re-reads the stored object and compares it field by field.</p>
+<p>The javadoc names the failure mode it is defending against: it "mitigates the risk of false-positive hash-collision errors in case the backend database runs into timeout situations with an undefined outcome". Chapter 8.4 shows where those timeouts come from.</p>
+<p>One detail is easy to read past. The comparison rebuilds the candidate with the <em>stored</em> commit's <code>created</code> timestamp before calling <code>equals</code>. <code>created</code> is <code>@Value.Auxiliary</code> — excluded from <code>equals</code>/<code>hashCode</code> — precisely so that two attempts separated in time still compare equal.</p>
+<h2 id="7-gotchas">7. Gotchas<a class="headerlink" href="#7-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">The tail is a cache, and only its first entry is part of the commit's identity</p>
+<p><code>tail[1..]</code>, <code>secondaryParents</code> and <code>seq</code> are not hashed into the commit ID. Nothing in <code>CommitLogIter</code> re-validates that <code>tail[3]</code> really is the great-grandparent, and nothing in the ID would change if it were not. The same holds for the index fields, and that is what makes a V2 repository import possible: it writes each commit with the ID recorded in the export and marks it <code>incompleteIndex</code>, and a later pass fills in the real index structures — the only code in Nessie permitted to update a stored commit — without any of those IDs moving. The price of that freedom is that tail corruption is a silent-wrong-answer bug, not a detected one.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>seq</code> is per-branch, not global</p>
+<p>It is assigned as <code>parent.seq() + 1</code>. Two sibling commits on two branches share a <code>seq</code>; a merge does not renumber anything. The javadoc's phrasing — "monotonically increasing counter representing the number of commits since the 'beginning of time'" — reads like a global clock and is the trap. Anyone using <code>seq</code> as a repository-wide ordering, watermark, or "newer than" predicate is wrong the moment a second branch exists.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">'Hash collision detected' almost never means a hash collision</p>
+<p>When you see it in a log, the overwhelmingly likely cause is a client that replayed an identical commit — same parent, same message, same headers, same operations — and therefore computed the same ID. <code>mitigateHashCollision</code> exists because the naive reading of <code>storeObj</code> returning <code>false</code> produces a scary and wrong error message.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>Unchanged</code> assertions are checked and then forgotten</p>
+<p>An <code>Unchanged</code> operation is validated against the parent index like any other action, but it never reaches the hasher, so it does not appear in the commit ID. Two commits that make the same changes while asserting different things about other keys are therefore the same object. The first to be stored wins; the second is absorbed as a duplicate. Nothing in the stored commit records that the assertion was ever made, so <code>Unchanged</code> cannot be audited after the fact — it is a precondition, not a record.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Identical commits made a day apart share an ID</p>
+<p>Since <code>created</code> is not hashed and is excluded from equality, two commits with the same parent, message, headers and operations <em>are</em> the same object, whenever they were made. Anyone assuming a commit ID encodes a moment in time will be surprised.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The commit graph is a DAG of content hashes, but reading it is latency-bound, so every commit denormalizes its nearest 20 ancestors into <code>tail</code>.</li>
+<li>The tail is maintained in O(1) per commit — parent ID, then the first 19 entries of the parent's tail — and consumed as one bulk fetch per 20 commits.</li>
+<li>Only <code>tail[0]</code> is the real parent and only <code>tail[0]</code> is hashed into the commit ID; the rest is an unverified read cache, by design.</li>
+<li><code>secondaryParents</code> is the semantic multi-parent field and is what makes merges representable.</li>
+<li><code>seq</code> counts commits along one lineage. It is not a repository-wide ordering.</li>
+<li>The commit ID covers parent, message, headers, adds and removes — and nothing else. <code>Unchanged</code> assertions are enforced but unhashed, so they leave no trace in the commit they guarded.</li>
+<li>Storing a commit that already exists is normal, not a collision; <code>mitigateHashCollision</code> re-reads and compares before it will say otherwise.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The commit object</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java"><code>versioned/storage/common/.../objtypes/CommitObj.java</code></a></td>
+</tr>
+<tr>
+<td>Tail construction, log iteration, storing</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java"><code>.../logic/CommitLogicImpl.java</code></a></td>
+</tr>
+<tr>
+<td>The documented commit-logic contract</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogic.java"><code>.../logic/CommitLogic.java</code></a></td>
+</tr>
+<tr>
+<td><code>parents-per-commit</code> and its default</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/config/StoreConfig.java"><code>.../config/StoreConfig.java</code></a></td>
+</tr>
+<tr>
+<td>Headers and commit type</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitHeaders.java"><code>.../objtypes/CommitHeaders.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitType.java"><code>.../objtypes/CommitType.java</code></a></td>
+</tr>
+<tr>
+<td>Paging over the log</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogQuery.java"><code>.../logic/CommitLogQuery.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/PagingToken.java"><code>.../logic/PagingToken.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Chapter 8.3 opens the four fields this chapter skipped, and answers the question that makes Nessie usable as a catalog: how a branch with a million keys answers a point lookup without reading a million-entry index.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_8.1_persist_spi/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 8.1 The `Persist` SPI and the storage abstraction">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                8.1 The `Persist` SPI and the storage abstraction
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../chapter_8.3_key_indexes/" class="md-footer__link md-footer__link--next" aria-label="Next: 8.3 Key indexes and index stripes: how large catalogs stay fast">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                8.3 Key indexes and index stripes: how large catalogs stay fast
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

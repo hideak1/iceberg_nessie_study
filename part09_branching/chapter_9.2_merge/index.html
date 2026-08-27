@@ -1,0 +1,4148 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part09_branching/chapter_9.2_merge/">
+      
+      
+        <link rel="prev" href="../chapter_9.1_commit_path/">
+      
+      
+        <link rel="next" href="../chapter_9.3_transplant/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>9.2 Merge: merge base, three-way merge, conflict detection - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-92-merge-merge-base-three-way-merge-conflict-detection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              9.2 Merge: merge base, three-way merge, conflict detection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-there-is-exactly-one-merge-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. There is exactly one merge implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-merge-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The merge base
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The merge base">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-flag-that-changes-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The flag that changes the answer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-source-side-becomes-a-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The source side becomes a diff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-where-the-merge-base-becomes-an-expected-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Where the merge base becomes an expected value
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-conflict-detection-in-twenty-nine-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Conflict detection, in twenty-nine lines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-conflict-handler-is-where-merge-diverges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The conflict handler is where merge diverges
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-build-the-commit-then-throw-it-away" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Build the commit, then throw it away
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-there-is-exactly-one-merge-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. There is exactly one merge implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-merge-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The merge base
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The merge base">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-flag-that-changes-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The flag that changes the answer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-source-side-becomes-a-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The source side becomes a diff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-where-the-merge-base-becomes-an-expected-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Where the merge base becomes an expected value
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-conflict-detection-in-twenty-nine-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Conflict detection, in twenty-nine lines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-conflict-handler-is-where-merge-diverges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The conflict handler is where merge diverges
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-build-the-commit-then-throw-it-away" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Build the commit, then throw it away
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 9 · Branching
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-92-merge-merge-base-three-way-merge-conflict-detection">Chapter 9.2 — Merge: merge base, three-way merge, conflict detection<a class="headerlink" href="#chapter-92-merge-merge-base-three-way-merge-conflict-detection" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> when Nessie merges a branch, what is compared against what to decide that a key conflicts — and how does that differ from what git does?</p>
+<p><strong>Prerequisites:</strong> Chapter 9.1 (<code>CreateCommit</code> actions, expected values, <code>buildCommitObj</code>), Part 8 (the key index, and why <code>ObjId</code> equality is a content comparison), Chapter 1.3 (why Nessie has merge and transplant at all)</p>
+<p><strong>Source covered:</strong> <code>versioned/storage/common/.../logic/MergeBase.java</code>, <code>.../CommitLogicImpl.java</code>, <code>.../CommitConflict.java</code>, <code>versioned/storage/store/.../versionstore/BaseMergeTransplantSquash.java</code>, <code>.../BaseCommitHelper.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>Merging two branches requires answering one question per key: <em>is it safe to write the source's value onto the target?</em> Git answers it by diffing both sides against a common ancestor and, when both changed, running a line-level merge inside the file.</p>
+<p>Nessie cannot do the second half. A key's value is an Iceberg table's <code>metadataLocation</code> — an opaque pointer to a file Nessie has never opened. There is no line-level anything. So Nessie's merge has to be exactly as smart as a compare-and-swap and no smarter, and the entire design question becomes: <em>what do you compare-and-swap against?</em></p>
+<p>The answer is the interesting part, and it is not what most readers assume. Conflict <em>detection</em> never compares the source value with the target value. It asks, per key, <strong>has the target moved away from the merge base?</strong> — and it answers by comparing two content hashes. One branch of the conflict <em>handler</em> does compare source with target, to absorb a case detection cannot express; that exception is section 7, and the gotcha it produces is worth the wait.</p>
+<p>Everything else in this chapter follows from that, including the parts that look like bugs.</p>
+<h2 id="2-there-is-exactly-one-merge-implementation">2. There is exactly one merge implementation<a class="headerlink" href="#2-there-is-exactly-one-merge-implementation" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">VersionStoreImpl.merge()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1037">1037</a></span>
+<span class="normal"><a href="#__codelineno-0-1038">1038</a></span>
+<span class="normal"><a href="#__codelineno-0-1039">1039</a></span>
+<span class="normal"><a href="#__codelineno-0-1040">1040</a></span>
+<span class="normal"><a href="#__codelineno-0-1041">1041</a></span>
+<span class="normal"><a href="#__codelineno-0-1042">1042</a></span>
+<span class="normal"><a href="#__codelineno-0-1043">1043</a></span>
+<span class="normal"><a href="#__codelineno-0-1044">1044</a></span>
+<span class="normal"><a href="#__codelineno-0-1045">1045</a></span>
+<span class="normal"><a href="#__codelineno-0-1046">1046</a></span>
+<span class="normal"><a href="#__codelineno-0-1047">1047</a></span>
+<span class="normal"><a href="#__codelineno-0-1048">1048</a></span>
+<span class="normal"><a href="#__codelineno-0-1049">1049</a></span>
+<span class="normal"><a href="#__codelineno-0-1050">1050</a></span>
+<span class="normal"><a href="#__codelineno-0-1051">1051</a></span>
+<span class="normal"><a href="#__codelineno-0-1052">1052</a></span>
+<span class="normal"><a href="#__codelineno-0-1053">1053</a></span>
+<span class="normal"><a href="#__codelineno-0-1054">1054</a></span>
+<span class="normal"><a href="#__codelineno-0-1055">1055</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1037"><a id="__codelineno-0-1037" name="__codelineno-0-1037"></a><span class="kd">public</span><span class="w"> </span><span class="n">MergeResult</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="n">MergeOp</span><span class="w"> </span><span class="n">mergeOp</span><span class="p">)</span>
+</span><span id="__span-0-1038"><a id="__codelineno-0-1038" name="__codelineno-0-1038"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">ReferenceNotFoundException</span><span class="p">,</span><span class="w"> </span><span class="n">ReferenceConflictException</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-1039"><a id="__codelineno-0-1039" name="__codelineno-0-1039"></a><span class="w">  </span><span class="n">CommitterSupplier</span><span class="o">&lt;</span><span class="n">Merge</span><span class="o">&gt;</span><span class="w"> </span><span class="n">supplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MergeSquashImpl</span><span class="p">::</span><span class="k">new</span><span class="p">;</span>
+</span><span id="__span-0-1040"><a id="__codelineno-0-1040" name="__codelineno-0-1040"></a>
+</span><span id="__span-0-1041"><a id="__codelineno-0-1041" name="__codelineno-0-1041"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mergeOp</span><span class="p">.</span><span class="na">dryRun</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-1042"><a id="__codelineno-0-1042" name="__codelineno-0-1042"></a><span class="w">    </span><span class="n">supplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dryRunCommitterSupplier</span><span class="p">(</span><span class="n">supplier</span><span class="p">);</span>
+</span><span id="__span-0-1043"><a id="__codelineno-0-1043" name="__codelineno-0-1043"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-1044"><a id="__codelineno-0-1044" name="__codelineno-0-1044"></a>
+</span><span id="__span-0-1045"><a id="__codelineno-0-1045" name="__codelineno-0-1045"></a><span class="w">  </span><span class="n">MergeResult</span><span class="w"> </span><span class="n">mergeResult</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-0-1046"><a id="__codelineno-0-1046" name="__codelineno-0-1046"></a><span class="w">      </span><span class="n">committingOperation</span><span class="p">(</span>
+</span><span id="__span-0-1047"><a id="__codelineno-0-1047" name="__codelineno-0-1047"></a><span class="w">          </span><span class="s">"merge"</span><span class="p">,</span>
+</span><span id="__span-0-1048"><a id="__codelineno-0-1048" name="__codelineno-0-1048"></a><span class="w">          </span><span class="n">mergeOp</span><span class="p">.</span><span class="na">toBranch</span><span class="p">(),</span>
+</span><span id="__span-0-1049"><a id="__codelineno-0-1049" name="__codelineno-0-1049"></a><span class="w">          </span><span class="n">mergeOp</span><span class="p">.</span><span class="na">expectedHash</span><span class="p">(),</span>
+</span><span id="__span-0-1050"><a id="__codelineno-0-1050" name="__codelineno-0-1050"></a><span class="w">          </span><span class="n">persist</span><span class="p">,</span>
+</span><span id="__span-0-1051"><a id="__codelineno-0-1051" name="__codelineno-0-1051"></a><span class="w">          </span><span class="n">supplier</span><span class="p">,</span>
+</span><span id="__span-0-1052"><a id="__codelineno-0-1052" name="__codelineno-0-1052"></a><span class="w">          </span><span class="p">(</span><span class="n">merge</span><span class="p">,</span><span class="w"> </span><span class="n">retryState</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">merge</span><span class="p">.</span><span class="na">merge</span><span class="p">(</span><span class="n">retryState</span><span class="p">,</span><span class="w"> </span><span class="n">mergeOp</span><span class="p">));</span>
+</span><span id="__span-0-1053"><a id="__codelineno-0-1053" name="__codelineno-0-1053"></a>
+</span><span id="__span-0-1054"><a id="__codelineno-0-1054" name="__codelineno-0-1054"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">mergeTransplantResponse</span><span class="p">(</span><span class="n">mergeResult</span><span class="p">);</span>
+</span><span id="__span-0-1055"><a id="__codelineno-0-1055" name="__codelineno-0-1055"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/VersionStoreImpl.java` L1037–L1055](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/VersionStoreImpl.java#L1037-L1055) <span>@ nessie-0.108.4</span></p>
+
+<p>The first statement is the whole story of Nessie's merge strategies. <code>CommitterSupplier&lt;Merge&gt; supplier = MergeSquashImpl::new</code> is not a default that something else overrides: <code>MergeSquashImpl</code> is the only class in the tree that implements <code>Merge</code>, nothing in <code>MergeOp</code> selects a strategy, and there is no fast-forward path, no replay path and no <code>--no-ff</code> flag. A merge that writes a commit writes exactly one, on the target, with the source head recorded as a secondary parent.</p>
+<p>The rest of the method does two things. It swaps the supplier for a dry-run variant — section 8 returns to that — and it converts the result, turning an unsuccessful merge into a <code>MergeConflictException</code> naming every conflicting key, sorted and quoted.</p>
+<p>Three outcomes write no commit at all, and it is worth having them in view before the machinery. The first is checked here in <code>MergeSquashImpl.merge</code>: if <code>fromId.equals(commonAncestorId)</code>, the source is already an ancestor of the target, and the result is <code>wasSuccessful(true).wasApplied(false)</code> with the head unchanged. The other two — an empty squash and a conflicting one — are section 8.</p>
+<h2 id="3-the-merge-base">3. The merge base<a class="headerlink" href="#3-the-merge-base" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart BT
+    C2["c2 · seq 2&lt;br/&gt;COMMIT_A + COMMIT_B → RESULT"] --&gt; ROOT["c1 · seq 1"]
+    S1["s1 · seq 3&lt;br/&gt;COMMIT_A"] --&gt; C2
+    S2["source head · seq 4&lt;br/&gt;COMMIT_A"] --&gt; S1
+    T1["t1 · seq 3&lt;br/&gt;COMMIT_B"] --&gt; C2
+    T2["target head · seq 4&lt;br/&gt;COMMIT_B"] --&gt; T1
+    style C2 fill:#2b6cb0,color:#fff</code></pre>
+<p><code>findMergeBase(targetId, sourceId)</code> delegates to <code>MergeBase</code>, and the search is git's <code>paint_down_to_common</code> rendered in Java:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">MergeBase.flagReachableCommits()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-119">119</a></span>
+<span class="normal"><a href="#__codelineno-1-120">120</a></span>
+<span class="normal"><a href="#__codelineno-1-121">121</a></span>
+<span class="normal"><a href="#__codelineno-1-122">122</a></span>
+<span class="normal"><a href="#__codelineno-1-123">123</a></span>
+<span class="normal"><a href="#__codelineno-1-124">124</a></span>
+<span class="normal"><a href="#__codelineno-1-125">125</a></span>
+<span class="normal"><a href="#__codelineno-1-126">126</a></span>
+<span class="normal"><a href="#__codelineno-1-127">127</a></span>
+<span class="normal"><a href="#__codelineno-1-128">128</a></span>
+<span class="normal"><a href="#__codelineno-1-129">129</a></span>
+<span class="normal"><a href="#__codelineno-1-130">130</a></span>
+<span class="normal"><a href="#__codelineno-1-131">131</a></span>
+<span class="normal"><a href="#__codelineno-1-132">132</a></span>
+<span class="normal"><a href="#__codelineno-1-133">133</a></span>
+<span class="normal"><a href="#__codelineno-1-134">134</a></span>
+<span class="normal"><a href="#__codelineno-1-135">135</a></span>
+<span class="normal"><a href="#__codelineno-1-136">136</a></span>
+<span class="normal"><a href="#__codelineno-1-137">137</a></span>
+<span class="normal"><a href="#__codelineno-1-138">138</a></span>
+<span class="normal"><a href="#__codelineno-1-139">139</a></span>
+<span class="normal"><a href="#__codelineno-1-140">140</a></span>
+<span class="normal"><a href="#__codelineno-1-141">141</a></span>
+<span class="normal"><a href="#__codelineno-1-142">142</a></span>
+<span class="normal"><a href="#__codelineno-1-143">143</a></span>
+<span class="normal"><a href="#__codelineno-1-144">144</a></span>
+<span class="normal"><a href="#__codelineno-1-145">145</a></span>
+<span class="normal"><a href="#__codelineno-1-146">146</a></span>
+<span class="normal"><a href="#__codelineno-1-147">147</a></span>
+<span class="normal"><a href="#__codelineno-1-148">148</a></span>
+<span class="normal"><a href="#__codelineno-1-149">149</a></span>
+<span class="normal"><a href="#__codelineno-1-150">150</a></span>
+<span class="normal"><a href="#__codelineno-1-151">151</a></span>
+<span class="normal"><a href="#__codelineno-1-152">152</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-119"><a id="__codelineno-1-119" name="__codelineno-1-119"></a><span class="kd">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ShallowCommit</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">flagReachableCommits</span><span class="p">(</span><span class="n">ShallowCommit</span><span class="w"> </span><span class="n">commitA</span><span class="p">,</span><span class="w"> </span><span class="n">ShallowCommit</span><span class="w"> </span><span class="n">commitB</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-120"><a id="__codelineno-1-120" name="__codelineno-1-120"></a><span class="w">  </span><span class="n">PriorityQueue</span><span class="o">&lt;</span><span class="n">ShallowCommit</span><span class="o">&gt;</span><span class="w"> </span><span class="n">queue</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-121"><a id="__codelineno-1-121" name="__codelineno-1-121"></a><span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">PriorityQueue</span><span class="o">&lt;&gt;</span><span class="p">(</span><span class="n">comparingLong</span><span class="p">(</span><span class="n">ShallowCommit</span><span class="p">::</span><span class="n">seq</span><span class="p">).</span><span class="na">reversed</span><span class="p">());</span>
+</span><span id="__span-1-122"><a id="__codelineno-1-122" name="__codelineno-1-122"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ShallowCommit</span><span class="o">&gt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+</span><span id="__span-1-123"><a id="__codelineno-1-123" name="__codelineno-1-123"></a>
+</span><span id="__span-1-124"><a id="__codelineno-1-124" name="__codelineno-1-124"></a><span class="w">  </span><span class="n">commitA</span><span class="p">.</span><span class="na">setCommitA</span><span class="p">();</span>
+</span><span id="__span-1-125"><a id="__codelineno-1-125" name="__codelineno-1-125"></a><span class="w">  </span><span class="n">queue</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">commitA</span><span class="p">);</span>
+</span><span id="__span-1-126"><a id="__codelineno-1-126" name="__codelineno-1-126"></a>
+</span><span id="__span-1-127"><a id="__codelineno-1-127" name="__codelineno-1-127"></a><span class="w">  </span><span class="n">commitB</span><span class="p">.</span><span class="na">setCommitB</span><span class="p">();</span>
+</span><span id="__span-1-128"><a id="__codelineno-1-128" name="__codelineno-1-128"></a><span class="w">  </span><span class="n">queue</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">commitB</span><span class="p">);</span>
+</span><span id="__span-1-129"><a id="__codelineno-1-129" name="__codelineno-1-129"></a>
+</span><span id="__span-1-130"><a id="__codelineno-1-130" name="__codelineno-1-130"></a><span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="na">stream</span><span class="p">().</span><span class="na">anyMatch</span><span class="p">(</span><span class="n">ShallowCommit</span><span class="p">::</span><span class="n">isNotCandidate</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-131"><a id="__codelineno-1-131" name="__codelineno-1-131"></a><span class="w">    </span><span class="n">ShallowCommit</span><span class="w"> </span><span class="n">commit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">requireNonNull</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="na">poll</span><span class="p">());</span>
+</span><span id="__span-1-132"><a id="__codelineno-1-132" name="__codelineno-1-132"></a>
+</span><span id="__span-1-133"><a id="__codelineno-1-133" name="__codelineno-1-133"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">reachabilityFlags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commit</span><span class="p">.</span><span class="na">reachabilityFlags</span><span class="p">();</span>
+</span><span id="__span-1-134"><a id="__codelineno-1-134" name="__codelineno-1-134"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">reachabilityFlags</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">BOTH_COMMITS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-135"><a id="__codelineno-1-135" name="__codelineno-1-135"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">commit</span><span class="p">.</span><span class="na">setResult</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-136"><a id="__codelineno-1-136" name="__codelineno-1-136"></a><span class="w">        </span><span class="c1">// A new result commit</span>
+</span><span id="__span-1-137"><a id="__codelineno-1-137" name="__codelineno-1-137"></a><span class="w">        </span><span class="n">result</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">commit</span><span class="p">);</span>
+</span><span id="__span-1-138"><a id="__codelineno-1-138" name="__codelineno-1-138"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-1-139"><a id="__codelineno-1-139" name="__codelineno-1-139"></a><span class="w">      </span><span class="c1">// Populate the CANDIDATE flag "down".</span>
+</span><span id="__span-1-140"><a id="__codelineno-1-140" name="__codelineno-1-140"></a><span class="w">      </span><span class="n">reachabilityFlags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">CANDIDATE</span><span class="p">;</span>
+</span><span id="__span-1-141"><a id="__codelineno-1-141" name="__codelineno-1-141"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-142"><a id="__codelineno-1-142" name="__codelineno-1-142"></a>
+</span><span id="__span-1-143"><a id="__codelineno-1-143" name="__codelineno-1-143"></a><span class="w">    </span><span class="c1">// Propagate the relevant COMMIT_A, COMMIT_B, CANDIDATE flags down to the parent commits,</span>
+</span><span id="__span-1-144"><a id="__codelineno-1-144" name="__codelineno-1-144"></a><span class="w">    </span><span class="c1">// enqueue those, if the relevant flags were not already set.</span>
+</span><span id="__span-1-145"><a id="__codelineno-1-145" name="__codelineno-1-145"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">reachabilityFlagsFinal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reachabilityFlags</span><span class="p">;</span>
+</span><span id="__span-1-146"><a id="__codelineno-1-146" name="__codelineno-1-146"></a><span class="w">    </span><span class="n">parentCommits</span><span class="p">(</span><span class="n">commit</span><span class="p">)</span>
+</span><span id="__span-1-147"><a id="__codelineno-1-147" name="__codelineno-1-147"></a><span class="w">        </span><span class="p">.</span><span class="na">filter</span><span class="p">(</span><span class="n">parent</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">parent</span><span class="p">.</span><span class="na">setAllFlagsIfAnyMissing</span><span class="p">(</span><span class="n">reachabilityFlagsFinal</span><span class="p">))</span>
+</span><span id="__span-1-148"><a id="__codelineno-1-148" name="__codelineno-1-148"></a><span class="w">        </span><span class="p">.</span><span class="na">forEach</span><span class="p">(</span><span class="n">queue</span><span class="p">::</span><span class="n">add</span><span class="p">);</span>
+</span><span id="__span-1-149"><a id="__codelineno-1-149" name="__codelineno-1-149"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-150"><a id="__codelineno-1-150" name="__codelineno-1-150"></a>
+</span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+</span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/MergeBase.java` L119–L152](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/MergeBase.java#L119-L152) <span>@ nessie-0.108.4</span></p>
+
+<p>The two starting commits are painted <code>COMMIT_A</code> and <code>COMMIT_B</code> and pushed into a <code>PriorityQueue</code> ordered by <code>seq</code> <strong>descending</strong> — newest first. Each pop propagates its flags to its parents. A commit that ends up carrying both flags is reachable from both sides, so it is a merge base: <code>setResult()</code> adds it to the results and the <code>CANDIDATE</code> flag starts flowing down from it, marking everything it can already reach as "not the nearest".</p>
+<p>The loop condition is the termination proof: <code>while (queue.stream().anyMatch(ShallowCommit::isNotCandidate))</code>. Once every queued commit is a candidate — reachable from an already-found base — nothing better can be found and the walk stops. Because the queue pops the highest <code>seq</code> first, the first <code>RESULT</code> recorded is the nearest one, and <code>identifyMergeBase</code> returns <code>mergeBases.get(0)</code>.</p>
+<p><code>ShallowCommit</code> exists purely to keep that walk cheap, and says so:</p>
+<blockquote>
+<p><em>Identifying the merge-base may require holding a lot of commits, so keeping only the needed data should help reducing the heap pressure (think: <code>CommitObj#incrementalIndex()</code>).</em></p>
+</blockquote>
+<p>A merge base search on a long-lived branch can touch thousands of commits; loading each one's serialized index would be untenable. <code>ShallowCommit</code> holds an ID, a parent array, a <code>seq</code>, and an <code>int</code> of flags.</p>
+<h3 id="the-flag-that-changes-the-answer">The flag that changes the answer<a class="headerlink" href="#the-flag-that-changes-the-answer" title="Permanent link">&para;</a></h3>
+<p><code>MergeBase</code> has a <code>respectMergeParents</code> switch, and Nessie exposes both settings:</p>
+<ul>
+<li><code>findMergeBase</code> sets it <strong>true</strong>, and <code>shallowCommit</code> then builds each commit's parent array as <em>secondary parents first, direct parent last</em>.</li>
+<li><code>findCommonAncestor</code> sets it <strong>false</strong>, and the parent array is just <code>{commit.directParent()}</code>.</li>
+</ul>
+<p>Those two names are not synonyms in this codebase, and the book has used both. The <em>common ancestor</em> is the one a reader meets first, in Chapter 7.2: <code>getMetadata()</code> can report a <code>commonAncestorHash</code> for a reference, and that is <code>findCommonAncestor</code>'s answer — pure ancestry, merge parents ignored. The <strong>merge base</strong> is <code>findMergeBase</code>'s, and it is the one a merge needs. On a repository that has never merged the two agree; after the first merge they diverge, and the paragraph below is why.</p>
+<p>The secondary parent is what a squash merge recorded in §2. With merge parents respected, a second merge from the same source branch finds the <em>previous merge point</em> as its base, so only commits made since then are diffed. Turn the flag off and the search walks past it to the original fork, and the merge re-applies changes that are already on the target. Nessie uses <code>findMergeBase</code> for merges; <code>findCommonAncestor</code> exists for callers that genuinely want the ancestry question rather than the merge question.</p>
+<h2 id="4-the-source-side-becomes-a-diff">4. The source side becomes a diff<a class="headerlink" href="#4-the-source-side-becomes-a-diff" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseMergeTransplantSquash.createSquashCommit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-132">132</a></span>
+<span class="normal"><a href="#__codelineno-2-133">133</a></span>
+<span class="normal"><a href="#__codelineno-2-134">134</a></span>
+<span class="normal"><a href="#__codelineno-2-135">135</a></span>
+<span class="normal"><a href="#__codelineno-2-136">136</a></span>
+<span class="normal"><a href="#__codelineno-2-137">137</a></span>
+<span class="normal"><a href="#__codelineno-2-138">138</a></span>
+<span class="normal"><a href="#__codelineno-2-139">139</a></span>
+<span class="normal"><a href="#__codelineno-2-140">140</a></span>
+<span class="normal"><a href="#__codelineno-2-141">141</a></span>
+<span class="normal"><a href="#__codelineno-2-142">142</a></span>
+<span class="normal"><a href="#__codelineno-2-143">143</a></span>
+<span class="normal"><a href="#__codelineno-2-144">144</a></span>
+<span class="normal"><a href="#__codelineno-2-145">145</a></span>
+<span class="normal"><a href="#__codelineno-2-146">146</a></span>
+<span class="normal"><a href="#__codelineno-2-147">147</a></span>
+<span class="normal"><a href="#__codelineno-2-148">148</a></span>
+<span class="normal"><a href="#__codelineno-2-149">149</a></span>
+<span class="normal"><a href="#__codelineno-2-150">150</a></span>
+<span class="normal"><a href="#__codelineno-2-151">151</a></span>
+<span class="normal"><a href="#__codelineno-2-152">152</a></span>
+<span class="normal"><a href="#__codelineno-2-153">153</a></span>
+<span class="normal"><a href="#__codelineno-2-154">154</a></span>
+<span class="normal"><a href="#__codelineno-2-155">155</a></span>
+<span class="normal"><a href="#__codelineno-2-156">156</a></span>
+<span class="normal"><a href="#__codelineno-2-157">157</a></span>
+<span class="normal"><a href="#__codelineno-2-158">158</a></span>
+<span class="normal"><a href="#__codelineno-2-159">159</a></span>
+<span class="normal"><a href="#__codelineno-2-160">160</a></span>
+<span class="normal"><a href="#__codelineno-2-161">161</a></span>
+<span class="normal"><a href="#__codelineno-2-162">162</a></span>
+<span class="normal"><a href="#__codelineno-2-163">163</a></span>
+<span class="normal"><a href="#__codelineno-2-164">164</a></span>
+<span class="normal"><a href="#__codelineno-2-165">165</a></span>
+<span class="normal"><a href="#__codelineno-2-166">166</a></span>
+<span class="normal"><a href="#__codelineno-2-167">167</a></span>
+<span class="normal"><a href="#__codelineno-2-168">168</a></span>
+<span class="normal"><a href="#__codelineno-2-169">169</a></span>
+<span class="normal"><a href="#__codelineno-2-170">170</a></span>
+<span class="normal"><a href="#__codelineno-2-171">171</a></span>
+<span class="normal"><a href="#__codelineno-2-172">172</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-132"><a id="__codelineno-2-132" name="__codelineno-2-132"></a><span class="kd">private</span><span class="w"> </span><span class="n">CreateCommit</span><span class="w"> </span><span class="nf">createSquashCommit</span><span class="p">(</span>
+</span><span id="__span-2-133"><a id="__codelineno-2-133" name="__codelineno-2-133"></a><span class="w">    </span><span class="n">MergeBehaviors</span><span class="w"> </span><span class="n">mergeBehaviors</span><span class="p">,</span>
+</span><span id="__span-2-134"><a id="__codelineno-2-134" name="__codelineno-2-134"></a><span class="w">    </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">ContentKey</span><span class="p">,</span><span class="w"> </span><span class="n">KeyDetails</span><span class="o">&gt;</span><span class="w"> </span><span class="n">keyDetailsMap</span><span class="p">,</span>
+</span><span id="__span-2-135"><a id="__codelineno-2-135" name="__codelineno-2-135"></a><span class="w">    </span><span class="n">MetadataRewriter</span><span class="o">&lt;</span><span class="n">CommitMeta</span><span class="o">&gt;</span><span class="w"> </span><span class="n">updateCommitMetadata</span><span class="p">,</span>
+</span><span id="__span-2-136"><a id="__codelineno-2-136" name="__codelineno-2-136"></a><span class="w">    </span><span class="n">MergeTransplantContext</span><span class="w"> </span><span class="n">mergeTransplantContext</span><span class="p">,</span>
+</span><span id="__span-2-137"><a id="__codelineno-2-137" name="__codelineno-2-137"></a><span class="w">    </span><span class="nd">@Nullable</span><span class="w"> </span><span class="n">ObjId</span><span class="w"> </span><span class="n">mergeFromId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-138"><a id="__codelineno-2-138" name="__codelineno-2-138"></a><span class="w">  </span><span class="n">CreateCommit</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="n">commitBuilder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newCommitBuilder</span><span class="p">().</span><span class="na">parentCommitId</span><span class="p">(</span><span class="n">headId</span><span class="p">());</span>
+</span><span id="__span-2-139"><a id="__codelineno-2-139" name="__codelineno-2-139"></a>
+</span><span id="__span-2-140"><a id="__codelineno-2-140" name="__codelineno-2-140"></a><span class="w">  </span><span class="n">fromCommitMeta</span><span class="p">(</span>
+</span><span id="__span-2-141"><a id="__codelineno-2-141" name="__codelineno-2-141"></a><span class="w">      </span><span class="n">updateCommitMetadata</span><span class="p">.</span><span class="na">squash</span><span class="p">(</span>
+</span><span id="__span-2-142"><a id="__codelineno-2-142" name="__codelineno-2-142"></a><span class="w">          </span><span class="n">Collections</span><span class="p">.</span><span class="na">singletonList</span><span class="p">(</span><span class="n">mergeTransplantContext</span><span class="p">.</span><span class="na">metadata</span><span class="p">()),</span>
+</span><span id="__span-2-143"><a id="__codelineno-2-143" name="__codelineno-2-143"></a><span class="w">          </span><span class="n">mergeTransplantContext</span><span class="p">.</span><span class="na">numCommits</span><span class="p">()),</span>
+</span><span id="__span-2-144"><a id="__codelineno-2-144" name="__codelineno-2-144"></a><span class="w">      </span><span class="n">commitBuilder</span><span class="p">);</span>
+</span><span id="__span-2-145"><a id="__codelineno-2-145" name="__codelineno-2-145"></a>
+</span><span id="__span-2-146"><a id="__codelineno-2-146" name="__codelineno-2-146"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mergeFromId</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-147"><a id="__codelineno-2-147" name="__codelineno-2-147"></a><span class="w">    </span><span class="n">commitBuilder</span><span class="p">.</span><span class="na">addSecondaryParents</span><span class="p">(</span><span class="n">mergeFromId</span><span class="p">);</span>
+</span><span id="__span-2-148"><a id="__codelineno-2-148" name="__codelineno-2-148"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-149"><a id="__codelineno-2-149" name="__codelineno-2-149"></a>
+</span><span id="__span-2-150"><a id="__codelineno-2-150" name="__codelineno-2-150"></a><span class="w">  </span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">StoreKey</span><span class="o">&gt;</span><span class="w"> </span><span class="n">filter</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-2-151"><a id="__codelineno-2-151" name="__codelineno-2-151"></a><span class="w">      </span><span class="n">storeKey</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-152"><a id="__codelineno-2-152" name="__codelineno-2-152"></a><span class="w">        </span><span class="n">ContentKey</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">storeKeyToKey</span><span class="p">(</span><span class="n">storeKey</span><span class="p">);</span>
+</span><span id="__span-2-153"><a id="__codelineno-2-153" name="__codelineno-2-153"></a><span class="w">        </span><span class="n">MergeBehavior</span><span class="w"> </span><span class="n">behavior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mergeBehaviors</span><span class="p">.</span><span class="na">mergeBehavior</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+</span><span id="__span-2-154"><a id="__codelineno-2-154" name="__codelineno-2-154"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">behavior</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">MergeBehavior</span><span class="p">.</span><span class="na">DROP</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-155"><a id="__codelineno-2-155" name="__codelineno-2-155"></a><span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+</span><span id="__span-2-156"><a id="__codelineno-2-156" name="__codelineno-2-156"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-2-157"><a id="__codelineno-2-157" name="__codelineno-2-157"></a><span class="w">        </span><span class="n">mergeBehaviors</span><span class="p">.</span><span class="na">useKey</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">);</span>
+</span><span id="__span-2-158"><a id="__codelineno-2-158" name="__codelineno-2-158"></a><span class="w">        </span><span class="n">keyDetailsMap</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">KeyDetails</span><span class="p">.</span><span class="na">keyDetails</span><span class="p">(</span><span class="n">MergeBehavior</span><span class="p">.</span><span class="na">DROP</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">));</span>
+</span><span id="__span-2-159"><a id="__codelineno-2-159" name="__codelineno-2-159"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+</span><span id="__span-2-160"><a id="__codelineno-2-160" name="__codelineno-2-160"></a><span class="w">      </span><span class="p">};</span>
+</span><span id="__span-2-161"><a id="__codelineno-2-161" name="__codelineno-2-161"></a>
+</span><span id="__span-2-162"><a id="__codelineno-2-162" name="__codelineno-2-162"></a><span class="w">  </span><span class="n">CommitLogic</span><span class="w"> </span><span class="n">commitLogic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitLogic</span><span class="p">(</span><span class="n">persist</span><span class="p">);</span>
+</span><span id="__span-2-163"><a id="__codelineno-2-163" name="__codelineno-2-163"></a><span class="w">  </span><span class="n">PagedResult</span><span class="o">&lt;</span><span class="n">DiffEntry</span><span class="p">,</span><span class="w"> </span><span class="n">StoreKey</span><span class="o">&gt;</span><span class="w"> </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-2-164"><a id="__codelineno-2-164" name="__codelineno-2-164"></a><span class="w">      </span><span class="n">commitLogic</span><span class="p">.</span><span class="na">diff</span><span class="p">(</span>
+</span><span id="__span-2-165"><a id="__codelineno-2-165" name="__codelineno-2-165"></a><span class="w">          </span><span class="n">diffQuery</span><span class="p">(</span>
+</span><span id="__span-2-166"><a id="__codelineno-2-166" name="__codelineno-2-166"></a><span class="w">              </span><span class="n">mergeTransplantContext</span><span class="p">.</span><span class="na">baseCommit</span><span class="p">(),</span>
+</span><span id="__span-2-167"><a id="__codelineno-2-167" name="__codelineno-2-167"></a><span class="w">              </span><span class="n">mergeTransplantContext</span><span class="p">.</span><span class="na">headCommit</span><span class="p">(),</span>
+</span><span id="__span-2-168"><a id="__codelineno-2-168" name="__codelineno-2-168"></a><span class="w">              </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-2-169"><a id="__codelineno-2-169" name="__codelineno-2-169"></a><span class="w">              </span><span class="n">filter</span><span class="p">));</span>
+</span><span id="__span-2-170"><a id="__codelineno-2-170" name="__codelineno-2-170"></a>
+</span><span id="__span-2-171"><a id="__codelineno-2-171" name="__codelineno-2-171"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">commitLogic</span><span class="p">.</span><span class="na">diffToCreateCommit</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span><span class="w"> </span><span class="n">commitBuilder</span><span class="p">).</span><span class="na">build</span><span class="p">();</span>
+</span><span id="__span-2-172"><a id="__codelineno-2-172" name="__codelineno-2-172"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java` L132–L172](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java#L132-L172) <span>@ nessie-0.108.4</span></p>
+
+<p>Three things happen here, and the first is the one to hold onto: the entire source branch — however many commits — collapses into <code>commitLogic.diff(diffQuery(baseCommit, headCommit, ...))</code>. A <strong>two-way</strong> diff. Individual source commits are never replayed and are not visible to anything downstream.</p>
+<p>Second, <code>MergeBehavior.DROP</code> is applied as a <code>Predicate&lt;StoreKey&gt;</code> <em>on the diff itself</em>. A dropped key never becomes an action, so it can never conflict — it is filtered out one layer below conflict detection.</p>
+<p>Third, <code>commitBuilder.addSecondaryParents(mergeFromId)</code> records the source head. That is the edge §3 walks on the next merge.</p>
+<h2 id="5-where-the-merge-base-becomes-an-expected-value">5. Where the merge base becomes an expected value<a class="headerlink" href="#5-where-the-merge-base-becomes-an-expected-value" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitLogicImpl.diffToCreateCommit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1046">1046</a></span>
+<span class="normal"><a href="#__codelineno-3-1047">1047</a></span>
+<span class="normal"><a href="#__codelineno-3-1048">1048</a></span>
+<span class="normal"><a href="#__codelineno-3-1049">1049</a></span>
+<span class="normal"><a href="#__codelineno-3-1050">1050</a></span>
+<span class="normal"><a href="#__codelineno-3-1051">1051</a></span>
+<span class="normal"><a href="#__codelineno-3-1052">1052</a></span>
+<span class="normal"><a href="#__codelineno-3-1053">1053</a></span>
+<span class="normal"><a href="#__codelineno-3-1054">1054</a></span>
+<span class="normal"><a href="#__codelineno-3-1055">1055</a></span>
+<span class="normal"><a href="#__codelineno-3-1056">1056</a></span>
+<span class="normal"><a href="#__codelineno-3-1057">1057</a></span>
+<span class="normal"><a href="#__codelineno-3-1058">1058</a></span>
+<span class="normal"><a href="#__codelineno-3-1059">1059</a></span>
+<span class="normal"><a href="#__codelineno-3-1060">1060</a></span>
+<span class="normal"><a href="#__codelineno-3-1061">1061</a></span>
+<span class="normal"><a href="#__codelineno-3-1062">1062</a></span>
+<span class="normal"><a href="#__codelineno-3-1063">1063</a></span>
+<span class="normal"><a href="#__codelineno-3-1064">1064</a></span>
+<span class="normal"><a href="#__codelineno-3-1065">1065</a></span>
+<span class="normal"><a href="#__codelineno-3-1066">1066</a></span>
+<span class="normal"><a href="#__codelineno-3-1067">1067</a></span>
+<span class="normal"><a href="#__codelineno-3-1068">1068</a></span>
+<span class="normal"><a href="#__codelineno-3-1069">1069</a></span>
+<span class="normal"><a href="#__codelineno-3-1070">1070</a></span>
+<span class="normal"><a href="#__codelineno-3-1071">1071</a></span>
+<span class="normal"><a href="#__codelineno-3-1072">1072</a></span>
+<span class="normal"><a href="#__codelineno-3-1073">1073</a></span>
+<span class="normal"><a href="#__codelineno-3-1074">1074</a></span>
+<span class="normal"><a href="#__codelineno-3-1075">1075</a></span>
+<span class="normal"><a href="#__codelineno-3-1076">1076</a></span>
+<span class="normal"><a href="#__codelineno-3-1077">1077</a></span>
+<span class="normal"><a href="#__codelineno-3-1078">1078</a></span>
+<span class="normal"><a href="#__codelineno-3-1079">1079</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1046"><a id="__codelineno-3-1046" name="__codelineno-3-1046"></a><span class="nd">@Nonnull</span>
+</span><span id="__span-3-1047"><a id="__codelineno-3-1047" name="__codelineno-3-1047"></a><span class="nd">@Override</span>
+</span><span id="__span-3-1048"><a id="__codelineno-3-1048" name="__codelineno-3-1048"></a><span class="kd">public</span><span class="w"> </span><span class="n">CreateCommit</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="nf">diffToCreateCommit</span><span class="p">(</span>
+</span><span id="__span-3-1049"><a id="__codelineno-3-1049" name="__codelineno-3-1049"></a><span class="w">    </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">PagedResult</span><span class="o">&lt;</span><span class="n">DiffEntry</span><span class="p">,</span><span class="w"> </span><span class="n">StoreKey</span><span class="o">&gt;</span><span class="w"> </span><span class="n">diff</span><span class="p">,</span><span class="w"> </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">CreateCommit</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="n">createCommit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1050"><a id="__codelineno-3-1050" name="__codelineno-3-1050"></a><span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">diff</span><span class="p">.</span><span class="na">hasNext</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1051"><a id="__codelineno-3-1051" name="__codelineno-3-1051"></a><span class="w">    </span><span class="n">DiffEntry</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diff</span><span class="p">.</span><span class="na">next</span><span class="p">();</span>
+</span><span id="__span-3-1052"><a id="__codelineno-3-1052" name="__codelineno-3-1052"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">fromId</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1053"><a id="__codelineno-3-1053" name="__codelineno-3-1053"></a><span class="w">      </span><span class="c1">// key added</span>
+</span><span id="__span-3-1054"><a id="__codelineno-3-1054" name="__codelineno-3-1054"></a><span class="w">      </span><span class="n">createCommit</span><span class="p">.</span><span class="na">addAdds</span><span class="p">(</span>
+</span><span id="__span-3-1055"><a id="__codelineno-3-1055" name="__codelineno-3-1055"></a><span class="w">          </span><span class="n">commitAdd</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">key</span><span class="p">(),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">toPayload</span><span class="p">(),</span><span class="w"> </span><span class="n">requireNonNull</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">toId</span><span class="p">()),</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">toContentId</span><span class="p">()));</span>
+</span><span id="__span-3-1056"><a id="__codelineno-3-1056" name="__codelineno-3-1056"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">toId</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1057"><a id="__codelineno-3-1057" name="__codelineno-3-1057"></a><span class="w">      </span><span class="c1">// key removed</span>
+</span><span id="__span-3-1058"><a id="__codelineno-3-1058" name="__codelineno-3-1058"></a><span class="w">      </span><span class="n">createCommit</span><span class="p">.</span><span class="na">addRemoves</span><span class="p">(</span>
+</span><span id="__span-3-1059"><a id="__codelineno-3-1059" name="__codelineno-3-1059"></a><span class="w">          </span><span class="n">commitRemove</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">key</span><span class="p">(),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">fromPayload</span><span class="p">(),</span><span class="w"> </span><span class="n">requireNonNull</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">fromId</span><span class="p">()),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">fromContentId</span><span class="p">()));</span>
+</span><span id="__span-3-1060"><a id="__codelineno-3-1060" name="__codelineno-3-1060"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Objects</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">fromContentId</span><span class="p">(),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">toContentId</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1061"><a id="__codelineno-3-1061" name="__codelineno-3-1061"></a><span class="w">      </span><span class="c1">// key updated</span>
+</span><span id="__span-3-1062"><a id="__codelineno-3-1062" name="__codelineno-3-1062"></a><span class="w">      </span><span class="n">createCommit</span><span class="p">.</span><span class="na">addAdds</span><span class="p">(</span>
+</span><span id="__span-3-1063"><a id="__codelineno-3-1063" name="__codelineno-3-1063"></a><span class="w">          </span><span class="n">commitAdd</span><span class="p">(</span>
+</span><span id="__span-3-1064"><a id="__codelineno-3-1064" name="__codelineno-3-1064"></a><span class="w">              </span><span class="n">d</span><span class="p">.</span><span class="na">key</span><span class="p">(),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">toPayload</span><span class="p">(),</span><span class="w"> </span><span class="n">requireNonNull</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">toId</span><span class="p">()),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">fromId</span><span class="p">(),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">toContentId</span><span class="p">()));</span>
+</span><span id="__span-3-1065"><a id="__codelineno-3-1065" name="__codelineno-3-1065"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1066"><a id="__codelineno-3-1066" name="__codelineno-3-1066"></a><span class="w">      </span><span class="c1">// key re-added</span>
+</span><span id="__span-3-1067"><a id="__codelineno-3-1067" name="__codelineno-3-1067"></a><span class="w">      </span><span class="n">createCommit</span><span class="p">.</span><span class="na">addRemoves</span><span class="p">(</span>
+</span><span id="__span-3-1068"><a id="__codelineno-3-1068" name="__codelineno-3-1068"></a><span class="w">          </span><span class="n">commitRemove</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">key</span><span class="p">(),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">fromPayload</span><span class="p">(),</span><span class="w"> </span><span class="n">requireNonNull</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">fromId</span><span class="p">()),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">fromContentId</span><span class="p">()));</span>
+</span><span id="__span-3-1069"><a id="__codelineno-3-1069" name="__codelineno-3-1069"></a><span class="w">      </span><span class="n">createCommit</span><span class="p">.</span><span class="na">addAdds</span><span class="p">(</span>
+</span><span id="__span-3-1070"><a id="__codelineno-3-1070" name="__codelineno-3-1070"></a><span class="w">          </span><span class="n">commitAdd</span><span class="p">(</span>
+</span><span id="__span-3-1071"><a id="__codelineno-3-1071" name="__codelineno-3-1071"></a><span class="w">              </span><span class="n">d</span><span class="p">.</span><span class="na">key</span><span class="p">(),</span>
+</span><span id="__span-3-1072"><a id="__codelineno-3-1072" name="__codelineno-3-1072"></a><span class="w">              </span><span class="n">d</span><span class="p">.</span><span class="na">toPayload</span><span class="p">(),</span>
+</span><span id="__span-3-1073"><a id="__codelineno-3-1073" name="__codelineno-3-1073"></a><span class="w">              </span><span class="n">requireNonNull</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">toId</span><span class="p">()),</span>
+</span><span id="__span-3-1074"><a id="__codelineno-3-1074" name="__codelineno-3-1074"></a><span class="w">              </span><span class="n">requireNonNull</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">fromId</span><span class="p">()),</span>
+</span><span id="__span-3-1075"><a id="__codelineno-3-1075" name="__codelineno-3-1075"></a><span class="w">              </span><span class="n">d</span><span class="p">.</span><span class="na">toContentId</span><span class="p">()));</span>
+</span><span id="__span-3-1076"><a id="__codelineno-3-1076" name="__codelineno-3-1076"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-1077"><a id="__codelineno-3-1077" name="__codelineno-3-1077"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-1078"><a id="__codelineno-3-1078" name="__codelineno-3-1078"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">createCommit</span><span class="p">;</span>
+</span><span id="__span-3-1079"><a id="__codelineno-3-1079" name="__codelineno-3-1079"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L1046–L1079](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L1046-L1079) <span>@ nessie-0.108.4</span></p>
+
+<p>This 34-line method is the hinge of the whole chapter. Look at the "key updated" case:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">createCommit</span><span class="p">.</span><span class="na">addAdds</span><span class="p">(</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">commitAdd</span><span class="p">(</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">        </span><span class="n">d</span><span class="p">.</span><span class="na">key</span><span class="p">(),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">toPayload</span><span class="p">(),</span><span class="w"> </span><span class="n">requireNonNull</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="na">toId</span><span class="p">()),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">fromId</span><span class="p">(),</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="na">toContentId</span><span class="p">()));</span>
+</span></code></pre></div>
+<p>The signature is <code>commitAdd(key, payload, value, expectedValue, contentId)</code>. So <code>value</code> is <code>d.toId()</code> — the source's value — and <code>expectedValue</code> is <code>d.fromId()</code> — <strong>the value at the merge base</strong>.</p>
+<p>That is the third way of the three-way merge, and it is the only trace of it anywhere. There is no merge algorithm below this line. The merge base does not survive as a concept; it survives as the expected value of a compare-and-swap, and from here on the code is the same code a plain commit runs.</p>
+<p>The fourth case is worth noting too. When both sides have a value but the content IDs differ, the key was dropped and re-created — so the diff emits a <code>Remove</code> <em>and</em> an <code>Add</code>, preserving the identity change rather than papering over it as an update.</p>
+<h2 id="6-conflict-detection-in-twenty-nine-lines">6. Conflict detection, in twenty-nine lines<a class="headerlink" href="#6-conflict-detection-in-twenty-nine-lines" title="Permanent link">&para;</a></h2>
+<p>The <code>CreateCommit</code> from §5 is handed to <code>buildCommitObj</code> parented on the <strong>target head</strong>. So every <code>expectedValue</code> — every merge-base value — is checked against the target's own key index. That check is one static method:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitLogicImpl.checkForConflict()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-761">761</a></span>
+<span class="normal"><a href="#__codelineno-5-762">762</a></span>
+<span class="normal"><a href="#__codelineno-5-763">763</a></span>
+<span class="normal"><a href="#__codelineno-5-764">764</a></span>
+<span class="normal"><a href="#__codelineno-5-765">765</a></span>
+<span class="normal"><a href="#__codelineno-5-766">766</a></span>
+<span class="normal"><a href="#__codelineno-5-767">767</a></span>
+<span class="normal"><a href="#__codelineno-5-768">768</a></span>
+<span class="normal"><a href="#__codelineno-5-769">769</a></span>
+<span class="normal"><a href="#__codelineno-5-770">770</a></span>
+<span class="normal"><a href="#__codelineno-5-771">771</a></span>
+<span class="normal"><a href="#__codelineno-5-772">772</a></span>
+<span class="normal"><a href="#__codelineno-5-773">773</a></span>
+<span class="normal"><a href="#__codelineno-5-774">774</a></span>
+<span class="normal"><a href="#__codelineno-5-775">775</a></span>
+<span class="normal"><a href="#__codelineno-5-776">776</a></span>
+<span class="normal"><a href="#__codelineno-5-777">777</a></span>
+<span class="normal"><a href="#__codelineno-5-778">778</a></span>
+<span class="normal"><a href="#__codelineno-5-779">779</a></span>
+<span class="normal"><a href="#__codelineno-5-780">780</a></span>
+<span class="normal"><a href="#__codelineno-5-781">781</a></span>
+<span class="normal"><a href="#__codelineno-5-782">782</a></span>
+<span class="normal"><a href="#__codelineno-5-783">783</a></span>
+<span class="normal"><a href="#__codelineno-5-784">784</a></span>
+<span class="normal"><a href="#__codelineno-5-785">785</a></span>
+<span class="normal"><a href="#__codelineno-5-786">786</a></span>
+<span class="normal"><a href="#__codelineno-5-787">787</a></span>
+<span class="normal"><a href="#__codelineno-5-788">788</a></span>
+<span class="normal"><a href="#__codelineno-5-789">789</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-761"><a id="__codelineno-5-761" name="__codelineno-5-761"></a><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">CommitConflict</span><span class="w"> </span><span class="nf">checkForConflict</span><span class="p">(</span>
+</span><span id="__span-5-762"><a id="__codelineno-5-762" name="__codelineno-5-762"></a><span class="w">    </span><span class="n">StoreKey</span><span class="w"> </span><span class="n">key</span><span class="p">,</span>
+</span><span id="__span-5-763"><a id="__codelineno-5-763" name="__codelineno-5-763"></a><span class="w">    </span><span class="n">UUID</span><span class="w"> </span><span class="n">contentId</span><span class="p">,</span>
+</span><span id="__span-5-764"><a id="__codelineno-5-764" name="__codelineno-5-764"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">payload</span><span class="p">,</span>
+</span><span id="__span-5-765"><a id="__codelineno-5-765" name="__codelineno-5-765"></a><span class="w">    </span><span class="n">CommitOp</span><span class="w"> </span><span class="n">op</span><span class="p">,</span>
+</span><span id="__span-5-766"><a id="__codelineno-5-766" name="__codelineno-5-766"></a><span class="w">    </span><span class="n">CommitOp</span><span class="w"> </span><span class="n">existingContent</span><span class="p">,</span>
+</span><span id="__span-5-767"><a id="__codelineno-5-767" name="__codelineno-5-767"></a><span class="w">    </span><span class="n">ObjId</span><span class="w"> </span><span class="n">expectedValue</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-768"><a id="__codelineno-5-768" name="__codelineno-5-768"></a><span class="w">  </span><span class="n">CommitConflict</span><span class="w"> </span><span class="n">conflict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-5-769"><a id="__codelineno-5-769" name="__codelineno-5-769"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">expectedValue</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-770"><a id="__codelineno-5-770" name="__codelineno-5-770"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">existingContent</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-771"><a id="__codelineno-5-771" name="__codelineno-5-771"></a><span class="w">      </span><span class="n">conflict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitConflict</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_EXISTS</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="n">existingContent</span><span class="p">);</span>
+</span><span id="__span-5-772"><a id="__codelineno-5-772" name="__codelineno-5-772"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-5-773"><a id="__codelineno-5-773" name="__codelineno-5-773"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-774"><a id="__codelineno-5-774" name="__codelineno-5-774"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">existingContent</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-775"><a id="__codelineno-5-775" name="__codelineno-5-775"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">payload</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">existingContent</span><span class="p">.</span><span class="na">payload</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-776"><a id="__codelineno-5-776" name="__codelineno-5-776"></a><span class="w">        </span><span class="n">conflict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitConflict</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">PAYLOAD_DIFFERS</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="n">existingContent</span><span class="p">);</span>
+</span><span id="__span-5-777"><a id="__codelineno-5-777" name="__codelineno-5-777"></a><span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">Objects</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">contentId</span><span class="p">,</span><span class="w"> </span><span class="n">existingContent</span><span class="p">.</span><span class="na">contentId</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-778"><a id="__codelineno-5-778" name="__codelineno-5-778"></a><span class="w">        </span><span class="n">conflict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitConflict</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">CONTENT_ID_DIFFERS</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="n">existingContent</span><span class="p">);</span>
+</span><span id="__span-5-779"><a id="__codelineno-5-779" name="__codelineno-5-779"></a><span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">expectedValue</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">existingContent</span><span class="p">.</span><span class="na">value</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-780"><a id="__codelineno-5-780" name="__codelineno-5-780"></a><span class="w">        </span><span class="n">conflict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitConflict</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">VALUE_DIFFERS</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="n">existingContent</span><span class="p">);</span>
+</span><span id="__span-5-781"><a id="__codelineno-5-781" name="__codelineno-5-781"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-5-782"><a id="__codelineno-5-782" name="__codelineno-5-782"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-783"><a id="__codelineno-5-783" name="__codelineno-5-783"></a><span class="w">      </span><span class="n">conflict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitConflict</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_DOES_NOT_EXIST</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">);</span>
+</span><span id="__span-5-784"><a id="__codelineno-5-784" name="__codelineno-5-784"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-5-785"><a id="__codelineno-5-785" name="__codelineno-5-785"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-786"><a id="__codelineno-5-786" name="__codelineno-5-786"></a><span class="w">  </span><span class="c1">//</span>
+</span><span id="__span-5-787"><a id="__codelineno-5-787" name="__codelineno-5-787"></a>
+</span><span id="__span-5-788"><a id="__codelineno-5-788" name="__codelineno-5-788"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">conflict</span><span class="p">;</span>
+</span><span id="__span-5-789"><a id="__codelineno-5-789" name="__codelineno-5-789"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L761–L789](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L761-L789) <span>@ nessie-0.108.4</span></p>
+
+<p>And there are five ways to fail it:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitConflict.ConflictType</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-49">49</a></span>
+<span class="normal"><a href="#__codelineno-6-50">50</a></span>
+<span class="normal"><a href="#__codelineno-6-51">51</a></span>
+<span class="normal"><a href="#__codelineno-6-52">52</a></span>
+<span class="normal"><a href="#__codelineno-6-53">53</a></span>
+<span class="normal"><a href="#__codelineno-6-54">54</a></span>
+<span class="normal"><a href="#__codelineno-6-55">55</a></span>
+<span class="normal"><a href="#__codelineno-6-56">56</a></span>
+<span class="normal"><a href="#__codelineno-6-57">57</a></span>
+<span class="normal"><a href="#__codelineno-6-58">58</a></span>
+<span class="normal"><a href="#__codelineno-6-59">59</a></span>
+<span class="normal"><a href="#__codelineno-6-60">60</a></span>
+<span class="normal"><a href="#__codelineno-6-61">61</a></span>
+<span class="normal"><a href="#__codelineno-6-62">62</a></span>
+<span class="normal"><a href="#__codelineno-6-63">63</a></span>
+<span class="normal"><a href="#__codelineno-6-64">64</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-49"><a id="__codelineno-6-49" name="__codelineno-6-49"></a><span class="kd">enum</span><span class="w"> </span><span class="n">ConflictType</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-50"><a id="__codelineno-6-50" name="__codelineno-6-50"></a><span class="w">  </span><span class="cm">/** The key exists, but is expected to not exist. */</span>
+</span><span id="__span-6-51"><a id="__codelineno-6-51" name="__codelineno-6-51"></a><span class="w">  </span><span class="n">KEY_EXISTS</span><span class="p">,</span>
+</span><span id="__span-6-52"><a id="__codelineno-6-52" name="__codelineno-6-52"></a>
+</span><span id="__span-6-53"><a id="__codelineno-6-53" name="__codelineno-6-53"></a><span class="w">  </span><span class="cm">/** The key does not exist, but is expected to exist. */</span>
+</span><span id="__span-6-54"><a id="__codelineno-6-54" name="__codelineno-6-54"></a><span class="w">  </span><span class="n">KEY_DOES_NOT_EXIST</span><span class="p">,</span>
+</span><span id="__span-6-55"><a id="__codelineno-6-55" name="__codelineno-6-55"></a>
+</span><span id="__span-6-56"><a id="__codelineno-6-56" name="__codelineno-6-56"></a><span class="w">  </span><span class="cm">/** Payload of existing and expected differ. */</span>
+</span><span id="__span-6-57"><a id="__codelineno-6-57" name="__codelineno-6-57"></a><span class="w">  </span><span class="n">PAYLOAD_DIFFERS</span><span class="p">,</span>
+</span><span id="__span-6-58"><a id="__codelineno-6-58" name="__codelineno-6-58"></a>
+</span><span id="__span-6-59"><a id="__codelineno-6-59" name="__codelineno-6-59"></a><span class="w">  </span><span class="cm">/** Content IDs of existing and expected content differs. */</span>
+</span><span id="__span-6-60"><a id="__codelineno-6-60" name="__codelineno-6-60"></a><span class="w">  </span><span class="n">CONTENT_ID_DIFFERS</span><span class="p">,</span>
+</span><span id="__span-6-61"><a id="__codelineno-6-61" name="__codelineno-6-61"></a>
+</span><span id="__span-6-62"><a id="__codelineno-6-62" name="__codelineno-6-62"></a><span class="w">  </span><span class="cm">/** Values of existing and expected content differs. */</span>
+</span><span id="__span-6-63"><a id="__codelineno-6-63" name="__codelineno-6-63"></a><span class="w">  </span><span class="n">VALUE_DIFFERS</span>
+</span><span id="__span-6-64"><a id="__codelineno-6-64" name="__codelineno-6-64"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitConflict.java` L49–L64](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitConflict.java#L49-L64) <span>@ nessie-0.108.4</span></p>
+
+<p>Read the two together and the algorithm is complete:</p>
+<table>
+<thead>
+<tr>
+<th><code>expectedValue</code></th>
+<th>target index</th>
+<th>outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>null</code> (key is new on the source)</td>
+<td>absent</td>
+<td>no conflict</td>
+</tr>
+<tr>
+<td><code>null</code></td>
+<td>present</td>
+<td><code>KEY_EXISTS</code></td>
+</tr>
+<tr>
+<td>set (key existed at the base)</td>
+<td>absent</td>
+<td><code>KEY_DOES_NOT_EXIST</code></td>
+</tr>
+<tr>
+<td>set</td>
+<td>present, payload differs</td>
+<td><code>PAYLOAD_DIFFERS</code></td>
+</tr>
+<tr>
+<td>set</td>
+<td>present, content ID differs</td>
+<td><code>CONTENT_ID_DIFFERS</code></td>
+</tr>
+<tr>
+<td>set</td>
+<td>present, value differs</td>
+<td><code>VALUE_DIFFERS</code></td>
+</tr>
+<tr>
+<td>set</td>
+<td>present, all match</td>
+<td>no conflict</td>
+</tr>
+</tbody>
+</table>
+<p>Now state what that table does <em>not</em> contain. The source's value appears nowhere in it. <code>checkForConflict</code> receives <code>op</code> only to attach it to the conflict report; the decision is made entirely from <code>expectedValue</code> (the base) and <code>existingContent</code> (the target). Both <code>payload</code> and <code>contentId</code> come from the action, which took them from the <em>source</em> side of the diff, so those two clauses do reach across — but the value comparison, the one that fires in practice, does not.</p>
+<pre class="mermaid"><code>flowchart LR
+    BASE["merge base&lt;br/&gt;index at key = V_base"] --&gt; ACT
+    SRC["source head&lt;br/&gt;index at key = V_src"] --&gt; ACT
+    ACT["Add(value = V_src,&lt;br/&gt;expectedValue = V_base)"] --&gt; CHK
+    TGT["target head&lt;br/&gt;index at key = V_tgt"] --&gt; CHK
+    CHK{"V_base equals V_tgt ?"}
+    CHK --&gt;|yes| OK["index.add — merged"]
+    CHK --&gt;|no| C["CommitConflict VALUE_DIFFERS"]</code></pre>
+<p>There is no arrow from <code>V_src</code> to <code>V_tgt</code>. A conflict means <em>the target moved</em>, and nothing else. If the target never moved for this key, the merge writes the source's value without ever looking at what was there.</p>
+<p><strong><code>VALUE_DIFFERS</code> is an <code>ObjId</code> comparison.</strong> <code>ObjId</code> is the content hash of the serialized <code>ContentValueObj</code> — for an Iceberg table, a hash over the <code>metadataLocation</code> string and its neighbours. Two commits that appended different data files to the same table produce different metadata locations, therefore different hashes, therefore a conflict. Nessie will not open either file. This is not a limitation the code apologises for; it is the whole contract of a catalog that versions pointers.</p>
+<p><strong>The ordering of the three "differs" checks is a diagnosis, not an accident.</strong> Payload is checked first: the content <em>type</em> changed, so nothing else is comparable. Content ID second: the key holds a different object than it did at the base — a drop-and-recreate — and reporting a value mismatch would obscure that the identities differ. Value last. This matters for the next section, because forcing a <code>CONTENT_ID_DIFFERS</code> conflict grafts one table's metadata onto another table's identity.</p>
+<h2 id="7-the-conflict-handler-is-where-merge-diverges">7. The conflict <em>handler</em> is where merge diverges<a class="headerlink" href="#7-the-conflict-handler-is-where-merge-diverges" title="Permanent link">&para;</a></h2>
+<p>A plain commit passes <code>c -&gt; CONFLICT</code> and <code>buildCommitObj</code> throws. A merge passes this instead:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseCommitHelper — the merge ConflictHandler callback</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-454">454</a></span>
+<span class="normal"><a href="#__codelineno-7-455">455</a></span>
+<span class="normal"><a href="#__codelineno-7-456">456</a></span>
+<span class="normal"><a href="#__codelineno-7-457">457</a></span>
+<span class="normal"><a href="#__codelineno-7-458">458</a></span>
+<span class="normal"><a href="#__codelineno-7-459">459</a></span>
+<span class="normal"><a href="#__codelineno-7-460">460</a></span>
+<span class="normal"><a href="#__codelineno-7-461">461</a></span>
+<span class="normal"><a href="#__codelineno-7-462">462</a></span>
+<span class="normal"><a href="#__codelineno-7-463">463</a></span>
+<span class="normal"><a href="#__codelineno-7-464">464</a></span>
+<span class="normal"><a href="#__codelineno-7-465">465</a></span>
+<span class="normal"><a href="#__codelineno-7-466">466</a></span>
+<span class="normal"><a href="#__codelineno-7-467">467</a></span>
+<span class="normal"><a href="#__codelineno-7-468">468</a></span>
+<span class="normal"><a href="#__codelineno-7-469">469</a></span>
+<span class="normal"><a href="#__codelineno-7-470">470</a></span>
+<span class="normal"><a href="#__codelineno-7-471">471</a></span>
+<span class="normal"><a href="#__codelineno-7-472">472</a></span>
+<span class="normal"><a href="#__codelineno-7-473">473</a></span>
+<span class="normal"><a href="#__codelineno-7-474">474</a></span>
+<span class="normal"><a href="#__codelineno-7-475">475</a></span>
+<span class="normal"><a href="#__codelineno-7-476">476</a></span>
+<span class="normal"><a href="#__codelineno-7-477">477</a></span>
+<span class="normal"><a href="#__codelineno-7-478">478</a></span>
+<span class="normal"><a href="#__codelineno-7-479">479</a></span>
+<span class="normal"><a href="#__codelineno-7-480">480</a></span>
+<span class="normal"><a href="#__codelineno-7-481">481</a></span>
+<span class="normal"><a href="#__codelineno-7-482">482</a></span>
+<span class="normal"><a href="#__codelineno-7-483">483</a></span>
+<span class="normal"><a href="#__codelineno-7-484">484</a></span>
+<span class="normal"><a href="#__codelineno-7-485">485</a></span>
+<span class="normal"><a href="#__codelineno-7-486">486</a></span>
+<span class="normal"><a href="#__codelineno-7-487">487</a></span>
+<span class="normal"><a href="#__codelineno-7-488">488</a></span>
+<span class="normal"><a href="#__codelineno-7-489">489</a></span>
+<span class="normal"><a href="#__codelineno-7-490">490</a></span>
+<span class="normal"><a href="#__codelineno-7-491">491</a></span>
+<span class="normal"><a href="#__codelineno-7-492">492</a></span>
+<span class="normal"><a href="#__codelineno-7-493">493</a></span>
+<span class="normal"><a href="#__codelineno-7-494">494</a></span>
+<span class="normal"><a href="#__codelineno-7-495">495</a></span>
+<span class="normal"><a href="#__codelineno-7-496">496</a></span>
+<span class="normal"><a href="#__codelineno-7-497">497</a></span>
+<span class="normal"><a href="#__codelineno-7-498">498</a></span>
+<span class="normal"><a href="#__codelineno-7-499">499</a></span>
+<span class="normal"><a href="#__codelineno-7-500">500</a></span>
+<span class="normal"><a href="#__codelineno-7-501">501</a></span>
+<span class="normal"><a href="#__codelineno-7-502">502</a></span>
+<span class="normal"><a href="#__codelineno-7-503">503</a></span>
+<span class="normal"><a href="#__codelineno-7-504">504</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-454"><a id="__codelineno-7-454" name="__codelineno-7-454"></a><span class="cm">/*</span>
+</span><span id="__span-7-455"><a id="__codelineno-7-455" name="__codelineno-7-455"></a><span class="cm"> * Conflict handling happens via this callback, which can decide how the conflict should</span>
+</span><span id="__span-7-456"><a id="__codelineno-7-456" name="__codelineno-7-456"></a><span class="cm"> * be handled.</span>
+</span><span id="__span-7-457"><a id="__codelineno-7-457" name="__codelineno-7-457"></a><span class="cm"> */</span>
+</span><span id="__span-7-458"><a id="__codelineno-7-458" name="__codelineno-7-458"></a><span class="n">conflict</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-459"><a id="__codelineno-7-459" name="__codelineno-7-459"></a><span class="w">  </span><span class="n">ContentKey</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">storeKeyToKey</span><span class="p">(</span><span class="n">conflict</span><span class="p">.</span><span class="na">key</span><span class="p">());</span>
+</span><span id="__span-7-460"><a id="__codelineno-7-460" name="__codelineno-7-460"></a><span class="w">  </span><span class="c1">// Note: key==null, if not the "main universe" or not a "content"</span>
+</span><span id="__span-7-461"><a id="__codelineno-7-461" name="__codelineno-7-461"></a><span class="w">  </span><span class="c1">// discriminator</span>
+</span><span id="__span-7-462"><a id="__codelineno-7-462" name="__codelineno-7-462"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">key</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-463"><a id="__codelineno-7-463" name="__codelineno-7-463"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">conflict</span><span class="p">.</span><span class="na">conflictType</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">KEY_EXISTS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-464"><a id="__codelineno-7-464" name="__codelineno-7-464"></a><span class="w">      </span><span class="c1">// This is rather a hack to ignore conflicts when merging namespaces. If both the</span>
+</span><span id="__span-7-465"><a id="__codelineno-7-465" name="__codelineno-7-465"></a><span class="w">      </span><span class="c1">// source and target payload is NAMESPACE, let the target content "win" (aka no</span>
+</span><span id="__span-7-466"><a id="__codelineno-7-466" name="__codelineno-7-466"></a><span class="w">      </span><span class="c1">// change).</span>
+</span><span id="__span-7-467"><a id="__codelineno-7-467" name="__codelineno-7-467"></a><span class="w">      </span><span class="n">CommitOp</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conflict</span><span class="p">.</span><span class="na">op</span><span class="p">();</span>
+</span><span id="__span-7-468"><a id="__codelineno-7-468" name="__codelineno-7-468"></a><span class="w">      </span><span class="n">CommitOp</span><span class="w"> </span><span class="n">ex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conflict</span><span class="p">.</span><span class="na">existing</span><span class="p">();</span>
+</span><span id="__span-7-469"><a id="__codelineno-7-469" name="__codelineno-7-469"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ex</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">op</span><span class="p">.</span><span class="na">payload</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">payload</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-470"><a id="__codelineno-7-470" name="__codelineno-7-470"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Objects</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">op</span><span class="p">.</span><span class="na">value</span><span class="p">(),</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">value</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-471"><a id="__codelineno-7-471" name="__codelineno-7-471"></a><span class="w">          </span><span class="c1">// Got another add for the exact same content that is already on the target, so</span>
+</span><span id="__span-7-472"><a id="__codelineno-7-472" name="__codelineno-7-472"></a><span class="w">          </span><span class="c1">// drop the conflicting operation on the floor.</span>
+</span><span id="__span-7-473"><a id="__codelineno-7-473" name="__codelineno-7-473"></a><span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">ConflictResolution</span><span class="p">.</span><span class="na">DROP</span><span class="p">;</span>
+</span><span id="__span-7-474"><a id="__codelineno-7-474" name="__codelineno-7-474"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-7-475"><a id="__codelineno-7-475" name="__codelineno-7-475"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">NAMESPACE</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">contentTypeForPayload</span><span class="p">(</span><span class="n">op</span><span class="p">.</span><span class="na">payload</span><span class="p">())))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-476"><a id="__codelineno-7-476" name="__codelineno-7-476"></a><span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">ConflictResolution</span><span class="p">.</span><span class="na">ADD</span><span class="p">;</span>
+</span><span id="__span-7-477"><a id="__codelineno-7-477" name="__codelineno-7-477"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-7-478"><a id="__codelineno-7-478" name="__codelineno-7-478"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-7-479"><a id="__codelineno-7-479" name="__codelineno-7-479"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-480"><a id="__codelineno-7-480" name="__codelineno-7-480"></a>
+</span><span id="__span-7-481"><a id="__codelineno-7-481" name="__codelineno-7-481"></a><span class="w">    </span><span class="n">MergeBehavior</span><span class="w"> </span><span class="n">mergeBehavior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mergeBehaviors</span><span class="p">.</span><span class="na">mergeBehavior</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+</span><span id="__span-7-482"><a id="__codelineno-7-482" name="__codelineno-7-482"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">mergeBehavior</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-483"><a id="__codelineno-7-483" name="__codelineno-7-483"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">FORCE</span><span class="p">:</span>
+</span><span id="__span-7-484"><a id="__codelineno-7-484" name="__codelineno-7-484"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">DROP</span><span class="p">:</span>
+</span><span id="__span-7-485"><a id="__codelineno-7-485" name="__codelineno-7-485"></a><span class="w">        </span><span class="n">MergeKeyBehavior</span><span class="w"> </span><span class="n">mergeKeyBe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mergeBehaviors</span><span class="p">.</span><span class="na">useKey</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">);</span>
+</span><span id="__span-7-486"><a id="__codelineno-7-486" name="__codelineno-7-486"></a><span class="w">        </span><span class="c1">// Do not plain ignore (due to FORCE) or drop (DROP), when the caller provided an</span>
+</span><span id="__span-7-487"><a id="__codelineno-7-487" name="__codelineno-7-487"></a><span class="w">        </span><span class="c1">// expectedTargetContent.</span>
+</span><span id="__span-7-488"><a id="__codelineno-7-488" name="__codelineno-7-488"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mergeKeyBe</span><span class="p">.</span><span class="na">getExpectedTargetContent</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-489"><a id="__codelineno-7-489" name="__codelineno-7-489"></a><span class="w">          </span><span class="n">keyDetailsMap</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">keyDetails</span><span class="p">(</span><span class="n">mergeBehavior</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">));</span>
+</span><span id="__span-7-490"><a id="__codelineno-7-490" name="__codelineno-7-490"></a><span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">mergeBehavior</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MergeBehavior</span><span class="p">.</span><span class="na">FORCE</span>
+</span><span id="__span-7-491"><a id="__codelineno-7-491" name="__codelineno-7-491"></a><span class="w">              </span><span class="o">?</span><span class="w"> </span><span class="n">ConflictResolution</span><span class="p">.</span><span class="na">ADD</span>
+</span><span id="__span-7-492"><a id="__codelineno-7-492" name="__codelineno-7-492"></a><span class="w">              </span><span class="p">:</span><span class="w"> </span><span class="n">ConflictResolution</span><span class="p">.</span><span class="na">DROP</span><span class="p">;</span>
+</span><span id="__span-7-493"><a id="__codelineno-7-493" name="__codelineno-7-493"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-7-494"><a id="__codelineno-7-494" name="__codelineno-7-494"></a><span class="w">      </span><span class="c1">// fall through</span>
+</span><span id="__span-7-495"><a id="__codelineno-7-495" name="__codelineno-7-495"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">NORMAL</span><span class="p">:</span>
+</span><span id="__span-7-496"><a id="__codelineno-7-496" name="__codelineno-7-496"></a><span class="w">        </span><span class="n">keyDetailsMap</span><span class="p">.</span><span class="na">put</span><span class="p">(</span>
+</span><span id="__span-7-497"><a id="__codelineno-7-497" name="__codelineno-7-497"></a><span class="w">            </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">keyDetails</span><span class="p">(</span><span class="n">mergeBehavior</span><span class="p">,</span><span class="w"> </span><span class="n">commitConflictToConflict</span><span class="p">(</span><span class="n">conflict</span><span class="p">)));</span>
+</span><span id="__span-7-498"><a id="__codelineno-7-498" name="__codelineno-7-498"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ConflictResolution</span><span class="p">.</span><span class="na">ADD</span><span class="p">;</span>
+</span><span id="__span-7-499"><a id="__codelineno-7-499" name="__codelineno-7-499"></a><span class="w">      </span><span class="k">default</span><span class="p">:</span>
+</span><span id="__span-7-500"><a id="__codelineno-7-500" name="__codelineno-7-500"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalStateException</span><span class="p">(</span><span class="s">"Unknown merge behavior "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mergeBehavior</span><span class="p">);</span>
+</span><span id="__span-7-501"><a id="__codelineno-7-501" name="__codelineno-7-501"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-502"><a id="__codelineno-7-502" name="__codelineno-7-502"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-503"><a id="__codelineno-7-503" name="__codelineno-7-503"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ConflictResolution</span><span class="p">.</span><span class="na">ADD</span><span class="p">;</span>
+</span><span id="__span-7-504"><a id="__codelineno-7-504" name="__codelineno-7-504"></a><span class="p">},</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java` L454–L504](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java#L454-L504) <span>@ nessie-0.108.4</span></p>
+
+<p>Start at the bottom, with the <code>MergeBehavior</code> switch. The enum has three values, documented in one line each: <code>NORMAL</code> ("merged, conflict detection takes place"), <code>FORCE</code> ("merged unconditionally, no conflict detection"), <code>DROP</code> ("will not be merged"). They map onto <code>ConflictResolution</code> — <code>CONFLICT</code>, <code>ADD</code>, <code>DROP</code> — but not one-to-one:</p>
+<ul>
+<li><strong><code>FORCE</code></strong> → <code>ConflictResolution.ADD</code>, and <code>keyDetails(mergeBehavior, null)</code>: the action is committed, <strong>no conflict is recorded</strong>. Source wins.</li>
+<li><strong><code>DROP</code></strong> → <code>ConflictResolution.DROP</code>: the action is discarded and no conflict is recorded. Target wins. (Most <code>DROP</code> keys never reach here at all — §4 filtered them out of the diff.)</li>
+<li><strong><code>NORMAL</code></strong> → <code>keyDetails(mergeBehavior, commitConflictToConflict(conflict))</code> and then <strong><code>ConflictResolution.ADD</code></strong>.</li>
+</ul>
+<p>That last line is the one to stop on. <code>NORMAL</code> — the default, the conflict-detecting behaviour — does <em>not</em> return <code>CONFLICT</code>. It returns <code>ADD</code>. The conflicting action is committed into the resulting <code>CommitObj</code> alongside every clean one. <code>buildCommitObj</code>'s <code>conflicts</code> list stays empty and it never throws; the conflict is recorded in <code>keyDetailsMap</code> and nothing more.</p>
+<p>There is also a fall-through worth noting: <code>FORCE</code> and <code>DROP</code> only take their fast path when <code>mergeKeyBe.getExpectedTargetContent() == null</code>. The comment is explicit — <em>"Do not plain ignore (due to FORCE) or drop (DROP), when the caller provided an expectedTargetContent"</em> — so a client that asserted what the target holds gets that assertion honoured even under <code>FORCE</code>. Chapter 9.3 covers that mechanism.</p>
+<p>Above the switch sit two special cases for <code>KEY_EXISTS</code>, both firing only when source and target payloads match. If the values are also equal, <code>ConflictResolution.DROP</code> — the comment: <em>"Got another add for the exact same content that is already on the target, so drop the conflicting operation on the floor."</em> Otherwise, if the payload is <code>NAMESPACE</code>, <code>ConflictResolution.ADD</code>, under a comment that calls itself <em>"rather a hack to ignore conflicts when merging namespaces."</em></p>
+<h2 id="8-build-the-commit-then-throw-it-away">8. Build the commit, then throw it away<a class="headerlink" href="#8-build-the-commit-then-throw-it-away" title="Permanent link">&para;</a></h2>
+<p>Because <code>NORMAL</code> returns <code>ADD</code>, a conflicting merge runs to completion. <code>BaseMergeTransplantSquash.squash</code> builds the full <code>CommitObj</code> — index updates, hashing, all of it — and only then decides what to do with it:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseMergeTransplantSquash.squash() — build, then decide</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-106">106</a></span>
+<span class="normal"><a href="#__codelineno-8-107">107</a></span>
+<span class="normal"><a href="#__codelineno-8-108">108</a></span>
+<span class="normal"><a href="#__codelineno-8-109">109</a></span>
+<span class="normal"><a href="#__codelineno-8-110">110</a></span>
+<span class="normal"><a href="#__codelineno-8-111">111</a></span>
+<span class="normal"><a href="#__codelineno-8-112">112</a></span>
+<span class="normal"><a href="#__codelineno-8-113">113</a></span>
+<span class="normal"><a href="#__codelineno-8-114">114</a></span>
+<span class="normal"><a href="#__codelineno-8-115">115</a></span>
+<span class="normal"><a href="#__codelineno-8-116">116</a></span>
+<span class="normal"><a href="#__codelineno-8-117">117</a></span>
+<span class="normal"><a href="#__codelineno-8-118">118</a></span>
+<span class="normal"><a href="#__codelineno-8-119">119</a></span>
+<span class="normal"><a href="#__codelineno-8-120">120</a></span>
+<span class="normal"><a href="#__codelineno-8-121">121</a></span>
+<span class="normal"><a href="#__codelineno-8-122">122</a></span>
+<span class="normal"><a href="#__codelineno-8-123">123</a></span>
+<span class="normal"><a href="#__codelineno-8-124">124</a></span>
+<span class="normal"><a href="#__codelineno-8-125">125</a></span>
+<span class="normal"><a href="#__codelineno-8-126">126</a></span>
+<span class="normal"><a href="#__codelineno-8-127">127</a></span>
+<span class="normal"><a href="#__codelineno-8-128">128</a></span>
+<span class="normal"><a href="#__codelineno-8-129">129</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-106"><a id="__codelineno-8-106" name="__codelineno-8-106"></a><span class="kt">boolean</span><span class="w"> </span><span class="n">hasConflicts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recordKeyDetailsAndCheckConflicts</span><span class="p">(</span><span class="n">mergeResult</span><span class="p">,</span><span class="w"> </span><span class="n">keyDetailsMap</span><span class="p">);</span>
+</span><span id="__span-8-107"><a id="__codelineno-8-107" name="__codelineno-8-107"></a>
+</span><span id="__span-8-108"><a id="__codelineno-8-108" name="__codelineno-8-108"></a><span class="n">IndexesLogic</span><span class="w"> </span><span class="n">indexesLogic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">indexesLogic</span><span class="p">(</span><span class="n">persist</span><span class="p">);</span>
+</span><span id="__span-8-109"><a id="__codelineno-8-109" name="__codelineno-8-109"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">indexesLogic</span><span class="p">.</span><span class="na">commitOperations</span><span class="p">(</span><span class="n">mergeCommit</span><span class="p">).</span><span class="na">iterator</span><span class="p">().</span><span class="na">hasNext</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-110"><a id="__codelineno-8-110" name="__codelineno-8-110"></a><span class="w">  </span><span class="c1">// The squashed commit is empty, i.e. it doesn't contain any operations: don't persist it.</span>
+</span><span id="__span-8-111"><a id="__codelineno-8-111" name="__codelineno-8-111"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">finishMergeTransplant</span><span class="p">(</span>
+</span><span id="__span-8-112"><a id="__codelineno-8-112" name="__codelineno-8-112"></a><span class="w">      </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">mergeResult</span><span class="p">,</span><span class="w"> </span><span class="n">headId</span><span class="p">(),</span><span class="w"> </span><span class="n">mergeTransplantOpBase</span><span class="p">.</span><span class="na">dryRun</span><span class="p">(),</span><span class="w"> </span><span class="n">hasConflicts</span><span class="p">);</span>
+</span><span id="__span-8-113"><a id="__codelineno-8-113" name="__codelineno-8-113"></a><span class="p">}</span>
+</span><span id="__span-8-114"><a id="__codelineno-8-114" name="__codelineno-8-114"></a>
+</span><span id="__span-8-115"><a id="__codelineno-8-115" name="__codelineno-8-115"></a><span class="n">ObjId</span><span class="w"> </span><span class="n">newHead</span><span class="p">;</span>
+</span><span id="__span-8-116"><a id="__codelineno-8-116" name="__codelineno-8-116"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mergeTransplantOpBase</span><span class="p">.</span><span class="na">dryRun</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">hasConflicts</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-117"><a id="__codelineno-8-117" name="__codelineno-8-117"></a><span class="w">  </span><span class="n">newHead</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">headId</span><span class="p">();</span>
+</span><span id="__span-8-118"><a id="__codelineno-8-118" name="__codelineno-8-118"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-119"><a id="__codelineno-8-119" name="__codelineno-8-119"></a><span class="w">  </span><span class="n">CommitLogic</span><span class="w"> </span><span class="n">commitLogic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitLogic</span><span class="p">(</span><span class="n">persist</span><span class="p">);</span>
+</span><span id="__span-8-120"><a id="__codelineno-8-120" name="__codelineno-8-120"></a><span class="w">  </span><span class="n">newHead</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mergeCommit</span><span class="p">.</span><span class="na">id</span><span class="p">();</span>
+</span><span id="__span-8-121"><a id="__codelineno-8-121" name="__codelineno-8-121"></a><span class="w">  </span><span class="n">StoredObjResult</span><span class="o">&lt;</span><span class="n">CommitObj</span><span class="o">&gt;</span><span class="w"> </span><span class="n">committed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitLogic</span><span class="p">.</span><span class="na">storeCommit</span><span class="p">(</span><span class="n">mergeCommit</span><span class="p">,</span><span class="w"> </span><span class="n">objsToStore</span><span class="p">);</span>
+</span><span id="__span-8-122"><a id="__codelineno-8-122" name="__codelineno-8-122"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">committed</span><span class="p">.</span><span class="na">stored</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-123"><a id="__codelineno-8-123" name="__codelineno-8-123"></a><span class="w">    </span><span class="n">mergeCommit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">committed</span><span class="p">.</span><span class="na">obj</span><span class="p">().</span><span class="na">orElseThrow</span><span class="p">();</span>
+</span><span id="__span-8-124"><a id="__codelineno-8-124" name="__codelineno-8-124"></a><span class="w">    </span><span class="n">mergeResult</span><span class="p">.</span><span class="na">addCreatedCommits</span><span class="p">(</span><span class="n">commitObjToCommit</span><span class="p">(</span><span class="n">mergeCommit</span><span class="p">));</span>
+</span><span id="__span-8-125"><a id="__codelineno-8-125" name="__codelineno-8-125"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-126"><a id="__codelineno-8-126" name="__codelineno-8-126"></a><span class="p">}</span>
+</span><span id="__span-8-127"><a id="__codelineno-8-127" name="__codelineno-8-127"></a>
+</span><span id="__span-8-128"><a id="__codelineno-8-128" name="__codelineno-8-128"></a><span class="k">return</span><span class="w"> </span><span class="n">finishMergeTransplant</span><span class="p">(</span>
+</span><span id="__span-8-129"><a id="__codelineno-8-129" name="__codelineno-8-129"></a><span class="w">    </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">mergeResult</span><span class="p">,</span><span class="w"> </span><span class="n">newHead</span><span class="p">,</span><span class="w"> </span><span class="n">mergeTransplantOpBase</span><span class="p">.</span><span class="na">dryRun</span><span class="p">(),</span><span class="w"> </span><span class="n">hasConflicts</span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java` L106–L129](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java#L106-L129) <span>@ nessie-0.108.4</span></p>
+
+<p>Read the two exits in order. The first is the empty squash: if the built commit has no operations at all, it is not persisted and <code>finishMergeTransplant</code> is called with <code>isEmpty</code> true. The second is the branch that matters here — <code>dryRun() || hasConflicts</code> — where <code>newHead</code> simply stays at <code>headId()</code> and <code>storeCommit</code> is never reached.</p>
+<p><code>hasConflicts</code> and <code>dryRun</code> sharing one branch is not tidiness; it is the design. A conflict-checking merge <em>is</em> a dry run that decided not to commit, which buys two properties a fail-fast implementation could not have:</p>
+<p><strong>Every conflicting key is reported at once.</strong> <code>keyDetailsMap</code> accumulated an entry per key, so <code>MergeResponse</code> lists all of them. A client resolving conflicts sees the full set on the first attempt.</p>
+<p><strong>Dry-run needs no separate code path.</strong> <code>VersionStoreImpl.merge</code> wraps the supplier in <code>dryRunCommitterSupplier</code>, which swaps in a <code>BatchingPersist</code> with <code>batchSize(-1)</code> that never flushes. The merge runs identically and writes nothing.</p>
+<p>The cost is real: a merge that will fail still does the full index build and hashing before it knows. Nessie pays it to give the client a complete answer.</p>
+<h2 id="9-gotchas">9. Gotchas<a class="headerlink" href="#9-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Identical concurrent <em>creates</em> are absorbed; identical concurrent <em>updates</em> conflict</p>
+<p>The "exact same content" fast path in §7 only fires for <code>KEY_EXISTS</code> — the case where <code>expectedValue</code> was <code>null</code> because the key was new on the source. If both branches <em>updated</em> an existing key to byte-identical content, <code>expectedValue</code> is the base value, <code>existingContent</code> is the target value, and the check falls through to <code>VALUE_DIFFERS</code>. Two branches that agree perfectly still conflict. This is the opposite of what a git user expects.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">A namespace whose properties differ is silently overwritten by the source</p>
+<p>In the <code>KEY_EXISTS</code> branch, when both payloads are <code>NAMESPACE</code> and the values differ, the handler returns <code>ConflictResolution.ADD</code> with no conflict recorded — the source's namespace object is committed. The upstream comment describes the intent as letting <em>"the target content win (aka no change)"</em>, which is not what <code>ADD</code> does. Either way, no conflict is reported, so namespace property edits made on the target can vanish on merge with nothing in <code>MergeResponse</code> to say so.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>FORCE</code> on a <code>CONTENT_ID_DIFFERS</code> conflict is not what you want</p>
+<p><code>FORCE</code> skips conflict <em>reporting</em>, not conflict <em>detection</em> — <code>checkForConflict</code> still ran and still classified the problem. Forcing past <code>VALUE_DIFFERS</code> overwrites a value. Forcing past <code>CONTENT_ID_DIFFERS</code> writes the source table's metadata under a key that now holds a <em>different</em> table's identity. Read the conflict type before choosing <code>FORCE</code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">An unused <code>MergeKeyBehavior</code> fails the whole merge</p>
+<p><code>MergeBehaviors.postValidate()</code> asserts <code>remainingKeys.isEmpty()</code>, with the message <em>"Not all merge key behaviors specified in the request have been used."</em> Ask for <code>FORCE</code> on a key that turns out not to be in the diff and the merge is rejected with an <code>IllegalArgumentException</code>, rather than the behaviour being ignored.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Every Nessie merge is a squash merge: one implementation, one commit, source head recorded as a secondary parent.</li>
+<li>The merge base is found by git's painting algorithm over a <code>seq</code>-ordered priority queue, and respecting secondary parents is what stops a repeat merge from re-applying merged work.</li>
+<li>The source branch collapses to a two-way diff; the merge base survives only as the <code>expectedValue</code> of each resulting action.</li>
+<li>Conflict detection never compares source with target. It asks whether the target moved away from the base, by comparing content hashes — five conflict types, checked payload, then content ID, then value. The one place source and target meet is a <code>KEY_EXISTS</code> branch of the conflict handler, which drops a duplicate create.</li>
+<li><code>MergeBehavior.NORMAL</code> returns <code>ConflictResolution.ADD</code>: the conflicting action is committed into a <code>CommitObj</code> that is then discarded, which is why one attempt reports every conflicting key and why dry-run needs no separate code path.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Merge entry point, single implementation</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/VersionStoreImpl.java"><code>versioned/storage/store/.../VersionStoreImpl.java</code></a></td>
+</tr>
+<tr>
+<td>Merge base lookup, "already up to date"</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/MergeSquashImpl.java"><code>versioned/storage/store/.../MergeSquashImpl.java</code></a></td>
+</tr>
+<tr>
+<td>Squash: diff → <code>CreateCommit</code> → <code>CommitObj</code> → maybe persist</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java"><code>versioned/storage/store/.../BaseMergeTransplantSquash.java</code></a></td>
+</tr>
+<tr>
+<td>The <code>ConflictHandler</code> and <code>ValueReplacement</code> callbacks</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java"><code>versioned/storage/store/.../BaseCommitHelper.java</code></a></td>
+</tr>
+<tr>
+<td>Merge-base painting algorithm</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/MergeBase.java"><code>versioned/storage/common/.../logic/MergeBase.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ShallowCommit.java"><code>ShallowCommit.java</code></a></td>
+</tr>
+<tr>
+<td>Conflict detection, diff, <code>diffToCreateCommit</code></td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java"><code>versioned/storage/common/.../logic/CommitLogicImpl.java</code></a></td>
+</tr>
+<tr>
+<td>Storage-level conflict types</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitConflict.java"><code>versioned/storage/common/.../logic/CommitConflict.java</code></a></td>
+</tr>
+<tr>
+<td>Resolution vocabulary</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ConflictHandler.java"><code>versioned/storage/common/.../logic/ConflictHandler.java</code></a></td>
+</tr>
+<tr>
+<td>API-level behaviour and conflict model</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/MergeBehavior.java"><code>api/model/.../MergeBehavior.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/Conflict.java"><code>Conflict.java</code></a></td>
+</tr>
+<tr>
+<td>Storage → API conflict mapping</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/RefMapping.java"><code>versioned/storage/store/.../RefMapping.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Chapter 9.3 shows that transplant shares every line of this machinery and differs in exactly one argument — which is why some conflict-resolution features are legal for merge and rejected for cherry-pick.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_9.1_commit_path/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 9.1 Commit: from `Operation` to `CommitObj`">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                9.1 Commit: from `Operation` to `CommitObj`
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../chapter_9.3_transplant/" class="md-footer__link md-footer__link--next" aria-label="Next: 9.3 Transplant (cherry-pick) and conflict resolution policies">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                9.3 Transplant (cherry-pick) and conflict resolution policies
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

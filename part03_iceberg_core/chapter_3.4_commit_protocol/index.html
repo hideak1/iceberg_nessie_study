@@ -1,0 +1,4058 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part03_iceberg_core/chapter_3.4_commit_protocol/">
+      
+      
+        <link rel="prev" href="../chapter_3.3_snapshot_producer/">
+      
+      
+        <link rel="next" href="../chapter_3.5_conflict_detection/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>3.4 The commit protocol: CAS, retries, and where atomicity comes from - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-34-the-commit-protocol-cas-retries-and-where-atomicity-comes-from" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              3.4 The commit protocol: CAS, retries, and where atomicity comes from
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-shape-of-a-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The shape of a commit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-pre-check-that-is-not-the-swap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The pre-check that is not the swap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-naming-the-file-before-swapping-the-pointer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Naming the file before swapping the pointer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-swap-itself" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The swap itself
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-asking-the-catalog-what-happened" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Asking the catalog what happened
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-three-answers-three-behaviours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Three answers, three behaviours
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-shape-of-a-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The shape of a commit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-pre-check-that-is-not-the-swap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The pre-check that is not the swap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-naming-the-file-before-swapping-the-pointer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Naming the file before swapping the pointer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-swap-itself" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The swap itself
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-asking-the-catalog-what-happened" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Asking the catalog what happened
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-three-answers-three-behaviours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Three answers, three behaviours
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 3 · Iceberg Core
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-34-the-commit-protocol-cas-retries-and-where-atomicity-comes-from">Chapter 3.4 — The commit protocol: CAS, retries, and where atomicity comes from<a class="headerlink" href="#chapter-34-the-commit-protocol-cas-retries-and-where-atomicity-comes-from" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> Chapter 3.3 ended at <code>ops.commit(base, updated)</code>. What happens inside it, and which component in the stack is actually performing an atomic compare-and-swap?</p>
+<p><strong>Prerequisites:</strong> Chapter 3.3 (<code>SnapshotProducer</code>), Chapter 3.2 (<code>TableMetadata.Builder</code>), Chapter 3.1 (<code>TableOperations</code> and <code>FileIO</code>)</p>
+<p><strong>Source covered:</strong> <code>core/.../BaseMetastoreTableOperations.java</code>, <code>core/.../BaseMetastoreOperations.java</code>, <code>aws/.../DynamoDbTableOperations.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>Chapter 3.3 ended at <code>ops.commit(base, updated)</code> with the catalog side unopened. This chapter opens it, and it opens exactly half of it: the protocol <code>BaseMetastoreTableOperations</code> wraps around every catalog's <code>doCommit</code>, and what an honest compare-and-swap looks like in a store that offers one. Whether a <em>given</em> catalog's swap is genuinely atomic — and how the ones without a conditional write leak — is the audit in Chapter 6.2.</p>
+<p>Chapter 3.1 established the constraint that makes it hard. <code>FileIO</code> declares three methods: read a file, write a file, delete a file. No rename, no conditional put, no listing. Iceberg refuses to let storage be the source of atomicity, because on object storage it cannot be. So the atomic swap has to come from the catalog, and the catalog is a piece of software Iceberg does not own.</p>
+<p>Optimistic concurrency needs one primitive: an operation that sets a value <em>only if</em> it still holds the value you read. Everything Chapter 3.3 built — the retry loop, the candidate snapshot, the cleanup rules — assumes such an operation exists somewhere below <code>ops.commit</code>. This chapter finds it.</p>
+<p>That leaves the core with three jobs. Define the file the pointer points at. Define the protocol a catalog must follow to move that pointer. And define what everybody does when the catalog's answer never arrives — because on a network, <em>a failed call is not evidence of a failed commit</em>. That last one is why "did it commit?" is answered by a three-valued enum instead of a boolean, and it is where most of this chapter goes.</p>
+<h2 id="2-the-shape-of-a-commit">2. The shape of a commit<a class="headerlink" href="#2-the-shape-of-a-commit" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>sequenceDiagram
+    participant P as SnapshotProducer
+    participant O as BaseMetastoreTableOperations
+    participant F as FileIO
+    participant C as Catalog store
+
+    P-&gt;&gt;O: commit(base, updated)
+    O-&gt;&gt;O: base != current() ? CommitFailedException
+    O-&gt;&gt;O: base == metadata ? return early
+    O-&gt;&gt;O: doCommit(base, metadata)
+    O-&gt;&gt;F: write NNNNN-uuid.metadata.json
+    F--&gt;&gt;O: newMetadataLocation
+    O-&gt;&gt;C: conditionally swap the catalog pointer
+    alt condition holds
+        C--&gt;&gt;O: ok
+        O-&gt;&gt;F: deleteRemovedMetadataFiles
+    else condition fails
+        C--&gt;&gt;O: conditional check failed
+        O--&gt;&gt;P: CommitFailedException, retry
+    else no answer at all
+        C--xO: timeout or unexpected error
+        O-&gt;&gt;C: checkCommitStatus(newMetadataLocation)
+        O--&gt;&gt;P: return, or CommitFailedException, or CommitStateUnknownException
+    end</code></pre>
+<p>Two different checks appear in that diagram and only the second one is atomic. Section 3 is the first; section 5 is the second.</p>
+<h2 id="3-the-pre-check-that-is-not-the-swap">3. The pre-check that is not the swap<a class="headerlink" href="#3-the-pre-check-that-is-not-the-swap" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseMetastoreTableOperations.commit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-108">108</a></span>
+<span class="normal"><a href="#__codelineno-0-109">109</a></span>
+<span class="normal"><a href="#__codelineno-0-110">110</a></span>
+<span class="normal"><a href="#__codelineno-0-111">111</a></span>
+<span class="normal"><a href="#__codelineno-0-112">112</a></span>
+<span class="normal"><a href="#__codelineno-0-113">113</a></span>
+<span class="normal"><a href="#__codelineno-0-114">114</a></span>
+<span class="normal"><a href="#__codelineno-0-115">115</a></span>
+<span class="normal"><a href="#__codelineno-0-116">116</a></span>
+<span class="normal"><a href="#__codelineno-0-117">117</a></span>
+<span class="normal"><a href="#__codelineno-0-118">118</a></span>
+<span class="normal"><a href="#__codelineno-0-119">119</a></span>
+<span class="normal"><a href="#__codelineno-0-120">120</a></span>
+<span class="normal"><a href="#__codelineno-0-121">121</a></span>
+<span class="normal"><a href="#__codelineno-0-122">122</a></span>
+<span class="normal"><a href="#__codelineno-0-123">123</a></span>
+<span class="normal"><a href="#__codelineno-0-124">124</a></span>
+<span class="normal"><a href="#__codelineno-0-125">125</a></span>
+<span class="normal"><a href="#__codelineno-0-126">126</a></span>
+<span class="normal"><a href="#__codelineno-0-127">127</a></span>
+<span class="normal"><a href="#__codelineno-0-128">128</a></span>
+<span class="normal"><a href="#__codelineno-0-129">129</a></span>
+<span class="normal"><a href="#__codelineno-0-130">130</a></span>
+<span class="normal"><a href="#__codelineno-0-131">131</a></span>
+<span class="normal"><a href="#__codelineno-0-132">132</a></span>
+<span class="normal"><a href="#__codelineno-0-133">133</a></span>
+<span class="normal"><a href="#__codelineno-0-134">134</a></span>
+<span class="normal"><a href="#__codelineno-0-135">135</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="nd">@Override</span>
+</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">commit</span><span class="p">(</span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">metadata</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="w">  </span><span class="c1">// if the metadata is already out of date, reject it</span>
+</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">current</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CommitFailedException</span><span class="p">(</span><span class="s">"Cannot commit: stale table metadata"</span><span class="p">);</span>
+</span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-115"><a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="w">      </span><span class="c1">// when current is non-null, the table exists. but when base is null, the commit is trying</span>
+</span><span id="__span-0-116"><a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="w">      </span><span class="c1">// to create the table</span>
+</span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AlreadyExistsException</span><span class="p">(</span><span class="s">"Table already exists: %s"</span><span class="p">,</span><span class="w"> </span><span class="n">tableName</span><span class="p">());</span>
+</span><span id="__span-0-118"><a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-119"><a id="__codelineno-0-119" name="__codelineno-0-119"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-120"><a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="w">  </span><span class="c1">// if the metadata is not changed, return early</span>
+</span><span id="__span-0-121"><a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">metadata</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-122"><a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="w">    </span><span class="n">LOG</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Nothing to commit."</span><span class="p">);</span>
+</span><span id="__span-0-123"><a id="__codelineno-0-123" name="__codelineno-0-123"></a><span class="w">    </span><span class="k">return</span><span class="p">;</span>
+</span><span id="__span-0-124"><a id="__codelineno-0-124" name="__codelineno-0-124"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-125"><a id="__codelineno-0-125" name="__codelineno-0-125"></a>
+</span><span id="__span-0-126"><a id="__codelineno-0-126" name="__codelineno-0-126"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">();</span>
+</span><span id="__span-0-127"><a id="__codelineno-0-127" name="__codelineno-0-127"></a><span class="w">  </span><span class="n">doCommit</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">);</span>
+</span><span id="__span-0-128"><a id="__codelineno-0-128" name="__codelineno-0-128"></a><span class="w">  </span><span class="n">CatalogUtil</span><span class="p">.</span><span class="na">deleteRemovedMetadataFiles</span><span class="p">(</span><span class="n">io</span><span class="p">(),</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">);</span>
+</span><span id="__span-0-129"><a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="w">  </span><span class="n">requestRefresh</span><span class="p">();</span>
+</span><span id="__span-0-130"><a id="__codelineno-0-130" name="__codelineno-0-130"></a>
+</span><span id="__span-0-131"><a id="__codelineno-0-131" name="__codelineno-0-131"></a><span class="w">  </span><span class="n">LOG</span><span class="p">.</span><span class="na">info</span><span class="p">(</span>
+</span><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a><span class="w">      </span><span class="s">"Successfully committed to table {} in {} ms"</span><span class="p">,</span>
+</span><span id="__span-0-133"><a id="__codelineno-0-133" name="__codelineno-0-133"></a><span class="w">      </span><span class="n">tableName</span><span class="p">(),</span>
+</span><span id="__span-0-134"><a id="__codelineno-0-134" name="__codelineno-0-134"></a><span class="w">      </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">);</span>
+</span><span id="__span-0-135"><a id="__codelineno-0-135" name="__codelineno-0-135"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L108–L135](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L108-L135) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The first statement is <code>if (base != current())</code> — reference inequality, in the local JVM, against a field. No network call has happened yet.</p>
+<p>This is a fail-fast guard, not the concurrency mechanism. It is correct only because of two facts established earlier: the producer obtained <code>base</code> from <code>ops.refresh()</code> on this very object (Chapter 3.3, the first statement in <code>apply()</code>), and <code>TableMetadata.build()</code> returns <code>base</code> unchanged when nothing changed (Chapter 3.2). Given those, identity is a sound proxy for "still current" and it costs nothing.</p>
+<p>The branch inside is the interesting part. If <code>base</code> is non-null, a stale base means someone else committed: <code>CommitFailedException</code>, which Chapter 3.3's retry loop is listening for. If <code>base</code> is null, the caller was trying to <em>create</em> the table and the table exists, so the answer is <code>AlreadyExistsException</code> — not retryable, because retrying will not make the table stop existing. Two different failures wearing the same symptom, separated by one null check.</p>
+<p>Then <code>if (base == metadata) return;</code> — the no-op short circuit, again on identity, again free because of Chapter 3.2.</p>
+<p>Everything real happens in <code>doCommit</code>, which this class does not implement. The two lines after it are cleanup and bookkeeping: <code>CatalogUtil.deleteRemovedMetadataFiles</code> trims old metadata files, and <code>requestRefresh()</code> marks the cached metadata stale so the next <code>current()</code> reloads.</p>
+<p>That reload is not a bare read. <code>refreshFromMetadataLocation</code> wraps it in <code>Tasks.foreach(newLocation).retry(20).exponentialBackoff(100, 5000, 600000, 4.0)</code>, stopping early only on <code>NotFoundException</code> — the file was written moments ago and object storage may not be showing it yet. Having read it, the method asserts something stronger than freshness: that the refreshed metadata's <code>uuid()</code> equals the one already loaded, failing with <code>Table UUID does not match: current=%s != refreshed=%s</code>. A catalog entry that suddenly points at metadata carrying a different table UUID is not a new version of this table; it is a <em>different table</em> wearing its name — dropped and recreated, or a location collision. Committing into it would be worse than failing.</p>
+<h2 id="4-naming-the-file-before-swapping-the-pointer">4. Naming the file before swapping the pointer<a class="headerlink" href="#4-naming-the-file-before-swapping-the-pointer" title="Permanent link">&para;</a></h2>
+<p>A pointer needs something to point at, and the new state must exist in storage <em>before</em> the swap, not after.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">writeNewMetadataIfRequired() and writeNewMetadata()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-149">149</a></span>
+<span class="normal"><a href="#__codelineno-1-150">150</a></span>
+<span class="normal"><a href="#__codelineno-1-151">151</a></span>
+<span class="normal"><a href="#__codelineno-1-152">152</a></span>
+<span class="normal"><a href="#__codelineno-1-153">153</a></span>
+<span class="normal"><a href="#__codelineno-1-154">154</a></span>
+<span class="normal"><a href="#__codelineno-1-155">155</a></span>
+<span class="normal"><a href="#__codelineno-1-156">156</a></span>
+<span class="normal"><a href="#__codelineno-1-157">157</a></span>
+<span class="normal"><a href="#__codelineno-1-158">158</a></span>
+<span class="normal"><a href="#__codelineno-1-159">159</a></span>
+<span class="normal"><a href="#__codelineno-1-160">160</a></span>
+<span class="normal"><a href="#__codelineno-1-161">161</a></span>
+<span class="normal"><a href="#__codelineno-1-162">162</a></span>
+<span class="normal"><a href="#__codelineno-1-163">163</a></span>
+<span class="normal"><a href="#__codelineno-1-164">164</a></span>
+<span class="normal"><a href="#__codelineno-1-165">165</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-149"><a id="__codelineno-1-149" name="__codelineno-1-149"></a><span class="kd">protected</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">writeNewMetadataIfRequired</span><span class="p">(</span><span class="kt">boolean</span><span class="w"> </span><span class="n">newTable</span><span class="p">,</span><span class="w"> </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">metadata</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-150"><a id="__codelineno-1-150" name="__codelineno-1-150"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">newTable</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">metadataFileLocation</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a><span class="w">      </span><span class="o">?</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">metadataFileLocation</span><span class="p">()</span>
+</span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="n">writeNewMetadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">currentVersion</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</span><span id="__span-1-153"><a id="__codelineno-1-153" name="__codelineno-1-153"></a><span class="p">}</span>
+</span><span id="__span-1-154"><a id="__codelineno-1-154" name="__codelineno-1-154"></a>
+</span><span id="__span-1-155"><a id="__codelineno-1-155" name="__codelineno-1-155"></a><span class="kd">protected</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">writeNewMetadata</span><span class="p">(</span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">newVersion</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-156"><a id="__codelineno-1-156" name="__codelineno-1-156"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">newTableMetadataFilePath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newTableMetadataFilePath</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">newVersion</span><span class="p">);</span>
+</span><span id="__span-1-157"><a id="__codelineno-1-157" name="__codelineno-1-157"></a><span class="w">  </span><span class="n">OutputFile</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">io</span><span class="p">().</span><span class="na">newOutputFile</span><span class="p">(</span><span class="n">newTableMetadataFilePath</span><span class="p">);</span>
+</span><span id="__span-1-158"><a id="__codelineno-1-158" name="__codelineno-1-158"></a>
+</span><span id="__span-1-159"><a id="__codelineno-1-159" name="__codelineno-1-159"></a><span class="w">  </span><span class="c1">// write the new metadata</span>
+</span><span id="__span-1-160"><a id="__codelineno-1-160" name="__codelineno-1-160"></a><span class="w">  </span><span class="c1">// use overwrite to avoid negative caching in S3. this is safe because the metadata location is</span>
+</span><span id="__span-1-161"><a id="__codelineno-1-161" name="__codelineno-1-161"></a><span class="w">  </span><span class="c1">// always unique because it includes a UUID.</span>
+</span><span id="__span-1-162"><a id="__codelineno-1-162" name="__codelineno-1-162"></a><span class="w">  </span><span class="n">TableMetadataParser</span><span class="p">.</span><span class="na">overwrite</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">);</span>
+</span><span id="__span-1-163"><a id="__codelineno-1-163" name="__codelineno-1-163"></a>
+</span><span id="__span-1-164"><a id="__codelineno-1-164" name="__codelineno-1-164"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">.</span><span class="na">location</span><span class="p">();</span>
+</span><span id="__span-1-165"><a id="__codelineno-1-165" name="__codelineno-1-165"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L149–L165](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L149-L165) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>writeNewMetadataIfRequired</code> carries a branch worth naming: when the commit is <em>creating</em> a table and the metadata already has a <code>metadataFileLocation()</code>, it adopts that file instead of writing a new one. That is the path behind <code>register_table</code> — taking an existing metadata file into a catalog without rewriting it. Every other commit falls through to <code>writeNewMetadata</code>, where two decisions are recorded. The first is <code>currentVersion() + 1</code>: metadata files are numbered, and the number comes from the version this operations object last loaded. The second is in the comment:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// use overwrite to avoid negative caching in S3. this is safe because the metadata location is</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1">// always unique because it includes a UUID.</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">TableMetadataParser</span><span class="p">.</span><span class="na">overwrite</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">);</span>
+</span></code></pre></div>
+<p><code>overwrite</code> rather than create-if-absent, because S3 caches 404s and a create-style write can require a preceding HEAD that poisons the cache. It is safe only because the name is unique — which brings us to the naming:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">newTableMetadataFilePath() and parseVersion()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-342">342</a></span>
+<span class="normal"><a href="#__codelineno-3-343">343</a></span>
+<span class="normal"><a href="#__codelineno-3-344">344</a></span>
+<span class="normal"><a href="#__codelineno-3-345">345</a></span>
+<span class="normal"><a href="#__codelineno-3-346">346</a></span>
+<span class="normal"><a href="#__codelineno-3-347">347</a></span>
+<span class="normal"><a href="#__codelineno-3-348">348</a></span>
+<span class="normal"><a href="#__codelineno-3-349">349</a></span>
+<span class="normal"><a href="#__codelineno-3-350">350</a></span>
+<span class="normal"><a href="#__codelineno-3-351">351</a></span>
+<span class="normal"><a href="#__codelineno-3-352">352</a></span>
+<span class="normal"><a href="#__codelineno-3-353">353</a></span>
+<span class="normal"><a href="#__codelineno-3-354">354</a></span>
+<span class="normal"><a href="#__codelineno-3-355">355</a></span>
+<span class="normal"><a href="#__codelineno-3-356">356</a></span>
+<span class="normal"><a href="#__codelineno-3-357">357</a></span>
+<span class="normal"><a href="#__codelineno-3-358">358</a></span>
+<span class="normal"><a href="#__codelineno-3-359">359</a></span>
+<span class="normal"><a href="#__codelineno-3-360">360</a></span>
+<span class="normal"><a href="#__codelineno-3-361">361</a></span>
+<span class="normal"><a href="#__codelineno-3-362">362</a></span>
+<span class="normal"><a href="#__codelineno-3-363">363</a></span>
+<span class="normal"><a href="#__codelineno-3-364">364</a></span>
+<span class="normal"><a href="#__codelineno-3-365">365</a></span>
+<span class="normal"><a href="#__codelineno-3-366">366</a></span>
+<span class="normal"><a href="#__codelineno-3-367">367</a></span>
+<span class="normal"><a href="#__codelineno-3-368">368</a></span>
+<span class="normal"><a href="#__codelineno-3-369">369</a></span>
+<span class="normal"><a href="#__codelineno-3-370">370</a></span>
+<span class="normal"><a href="#__codelineno-3-371">371</a></span>
+<span class="normal"><a href="#__codelineno-3-372">372</a></span>
+<span class="normal"><a href="#__codelineno-3-373">373</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-342"><a id="__codelineno-3-342" name="__codelineno-3-342"></a><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">newTableMetadataFilePath</span><span class="p">(</span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">meta</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">newVersion</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-343"><a id="__codelineno-3-343" name="__codelineno-3-343"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">codecName</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-344"><a id="__codelineno-3-344" name="__codelineno-3-344"></a><span class="w">      </span><span class="n">meta</span><span class="p">.</span><span class="na">property</span><span class="p">(</span>
+</span><span id="__span-3-345"><a id="__codelineno-3-345" name="__codelineno-3-345"></a><span class="w">          </span><span class="n">TableProperties</span><span class="p">.</span><span class="na">METADATA_COMPRESSION</span><span class="p">,</span><span class="w"> </span><span class="n">TableProperties</span><span class="p">.</span><span class="na">METADATA_COMPRESSION_DEFAULT</span><span class="p">);</span>
+</span><span id="__span-3-346"><a id="__codelineno-3-346" name="__codelineno-3-346"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">fileExtension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TableMetadataParser</span><span class="p">.</span><span class="na">getFileExtension</span><span class="p">(</span><span class="n">codecName</span><span class="p">);</span>
+</span><span id="__span-3-347"><a id="__codelineno-3-347" name="__codelineno-3-347"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">metadataFileLocation</span><span class="p">(</span>
+</span><span id="__span-3-348"><a id="__codelineno-3-348" name="__codelineno-3-348"></a><span class="w">      </span><span class="n">meta</span><span class="p">,</span>
+</span><span id="__span-3-349"><a id="__codelineno-3-349" name="__codelineno-3-349"></a><span class="w">      </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">ROOT</span><span class="p">,</span><span class="w"> </span><span class="s">"%05d-%s%s"</span><span class="p">,</span><span class="w"> </span><span class="n">newVersion</span><span class="p">,</span><span class="w"> </span><span class="n">UUID</span><span class="p">.</span><span class="na">randomUUID</span><span class="p">(),</span><span class="w"> </span><span class="n">fileExtension</span><span class="p">));</span>
+</span><span id="__span-3-350"><a id="__codelineno-3-350" name="__codelineno-3-350"></a><span class="p">}</span>
+</span><span id="__span-3-351"><a id="__codelineno-3-351" name="__codelineno-3-351"></a>
+</span><span id="__span-3-352"><a id="__codelineno-3-352" name="__codelineno-3-352"></a><span class="cm">/**</span>
+</span><span id="__span-3-353"><a id="__codelineno-3-353" name="__codelineno-3-353"></a><span class="cm"> * Parse the version from table metadata file name.</span>
+</span><span id="__span-3-354"><a id="__codelineno-3-354" name="__codelineno-3-354"></a><span class="cm"> *</span>
+</span><span id="__span-3-355"><a id="__codelineno-3-355" name="__codelineno-3-355"></a><span class="cm"> * @param metadataLocation table metadata file location</span>
+</span><span id="__span-3-356"><a id="__codelineno-3-356" name="__codelineno-3-356"></a><span class="cm"> * @return version of the table metadata file in success case and -1 if the version is not</span>
+</span><span id="__span-3-357"><a id="__codelineno-3-357" name="__codelineno-3-357"></a><span class="cm"> *     parsable (as a sign that the metadata is not part of this catalog)</span>
+</span><span id="__span-3-358"><a id="__codelineno-3-358" name="__codelineno-3-358"></a><span class="cm"> */</span>
+</span><span id="__span-3-359"><a id="__codelineno-3-359" name="__codelineno-3-359"></a><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">parseVersion</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">metadataLocation</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-360"><a id="__codelineno-3-360" name="__codelineno-3-360"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">versionStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metadataLocation</span><span class="p">.</span><span class="na">lastIndexOf</span><span class="p">(</span><span class="sc">'/'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">// if '/' isn't found, this will be 0</span>
+</span><span id="__span-3-361"><a id="__codelineno-3-361" name="__codelineno-3-361"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">versionEnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metadataLocation</span><span class="p">.</span><span class="na">indexOf</span><span class="p">(</span><span class="sc">'-'</span><span class="p">,</span><span class="w"> </span><span class="n">versionStart</span><span class="p">);</span>
+</span><span id="__span-3-362"><a id="__codelineno-3-362" name="__codelineno-3-362"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">versionEnd</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-363"><a id="__codelineno-3-363" name="__codelineno-3-363"></a><span class="w">    </span><span class="c1">// found filesystem table's metadata</span>
+</span><span id="__span-3-364"><a id="__codelineno-3-364" name="__codelineno-3-364"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-3-365"><a id="__codelineno-3-365" name="__codelineno-3-365"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-366"><a id="__codelineno-3-366" name="__codelineno-3-366"></a>
+</span><span id="__span-3-367"><a id="__codelineno-3-367" name="__codelineno-3-367"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-368"><a id="__codelineno-3-368" name="__codelineno-3-368"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Integer</span><span class="p">.</span><span class="na">parseInt</span><span class="p">(</span><span class="n">metadataLocation</span><span class="p">.</span><span class="na">substring</span><span class="p">(</span><span class="n">versionStart</span><span class="p">,</span><span class="w"> </span><span class="n">versionEnd</span><span class="p">));</span>
+</span><span id="__span-3-369"><a id="__codelineno-3-369" name="__codelineno-3-369"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">NumberFormatException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-370"><a id="__codelineno-3-370" name="__codelineno-3-370"></a><span class="w">    </span><span class="n">LOG</span><span class="p">.</span><span class="na">warn</span><span class="p">(</span><span class="s">"Unable to parse version from metadata location: {}"</span><span class="p">,</span><span class="w"> </span><span class="n">metadataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-3-371"><a id="__codelineno-3-371" name="__codelineno-3-371"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-3-372"><a id="__codelineno-3-372" name="__codelineno-3-372"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-373"><a id="__codelineno-3-373" name="__codelineno-3-373"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L342–L373](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L342-L373) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>String.format(Locale.ROOT, "%05d-%s%s", newVersion, UUID.randomUUID(), fileExtension)</code> — a five-digit zero-padded version, a random UUID, and an extension that depends on <code>write.metadata.compression-codec</code> (default <code>none</code>, so <code>.metadata.json</code>; set it to <code>gzip</code> and you get <code>.gz.metadata.json</code>).</p>
+<p>The version prefix is decoration for humans <em>and</em> load-bearing for <code>parseVersion</code>, which reads it back. Note both failure returns: no <code>-</code> after the last <code>/</code> gives <code>-1</code> with the comment "found filesystem table's metadata", and an unparseable prefix gives <code>-1</code> with a warning. The javadoc states the meaning of <code>-1</code>: the metadata "is not part of this catalog". A <code>HadoopCatalog</code>-style table uses <code>v3.metadata.json</code>; a metastore catalog reading that location knows immediately it is looking at someone else's file.</p>
+<h2 id="5-the-swap-itself">5. The swap itself<a class="headerlink" href="#5-the-swap-itself" title="Permanent link">&para;</a></h2>
+<p><code>doCommit</code> is where a catalog earns the word "atomic". Read a conditional-write catalog as the specimen — the shape recurs wherever the store offers a real conditional write, and the specifics of <code>HadoopCatalog</code> and <code>HiveCatalog</code> get their own audit in Chapter 6.2:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DynamoDbTableOperations.doCommit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-104">104</a></span>
+<span class="normal"><a href="#__codelineno-4-105">105</a></span>
+<span class="normal"><a href="#__codelineno-4-106">106</a></span>
+<span class="normal"><a href="#__codelineno-4-107">107</a></span>
+<span class="normal"><a href="#__codelineno-4-108">108</a></span>
+<span class="normal"><a href="#__codelineno-4-109">109</a></span>
+<span class="normal"><a href="#__codelineno-4-110">110</a></span>
+<span class="normal"><a href="#__codelineno-4-111">111</a></span>
+<span class="normal"><a href="#__codelineno-4-112">112</a></span>
+<span class="normal"><a href="#__codelineno-4-113">113</a></span>
+<span class="normal"><a href="#__codelineno-4-114">114</a></span>
+<span class="normal"><a href="#__codelineno-4-115">115</a></span>
+<span class="normal"><a href="#__codelineno-4-116">116</a></span>
+<span class="normal"><a href="#__codelineno-4-117">117</a></span>
+<span class="normal"><a href="#__codelineno-4-118">118</a></span>
+<span class="normal"><a href="#__codelineno-4-119">119</a></span>
+<span class="normal"><a href="#__codelineno-4-120">120</a></span>
+<span class="normal"><a href="#__codelineno-4-121">121</a></span>
+<span class="normal"><a href="#__codelineno-4-122">122</a></span>
+<span class="normal"><a href="#__codelineno-4-123">123</a></span>
+<span class="normal"><a href="#__codelineno-4-124">124</a></span>
+<span class="normal"><a href="#__codelineno-4-125">125</a></span>
+<span class="normal"><a href="#__codelineno-4-126">126</a></span>
+<span class="normal"><a href="#__codelineno-4-127">127</a></span>
+<span class="normal"><a href="#__codelineno-4-128">128</a></span>
+<span class="normal"><a href="#__codelineno-4-129">129</a></span>
+<span class="normal"><a href="#__codelineno-4-130">130</a></span>
+<span class="normal"><a href="#__codelineno-4-131">131</a></span>
+<span class="normal"><a href="#__codelineno-4-132">132</a></span>
+<span class="normal"><a href="#__codelineno-4-133">133</a></span>
+<span class="normal"><a href="#__codelineno-4-134">134</a></span>
+<span class="normal"><a href="#__codelineno-4-135">135</a></span>
+<span class="normal"><a href="#__codelineno-4-136">136</a></span>
+<span class="normal"><a href="#__codelineno-4-137">137</a></span>
+<span class="normal"><a href="#__codelineno-4-138">138</a></span>
+<span class="normal"><a href="#__codelineno-4-139">139</a></span>
+<span class="normal"><a href="#__codelineno-4-140">140</a></span>
+<span class="normal"><a href="#__codelineno-4-141">141</a></span>
+<span class="normal"><a href="#__codelineno-4-142">142</a></span>
+<span class="normal"><a href="#__codelineno-4-143">143</a></span>
+<span class="normal"><a href="#__codelineno-4-144">144</a></span>
+<span class="normal"><a href="#__codelineno-4-145">145</a></span>
+<span class="normal"><a href="#__codelineno-4-146">146</a></span>
+<span class="normal"><a href="#__codelineno-4-147">147</a></span>
+<span class="normal"><a href="#__codelineno-4-148">148</a></span>
+<span class="normal"><a href="#__codelineno-4-149">149</a></span>
+<span class="normal"><a href="#__codelineno-4-150">150</a></span>
+<span class="normal"><a href="#__codelineno-4-151">151</a></span>
+<span class="normal"><a href="#__codelineno-4-152">152</a></span>
+<span class="normal"><a href="#__codelineno-4-153">153</a></span>
+<span class="normal"><a href="#__codelineno-4-154">154</a></span>
+<span class="normal"><a href="#__codelineno-4-155">155</a></span>
+<span class="normal"><a href="#__codelineno-4-156">156</a></span>
+<span class="normal"><a href="#__codelineno-4-157">157</a></span>
+<span class="normal"><a href="#__codelineno-4-158">158</a></span>
+<span class="normal"><a href="#__codelineno-4-159">159</a></span>
+<span class="normal"><a href="#__codelineno-4-160">160</a></span>
+<span class="normal"><a href="#__codelineno-4-161">161</a></span>
+<span class="normal"><a href="#__codelineno-4-162">162</a></span>
+<span class="normal"><a href="#__codelineno-4-163">163</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-104"><a id="__codelineno-4-104" name="__codelineno-4-104"></a><span class="nd">@Override</span>
+</span><span id="__span-4-105"><a id="__codelineno-4-105" name="__codelineno-4-105"></a><span class="kd">protected</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">doCommit</span><span class="p">(</span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">metadata</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-106"><a id="__codelineno-4-106" name="__codelineno-4-106"></a><span class="w">  </span><span class="kt">boolean</span><span class="w"> </span><span class="n">newTable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-4-107"><a id="__codelineno-4-107" name="__codelineno-4-107"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writeNewMetadataIfRequired</span><span class="p">(</span><span class="n">newTable</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">);</span>
+</span><span id="__span-4-108"><a id="__codelineno-4-108" name="__codelineno-4-108"></a><span class="w">  </span><span class="n">CommitStatus</span><span class="w"> </span><span class="n">commitStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CommitStatus</span><span class="p">.</span><span class="na">FAILURE</span><span class="p">;</span>
+</span><span id="__span-4-109"><a id="__codelineno-4-109" name="__codelineno-4-109"></a><span class="w">  </span><span class="n">RetryDetector</span><span class="w"> </span><span class="n">retryDetector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RetryDetector</span><span class="p">();</span>
+</span><span id="__span-4-110"><a id="__codelineno-4-110" name="__codelineno-4-110"></a><span class="w">  </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">AttributeValue</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tableKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DynamoDbCatalog</span><span class="p">.</span><span class="na">tablePrimaryKey</span><span class="p">(</span><span class="n">tableIdentifier</span><span class="p">);</span>
+</span><span id="__span-4-111"><a id="__codelineno-4-111" name="__codelineno-4-111"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-112"><a id="__codelineno-4-112" name="__codelineno-4-112"></a><span class="w">    </span><span class="n">GetItemResponse</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-4-113"><a id="__codelineno-4-113" name="__codelineno-4-113"></a><span class="w">        </span><span class="n">dynamo</span><span class="p">.</span><span class="na">getItem</span><span class="p">(</span>
+</span><span id="__span-4-114"><a id="__codelineno-4-114" name="__codelineno-4-114"></a><span class="w">            </span><span class="n">GetItemRequest</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+</span><span id="__span-4-115"><a id="__codelineno-4-115" name="__codelineno-4-115"></a><span class="w">                </span><span class="p">.</span><span class="na">tableName</span><span class="p">(</span><span class="n">awsProperties</span><span class="p">.</span><span class="na">dynamoDbTableName</span><span class="p">())</span>
+</span><span id="__span-4-116"><a id="__codelineno-4-116" name="__codelineno-4-116"></a><span class="w">                </span><span class="p">.</span><span class="na">consistentRead</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+</span><span id="__span-4-117"><a id="__codelineno-4-117" name="__codelineno-4-117"></a><span class="w">                </span><span class="p">.</span><span class="na">key</span><span class="p">(</span><span class="n">tableKey</span><span class="p">)</span>
+</span><span id="__span-4-118"><a id="__codelineno-4-118" name="__codelineno-4-118"></a><span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+</span><span id="__span-4-119"><a id="__codelineno-4-119" name="__codelineno-4-119"></a><span class="w">    </span><span class="n">checkMetadataLocation</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="n">base</span><span class="p">);</span>
+</span><span id="__span-4-120"><a id="__codelineno-4-120" name="__codelineno-4-120"></a><span class="w">    </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prepareProperties</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">);</span>
+</span><span id="__span-4-121"><a id="__codelineno-4-121" name="__codelineno-4-121"></a><span class="w">    </span><span class="n">persistTable</span><span class="p">(</span><span class="n">tableKey</span><span class="p">,</span><span class="w"> </span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">retryDetector</span><span class="p">);</span>
+</span><span id="__span-4-122"><a id="__codelineno-4-122" name="__codelineno-4-122"></a><span class="w">    </span><span class="n">commitStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CommitStatus</span><span class="p">.</span><span class="na">SUCCESS</span><span class="p">;</span>
+</span><span id="__span-4-123"><a id="__codelineno-4-123" name="__codelineno-4-123"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">CommitFailedException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-124"><a id="__codelineno-4-124" name="__codelineno-4-124"></a><span class="w">    </span><span class="c1">// any explicit commit failures are passed up and out to the retry handler</span>
+</span><span id="__span-4-125"><a id="__codelineno-4-125" name="__codelineno-4-125"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">e</span><span class="p">;</span>
+</span><span id="__span-4-126"><a id="__codelineno-4-126" name="__codelineno-4-126"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">RuntimeException</span><span class="w"> </span><span class="n">persistFailure</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-127"><a id="__codelineno-4-127" name="__codelineno-4-127"></a><span class="w">    </span><span class="kt">boolean</span><span class="w"> </span><span class="n">conditionCheckFailed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">persistFailure</span><span class="w"> </span><span class="k">instanceof</span><span class="w"> </span><span class="n">ConditionalCheckFailedException</span><span class="p">;</span>
+</span><span id="__span-4-128"><a id="__codelineno-4-128" name="__codelineno-4-128"></a>
+</span><span id="__span-4-129"><a id="__codelineno-4-129" name="__codelineno-4-129"></a><span class="w">    </span><span class="c1">// If we got an exception we weren't expecting, or we got a ConditionalCheckFailedException</span>
+</span><span id="__span-4-130"><a id="__codelineno-4-130" name="__codelineno-4-130"></a><span class="w">    </span><span class="c1">// but retries were performed, attempt to reconcile the actual commit status.</span>
+</span><span id="__span-4-131"><a id="__codelineno-4-131" name="__codelineno-4-131"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">conditionCheckFailed</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">retryDetector</span><span class="p">.</span><span class="na">retried</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-132"><a id="__codelineno-4-132" name="__codelineno-4-132"></a><span class="w">      </span><span class="n">LOG</span><span class="p">.</span><span class="na">warn</span><span class="p">(</span>
+</span><span id="__span-4-133"><a id="__codelineno-4-133" name="__codelineno-4-133"></a><span class="w">          </span><span class="s">"Received unexpected failure when committing to {}, validating if commit ended up succeeding."</span><span class="p">,</span>
+</span><span id="__span-4-134"><a id="__codelineno-4-134" name="__codelineno-4-134"></a><span class="w">          </span><span class="n">fullTableName</span><span class="p">,</span>
+</span><span id="__span-4-135"><a id="__codelineno-4-135" name="__codelineno-4-135"></a><span class="w">          </span><span class="n">persistFailure</span><span class="p">);</span>
+</span><span id="__span-4-136"><a id="__codelineno-4-136" name="__codelineno-4-136"></a><span class="w">      </span><span class="n">commitStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">checkCommitStatus</span><span class="p">(</span><span class="n">newMetadataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">);</span>
+</span><span id="__span-4-137"><a id="__codelineno-4-137" name="__codelineno-4-137"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-138"><a id="__codelineno-4-138" name="__codelineno-4-138"></a>
+</span><span id="__span-4-139"><a id="__codelineno-4-139" name="__codelineno-4-139"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">commitStatus</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">CommitStatus</span><span class="p">.</span><span class="na">SUCCESS</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">conditionCheckFailed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-140"><a id="__codelineno-4-140" name="__codelineno-4-140"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CommitFailedException</span><span class="p">(</span>
+</span><span id="__span-4-141"><a id="__codelineno-4-141" name="__codelineno-4-141"></a><span class="w">          </span><span class="n">persistFailure</span><span class="p">,</span><span class="w"> </span><span class="s">"Cannot commit %s: concurrent update detected"</span><span class="p">,</span><span class="w"> </span><span class="n">tableName</span><span class="p">());</span>
+</span><span id="__span-4-142"><a id="__codelineno-4-142" name="__codelineno-4-142"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-143"><a id="__codelineno-4-143" name="__codelineno-4-143"></a>
+</span><span id="__span-4-144"><a id="__codelineno-4-144" name="__codelineno-4-144"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">commitStatus</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-145"><a id="__codelineno-4-145" name="__codelineno-4-145"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">:</span>
+</span><span id="__span-4-146"><a id="__codelineno-4-146" name="__codelineno-4-146"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+</span><span id="__span-4-147"><a id="__codelineno-4-147" name="__codelineno-4-147"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">:</span>
+</span><span id="__span-4-148"><a id="__codelineno-4-148" name="__codelineno-4-148"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CommitFailedException</span><span class="p">(</span>
+</span><span id="__span-4-149"><a id="__codelineno-4-149" name="__codelineno-4-149"></a><span class="w">            </span><span class="n">persistFailure</span><span class="p">,</span><span class="w"> </span><span class="s">"Cannot commit %s due to unexpected exception"</span><span class="p">,</span><span class="w"> </span><span class="n">tableName</span><span class="p">());</span>
+</span><span id="__span-4-150"><a id="__codelineno-4-150" name="__codelineno-4-150"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">UNKNOWN</span><span class="p">:</span>
+</span><span id="__span-4-151"><a id="__codelineno-4-151" name="__codelineno-4-151"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CommitStateUnknownException</span><span class="p">(</span><span class="n">persistFailure</span><span class="p">);</span>
+</span><span id="__span-4-152"><a id="__codelineno-4-152" name="__codelineno-4-152"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-153"><a id="__codelineno-4-153" name="__codelineno-4-153"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-154"><a id="__codelineno-4-154" name="__codelineno-4-154"></a><span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-155"><a id="__codelineno-4-155" name="__codelineno-4-155"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">commitStatus</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CommitStatus</span><span class="p">.</span><span class="na">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-156"><a id="__codelineno-4-156" name="__codelineno-4-156"></a><span class="w">        </span><span class="c1">// if anything went wrong, clean up the uncommitted metadata file</span>
+</span><span id="__span-4-157"><a id="__codelineno-4-157" name="__codelineno-4-157"></a><span class="w">        </span><span class="n">io</span><span class="p">().</span><span class="na">deleteFile</span><span class="p">(</span><span class="n">newMetadataLocation</span><span class="p">);</span>
+</span><span id="__span-4-158"><a id="__codelineno-4-158" name="__codelineno-4-158"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-4-159"><a id="__codelineno-4-159" name="__codelineno-4-159"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">RuntimeException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-160"><a id="__codelineno-4-160" name="__codelineno-4-160"></a><span class="w">      </span><span class="n">LOG</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">"Failed to cleanup metadata file at {}"</span><span class="p">,</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-4-161"><a id="__codelineno-4-161" name="__codelineno-4-161"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-162"><a id="__codelineno-4-162" name="__codelineno-4-162"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-163"><a id="__codelineno-4-163" name="__codelineno-4-163"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `aws/src/main/java/org/apache/iceberg/aws/dynamodb/DynamoDbTableOperations.java` L104–L163](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/aws/src/main/java/org/apache/iceberg/aws/dynamodb/DynamoDbTableOperations.java#L104-L163) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Four structural features are worth naming, because every correct <code>doCommit</code> has them.</p>
+<p><strong><code>commitStatus</code> starts at <code>FAILURE</code>.</strong> Not <code>UNKNOWN</code>, not a boolean. It is set to <code>SUCCESS</code> only on the line after <code>persistTable</code> returns normally. Any escape from the <code>try</code> block leaves it pessimistic.</p>
+<p><strong>Explicit <code>CommitFailedException</code>s pass straight through.</strong> <code>catch (CommitFailedException e) { throw e; }</code> with the comment "any explicit commit failures are passed up and out to the retry handler". <code>checkMetadataLocation</code> throws this when the stored <code>metadata_location</code> no longer matches <code>base</code>; that is a known-lost race and needs no investigation.</p>
+<p><strong>The conditional failure is the CAS.</strong> <code>persistTable</code> issues an <code>UpdateItem</code> carrying <code>conditionExpression(COL_VERSION + " = :v")</code>, with <code>:v</code> bound to the value of the item's <code>v</code> attribute read a few lines earlier — and the same update rewrites <code>v</code> to a fresh <code>UUID.randomUUID()</code>. So the condition is not on the metadata location at all; it is on an opaque per-row version token, which is <em>stricter</em>: any concurrent write to this catalog entry invalidates it, not only one that moved the metadata pointer. (Creating a table conditions on <code>attribute_not_exists(v)</code> instead — the same idea with no prior value to name.) <code>ConditionalCheckFailedException</code> means the condition did not hold — a genuine, provable conflict.</p>
+<p><strong>Everything else triggers reconciliation.</strong> Any other <code>RuntimeException</code> — and, crucially, a <code>ConditionalCheckFailedException</code> that arrives when <code>retryDetector.retried()</code> is true — leads to <code>checkCommitStatus</code>, then the three-way <code>switch</code>.</p>
+<p>The <code>finally</code> block deletes the metadata file it wrote, but only when <code>commitStatus == FAILURE</code>. On <code>SUCCESS</code> the file is live. On <code>UNKNOWN</code> it may be live. Chapter 3.3 made the same call one layer up: when unsure, delete nothing.</p>
+<p>Note also what happens <em>before</em> the conditional write. <code>checkMetadataLocation(table, base)</code> reads the stored metadata location and compares it against <code>base.metadataFileLocation()</code>, throwing <code>CommitFailedException</code> if they differ. That is a second optimistic check — this time against the real store rather than a local field — and it exists to lose cheaply. Without it, a doomed commit would still issue the write and learn its fate from an exception; with it, most lost races are settled by a read. It is emphatically not the swap: it is a plain <code>GetItem</code>, and another writer can land in the gap between it and the <code>UpdateItem</code>. Catching that gap is the version condition's whole job.</p>
+<h2 id="6-asking-the-catalog-what-happened">6. Asking the catalog what happened<a class="headerlink" href="#6-asking-the-catalog-what-happened" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">checkCommitStatusStrict()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-5-100">100</a></span>
+<span class="normal"><a href="#__codelineno-5-101">101</a></span>
+<span class="normal"><a href="#__codelineno-5-102">102</a></span>
+<span class="normal"><a href="#__codelineno-5-103">103</a></span>
+<span class="normal"><a href="#__codelineno-5-104">104</a></span>
+<span class="normal"><a href="#__codelineno-5-105">105</a></span>
+<span class="normal"><a href="#__codelineno-5-106">106</a></span>
+<span class="normal"><a href="#__codelineno-5-107">107</a></span>
+<span class="normal"><a href="#__codelineno-5-108">108</a></span>
+<span class="normal"><a href="#__codelineno-5-109">109</a></span>
+<span class="normal"><a href="#__codelineno-5-110">110</a></span>
+<span class="normal"><a href="#__codelineno-5-111">111</a></span>
+<span class="normal"><a href="#__codelineno-5-112">112</a></span>
+<span class="normal"><a href="#__codelineno-5-113">113</a></span>
+<span class="normal"><a href="#__codelineno-5-114">114</a></span>
+<span class="normal"><a href="#__codelineno-5-115">115</a></span>
+<span class="normal"><a href="#__codelineno-5-116">116</a></span>
+<span class="normal"><a href="#__codelineno-5-117">117</a></span>
+<span class="normal"><a href="#__codelineno-5-118">118</a></span>
+<span class="normal"><a href="#__codelineno-5-119">119</a></span>
+<span class="normal"><a href="#__codelineno-5-120">120</a></span>
+<span class="normal"><a href="#__codelineno-5-121">121</a></span>
+<span class="normal"><a href="#__codelineno-5-122">122</a></span>
+<span class="normal"><a href="#__codelineno-5-123">123</a></span>
+<span class="normal"><a href="#__codelineno-5-124">124</a></span>
+<span class="normal"><a href="#__codelineno-5-125">125</a></span>
+<span class="normal"><a href="#__codelineno-5-126">126</a></span>
+<span class="normal"><a href="#__codelineno-5-127">127</a></span>
+<span class="normal"><a href="#__codelineno-5-128">128</a></span>
+<span class="normal"><a href="#__codelineno-5-129">129</a></span>
+<span class="normal"><a href="#__codelineno-5-130">130</a></span>
+<span class="normal"><a href="#__codelineno-5-131">131</a></span>
+<span class="normal"><a href="#__codelineno-5-132">132</a></span>
+<span class="normal"><a href="#__codelineno-5-133">133</a></span>
+<span class="normal"><a href="#__codelineno-5-134">134</a></span>
+<span class="normal"><a href="#__codelineno-5-135">135</a></span>
+<span class="normal"><a href="#__codelineno-5-136">136</a></span>
+<span class="normal"><a href="#__codelineno-5-137">137</a></span>
+<span class="normal"><a href="#__codelineno-5-138">138</a></span>
+<span class="normal"><a href="#__codelineno-5-139">139</a></span>
+<span class="normal"><a href="#__codelineno-5-140">140</a></span>
+<span class="normal"><a href="#__codelineno-5-141">141</a></span>
+<span class="normal"><a href="#__codelineno-5-142">142</a></span>
+<span class="normal"><a href="#__codelineno-5-143">143</a></span>
+<span class="normal"><a href="#__codelineno-5-144">144</a></span>
+<span class="normal"><a href="#__codelineno-5-145">145</a></span>
+<span class="normal"><a href="#__codelineno-5-146">146</a></span>
+<span class="normal"><a href="#__codelineno-5-147">147</a></span>
+<span class="normal"><a href="#__codelineno-5-148">148</a></span>
+<span class="normal"><a href="#__codelineno-5-149">149</a></span>
+<span class="normal"><a href="#__codelineno-5-150">150</a></span>
+<span class="normal"><a href="#__codelineno-5-151">151</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-99"><a id="__codelineno-5-99" name="__codelineno-5-99"></a><span class="kd">protected</span><span class="w"> </span><span class="n">CommitStatus</span><span class="w"> </span><span class="nf">checkCommitStatusStrict</span><span class="p">(</span>
+</span><span id="__span-5-100"><a id="__codelineno-5-100" name="__codelineno-5-100"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">tableOrViewName</span><span class="p">,</span>
+</span><span id="__span-5-101"><a id="__codelineno-5-101" name="__codelineno-5-101"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">,</span>
+</span><span id="__span-5-102"><a id="__codelineno-5-102" name="__codelineno-5-102"></a><span class="w">    </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">properties</span><span class="p">,</span>
+</span><span id="__span-5-103"><a id="__codelineno-5-103" name="__codelineno-5-103"></a><span class="w">    </span><span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Boolean</span><span class="o">&gt;</span><span class="w"> </span><span class="n">commitStatusSupplier</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-104"><a id="__codelineno-5-104" name="__codelineno-5-104"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">maxAttempts</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-105"><a id="__codelineno-5-105" name="__codelineno-5-105"></a><span class="w">      </span><span class="n">PropertyUtil</span><span class="p">.</span><span class="na">propertyAsInt</span><span class="p">(</span>
+</span><span id="__span-5-106"><a id="__codelineno-5-106" name="__codelineno-5-106"></a><span class="w">          </span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">COMMIT_NUM_STATUS_CHECKS</span><span class="p">,</span><span class="w"> </span><span class="n">COMMIT_NUM_STATUS_CHECKS_DEFAULT</span><span class="p">);</span>
+</span><span id="__span-5-107"><a id="__codelineno-5-107" name="__codelineno-5-107"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">minWaitMs</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-108"><a id="__codelineno-5-108" name="__codelineno-5-108"></a><span class="w">      </span><span class="n">PropertyUtil</span><span class="p">.</span><span class="na">propertyAsLong</span><span class="p">(</span>
+</span><span id="__span-5-109"><a id="__codelineno-5-109" name="__codelineno-5-109"></a><span class="w">          </span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">COMMIT_STATUS_CHECKS_MIN_WAIT_MS</span><span class="p">,</span><span class="w"> </span><span class="n">COMMIT_STATUS_CHECKS_MIN_WAIT_MS_DEFAULT</span><span class="p">);</span>
+</span><span id="__span-5-110"><a id="__codelineno-5-110" name="__codelineno-5-110"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">maxWaitMs</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-111"><a id="__codelineno-5-111" name="__codelineno-5-111"></a><span class="w">      </span><span class="n">PropertyUtil</span><span class="p">.</span><span class="na">propertyAsLong</span><span class="p">(</span>
+</span><span id="__span-5-112"><a id="__codelineno-5-112" name="__codelineno-5-112"></a><span class="w">          </span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">COMMIT_STATUS_CHECKS_MAX_WAIT_MS</span><span class="p">,</span><span class="w"> </span><span class="n">COMMIT_STATUS_CHECKS_MAX_WAIT_MS_DEFAULT</span><span class="p">);</span>
+</span><span id="__span-5-113"><a id="__codelineno-5-113" name="__codelineno-5-113"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">totalRetryMs</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-114"><a id="__codelineno-5-114" name="__codelineno-5-114"></a><span class="w">      </span><span class="n">PropertyUtil</span><span class="p">.</span><span class="na">propertyAsLong</span><span class="p">(</span>
+</span><span id="__span-5-115"><a id="__codelineno-5-115" name="__codelineno-5-115"></a><span class="w">          </span><span class="n">properties</span><span class="p">,</span>
+</span><span id="__span-5-116"><a id="__codelineno-5-116" name="__codelineno-5-116"></a><span class="w">          </span><span class="n">COMMIT_STATUS_CHECKS_TOTAL_WAIT_MS</span><span class="p">,</span>
+</span><span id="__span-5-117"><a id="__codelineno-5-117" name="__codelineno-5-117"></a><span class="w">          </span><span class="n">COMMIT_STATUS_CHECKS_TOTAL_WAIT_MS_DEFAULT</span><span class="p">);</span>
+</span><span id="__span-5-118"><a id="__codelineno-5-118" name="__codelineno-5-118"></a>
+</span><span id="__span-5-119"><a id="__codelineno-5-119" name="__codelineno-5-119"></a><span class="w">  </span><span class="n">AtomicReference</span><span class="o">&lt;</span><span class="n">CommitStatus</span><span class="o">&gt;</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AtomicReference</span><span class="o">&lt;&gt;</span><span class="p">(</span><span class="n">CommitStatus</span><span class="p">.</span><span class="na">UNKNOWN</span><span class="p">);</span>
+</span><span id="__span-5-120"><a id="__codelineno-5-120" name="__codelineno-5-120"></a>
+</span><span id="__span-5-121"><a id="__codelineno-5-121" name="__codelineno-5-121"></a><span class="w">  </span><span class="n">Tasks</span><span class="p">.</span><span class="na">foreach</span><span class="p">(</span><span class="n">newMetadataLocation</span><span class="p">)</span>
+</span><span id="__span-5-122"><a id="__codelineno-5-122" name="__codelineno-5-122"></a><span class="w">      </span><span class="p">.</span><span class="na">retry</span><span class="p">(</span><span class="n">maxAttempts</span><span class="p">)</span>
+</span><span id="__span-5-123"><a id="__codelineno-5-123" name="__codelineno-5-123"></a><span class="w">      </span><span class="p">.</span><span class="na">suppressFailureWhenFinished</span><span class="p">()</span>
+</span><span id="__span-5-124"><a id="__codelineno-5-124" name="__codelineno-5-124"></a><span class="w">      </span><span class="p">.</span><span class="na">exponentialBackoff</span><span class="p">(</span><span class="n">minWaitMs</span><span class="p">,</span><span class="w"> </span><span class="n">maxWaitMs</span><span class="p">,</span><span class="w"> </span><span class="n">totalRetryMs</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span>
+</span><span id="__span-5-125"><a id="__codelineno-5-125" name="__codelineno-5-125"></a><span class="w">      </span><span class="p">.</span><span class="na">onFailure</span><span class="p">(</span>
+</span><span id="__span-5-126"><a id="__codelineno-5-126" name="__codelineno-5-126"></a><span class="w">          </span><span class="p">(</span><span class="n">location</span><span class="p">,</span><span class="w"> </span><span class="n">checkException</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+</span><span id="__span-5-127"><a id="__codelineno-5-127" name="__codelineno-5-127"></a><span class="w">              </span><span class="n">LOG</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">"Cannot check if commit to {} exists."</span><span class="p">,</span><span class="w"> </span><span class="n">tableOrViewName</span><span class="p">,</span><span class="w"> </span><span class="n">checkException</span><span class="p">))</span>
+</span><span id="__span-5-128"><a id="__codelineno-5-128" name="__codelineno-5-128"></a><span class="w">      </span><span class="p">.</span><span class="na">run</span><span class="p">(</span>
+</span><span id="__span-5-129"><a id="__codelineno-5-129" name="__codelineno-5-129"></a><span class="w">          </span><span class="n">location</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-130"><a id="__codelineno-5-130" name="__codelineno-5-130"></a><span class="w">            </span><span class="kt">boolean</span><span class="w"> </span><span class="n">commitSuccess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitStatusSupplier</span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
+</span><span id="__span-5-131"><a id="__codelineno-5-131" name="__codelineno-5-131"></a>
+</span><span id="__span-5-132"><a id="__codelineno-5-132" name="__codelineno-5-132"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">commitSuccess</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-133"><a id="__codelineno-5-133" name="__codelineno-5-133"></a><span class="w">              </span><span class="n">LOG</span><span class="p">.</span><span class="na">info</span><span class="p">(</span>
+</span><span id="__span-5-134"><a id="__codelineno-5-134" name="__codelineno-5-134"></a><span class="w">                  </span><span class="s">"Commit status check: Commit to {} of {} succeeded"</span><span class="p">,</span>
+</span><span id="__span-5-135"><a id="__codelineno-5-135" name="__codelineno-5-135"></a><span class="w">                  </span><span class="n">tableOrViewName</span><span class="p">,</span>
+</span><span id="__span-5-136"><a id="__codelineno-5-136" name="__codelineno-5-136"></a><span class="w">                  </span><span class="n">newMetadataLocation</span><span class="p">);</span>
+</span><span id="__span-5-137"><a id="__codelineno-5-137" name="__codelineno-5-137"></a><span class="w">              </span><span class="n">status</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">CommitStatus</span><span class="p">.</span><span class="na">SUCCESS</span><span class="p">);</span>
+</span><span id="__span-5-138"><a id="__codelineno-5-138" name="__codelineno-5-138"></a><span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-139"><a id="__codelineno-5-139" name="__codelineno-5-139"></a><span class="w">              </span><span class="n">status</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">CommitStatus</span><span class="p">.</span><span class="na">FAILURE</span><span class="p">);</span>
+</span><span id="__span-5-140"><a id="__codelineno-5-140" name="__codelineno-5-140"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-5-141"><a id="__codelineno-5-141" name="__codelineno-5-141"></a><span class="w">          </span><span class="p">});</span>
+</span><span id="__span-5-142"><a id="__codelineno-5-142" name="__codelineno-5-142"></a>
+</span><span id="__span-5-143"><a id="__codelineno-5-143" name="__codelineno-5-143"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="p">.</span><span class="na">get</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CommitStatus</span><span class="p">.</span><span class="na">UNKNOWN</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-144"><a id="__codelineno-5-144" name="__codelineno-5-144"></a><span class="w">    </span><span class="n">LOG</span><span class="p">.</span><span class="na">error</span><span class="p">(</span>
+</span><span id="__span-5-145"><a id="__codelineno-5-145" name="__codelineno-5-145"></a><span class="w">        </span><span class="s">"Cannot determine commit state to {}. Failed during checking {} times. "</span>
+</span><span id="__span-5-146"><a id="__codelineno-5-146" name="__codelineno-5-146"></a><span class="w">            </span><span class="o">+</span><span class="w"> </span><span class="s">"Treating commit state as unknown."</span><span class="p">,</span>
+</span><span id="__span-5-147"><a id="__codelineno-5-147" name="__codelineno-5-147"></a><span class="w">        </span><span class="n">tableOrViewName</span><span class="p">,</span>
+</span><span id="__span-5-148"><a id="__codelineno-5-148" name="__codelineno-5-148"></a><span class="w">        </span><span class="n">maxAttempts</span><span class="p">);</span>
+</span><span id="__span-5-149"><a id="__codelineno-5-149" name="__codelineno-5-149"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-150"><a id="__codelineno-5-150" name="__codelineno-5-150"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">status</span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
+</span><span id="__span-5-151"><a id="__codelineno-5-151" name="__codelineno-5-151"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreOperations.java` L99–L151](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreOperations.java#L99-L151) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The initial value is the answer: <code>AtomicReference&lt;CommitStatus&gt; status = new AtomicReference&lt;&gt;(CommitStatus.UNKNOWN)</code>. <code>SUCCESS</code> and <code>FAILURE</code> are only ever written from <em>inside</em> a check that completed. The loop runs up to <code>commit.status-check.num-retries</code> times — default 3 — with exponential backoff from 1 second to 1 minute, capped at 30 minutes total, and it uses <code>suppressFailureWhenFinished()</code>. So if every attempt to look at the table throws, the seeded <code>UNKNOWN</code> survives and the closing <code>LOG.error</code> explains itself: "Cannot determine commit state... Treating commit state as unknown."</p>
+<p>What counts as "did it commit" is supplied by the caller:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">checkCommitStatus, checkCommitStatusStrict, and the supplier they share</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-286">286</a></span>
+<span class="normal"><a href="#__codelineno-6-287">287</a></span>
+<span class="normal"><a href="#__codelineno-6-288">288</a></span>
+<span class="normal"><a href="#__codelineno-6-289">289</a></span>
+<span class="normal"><a href="#__codelineno-6-290">290</a></span>
+<span class="normal"><a href="#__codelineno-6-291">291</a></span>
+<span class="normal"><a href="#__codelineno-6-292">292</a></span>
+<span class="normal"><a href="#__codelineno-6-293">293</a></span>
+<span class="normal"><a href="#__codelineno-6-294">294</a></span>
+<span class="normal"><a href="#__codelineno-6-295">295</a></span>
+<span class="normal"><a href="#__codelineno-6-296">296</a></span>
+<span class="normal"><a href="#__codelineno-6-297">297</a></span>
+<span class="normal"><a href="#__codelineno-6-298">298</a></span>
+<span class="normal"><a href="#__codelineno-6-299">299</a></span>
+<span class="normal"><a href="#__codelineno-6-300">300</a></span>
+<span class="normal"><a href="#__codelineno-6-301">301</a></span>
+<span class="normal"><a href="#__codelineno-6-302">302</a></span>
+<span class="normal"><a href="#__codelineno-6-303">303</a></span>
+<span class="normal"><a href="#__codelineno-6-304">304</a></span>
+<span class="normal"><a href="#__codelineno-6-305">305</a></span>
+<span class="normal"><a href="#__codelineno-6-306">306</a></span>
+<span class="normal"><a href="#__codelineno-6-307">307</a></span>
+<span class="normal"><a href="#__codelineno-6-308">308</a></span>
+<span class="normal"><a href="#__codelineno-6-309">309</a></span>
+<span class="normal"><a href="#__codelineno-6-310">310</a></span>
+<span class="normal"><a href="#__codelineno-6-311">311</a></span>
+<span class="normal"><a href="#__codelineno-6-312">312</a></span>
+<span class="normal"><a href="#__codelineno-6-313">313</a></span>
+<span class="normal"><a href="#__codelineno-6-314">314</a></span>
+<span class="normal"><a href="#__codelineno-6-315">315</a></span>
+<span class="normal"><a href="#__codelineno-6-316">316</a></span>
+<span class="normal"><a href="#__codelineno-6-317">317</a></span>
+<span class="normal"><a href="#__codelineno-6-318">318</a></span>
+<span class="normal"><a href="#__codelineno-6-319">319</a></span>
+<span class="normal"><a href="#__codelineno-6-320">320</a></span>
+<span class="normal"><a href="#__codelineno-6-321">321</a></span>
+<span class="normal"><a href="#__codelineno-6-322">322</a></span>
+<span class="normal"><a href="#__codelineno-6-323">323</a></span>
+<span class="normal"><a href="#__codelineno-6-324">324</a></span>
+<span class="normal"><a href="#__codelineno-6-325">325</a></span>
+<span class="normal"><a href="#__codelineno-6-326">326</a></span>
+<span class="normal"><a href="#__codelineno-6-327">327</a></span>
+<span class="normal"><a href="#__codelineno-6-328">328</a></span>
+<span class="normal"><a href="#__codelineno-6-329">329</a></span>
+<span class="normal"><a href="#__codelineno-6-330">330</a></span>
+<span class="normal"><a href="#__codelineno-6-331">331</a></span>
+<span class="normal"><a href="#__codelineno-6-332">332</a></span>
+<span class="normal"><a href="#__codelineno-6-333">333</a></span>
+<span class="normal"><a href="#__codelineno-6-334">334</a></span>
+<span class="normal"><a href="#__codelineno-6-335">335</a></span>
+<span class="normal"><a href="#__codelineno-6-336">336</a></span>
+<span class="normal"><a href="#__codelineno-6-337">337</a></span>
+<span class="normal"><a href="#__codelineno-6-338">338</a></span>
+<span class="normal"><a href="#__codelineno-6-339">339</a></span>
+<span class="normal"><a href="#__codelineno-6-340">340</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-286"><a id="__codelineno-6-286" name="__codelineno-6-286"></a><span class="cm">/**</span>
+</span><span id="__span-6-287"><a id="__codelineno-6-287" name="__codelineno-6-287"></a><span class="cm"> * Attempt to load the table and see if any current or past metadata location matches the one we</span>
+</span><span id="__span-6-288"><a id="__codelineno-6-288" name="__codelineno-6-288"></a><span class="cm"> * were attempting to set. This is used as a last resort when we are dealing with exceptions that</span>
+</span><span id="__span-6-289"><a id="__codelineno-6-289" name="__codelineno-6-289"></a><span class="cm"> * may indicate the commit has failed but are not proof that this is the case. Past locations must</span>
+</span><span id="__span-6-290"><a id="__codelineno-6-290" name="__codelineno-6-290"></a><span class="cm"> * also be searched on the chance that a second committer was able to successfully commit on top</span>
+</span><span id="__span-6-291"><a id="__codelineno-6-291" name="__codelineno-6-291"></a><span class="cm"> * of our commit. When the {@code newMetadataLocation} is not found, the method returns {@link</span>
+</span><span id="__span-6-292"><a id="__codelineno-6-292" name="__codelineno-6-292"></a><span class="cm"> * CommitStatus#UNKNOWN}.</span>
+</span><span id="__span-6-293"><a id="__codelineno-6-293" name="__codelineno-6-293"></a><span class="cm"> *</span>
+</span><span id="__span-6-294"><a id="__codelineno-6-294" name="__codelineno-6-294"></a><span class="cm"> * @param newMetadataLocation the path of the new commit file</span>
+</span><span id="__span-6-295"><a id="__codelineno-6-295" name="__codelineno-6-295"></a><span class="cm"> * @param config metadata to use for configuration</span>
+</span><span id="__span-6-296"><a id="__codelineno-6-296" name="__codelineno-6-296"></a><span class="cm"> * @return Commit Status of Success, Unknown</span>
+</span><span id="__span-6-297"><a id="__codelineno-6-297" name="__codelineno-6-297"></a><span class="cm"> */</span>
+</span><span id="__span-6-298"><a id="__codelineno-6-298" name="__codelineno-6-298"></a><span class="kd">protected</span><span class="w"> </span><span class="n">CommitStatus</span><span class="w"> </span><span class="nf">checkCommitStatus</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">config</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-299"><a id="__codelineno-6-299" name="__codelineno-6-299"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">checkCommitStatus</span><span class="p">(</span>
+</span><span id="__span-6-300"><a id="__codelineno-6-300" name="__codelineno-6-300"></a><span class="w">      </span><span class="n">tableName</span><span class="p">(),</span>
+</span><span id="__span-6-301"><a id="__codelineno-6-301" name="__codelineno-6-301"></a><span class="w">      </span><span class="n">newMetadataLocation</span><span class="p">,</span>
+</span><span id="__span-6-302"><a id="__codelineno-6-302" name="__codelineno-6-302"></a><span class="w">      </span><span class="n">config</span><span class="p">.</span><span class="na">properties</span><span class="p">(),</span>
+</span><span id="__span-6-303"><a id="__codelineno-6-303" name="__codelineno-6-303"></a><span class="w">      </span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">checkCurrentMetadataLocation</span><span class="p">(</span><span class="n">newMetadataLocation</span><span class="p">));</span>
+</span><span id="__span-6-304"><a id="__codelineno-6-304" name="__codelineno-6-304"></a><span class="p">}</span>
+</span><span id="__span-6-305"><a id="__codelineno-6-305" name="__codelineno-6-305"></a>
+</span><span id="__span-6-306"><a id="__codelineno-6-306" name="__codelineno-6-306"></a><span class="cm">/**</span>
+</span><span id="__span-6-307"><a id="__codelineno-6-307" name="__codelineno-6-307"></a><span class="cm"> * Attempt to load the table and see if any current or past metadata location matches the one we</span>
+</span><span id="__span-6-308"><a id="__codelineno-6-308" name="__codelineno-6-308"></a><span class="cm"> * were attempting to set. This is used as a last resort when we are dealing with exceptions that</span>
+</span><span id="__span-6-309"><a id="__codelineno-6-309" name="__codelineno-6-309"></a><span class="cm"> * may indicate the commit has failed but are not proof that this is the case. Past locations must</span>
+</span><span id="__span-6-310"><a id="__codelineno-6-310" name="__codelineno-6-310"></a><span class="cm"> * also be searched on the chance that a second committer was able to successfully commit on top</span>
+</span><span id="__span-6-311"><a id="__codelineno-6-311" name="__codelineno-6-311"></a><span class="cm"> * of our commit. When the {@code newMetadataLocation} is not found, the method returns {@link</span>
+</span><span id="__span-6-312"><a id="__codelineno-6-312" name="__codelineno-6-312"></a><span class="cm"> * CommitStatus#FAILURE}.</span>
+</span><span id="__span-6-313"><a id="__codelineno-6-313" name="__codelineno-6-313"></a><span class="cm"> *</span>
+</span><span id="__span-6-314"><a id="__codelineno-6-314" name="__codelineno-6-314"></a><span class="cm"> * @param newMetadataLocation the path of the new commit file</span>
+</span><span id="__span-6-315"><a id="__codelineno-6-315" name="__codelineno-6-315"></a><span class="cm"> * @param config metadata to use for configuration</span>
+</span><span id="__span-6-316"><a id="__codelineno-6-316" name="__codelineno-6-316"></a><span class="cm"> * @return Commit Status of Success, Failure or Unknown</span>
+</span><span id="__span-6-317"><a id="__codelineno-6-317" name="__codelineno-6-317"></a><span class="cm"> */</span>
+</span><span id="__span-6-318"><a id="__codelineno-6-318" name="__codelineno-6-318"></a><span class="kd">protected</span><span class="w"> </span><span class="n">CommitStatus</span><span class="w"> </span><span class="nf">checkCommitStatusStrict</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">config</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-319"><a id="__codelineno-6-319" name="__codelineno-6-319"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">checkCommitStatusStrict</span><span class="p">(</span>
+</span><span id="__span-6-320"><a id="__codelineno-6-320" name="__codelineno-6-320"></a><span class="w">      </span><span class="n">tableName</span><span class="p">(),</span>
+</span><span id="__span-6-321"><a id="__codelineno-6-321" name="__codelineno-6-321"></a><span class="w">      </span><span class="n">newMetadataLocation</span><span class="p">,</span>
+</span><span id="__span-6-322"><a id="__codelineno-6-322" name="__codelineno-6-322"></a><span class="w">      </span><span class="n">config</span><span class="p">.</span><span class="na">properties</span><span class="p">(),</span>
+</span><span id="__span-6-323"><a id="__codelineno-6-323" name="__codelineno-6-323"></a><span class="w">      </span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">checkCurrentMetadataLocation</span><span class="p">(</span><span class="n">newMetadataLocation</span><span class="p">));</span>
+</span><span id="__span-6-324"><a id="__codelineno-6-324" name="__codelineno-6-324"></a><span class="p">}</span>
+</span><span id="__span-6-325"><a id="__codelineno-6-325" name="__codelineno-6-325"></a>
+</span><span id="__span-6-326"><a id="__codelineno-6-326" name="__codelineno-6-326"></a><span class="cm">/**</span>
+</span><span id="__span-6-327"><a id="__codelineno-6-327" name="__codelineno-6-327"></a><span class="cm"> * Validate if the new metadata location is the current metadata location or present within</span>
+</span><span id="__span-6-328"><a id="__codelineno-6-328" name="__codelineno-6-328"></a><span class="cm"> * previous metadata files.</span>
+</span><span id="__span-6-329"><a id="__codelineno-6-329" name="__codelineno-6-329"></a><span class="cm"> *</span>
+</span><span id="__span-6-330"><a id="__codelineno-6-330" name="__codelineno-6-330"></a><span class="cm"> * @param newMetadataLocation newly written metadata location</span>
+</span><span id="__span-6-331"><a id="__codelineno-6-331" name="__codelineno-6-331"></a><span class="cm"> * @return true if the new metadata location is the current metadata location or present within</span>
+</span><span id="__span-6-332"><a id="__codelineno-6-332" name="__codelineno-6-332"></a><span class="cm"> *     previous metadata files.</span>
+</span><span id="__span-6-333"><a id="__codelineno-6-333" name="__codelineno-6-333"></a><span class="cm"> */</span>
+</span><span id="__span-6-334"><a id="__codelineno-6-334" name="__codelineno-6-334"></a><span class="kd">private</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">checkCurrentMetadataLocation</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-335"><a id="__codelineno-6-335" name="__codelineno-6-335"></a><span class="w">  </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">refresh</span><span class="p">();</span>
+</span><span id="__span-6-336"><a id="__codelineno-6-336" name="__codelineno-6-336"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">currentMetadataFileLocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">metadataFileLocation</span><span class="p">();</span>
+</span><span id="__span-6-337"><a id="__codelineno-6-337" name="__codelineno-6-337"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">currentMetadataFileLocation</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">newMetadataLocation</span><span class="p">)</span>
+</span><span id="__span-6-338"><a id="__codelineno-6-338" name="__codelineno-6-338"></a><span class="w">      </span><span class="o">||</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">previousFiles</span><span class="p">().</span><span class="na">stream</span><span class="p">()</span>
+</span><span id="__span-6-339"><a id="__codelineno-6-339" name="__codelineno-6-339"></a><span class="w">          </span><span class="p">.</span><span class="na">anyMatch</span><span class="p">(</span><span class="n">log</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">log</span><span class="p">.</span><span class="na">file</span><span class="p">().</span><span class="na">equals</span><span class="p">(</span><span class="n">newMetadataLocation</span><span class="p">));</span>
+</span><span id="__span-6-340"><a id="__codelineno-6-340" name="__codelineno-6-340"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L286–L340](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L286-L340) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>checkCurrentMetadataLocation</code> refreshes and then checks two things: whether the new location is the <em>current</em> pointer, <strong>or</strong> whether it appears anywhere in <code>metadata.previousFiles()</code>. The javadoc on both wrappers explains why the second clause is not optional — "Past locations must also be searched on the chance that a second committer was able to successfully commit on top of our commit." Your commit landed and then someone else's landed on top of it. The current pointer is not yours, and you still succeeded.</p>
+<p>Which of the two a catalog reaches for is visible in its source and worth checking before you trust one. <code>GlueTableOperations</code> and <code>DynamoDbTableOperations</code> call <code>checkCommitStatus</code>. <code>HiveTableOperations</code> calls both, choosing between them by the kind of failure it caught: a metastore error whose message names <code>metadata_location</code> proves that no request still in flight can succeed later, so it takes the strict variant; anything it cannot classify gets the lenient one. Chapter 6.2 reads <code>HiveTableOperations.doCommit</code> end to end.</p>
+<p>The two wrappers differ in exactly one respect, and it is a policy decision rather than a mechanism. When the location is nowhere to be found, <code>checkCommitStatusStrict</code> returns <code>FAILURE</code> — "we can be sure that no retry attempts for the commit will be successful later". <code>checkCommitStatus</code> downgrades that same result to <code>UNKNOWN</code>, because "possible pending retries might still commit the change". A caller picks the strict variant only when it can rule out an in-flight retry of its own write.</p>
+<h2 id="7-three-answers-three-behaviours">7. Three answers, three behaviours<a class="headerlink" href="#7-three-answers-three-behaviours" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th><code>CommitStatus</code></th>
+<th>What <code>doCommit</code> throws</th>
+<th>Producer deletes its files?</th>
+<th>Retried?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SUCCESS</code></td>
+<td>nothing — the original exception is swallowed</td>
+<td>only the losing attempts, after refresh</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>FAILURE</code></td>
+<td><code>CommitFailedException</code></td>
+<td>yes — it is a <code>CleanableFailure</code></td>
+<td>yes, up to <code>commit.retry.num-retries</code></td>
+</tr>
+<tr>
+<td><code>UNKNOWN</code></td>
+<td><code>CommitStateUnknownException</code></td>
+<td><strong>no</strong></td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>The middle row is ordinary optimistic concurrency. The top row is the subtle one: an exception was raised, the commit succeeded anyway, and the correct response is to return normally as though nothing happened. The bottom row is the one that reaches a human, and Chapter 3.3 explained the reasoning — leaked storage is recoverable, a corrupted table is not.</p>
+<p>Every row of that table is reachable from a single <code>doCommit</code>, which is why <code>checkCommitStatus</code> returns an enum instead of throwing. The caller has to make the decision, and the decision depends on catalog-specific knowledge the shared code does not have.</p>
+<p>This is the protocol every catalog is expected to implement. Whether a given catalog <em>can</em> — whether its swap genuinely is atomic, or quietly is not — comes down to whether the store underneath offers a real conditional write. A catalog with one gets the protocol almost for free. A catalog without one has to borrow atomicity from somewhere else — a metastore lock, or a filesystem rename that fails when the destination already exists — and each substitute fails differently. (<code>version-hint.text</code> is not one of the substitutes, whatever its name suggests: <code>HadoopTableOperations</code> writes it <em>after</em> the rename that already committed, under the comment "update the best-effort version pointer", and swallows any <code>IOException</code> with a warning.) Chapter 6.2 audits <code>HadoopCatalog</code> and <code>HiveCatalog</code> on exactly that question.</p>
+<h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">The pre-check compares references, not values</p>
+<p><code>base != current()</code> is identity comparison. Hand a producer a <code>TableMetadata</code> that was deserialized, or loaded through a <em>different</em> <code>TableOperations</code> instance, and this check fails on a table that is perfectly current — with the misleading message "Cannot commit: stale table metadata". The guard is an optimisation that assumes the whole commit ran through one operations object.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">A conditional-check failure is not proof of failure once the SDK has retried</p>
+<p><code>DynamoDbTableOperations</code> carries a <code>RetryDetector</code> and only believes a <code>ConditionalCheckFailedException</code> when <code>!retryDetector.retried()</code>. The comment names the failure mode: the SDK may have retried internally, the <em>first</em> attempt may have succeeded, and the retry then fails its own condition — against your own commit. Believing it would send the writer round the retry loop to redo work that already landed. <code>GlueTableOperations</code> carries the same guard for <code>AwsServiceException</code>. Any catalog client with transparent internal retries needs this, and it is easy to omit.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>UNKNOWN</code> means the status check failed, not that the commit failed</p>
+<p>The seeded value survives when every check throws. It is the honest answer — nobody was able to look — but it reaches the caller as <code>CommitStateUnknownException</code>, which is not retryable and not cleanable. Choosing <code>checkCommitStatus</code> where <code>checkCommitStatusStrict</code> was correct converts a clean failure into operator toil; choosing the strict one where a retry may still be in flight risks deleting files that a pending write is about to reference.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">The <code>doCommit</code> shape recurs, but it is a family resemblance, not a rule</p>
+<p><code>GlueTableOperations</code>, <code>DynamoDbTableOperations</code>, <code>JdbcTableOperations</code>, <code>HiveTableOperations</code> and <code>NessieTableOperations</code> all extend <code>BaseMetastoreTableOperations</code>, but only Glue and Dynamo make all three of the specimen's moves — status seeded to <code>FAILURE</code>, one conditional operation, a three-way mapping onto an exception. Each of the others drops one. <code>HiveTableOperations</code> seeds pessimistically and reconciles like the specimen, but the operation it issues is conditional only when Hive locking is <em>off</em>: it passes <code>hiveLockEnabled(base, conf) ? null : baseMetadataLocation</code> as the expected value, and <code>HIVE_LOCK_ENABLED_DEFAULT</code> is <code>true</code>, so by default exclusion comes from an HMS lock rather than a CAS. <code>JdbcTableOperations</code> has no <code>CommitStatus</code> at all — its swap is <code>UPDATE … WHERE metadata_location = ?</code> and it decides by counting rows, <code>updatedRecords == 1</code> or <code>CommitFailedException</code>, with no unknown state to report. <code>NessieTableOperations</code> seeds <em>optimistically</em>, <code>boolean failure = false</code>, and raises the flag only inside the catch blocks it recognises. Find <code>doCommit</code> first when reading an unfamiliar integration — then read it for which of the three moves it actually makes.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Two implementations skip <code>doCommit</code> entirely</p>
+<p><code>RESTTableOperations</code> and <code>HadoopTableOperations</code> both implement <code>TableOperations</code> directly and override <code>commit</code> rather than extending <code>BaseMetastoreTableOperations</code>. Their reasons differ: for a REST catalog the conditional check runs on the server (Chapters 6.3 and 6.4), while <code>HadoopTableOperations</code> has no catalog entry to swap — its commit is a <code>FileSystem.rename</code> onto <code>v&lt;N&gt;.metadata.json</code>, with the version taken from the directory rather than from a stored pointer (Chapter 6.2). Neither gets the retry, cleanup and status-check scaffolding read above; each rebuilds what it needs.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Old metadata files are kept by default</p>
+<p><code>commit()</code> calls <code>CatalogUtil.deleteRemovedMetadataFiles</code> after <code>doCommit</code>, but <code>write.metadata.delete-after-commit.enabled</code> defaults to <strong>false</strong> while <code>write.metadata.previous-versions-max</code> defaults to 100. The metadata log inside the file is trimmed to 100 entries; the files that fell off the end stay in storage forever. When deletion <em>is</em> enabled it runs after the swap has already succeeded, which looks like a violation of the <code>TableOperations</code> javadoc — "implementations must not perform any operations that may fail" once the commit lands. It is not, because <code>CatalogUtil.deleteFiles</code> runs under <code>Tasks...suppressFailureWhenFinished()</code> and logs rather than throws.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>BaseMetastoreTableOperations.commit</code> performs a local identity check, not the atomic operation; its job is to fail fast and to tell a stale commit apart from a duplicate create.</li>
+<li>The new <code>metadata.json</code> is written before the swap, named <code>%05d-&lt;uuid&gt;</code> so the version is parseable and the name is unique enough for an overwrite-style write on S3.</li>
+<li>The real compare-and-swap is a single conditional operation inside <code>doCommit</code>, and what it is conditioned on is the catalog's own business — DynamoDB an opaque row version, JDBC a <code>WHERE metadata_location = ?</code>, Hive a lock or an expected-parameter comparison. The metadata-location comparison in the shared code is only the pre-check.</li>
+<li>A commit whose outcome is unclear is reconciled by re-reading the table and searching both the current pointer and <code>previousFiles()</code> — because another writer may have committed on top of your success.</li>
+<li><code>writeNewMetadataIfRequired</code> adopts an existing metadata file when creating a table, which is the mechanism behind <code>register_table</code>.</li>
+<li><code>CommitStatus</code> is three-valued because a network failure is not evidence: <code>FAILURE</code> retries, <code>SUCCESS</code> swallows the exception, <code>UNKNOWN</code> deletes nothing and escalates to a human.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The commit entry point</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java"><code>core/.../BaseMetastoreTableOperations.java</code></a></td>
+</tr>
+<tr>
+<td><code>CommitStatus</code> and the status checks</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreOperations.java"><code>core/.../BaseMetastoreOperations.java</code></a></td>
+</tr>
+<tr>
+<td>Status-check and retry tuning</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableProperties.java"><code>core/.../TableProperties.java</code></a></td>
+</tr>
+<tr>
+<td>Post-commit metadata cleanup</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/CatalogUtil.java"><code>core/.../CatalogUtil.java</code></a></td>
+</tr>
+<tr>
+<td>Metadata file extensions and codecs</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadataParser.java"><code>core/.../TableMetadataParser.java</code></a></td>
+</tr>
+<tr>
+<td>A conditional-write catalog, read as the specimen</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/aws/src/main/java/org/apache/iceberg/aws/dynamodb/DynamoDbTableOperations.java"><code>aws/.../dynamodb/DynamoDbTableOperations.java</code></a></td>
+</tr>
+<tr>
+<td>The same shape with a lock in front of it</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/aws/src/main/java/org/apache/iceberg/aws/glue/GlueTableOperations.java"><code>aws/.../glue/GlueTableOperations.java</code></a></td>
+</tr>
+<tr>
+<td>A catalog that commits server-side instead</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTTableOperations.java"><code>core/.../rest/RESTTableOperations.java</code></a></td>
+</tr>
+<tr>
+<td>The exceptions</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/exceptions/CommitFailedException.java"><code>api/.../exceptions/CommitFailedException.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/exceptions/CommitStateUnknownException.java"><code>CommitStateUnknownException.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/exceptions/CleanableFailure.java"><code>CleanableFailure.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Chapter 3.5 turns to the other way a commit can fail. Winning the compare-and-swap proves your base was current; it proves nothing about whether the change you computed is still correct.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_3.3_snapshot_producer/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 3.3 `SnapshotProducer`: the life of a commit">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                3.3 `SnapshotProducer`: the life of a commit
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../chapter_3.5_conflict_detection/" class="md-footer__link md-footer__link--next" aria-label="Next: 3.5 Conflict detection and isolation levels">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                3.5 Conflict detection and isolation levels
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

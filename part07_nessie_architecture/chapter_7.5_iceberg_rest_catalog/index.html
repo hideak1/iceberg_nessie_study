@@ -1,0 +1,4036 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/">
+      
+      
+        <link rel="prev" href="../chapter_7.4_request_path/">
+      
+      
+        <link rel="next" href="../../part08_version_store/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>7.5 Nessie as an Iceberg REST Catalog - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-75-nessie-as-an-iceberg-rest-catalog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              7.5 Nessie as an Iceberg REST Catalog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-two-front-doors-one-service-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Two front doors, one service layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-endpoints-are-ordinary-iceberg-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The endpoints are ordinary Iceberg REST
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-structural-punchline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The structural punchline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-prefix-carries-the-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The prefix carries the reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-the-client-never-has-to-compose-that-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The client never has to compose that string
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-a-reference-can-also-hide-in-the-table-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. A reference can also hide in the table name
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-watch-a-mutation-land" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Watch a mutation land
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-errors-have-to-be-icebergs-errors-too" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Errors have to be Iceberg's errors too
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-what-the-catalog-stack-adds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. What the catalog stack adds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-two-front-doors-one-service-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Two front doors, one service layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-endpoints-are-ordinary-iceberg-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The endpoints are ordinary Iceberg REST
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-structural-punchline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The structural punchline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-prefix-carries-the-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The prefix carries the reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-the-client-never-has-to-compose-that-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The client never has to compose that string
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-a-reference-can-also-hide-in-the-table-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. A reference can also hide in the table name
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-watch-a-mutation-land" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Watch a mutation land
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-errors-have-to-be-icebergs-errors-too" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Errors have to be Iceberg's errors too
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-what-the-catalog-stack-adds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. What the catalog stack adds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 7 · Nessie Architecture
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-75-nessie-as-an-iceberg-rest-catalog">Chapter 7.5 — Nessie as an Iceberg REST Catalog<a class="headerlink" href="#chapter-75-nessie-as-an-iceberg-rest-catalog" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> when Spark points a stock Iceberg <code>RESTCatalog</code> at a Nessie server, what serves <code>/iceberg/v1/{prefix}/…</code> — and how does one opaque <code>prefix</code> string carry a Git-style branch reference through a protocol that was designed without one?</p>
+<p><strong>Prerequisites:</strong> Chapter 6.3 (the REST catalog protocol, from the client side), Chapter 7.2 (<code>Content</code>, <code>Operation</code>, the rename protocol), Chapter 7.3 (the <code>{ref}</code> grammar), Chapter 7.4 (what <code>treeService.commitMultipleOperations</code> does next)</p>
+<p><strong>Source covered:</strong> <code>catalog/service/rest/.../IcebergApiV1TableResource.java</code>, <code>.../IcebergApiV1ResourceBase.java</code>, <code>.../IcebergConfigurer.java</code>, <code>catalog/service/impl/.../CatalogServiceImpl.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>Chapter 6.3 built one half of a conversation. <code>RESTSessionCatalog</code> fetches <code>/v1/config</code>, then sends <code>MetadataUpdate</code> lists and <code>UpdateRequirement</code> assertions to <code>POST /v1/{prefix}/namespaces/{namespace}/tables/{table}</code>, and a server on the other end validates and commits. That protocol has fields for a namespace, a table, updates and requirements — and nothing at all for a branch.</p>
+<p>Nessie's entire product is branches. So the two projects meet on an obstacle: a client that cannot express a reference, talking to a server whose data model is nothing but references.</p>
+<p>There are two ways out. Fork the protocol and add a field, which costs you every stock client in the ecosystem. Or find somewhere in the existing protocol to put a reference, and get every stock client for free. Nessie takes the second route, and the place it puts the reference is <code>prefix</code> — the one path segment the Iceberg spec leaves for the server to define.</p>
+<p>The second surprise is structural. This is not an adapter that translates Iceberg REST calls into Nessie REST calls. It is a <em>second front door onto the same service objects</em> Chapter 7.4 traced. A commit that arrives through the Iceberg protocol re-enters at exactly the layer that chapter ended at.</p>
+<h2 id="2-two-front-doors-one-service-layer">2. Two front doors, one service layer<a class="headerlink" href="#2-two-front-doors-one-service-layer" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    SPARKN["Spark + Nessie client"] --&gt; NR["/api/v2/trees/{ref}/…&lt;br/&gt;RestV2TreeResource&lt;br/&gt;&lt;i&gt;ApiContext(Nessie, 2)&lt;/i&gt;"]
+    SPARKI["Spark + stock Iceberg RESTCatalog"] --&gt; IR["/iceberg/v1/{prefix}/…&lt;br/&gt;IcebergApiV1*Resource&lt;br/&gt;&lt;i&gt;ApiContext(Iceberg, 1)&lt;/i&gt;"]
+    IR --&gt; CS["CatalogServiceImpl&lt;br/&gt;&lt;i&gt;catalog/service/impl&lt;/i&gt;"]
+    CS --&gt; OIO[("ObjectIO&lt;br/&gt;metadata.json in S3 / GCS / ADLS")]
+    NR --&gt; SVC["TreeApiImpl / ContentApiImpl&lt;br/&gt;&lt;i&gt;servers/services&lt;/i&gt;"]
+    IR --&gt; SVC
+    CS --&gt; SVC
+    SVC --&gt; VS["VersionStore — Part 8"]</code></pre>
+<p>The two edges into <code>SVC</code> are the point of the picture: the same class, constructed twice, differing only in the <code>ApiContext</code> stamped on it. The one edge with no counterpart on the Nessie side is <code>CS --&gt; OIO</code>, and section 10 explains why the catalog stack needs object storage where Nessie's own API does not.</p>
+<h2 id="3-the-endpoints-are-ordinary-iceberg-rest">3. The endpoints are ordinary Iceberg REST<a class="headerlink" href="#3-the-endpoints-are-ordinary-iceberg-rest" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">an Iceberg REST endpoint on a Nessie server</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-155">155</a></span>
+<span class="normal"><a href="#__codelineno-0-156">156</a></span>
+<span class="normal"><a href="#__codelineno-0-157">157</a></span>
+<span class="normal"><a href="#__codelineno-0-158">158</a></span>
+<span class="normal"><a href="#__codelineno-0-159">159</a></span>
+<span class="normal"><a href="#__codelineno-0-160">160</a></span>
+<span class="normal"><a href="#__codelineno-0-161">161</a></span>
+<span class="normal"><a href="#__codelineno-0-162">162</a></span>
+<span class="normal"><a href="#__codelineno-0-163">163</a></span>
+<span class="normal"><a href="#__codelineno-0-164">164</a></span>
+<span class="normal"><a href="#__codelineno-0-165">165</a></span>
+<span class="normal"><a href="#__codelineno-0-166">166</a></span>
+<span class="normal"><a href="#__codelineno-0-167">167</a></span>
+<span class="normal"><a href="#__codelineno-0-168">168</a></span>
+<span class="normal"><a href="#__codelineno-0-169">169</a></span>
+<span class="normal"><a href="#__codelineno-0-170">170</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="nd">@Operation</span><span class="p">(</span><span class="n">operationId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"iceberg.v1.loadTable"</span><span class="p">)</span>
+</span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="nd">@GET</span>
+</span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="nd">@Path</span><span class="p">(</span><span class="s">"/v1/{prefix}/namespaces/{namespace}/tables/{table}"</span><span class="p">)</span>
+</span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a><span class="nd">@Blocking</span>
+</span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a><span class="kd">public</span><span class="w"> </span><span class="n">Uni</span><span class="o">&lt;</span><span class="n">IcebergLoadTableResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">loadTable</span><span class="p">(</span>
+</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a><span class="w">    </span><span class="nd">@PathParam</span><span class="p">(</span><span class="s">"prefix"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">prefix</span><span class="p">,</span>
+</span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a><span class="w">    </span><span class="nd">@PathParam</span><span class="p">(</span><span class="s">"namespace"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">namespace</span><span class="p">,</span>
+</span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a><span class="w">    </span><span class="nd">@PathParam</span><span class="p">(</span><span class="s">"table"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">table</span><span class="p">,</span>
+</span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a><span class="w">    </span><span class="nd">@QueryParam</span><span class="p">(</span><span class="s">"snapshots"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">snapshots</span><span class="p">,</span>
+</span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a><span class="w">    </span><span class="nd">@HeaderParam</span><span class="p">(</span><span class="s">"X-Iceberg-Access-Delegation"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">dataAccess</span><span class="p">)</span>
+</span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">IOException</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>
+</span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a><span class="w">  </span><span class="n">TableRef</span><span class="w"> </span><span class="n">tableRef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decodeTableRef</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span><span class="w"> </span><span class="n">namespace</span><span class="p">,</span><span class="w"> </span><span class="n">table</span><span class="p">);</span>
+</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>
+</span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">loadTable</span><span class="p">(</span><span class="n">tableRef</span><span class="p">,</span><span class="w"> </span><span class="n">prefix</span><span class="p">,</span><span class="w"> </span><span class="n">dataAccess</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+</span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1TableResource.java` L155–L170](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1TableResource.java#L155-L170) <span>@ nessie-0.108.4</span></p>
+
+<p>Nothing in this signature is Nessie-shaped. The class carries <code>@Path("iceberg")</code>, so the full path is <code>/iceberg/v1/{prefix}/namespaces/{namespace}/tables/{table}</code> — the spec's own path, with the spec's own <code>snapshots</code> query parameter and the spec's own <code>X-Iceberg-Access-Delegation</code> header for vended credentials.</p>
+<p>The whole surface is here: <code>createTable</code>, <code>registerTable</code>, <code>updateTable</code> (a <code>POST</code> back to the table path, carrying the requirements-and-updates payload of Chapter 6.3), <code>dropTable</code>, <code>listTables</code>, <code>tableExists</code>, <code>reportMetrics</code>, the namespace and view resources, and <code>commitTransaction</code> on <code>/v1/{prefix}/transactions/commit</code>, which Chapter 10.2 opens up. Almost everything <code>RESTSessionCatalog</code> can send has a resource method waiting for it, and the gaps are deliberate and few: there is no <code>register-view</code> — <code>RESTSessionCatalog.registerView</code> posts to <code>.../namespaces/{namespace}/register-view</code>, and that string appears nowhere in the Nessie tree — the three server-side scan-planning paths are declared and then kept out of the advertised set under a bare <code>// NOT implemented</code>, and Nessie serves its own <code>/v1/{prefix}/s3-sign/{identifier}</code> in place of the spec's <code>.../tables/{table}/sign</code>. Chapter 10.3 reads that declared-and-declined list as a capability statement.</p>
+<p>One line does all the Nessie-specific work: <code>decodeTableRef(prefix, namespace, table)</code>. Sections 5 and 7 are that one line.</p>
+<p>Two things are worth noticing on the way past, because they mark where this stack differs from the Nessie resources of Chapter 7.4. The return type is <code>Uni&lt;IcebergLoadTableResponse&gt;</code> — reactive, because loading a table may mean fetching <code>metadata.json</code> from object storage — while <code>@Blocking</code> tells Quarkus to run the method on a worker thread anyway, since the version store access underneath it is not reactive. The catalog resources sit on the seam between the two models.</p>
+<h2 id="4-the-structural-punchline">4. The structural punchline<a class="headerlink" href="#4-the-structural-punchline" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the same service layer, a different ApiContext</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-1-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-1-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-1-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-1-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-1-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-1-100">100</a></span>
+<span class="normal"><a href="#__codelineno-1-101">101</a></span>
+<span class="normal"><a href="#__codelineno-1-102">102</a></span>
+<span class="normal"><a href="#__codelineno-1-103">103</a></span>
+<span class="normal"><a href="#__codelineno-1-104">104</a></span>
+<span class="normal"><a href="#__codelineno-1-105">105</a></span>
+<span class="normal"><a href="#__codelineno-1-106">106</a></span>
+<span class="normal"><a href="#__codelineno-1-107">107</a></span>
+<span class="normal"><a href="#__codelineno-1-108">108</a></span>
+<span class="normal"><a href="#__codelineno-1-109">109</a></span>
+<span class="normal"><a href="#__codelineno-1-110">110</a></span>
+<span class="normal"><a href="#__codelineno-1-111">111</a></span>
+<span class="normal"><a href="#__codelineno-1-112">112</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-94"><a id="__codelineno-1-94" name="__codelineno-1-94"></a><span class="kd">final</span><span class="w"> </span><span class="n">TreeService</span><span class="w"> </span><span class="n">treeService</span><span class="p">;</span>
+</span><span id="__span-1-95"><a id="__codelineno-1-95" name="__codelineno-1-95"></a><span class="kd">final</span><span class="w"> </span><span class="n">ContentService</span><span class="w"> </span><span class="n">contentService</span><span class="p">;</span>
+</span><span id="__span-1-96"><a id="__codelineno-1-96" name="__codelineno-1-96"></a><span class="kd">final</span><span class="w"> </span><span class="n">ServerConfig</span><span class="w"> </span><span class="n">serverConfig</span><span class="p">;</span>
+</span><span id="__span-1-97"><a id="__codelineno-1-97" name="__codelineno-1-97"></a><span class="kd">final</span><span class="w"> </span><span class="n">LakehouseConfig</span><span class="w"> </span><span class="n">lakehouseConfig</span><span class="p">;</span>
+</span><span id="__span-1-98"><a id="__codelineno-1-98" name="__codelineno-1-98"></a>
+</span><span id="__span-1-99"><a id="__codelineno-1-99" name="__codelineno-1-99"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">ApiContext</span><span class="w"> </span><span class="n">ICEBERG_V1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apiContext</span><span class="p">(</span><span class="s">"Iceberg"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</span><span id="__span-1-100"><a id="__codelineno-1-100" name="__codelineno-1-100"></a>
+</span><span id="__span-1-101"><a id="__codelineno-1-101" name="__codelineno-1-101"></a><span class="kd">protected</span><span class="w"> </span><span class="nf">IcebergApiV1ResourceBase</span><span class="p">(</span>
+</span><span id="__span-1-102"><a id="__codelineno-1-102" name="__codelineno-1-102"></a><span class="w">    </span><span class="n">ServerConfig</span><span class="w"> </span><span class="n">serverConfig</span><span class="p">,</span>
+</span><span id="__span-1-103"><a id="__codelineno-1-103" name="__codelineno-1-103"></a><span class="w">    </span><span class="n">LakehouseConfig</span><span class="w"> </span><span class="n">lakehouseConfig</span><span class="p">,</span>
+</span><span id="__span-1-104"><a id="__codelineno-1-104" name="__codelineno-1-104"></a><span class="w">    </span><span class="n">VersionStore</span><span class="w"> </span><span class="n">store</span><span class="p">,</span>
+</span><span id="__span-1-105"><a id="__codelineno-1-105" name="__codelineno-1-105"></a><span class="w">    </span><span class="n">Authorizer</span><span class="w"> </span><span class="n">authorizer</span><span class="p">,</span>
+</span><span id="__span-1-106"><a id="__codelineno-1-106" name="__codelineno-1-106"></a><span class="w">    </span><span class="n">AccessContext</span><span class="w"> </span><span class="n">accessContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-107"><a id="__codelineno-1-107" name="__codelineno-1-107"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">serverConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serverConfig</span><span class="p">;</span>
+</span><span id="__span-1-108"><a id="__codelineno-1-108" name="__codelineno-1-108"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">lakehouseConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lakehouseConfig</span><span class="p">;</span>
+</span><span id="__span-1-109"><a id="__codelineno-1-109" name="__codelineno-1-109"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">treeService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TreeApiImpl</span><span class="p">(</span><span class="n">serverConfig</span><span class="p">,</span><span class="w"> </span><span class="n">store</span><span class="p">,</span><span class="w"> </span><span class="n">authorizer</span><span class="p">,</span><span class="w"> </span><span class="n">accessContext</span><span class="p">,</span><span class="w"> </span><span class="n">ICEBERG_V1</span><span class="p">);</span>
+</span><span id="__span-1-110"><a id="__codelineno-1-110" name="__codelineno-1-110"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">contentService</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-111"><a id="__codelineno-1-111" name="__codelineno-1-111"></a><span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">ContentApiImpl</span><span class="p">(</span><span class="n">serverConfig</span><span class="p">,</span><span class="w"> </span><span class="n">store</span><span class="p">,</span><span class="w"> </span><span class="n">authorizer</span><span class="p">,</span><span class="w"> </span><span class="n">accessContext</span><span class="p">,</span><span class="w"> </span><span class="n">ICEBERG_V1</span><span class="p">);</span>
+</span><span id="__span-1-112"><a id="__codelineno-1-112" name="__codelineno-1-112"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java` L94–L112](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L94-L112) <span>@ nessie-0.108.4</span></p>
+
+<p>Put this next to <code>RestV2TreeResource</code>'s constructor from Chapter 7.4. That one builds four services; this one builds two — but the <code>new TreeApiImpl(…)</code> and <code>new ContentApiImpl(…)</code> lines are identical except for the last argument. There, <code>NESSIE_V2 = apiContext("Nessie", 2)</code>. Here, <code>ICEBERG_V1 = apiContext("Iceberg", 1)</code>. Same classes, same injected <code>VersionStore</code>.</p>
+<p>So everything Chapter 7.4 established still holds for a request that arrived over the Iceberg protocol. <code>validateCommitMeta</code> still rejects a client-supplied committer or parent hash. <code>HashValidator</code> still refuses a commit onto a tag. Authorization is still a <code>CommitValidator</code> invoked from inside the storage engine's retry loop. There is no second implementation of any of it, and therefore no second set of bugs.</p>
+<p>What the <code>ApiContext</code> buys is discrimination without duplication. It travels with every access check, so a policy — or an audit record — can tell that a <code>Put</code> arrived through the Iceberg door rather than the Nessie one, while the code that produced the <code>Put</code> stays single.</p>
+<h2 id="5-the-prefix-carries-the-reference">5. The prefix carries the reference<a class="headerlink" href="#5-the-prefix-carries-the-reference" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">prefix → reference + warehouse, and the two constants it turns on</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-297">297</a></span>
+<span class="normal"><a href="#__codelineno-2-298">298</a></span>
+<span class="normal"><a href="#__codelineno-2-299">299</a></span>
+<span class="normal"><a href="#__codelineno-2-300">300</a></span>
+<span class="normal"><a href="#__codelineno-2-301">301</a></span>
+<span class="normal"><a href="#__codelineno-2-302">302</a></span>
+<span class="normal"><a href="#__codelineno-2-303">303</a></span>
+<span class="normal"><a href="#__codelineno-2-304">304</a></span>
+<span class="normal"><a href="#__codelineno-2-305">305</a></span>
+<span class="normal"><a href="#__codelineno-2-306">306</a></span>
+<span class="normal"><a href="#__codelineno-2-307">307</a></span>
+<span class="normal"><a href="#__codelineno-2-308">308</a></span>
+<span class="normal"><a href="#__codelineno-2-309">309</a></span>
+<span class="normal"><a href="#__codelineno-2-310">310</a></span>
+<span class="normal"><a href="#__codelineno-2-311">311</a></span>
+<span class="normal"><a href="#__codelineno-2-312">312</a></span>
+<span class="normal"><a href="#__codelineno-2-313">313</a></span>
+<span class="normal"><a href="#__codelineno-2-314">314</a></span>
+<span class="normal"><a href="#__codelineno-2-315">315</a></span>
+<span class="normal"><a href="#__codelineno-2-316">316</a></span>
+<span class="normal"><a href="#__codelineno-2-317">317</a></span>
+<span class="normal"><a href="#__codelineno-2-318">318</a></span>
+<span class="normal"><a href="#__codelineno-2-319">319</a></span>
+<span class="normal"><a href="#__codelineno-2-320">320</a></span>
+<span class="normal"><a href="#__codelineno-2-321">321</a></span>
+<span class="normal"><a href="#__codelineno-2-322">322</a></span>
+<span class="normal"><a href="#__codelineno-2-323">323</a></span>
+<span class="normal"><a href="#__codelineno-2-324">324</a></span>
+<span class="normal"><a href="#__codelineno-2-325">325</a></span>
+<span class="normal"><a href="#__codelineno-2-326">326</a></span>
+<span class="normal"><a href="#__codelineno-2-327">327</a></span>
+<span class="normal"><a href="#__codelineno-2-328">328</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-297"><a id="__codelineno-2-297" name="__codelineno-2-297"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">SEPARATOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">'\u001f'</span><span class="p">;</span>
+</span><span id="__span-2-298"><a id="__codelineno-2-298" name="__codelineno-2-298"></a><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">DEFAULT_REF_IN_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"-"</span><span class="p">;</span>
+</span><span id="__span-2-299"><a id="__codelineno-2-299" name="__codelineno-2-299"></a><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Splitter</span><span class="w"> </span><span class="n">NAMESPACE_ESCAPED_SPLITTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Splitter</span><span class="p">.</span><span class="na">on</span><span class="p">(</span><span class="n">SEPARATOR</span><span class="p">);</span>
+</span><span id="__span-2-300"><a id="__codelineno-2-300" name="__codelineno-2-300"></a>
+</span><span id="__span-2-301"><a id="__codelineno-2-301" name="__codelineno-2-301"></a><span class="kd">protected</span><span class="w"> </span><span class="n">DecodedPrefix</span><span class="w"> </span><span class="nf">decodePrefix</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">prefix</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-302"><a id="__codelineno-2-302" name="__codelineno-2-302"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">warehouse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-2-303"><a id="__codelineno-2-303" name="__codelineno-2-303"></a><span class="w">  </span><span class="n">ParsedReference</span><span class="w"> </span><span class="n">parsedReference</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-2-304"><a id="__codelineno-2-304" name="__codelineno-2-304"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-305"><a id="__codelineno-2-305" name="__codelineno-2-305"></a><span class="w">    </span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prefix</span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="n">SEPARATOR</span><span class="p">,</span><span class="w"> </span><span class="sc">'/'</span><span class="p">);</span>
+</span><span id="__span-2-306"><a id="__codelineno-2-306" name="__codelineno-2-306"></a>
+</span><span id="__span-2-307"><a id="__codelineno-2-307" name="__codelineno-2-307"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">indexAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prefix</span><span class="p">.</span><span class="na">indexOf</span><span class="p">(</span><span class="sc">'|'</span><span class="p">);</span>
+</span><span id="__span-2-308"><a id="__codelineno-2-308" name="__codelineno-2-308"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">indexAt</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-309"><a id="__codelineno-2-309" name="__codelineno-2-309"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">indexAt</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">prefix</span><span class="p">.</span><span class="na">length</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-310"><a id="__codelineno-2-310" name="__codelineno-2-310"></a><span class="w">        </span><span class="n">warehouse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prefix</span><span class="p">.</span><span class="na">substring</span><span class="p">(</span><span class="n">indexAt</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</span><span id="__span-2-311"><a id="__codelineno-2-311" name="__codelineno-2-311"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-2-312"><a id="__codelineno-2-312" name="__codelineno-2-312"></a><span class="w">      </span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prefix</span><span class="p">.</span><span class="na">substring</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">indexAt</span><span class="p">);</span>
+</span><span id="__span-2-313"><a id="__codelineno-2-313" name="__codelineno-2-313"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-2-314"><a id="__codelineno-2-314" name="__codelineno-2-314"></a>
+</span><span id="__span-2-315"><a id="__codelineno-2-315" name="__codelineno-2-315"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">prefix</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">DEFAULT_REF_IN_PATH</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">prefix</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-316"><a id="__codelineno-2-316" name="__codelineno-2-316"></a><span class="w">      </span><span class="n">parsedReference</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolveReferencePathElement</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">serverConfig</span><span class="p">::</span><span class="n">getDefaultBranch</span><span class="p">);</span>
+</span><span id="__span-2-317"><a id="__codelineno-2-317" name="__codelineno-2-317"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-2-318"><a id="__codelineno-2-318" name="__codelineno-2-318"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-319"><a id="__codelineno-2-319" name="__codelineno-2-319"></a>
+</span><span id="__span-2-320"><a id="__codelineno-2-320" name="__codelineno-2-320"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">parsedReference</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-321"><a id="__codelineno-2-321" name="__codelineno-2-321"></a><span class="w">    </span><span class="n">parsedReference</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-2-322"><a id="__codelineno-2-322" name="__codelineno-2-322"></a><span class="w">        </span><span class="n">ParsedReference</span><span class="p">.</span><span class="na">parsedReference</span><span class="p">(</span><span class="n">serverConfig</span><span class="p">.</span><span class="na">getDefaultBranch</span><span class="p">(),</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">BRANCH</span><span class="p">);</span>
+</span><span id="__span-2-323"><a id="__codelineno-2-323" name="__codelineno-2-323"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-324"><a id="__codelineno-2-324" name="__codelineno-2-324"></a>
+</span><span id="__span-2-325"><a id="__codelineno-2-325" name="__codelineno-2-325"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">resolvedWarehouse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lakehouseConfig</span><span class="p">.</span><span class="na">catalog</span><span class="p">().</span><span class="na">resolveWarehouseName</span><span class="p">(</span><span class="n">warehouse</span><span class="p">);</span>
+</span><span id="__span-2-326"><a id="__codelineno-2-326" name="__codelineno-2-326"></a>
+</span><span id="__span-2-327"><a id="__codelineno-2-327" name="__codelineno-2-327"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">decodedPrefix</span><span class="p">(</span><span class="n">parsedReference</span><span class="p">,</span><span class="w"> </span><span class="n">resolvedWarehouse</span><span class="p">);</span>
+</span><span id="__span-2-328"><a id="__codelineno-2-328" name="__codelineno-2-328"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java` L297–L328](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L297-L328) <span>@ nessie-0.108.4</span></p>
+
+<p>Four steps, and only the last is obvious.</p>
+<pre class="mermaid"><code>flowchart LR
+    P0["path segment&lt;br/&gt;&lt;code&gt;main%2Ffeature%7Cwarehouse1&lt;/code&gt;"] --&gt; P1["URL-decode&lt;br/&gt;&lt;code&gt;main/feature&amp;#124;warehouse1&lt;/code&gt;"]
+    P1 --&gt; P2["replace(SEPARATOR, '/')&lt;br/&gt;&lt;i&gt;a no-op on this input — it&lt;br/&gt;rescues a client that sent&lt;br/&gt;·US· in place of '/'&lt;/i&gt;"]
+    P2 --&gt; P3["split on the first &amp;#124;&lt;br/&gt;&lt;i&gt;ref = main/feature&lt;/i&gt;&lt;br/&gt;&lt;i&gt;warehouse = warehouse1&lt;/i&gt;"]
+    P3 --&gt; P4["resolveReferencePathElement&lt;br/&gt;&lt;i&gt;ParsedReference(main/feature)&lt;/i&gt;"]
+    P5["&lt;code&gt;-&amp;#124;warehouse1&lt;/code&gt;"] --&gt; P6["'-' means the server's&lt;br/&gt;default branch"]
+    P7["&lt;code&gt;main@2e1cfa82~1&lt;/code&gt;"] --&gt; P8["the Chapter 7.3 grammar,&lt;br/&gt;unchanged: name, hash,&lt;br/&gt;relative specs"]</code></pre>
+<p><code>SEPARATOR</code> is ASCII 31, the unit separator, drawn as <code>·US·</code> in the diagram above, and it is not an arbitrary pick. It is exactly Iceberg's own multi-level namespace separator — <code>RESTUtil.NAMESPACE_SEPARATOR_AS_UNICODE</code> — which the same Nessie class uses in <code>decodeNamespace</code> to split <code>{namespace}</code> into levels. Accepting that byte inside <code>{prefix}</code> too lets a reference named <code>feature/x</code> cross a single URL path segment without being read as two.</p>
+<p>Worth knowing that Nessie's own config response never produces it. Section 6's <code>IcebergConfigurer</code> builds the prefix with <code>java.net.URLEncoder.encode</code>, so a slash arrives as <code>%2F</code> and a <code>|</code> as <code>%7C</code>, and the <code>replace</code> is a no-op on anything Nessie itself handed out. The string <code>%1F</code> does not occur anywhere in the Nessie tree. The branch exists for clients and proxies that will not carry an encoded slash.</p>
+<p>Then <code>|</code> splits reference from warehouse, <code>-</code> means "the server's default branch", and what is left goes to <code>ReferenceResolver.resolveReferencePathElement</code> — the same parser Chapter 7.3 covered. That is why <code>main@2e1cfa82~1</code> works inside a <code>prefix</code>: it is not a second syntax, it is the same grammar reached through a different path parameter.</p>
+<h2 id="6-the-client-never-has-to-compose-that-string">6. The client never has to compose that string<a class="headerlink" href="#6-the-client-never-has-to-compose-that-string" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the server hands the client its prefix</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-178">178</a></span>
+<span class="normal"><a href="#__codelineno-3-179">179</a></span>
+<span class="normal"><a href="#__codelineno-3-180">180</a></span>
+<span class="normal"><a href="#__codelineno-3-181">181</a></span>
+<span class="normal"><a href="#__codelineno-3-182">182</a></span>
+<span class="normal"><a href="#__codelineno-3-183">183</a></span>
+<span class="normal"><a href="#__codelineno-3-184">184</a></span>
+<span class="normal"><a href="#__codelineno-3-185">185</a></span>
+<span class="normal"><a href="#__codelineno-3-186">186</a></span>
+<span class="normal"><a href="#__codelineno-3-187">187</a></span>
+<span class="normal"><a href="#__codelineno-3-188">188</a></span>
+<span class="normal"><a href="#__codelineno-3-189">189</a></span>
+<span class="normal"><a href="#__codelineno-3-190">190</a></span>
+<span class="normal"><a href="#__codelineno-3-191">191</a></span>
+<span class="normal"><a href="#__codelineno-3-192">192</a></span>
+<span class="normal"><a href="#__codelineno-3-193">193</a></span>
+<span class="normal"><a href="#__codelineno-3-194">194</a></span>
+<span class="normal"><a href="#__codelineno-3-195">195</a></span>
+<span class="normal"><a href="#__codelineno-3-196">196</a></span>
+<span class="normal"><a href="#__codelineno-3-197">197</a></span>
+<span class="normal"><a href="#__codelineno-3-198">198</a></span>
+<span class="normal"><a href="#__codelineno-3-199">199</a></span>
+<span class="normal"><a href="#__codelineno-3-200">200</a></span>
+<span class="normal"><a href="#__codelineno-3-201">201</a></span>
+<span class="normal"><a href="#__codelineno-3-202">202</a></span>
+<span class="normal"><a href="#__codelineno-3-203">203</a></span>
+<span class="normal"><a href="#__codelineno-3-204">204</a></span>
+<span class="normal"><a href="#__codelineno-3-205">205</a></span>
+<span class="normal"><a href="#__codelineno-3-206">206</a></span>
+<span class="normal"><a href="#__codelineno-3-207">207</a></span>
+<span class="normal"><a href="#__codelineno-3-208">208</a></span>
+<span class="normal"><a href="#__codelineno-3-209">209</a></span>
+<span class="normal"><a href="#__codelineno-3-210">210</a></span>
+<span class="normal"><a href="#__codelineno-3-211">211</a></span>
+<span class="normal"><a href="#__codelineno-3-212">212</a></span>
+<span class="normal"><a href="#__codelineno-3-213">213</a></span>
+<span class="normal"><a href="#__codelineno-3-214">214</a></span>
+<span class="normal"><a href="#__codelineno-3-215">215</a></span>
+<span class="normal"><a href="#__codelineno-3-216">216</a></span>
+<span class="normal"><a href="#__codelineno-3-217">217</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-178"><a id="__codelineno-3-178" name="__codelineno-3-178"></a><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">icebergWarehouseConfig</span><span class="p">(</span>
+</span><span id="__span-3-179"><a id="__codelineno-3-179" name="__codelineno-3-179"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">reference</span><span class="p">,</span>
+</span><span id="__span-3-180"><a id="__codelineno-3-180" name="__codelineno-3-180"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">warehouse</span><span class="p">,</span>
+</span><span id="__span-3-181"><a id="__codelineno-3-181" name="__codelineno-3-181"></a><span class="w">    </span><span class="n">BiConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">configDefault</span><span class="p">,</span>
+</span><span id="__span-3-182"><a id="__codelineno-3-182" name="__codelineno-3-182"></a><span class="w">    </span><span class="n">BiConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">configOverride</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-183"><a id="__codelineno-3-183" name="__codelineno-3-183"></a><span class="w">  </span><span class="kt">boolean</span><span class="w"> </span><span class="n">hasWarehouse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">warehouse</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">warehouse</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">();</span>
+</span><span id="__span-3-184"><a id="__codelineno-3-184" name="__codelineno-3-184"></a><span class="w">  </span><span class="n">WarehouseConfig</span><span class="w"> </span><span class="n">warehouseConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lakehouseConfig</span><span class="p">.</span><span class="na">catalog</span><span class="p">().</span><span class="na">getWarehouse</span><span class="p">(</span><span class="n">warehouse</span><span class="p">);</span>
+</span><span id="__span-3-185"><a id="__codelineno-3-185" name="__codelineno-3-185"></a>
+</span><span id="__span-3-186"><a id="__codelineno-3-186" name="__codelineno-3-186"></a><span class="w">  </span><span class="c1">// defaults</span>
+</span><span id="__span-3-187"><a id="__codelineno-3-187" name="__codelineno-3-187"></a>
+</span><span id="__span-3-188"><a id="__codelineno-3-188" name="__codelineno-3-188"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">branch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">defaultBranchName</span><span class="p">(</span><span class="n">reference</span><span class="p">);</span>
+</span><span id="__span-3-189"><a id="__codelineno-3-189" name="__codelineno-3-189"></a><span class="w">  </span><span class="c1">// Not fully implemented yet</span>
+</span><span id="__span-3-190"><a id="__codelineno-3-190" name="__codelineno-3-190"></a><span class="w">  </span><span class="n">configDefault</span><span class="p">.</span><span class="na">accept</span><span class="p">(</span><span class="n">METRICS_REPORTING_ENABLED</span><span class="p">,</span><span class="w"> </span><span class="s">"false"</span><span class="p">);</span>
+</span><span id="__span-3-191"><a id="__codelineno-3-191" name="__codelineno-3-191"></a><span class="w">  </span><span class="n">configDefault</span><span class="p">.</span><span class="na">accept</span><span class="p">(</span><span class="n">ICEBERG_WAREHOUSE_LOCATION</span><span class="p">,</span><span class="w"> </span><span class="n">warehouseConfig</span><span class="p">.</span><span class="na">location</span><span class="p">());</span>
+</span><span id="__span-3-192"><a id="__codelineno-3-192" name="__codelineno-3-192"></a><span class="w">  </span><span class="n">uriInfo</span><span class="p">.</span><span class="na">icebergConfigDefaults</span><span class="p">(</span><span class="n">configDefault</span><span class="p">);</span>
+</span><span id="__span-3-193"><a id="__codelineno-3-193" name="__codelineno-3-193"></a><span class="w">  </span><span class="c1">// Same key as Iceberg's RESTCatalogProperties.PAGE_SIZE.</span>
+</span><span id="__span-3-194"><a id="__codelineno-3-194" name="__codelineno-3-194"></a><span class="w">  </span><span class="n">configDefault</span><span class="p">.</span><span class="na">accept</span><span class="p">(</span><span class="n">ICEBERG_REST_PAGE_SIZE</span><span class="p">,</span><span class="w"> </span><span class="s">"200"</span><span class="p">);</span>
+</span><span id="__span-3-195"><a id="__codelineno-3-195" name="__codelineno-3-195"></a><span class="w">  </span><span class="n">lakehouseConfig</span><span class="p">.</span><span class="na">catalog</span><span class="p">().</span><span class="na">icebergConfigDefaults</span><span class="p">().</span><span class="na">forEach</span><span class="p">(</span><span class="n">configDefault</span><span class="p">);</span>
+</span><span id="__span-3-196"><a id="__codelineno-3-196" name="__codelineno-3-196"></a><span class="w">  </span><span class="n">warehouseConfig</span><span class="p">.</span><span class="na">icebergConfigDefaults</span><span class="p">().</span><span class="na">forEach</span><span class="p">(</span><span class="n">configDefault</span><span class="p">);</span>
+</span><span id="__span-3-197"><a id="__codelineno-3-197" name="__codelineno-3-197"></a><span class="w">  </span><span class="c1">// Set the "default" prefix</span>
+</span><span id="__span-3-198"><a id="__codelineno-3-198" name="__codelineno-3-198"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">hasWarehouse</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">lakehouseConfig</span><span class="p">.</span><span class="na">catalog</span><span class="p">().</span><span class="na">defaultWarehouse</span><span class="p">().</span><span class="na">isPresent</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-199"><a id="__codelineno-3-199" name="__codelineno-3-199"></a><span class="w">    </span><span class="n">configDefault</span><span class="p">.</span><span class="na">accept</span><span class="p">(</span><span class="n">ICEBERG_PREFIX</span><span class="p">,</span><span class="w"> </span><span class="n">encode</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span><span class="w"> </span><span class="n">UTF_8</span><span class="p">));</span>
+</span><span id="__span-3-200"><a id="__codelineno-3-200" name="__codelineno-3-200"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-201"><a id="__codelineno-3-201" name="__codelineno-3-201"></a><span class="w">    </span><span class="n">configDefault</span><span class="p">.</span><span class="na">accept</span><span class="p">(</span>
+</span><span id="__span-3-202"><a id="__codelineno-3-202" name="__codelineno-3-202"></a><span class="w">        </span><span class="n">ICEBERG_PREFIX</span><span class="p">,</span>
+</span><span id="__span-3-203"><a id="__codelineno-3-203" name="__codelineno-3-203"></a><span class="w">        </span><span class="n">encode</span><span class="p">(</span><span class="n">branch</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"|"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">lakehouseConfig</span><span class="p">.</span><span class="na">catalog</span><span class="p">().</span><span class="na">resolveWarehouseName</span><span class="p">(</span><span class="n">warehouse</span><span class="p">),</span><span class="w"> </span><span class="n">UTF_8</span><span class="p">));</span>
+</span><span id="__span-3-204"><a id="__codelineno-3-204" name="__codelineno-3-204"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-205"><a id="__codelineno-3-205" name="__codelineno-3-205"></a>
+</span><span id="__span-3-206"><a id="__codelineno-3-206" name="__codelineno-3-206"></a><span class="w">  </span><span class="c1">// overrides</span>
+</span><span id="__span-3-207"><a id="__codelineno-3-207" name="__codelineno-3-207"></a><span class="w">  </span><span class="n">uriInfo</span><span class="p">.</span><span class="na">icebergConfigOverrides</span><span class="p">(</span><span class="n">configOverride</span><span class="p">);</span>
+</span><span id="__span-3-208"><a id="__codelineno-3-208" name="__codelineno-3-208"></a><span class="w">  </span><span class="n">lakehouseConfig</span><span class="p">.</span><span class="na">catalog</span><span class="p">().</span><span class="na">icebergConfigOverrides</span><span class="p">().</span><span class="na">forEach</span><span class="p">(</span><span class="n">configOverride</span><span class="p">);</span>
+</span><span id="__span-3-209"><a id="__codelineno-3-209" name="__codelineno-3-209"></a><span class="w">  </span><span class="n">warehouseConfig</span><span class="p">.</span><span class="na">icebergConfigOverrides</span><span class="p">().</span><span class="na">forEach</span><span class="p">(</span><span class="n">configOverride</span><span class="p">);</span>
+</span><span id="__span-3-210"><a id="__codelineno-3-210" name="__codelineno-3-210"></a><span class="w">  </span><span class="c1">// Marker property telling clients that the backend is a Nessie Catalog.</span>
+</span><span id="__span-3-211"><a id="__codelineno-3-211" name="__codelineno-3-211"></a><span class="w">  </span><span class="n">configOverride</span><span class="p">.</span><span class="na">accept</span><span class="p">(</span><span class="s">"nessie.is-nessie-catalog"</span><span class="p">,</span><span class="w"> </span><span class="s">"true"</span><span class="p">);</span>
+</span><span id="__span-3-212"><a id="__codelineno-3-212" name="__codelineno-3-212"></a><span class="w">  </span><span class="c1">// 'prefix-pattern' is just for information at the moment...</span>
+</span><span id="__span-3-213"><a id="__codelineno-3-213" name="__codelineno-3-213"></a><span class="w">  </span><span class="n">configOverride</span><span class="p">.</span><span class="na">accept</span><span class="p">(</span><span class="s">"nessie.prefix-pattern"</span><span class="p">,</span><span class="w"> </span><span class="s">"{ref}|{warehouse}"</span><span class="p">);</span>
+</span><span id="__span-3-214"><a id="__codelineno-3-214" name="__codelineno-3-214"></a><span class="w">  </span><span class="c1">// The following properties are passed back to clients to automatically configure their Nessie</span>
+</span><span id="__span-3-215"><a id="__codelineno-3-215" name="__codelineno-3-215"></a><span class="w">  </span><span class="c1">// client. These properties are _not_ user configurable properties.</span>
+</span><span id="__span-3-216"><a id="__codelineno-3-216" name="__codelineno-3-216"></a><span class="w">  </span><span class="n">configOverride</span><span class="p">.</span><span class="na">accept</span><span class="p">(</span><span class="s">"nessie.default-branch.name"</span><span class="p">,</span><span class="w"> </span><span class="n">branch</span><span class="p">);</span>
+</span><span id="__span-3-217"><a id="__codelineno-3-217" name="__codelineno-3-217"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergConfigurer.java` L178–L217](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergConfigurer.java#L178-L217) <span>@ nessie-0.108.4</span></p>
+
+<p>This is what <code>GET /iceberg/v1/config</code> returns, and the load-bearing line is the <code>configDefault.accept(ICEBERG_PREFIX, encode(branch + "|" + …, UTF_8))</code> call, where <code>ICEBERG_PREFIX</code> is the string <code>"prefix"</code> (<code>IcebergConfigurer.java:71</code>). The server picks the reference, encodes it, and puts it in the <code>defaults</code> block of the config response. Note its sibling one branch up: when the client names no warehouse and the server has a default one, the prefix is just <code>encode(branch, UTF_8)</code>, with no <code>|warehouse</code> at all. Three fixed <em>overrides</em> follow: <code>nessie.is-nessie-catalog=true</code>; <code>nessie.prefix-pattern={ref}|{warehouse}</code>, which the comment beside it calls informational for now; and <code>nessie.default-branch.name</code>, which a Nessie-aware client can read directly.</p>
+<p>Now cross back to the Iceberg side. <code>RESTSessionCatalog.initialize</code> does <code>Map&lt;String, String&gt; mergedProps = config.merge(props)</code> and builds its path helper from the result:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ResourcePaths.forCatalogProperties()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-56">56</a></span>
+<span class="normal"><a href="#__codelineno-4-57">57</a></span>
+<span class="normal"><a href="#__codelineno-4-58">58</a></span>
+<span class="normal"><a href="#__codelineno-4-59">59</a></span>
+<span class="normal"><a href="#__codelineno-4-60">60</a></span>
+<span class="normal"><a href="#__codelineno-4-61">61</a></span>
+<span class="normal"><a href="#__codelineno-4-62">62</a></span>
+<span class="normal"><a href="#__codelineno-4-63">63</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-56"><a id="__codelineno-4-56" name="__codelineno-4-56"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">ResourcePaths</span><span class="w"> </span><span class="nf">forCatalogProperties</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">properties</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-57"><a id="__codelineno-4-57" name="__codelineno-4-57"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ResourcePaths</span><span class="p">(</span>
+</span><span id="__span-4-58"><a id="__codelineno-4-58" name="__codelineno-4-58"></a><span class="w">      </span><span class="n">properties</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">PREFIX</span><span class="p">),</span>
+</span><span id="__span-4-59"><a id="__codelineno-4-59" name="__codelineno-4-59"></a><span class="w">      </span><span class="n">PropertyUtil</span><span class="p">.</span><span class="na">propertyAsString</span><span class="p">(</span>
+</span><span id="__span-4-60"><a id="__codelineno-4-60" name="__codelineno-4-60"></a><span class="w">          </span><span class="n">properties</span><span class="p">,</span>
+</span><span id="__span-4-61"><a id="__codelineno-4-61" name="__codelineno-4-61"></a><span class="w">          </span><span class="n">RESTCatalogProperties</span><span class="p">.</span><span class="na">NAMESPACE_SEPARATOR</span><span class="p">,</span>
+</span><span id="__span-4-62"><a id="__codelineno-4-62" name="__codelineno-4-62"></a><span class="w">          </span><span class="n">RESTCatalogProperties</span><span class="p">.</span><span class="na">NAMESPACE_SEPARATOR_DEFAULT</span><span class="p">));</span>
+</span><span id="__span-4-63"><a id="__codelineno-4-63" name="__codelineno-4-63"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java` L56–L63](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java#L56-L63) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>properties.get(PREFIX)</code>. That value is then joined into every catalog path the client builds from then on — all of them except <code>config()</code> and <code>tokens()</code>, which are reached before a prefix is known:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ResourcePaths.table()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-106">106</a></span>
+<span class="normal"><a href="#__codelineno-5-107">107</a></span>
+<span class="normal"><a href="#__codelineno-5-108">108</a></span>
+<span class="normal"><a href="#__codelineno-5-109">109</a></span>
+<span class="normal"><a href="#__codelineno-5-110">110</a></span>
+<span class="normal"><a href="#__codelineno-5-111">111</a></span>
+<span class="normal"><a href="#__codelineno-5-112">112</a></span>
+<span class="normal"><a href="#__codelineno-5-113">113</a></span>
+<span class="normal"><a href="#__codelineno-5-114">114</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-106"><a id="__codelineno-5-106" name="__codelineno-5-106"></a><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">table</span><span class="p">(</span><span class="n">TableIdentifier</span><span class="w"> </span><span class="n">ident</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-107"><a id="__codelineno-5-107" name="__codelineno-5-107"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">SLASH</span><span class="p">.</span><span class="na">join</span><span class="p">(</span>
+</span><span id="__span-5-108"><a id="__codelineno-5-108" name="__codelineno-5-108"></a><span class="w">      </span><span class="s">"v1"</span><span class="p">,</span>
+</span><span id="__span-5-109"><a id="__codelineno-5-109" name="__codelineno-5-109"></a><span class="w">      </span><span class="n">prefix</span><span class="p">,</span>
+</span><span id="__span-5-110"><a id="__codelineno-5-110" name="__codelineno-5-110"></a><span class="w">      </span><span class="s">"namespaces"</span><span class="p">,</span>
+</span><span id="__span-5-111"><a id="__codelineno-5-111" name="__codelineno-5-111"></a><span class="w">      </span><span class="n">pathEncode</span><span class="p">(</span><span class="n">ident</span><span class="p">.</span><span class="na">namespace</span><span class="p">()),</span>
+</span><span id="__span-5-112"><a id="__codelineno-5-112" name="__codelineno-5-112"></a><span class="w">      </span><span class="s">"tables"</span><span class="p">,</span>
+</span><span id="__span-5-113"><a id="__codelineno-5-113" name="__codelineno-5-113"></a><span class="w">      </span><span class="n">RESTUtil</span><span class="p">.</span><span class="na">encodeString</span><span class="p">(</span><span class="n">ident</span><span class="p">.</span><span class="na">name</span><span class="p">()));</span>
+</span><span id="__span-5-114"><a id="__codelineno-5-114" name="__codelineno-5-114"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java` L106–L114](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java#L106-L114) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>That is the whole trick, and it deserves stating flatly. <strong>A stock Iceberg client, with no Nessie-aware code in it, becomes branch-aware because the server answered one config request with a string.</strong> The reference is chosen by the server, delivered as an ordinary configuration default, and substituted by the client into every subsequent URL without the client knowing what it means.</p>
+<p>There is a second way to select it, visible in the generic resource: <code>getConfig</code> is mapped at both <code>/v1/config</code> and <code>{reference}/v1/config</code>. Point a client's URI at <code>https://host/iceberg/mybranch/</code> and the config response comes back with a <code>prefix</code> naming that branch.</p>
+<h2 id="7-a-reference-can-also-hide-in-the-table-name">7. A reference can also hide in the table name<a class="headerlink" href="#7-a-reference-can-also-hide-in-the-table-name" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">a reference can also hide in the table name</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-272">272</a></span>
+<span class="normal"><a href="#__codelineno-6-273">273</a></span>
+<span class="normal"><a href="#__codelineno-6-274">274</a></span>
+<span class="normal"><a href="#__codelineno-6-275">275</a></span>
+<span class="normal"><a href="#__codelineno-6-276">276</a></span>
+<span class="normal"><a href="#__codelineno-6-277">277</a></span>
+<span class="normal"><a href="#__codelineno-6-278">278</a></span>
+<span class="normal"><a href="#__codelineno-6-279">279</a></span>
+<span class="normal"><a href="#__codelineno-6-280">280</a></span>
+<span class="normal"><a href="#__codelineno-6-281">281</a></span>
+<span class="normal"><a href="#__codelineno-6-282">282</a></span>
+<span class="normal"><a href="#__codelineno-6-283">283</a></span>
+<span class="normal"><a href="#__codelineno-6-284">284</a></span>
+<span class="normal"><a href="#__codelineno-6-285">285</a></span>
+<span class="normal"><a href="#__codelineno-6-286">286</a></span>
+<span class="normal"><a href="#__codelineno-6-287">287</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-272"><a id="__codelineno-6-272" name="__codelineno-6-272"></a><span class="kd">private</span><span class="w"> </span><span class="n">TableRef</span><span class="w"> </span><span class="nf">fixupTableRef</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">prefix</span><span class="p">,</span><span class="w"> </span><span class="n">TableReference</span><span class="w"> </span><span class="n">tableReference</span><span class="p">,</span><span class="w"> </span><span class="n">Namespace</span><span class="w"> </span><span class="n">ns</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-273"><a id="__codelineno-6-273" name="__codelineno-6-273"></a><span class="w">  </span><span class="n">DecodedPrefix</span><span class="w"> </span><span class="n">decoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decodePrefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">);</span>
+</span><span id="__span-6-274"><a id="__codelineno-6-274" name="__codelineno-6-274"></a><span class="w">  </span><span class="n">ParsedReference</span><span class="w"> </span><span class="n">ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decoded</span><span class="p">.</span><span class="na">parsedReference</span><span class="p">();</span>
+</span><span id="__span-6-275"><a id="__codelineno-6-275" name="__codelineno-6-275"></a><span class="w">  </span><span class="n">ContentKey</span><span class="w"> </span><span class="n">contentKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ContentKey</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">ns</span><span class="p">,</span><span class="w"> </span><span class="n">tableReference</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</span><span id="__span-6-276"><a id="__codelineno-6-276" name="__codelineno-6-276"></a>
+</span><span id="__span-6-277"><a id="__codelineno-6-277" name="__codelineno-6-277"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">tableRef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tableReference</span><span class="p">.</span><span class="na">getReference</span><span class="p">();</span>
+</span><span id="__span-6-278"><a id="__codelineno-6-278" name="__codelineno-6-278"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">refName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tableRef</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">tableRef</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="na">name</span><span class="p">();</span>
+</span><span id="__span-6-279"><a id="__codelineno-6-279" name="__codelineno-6-279"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">refHash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="na">hashWithRelativeSpec</span><span class="p">();</span>
+</span><span id="__span-6-280"><a id="__codelineno-6-280" name="__codelineno-6-280"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tableReference</span><span class="p">.</span><span class="na">hasHash</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-281"><a id="__codelineno-6-281" name="__codelineno-6-281"></a><span class="w">    </span><span class="n">refHash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tableReference</span><span class="p">.</span><span class="na">getHash</span><span class="p">();</span>
+</span><span id="__span-6-282"><a id="__codelineno-6-282" name="__codelineno-6-282"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tableReference</span><span class="p">.</span><span class="na">hasTimestamp</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-283"><a id="__codelineno-6-283" name="__codelineno-6-283"></a><span class="w">    </span><span class="n">refHash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timestampToNessie</span><span class="p">(</span><span class="n">tableReference</span><span class="p">.</span><span class="na">getTimestamp</span><span class="p">());</span>
+</span><span id="__span-6-284"><a id="__codelineno-6-284" name="__codelineno-6-284"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-285"><a id="__codelineno-6-285" name="__codelineno-6-285"></a>
+</span><span id="__span-6-286"><a id="__codelineno-6-286" name="__codelineno-6-286"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">tableRef</span><span class="p">(</span><span class="n">contentKey</span><span class="p">,</span><span class="w"> </span><span class="n">parsedReference</span><span class="p">(</span><span class="n">refName</span><span class="p">,</span><span class="w"> </span><span class="n">refHash</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">),</span><span class="w"> </span><span class="n">decoded</span><span class="p">.</span><span class="na">warehouse</span><span class="p">());</span>
+</span><span id="__span-6-287"><a id="__codelineno-6-287" name="__codelineno-6-287"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java` L272–L287](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L272-L287) <span>@ nessie-0.108.4</span></p>
+
+<p><code>TableReference.parse(table)</code> applies Nessie's <code>name@ref#hashOrTimestamp</code> syntax to the <em>table identifier</em> — the string the engine lifted out of the SQL. If it carries a reference, that reference beats the one decoded from the prefix. If it carries a hash or a timestamp, that replaces the prefix's hash.</p>
+<p>The precedence is therefore: table identifier, then prefix, then the server's default branch. In SQL, <code>SELECT * FROM db.`sales@dev`</code> reads <code>sales</code> on <code>dev</code> inside a session whose prefix says <code>main</code>, for that statement only. It is the mechanism behind ad-hoc time travel, and Gotcha 1 is what it costs.</p>
+<h2 id="8-watch-a-mutation-land">8. Watch a mutation land<a class="headerlink" href="#8-watch-a-mutation-land" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">renameTable is a Delete + Put commit</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-226">226</a></span>
+<span class="normal"><a href="#__codelineno-7-227">227</a></span>
+<span class="normal"><a href="#__codelineno-7-228">228</a></span>
+<span class="normal"><a href="#__codelineno-7-229">229</a></span>
+<span class="normal"><a href="#__codelineno-7-230">230</a></span>
+<span class="normal"><a href="#__codelineno-7-231">231</a></span>
+<span class="normal"><a href="#__codelineno-7-232">232</a></span>
+<span class="normal"><a href="#__codelineno-7-233">233</a></span>
+<span class="normal"><a href="#__codelineno-7-234">234</a></span>
+<span class="normal"><a href="#__codelineno-7-235">235</a></span>
+<span class="normal"><a href="#__codelineno-7-236">236</a></span>
+<span class="normal"><a href="#__codelineno-7-237">237</a></span>
+<span class="normal"><a href="#__codelineno-7-238">238</a></span>
+<span class="normal"><a href="#__codelineno-7-239">239</a></span>
+<span class="normal"><a href="#__codelineno-7-240">240</a></span>
+<span class="normal"><a href="#__codelineno-7-241">241</a></span>
+<span class="normal"><a href="#__codelineno-7-242">242</a></span>
+<span class="normal"><a href="#__codelineno-7-243">243</a></span>
+<span class="normal"><a href="#__codelineno-7-244">244</a></span>
+<span class="normal"><a href="#__codelineno-7-245">245</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-226"><a id="__codelineno-7-226" name="__codelineno-7-226"></a><span class="w">  </span><span class="n">Operations</span><span class="w"> </span><span class="n">ops</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-7-227"><a id="__codelineno-7-227" name="__codelineno-7-227"></a><span class="w">      </span><span class="n">ImmutableOperations</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+</span><span id="__span-7-228"><a id="__codelineno-7-228" name="__codelineno-7-228"></a><span class="w">          </span><span class="p">.</span><span class="na">addOperations</span><span class="p">(</span>
+</span><span id="__span-7-229"><a id="__codelineno-7-229" name="__codelineno-7-229"></a><span class="w">              </span><span class="n">Operation</span><span class="p">.</span><span class="na">Delete</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">fromTableRef</span><span class="p">.</span><span class="na">contentKey</span><span class="p">()),</span>
+</span><span id="__span-7-230"><a id="__codelineno-7-230" name="__codelineno-7-230"></a><span class="w">              </span><span class="n">Operation</span><span class="p">.</span><span class="na">Put</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">toTableRef</span><span class="p">.</span><span class="na">contentKey</span><span class="p">(),</span><span class="w"> </span><span class="n">existingFrom</span><span class="p">))</span>
+</span><span id="__span-7-231"><a id="__codelineno-7-231" name="__codelineno-7-231"></a><span class="w">          </span><span class="p">.</span><span class="na">commitMeta</span><span class="p">(</span>
+</span><span id="__span-7-232"><a id="__codelineno-7-232" name="__codelineno-7-232"></a><span class="w">              </span><span class="n">updateCommitMeta</span><span class="p">(</span>
+</span><span id="__span-7-233"><a id="__codelineno-7-233" name="__codelineno-7-233"></a><span class="w">                  </span><span class="n">format</span><span class="p">(</span>
+</span><span id="__span-7-234"><a id="__codelineno-7-234" name="__codelineno-7-234"></a><span class="w">                      </span><span class="s">"rename %s %s to %s"</span><span class="p">,</span>
+</span><span id="__span-7-235"><a id="__codelineno-7-235" name="__codelineno-7-235"></a><span class="w">                      </span><span class="n">entityType</span><span class="p">,</span><span class="w"> </span><span class="n">fromTableRef</span><span class="p">.</span><span class="na">contentKey</span><span class="p">(),</span><span class="w"> </span><span class="n">toTableRef</span><span class="p">.</span><span class="na">contentKey</span><span class="p">())))</span>
+</span><span id="__span-7-236"><a id="__codelineno-7-236" name="__codelineno-7-236"></a><span class="w">          </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</span><span id="__span-7-237"><a id="__codelineno-7-237" name="__codelineno-7-237"></a>
+</span><span id="__span-7-238"><a id="__codelineno-7-238" name="__codelineno-7-238"></a><span class="w">  </span><span class="n">RequestMetaBuilder</span><span class="w"> </span><span class="n">requestMeta</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-7-239"><a id="__codelineno-7-239" name="__codelineno-7-239"></a><span class="w">      </span><span class="n">RequestMeta</span><span class="p">.</span><span class="na">apiWrite</span><span class="p">()</span>
+</span><span id="__span-7-240"><a id="__codelineno-7-240" name="__codelineno-7-240"></a><span class="w">          </span><span class="p">.</span><span class="na">addKeyAction</span><span class="p">(</span><span class="n">fromTableRef</span><span class="p">.</span><span class="na">contentKey</span><span class="p">(),</span><span class="w"> </span><span class="n">CatalogOps</span><span class="p">.</span><span class="na">CATALOG_RENAME_ENTITY_FROM</span><span class="p">.</span><span class="na">name</span><span class="p">())</span>
+</span><span id="__span-7-241"><a id="__codelineno-7-241" name="__codelineno-7-241"></a><span class="w">          </span><span class="p">.</span><span class="na">addKeyAction</span><span class="p">(</span><span class="n">toTableRef</span><span class="p">.</span><span class="na">contentKey</span><span class="p">(),</span><span class="w"> </span><span class="n">CatalogOps</span><span class="p">.</span><span class="na">CATALOG_RENAME_ENTITY_TO</span><span class="p">.</span><span class="na">name</span><span class="p">());</span>
+</span><span id="__span-7-242"><a id="__codelineno-7-242" name="__codelineno-7-242"></a>
+</span><span id="__span-7-243"><a id="__codelineno-7-243" name="__codelineno-7-243"></a><span class="w">  </span><span class="n">treeService</span><span class="p">.</span><span class="na">commitMultipleOperations</span><span class="p">(</span>
+</span><span id="__span-7-244"><a id="__codelineno-7-244" name="__codelineno-7-244"></a><span class="w">      </span><span class="n">effectiveRef</span><span class="p">.</span><span class="na">getName</span><span class="p">(),</span><span class="w"> </span><span class="n">effectiveRef</span><span class="p">.</span><span class="na">getHash</span><span class="p">(),</span><span class="w"> </span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="n">requestMeta</span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+</span><span id="__span-7-245"><a id="__codelineno-7-245" name="__codelineno-7-245"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java` L226–L245](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L226-L245) <span>@ nessie-0.108.4</span></p>
+
+<p><code>POST /v1/{prefix}/tables/rename</code> becomes, literally, the rename protocol from Chapter 7.2: an <code>Operations</code> holding <code>Delete.of(from)</code> and <code>Put.of(to, existingFrom)</code>. The <code>Put</code> reuses the content object that was just fetched, which is how the content-id survives the rename — Nessie treats it as the same entity at a new key, not a new entity at a new key.</p>
+<p>Two details connect it back to Chapter 7.4. The commit message is synthesised by the server (<code>"rename table db.a to db.b"</code>), because Iceberg's protocol has no field for one; this is the same gap that <code>RestCommon.updateCommitMeta</code> and the <code>Nessie-Commit-*</code> headers fill for clients that can set headers. And <code>RequestMeta.apiWrite().addKeyAction(..., CatalogOps.CATALOG_RENAME_ENTITY_FROM.name())</code> populates the <code>keyActions</code> that Chapter 7.4 showed arriving empty for a plain Nessie commit. A policy can now separate "renamed a table" from "updated a table", although both reach the version store as a <code>Put</code>.</p>
+<p>The last statement is <code>treeService.commitMultipleOperations(...)</code>, and from there the trace is Chapter 7.4's, unchanged.</p>
+<p>Not every write takes this route. <code>updateTable</code> builds an <code>IcebergCatalogOperation</code> carrying the client's <code>updates</code> and <code>requirements</code> — the Chapter 6.3 payload, kept intact — wraps it in a <code>CatalogCommit</code>, and hands that to <code>catalogService.commit</code>. Chapter 10.2 follows that path, because it is the one that generalises to several tables at once.</p>
+<h2 id="9-errors-have-to-be-icebergs-errors-too">9. Errors have to be Iceberg's errors too<a class="headerlink" href="#9-errors-have-to-be-icebergs-errors-too" title="Permanent link">&para;</a></h2>
+<p>A drop-in catalog has to reproduce more than paths. Iceberg's REST client reconstructs exceptions from the <code>type</code> string in the error body, and both its own test suite and real engine code branch on the resulting exception class and, in places, on the message text. So the server has to speak that vocabulary:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">one Nessie conflict, rendered as an Iceberg error</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-213">213</a></span>
+<span class="normal"><a href="#__codelineno-8-214">214</a></span>
+<span class="normal"><a href="#__codelineno-8-215">215</a></span>
+<span class="normal"><a href="#__codelineno-8-216">216</a></span>
+<span class="normal"><a href="#__codelineno-8-217">217</a></span>
+<span class="normal"><a href="#__codelineno-8-218">218</a></span>
+<span class="normal"><a href="#__codelineno-8-219">219</a></span>
+<span class="normal"><a href="#__codelineno-8-220">220</a></span>
+<span class="normal"><a href="#__codelineno-8-221">221</a></span>
+<span class="normal"><a href="#__codelineno-8-222">222</a></span>
+<span class="normal"><a href="#__codelineno-8-223">223</a></span>
+<span class="normal"><a href="#__codelineno-8-224">224</a></span>
+<span class="normal"><a href="#__codelineno-8-225">225</a></span>
+<span class="normal"><a href="#__codelineno-8-226">226</a></span>
+<span class="normal"><a href="#__codelineno-8-227">227</a></span>
+<span class="normal"><a href="#__codelineno-8-228">228</a></span>
+<span class="normal"><a href="#__codelineno-8-229">229</a></span>
+<span class="normal"><a href="#__codelineno-8-230">230</a></span>
+<span class="normal"><a href="#__codelineno-8-231">231</a></span>
+<span class="normal"><a href="#__codelineno-8-232">232</a></span>
+<span class="normal"><a href="#__codelineno-8-233">233</a></span>
+<span class="normal"><a href="#__codelineno-8-234">234</a></span>
+<span class="normal"><a href="#__codelineno-8-235">235</a></span>
+<span class="normal"><a href="#__codelineno-8-236">236</a></span>
+<span class="normal"><a href="#__codelineno-8-237">237</a></span>
+<span class="normal"><a href="#__codelineno-8-238">238</a></span>
+<span class="normal"><a href="#__codelineno-8-239">239</a></span>
+<span class="normal"><a href="#__codelineno-8-240">240</a></span>
+<span class="normal"><a href="#__codelineno-8-241">241</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-213"><a id="__codelineno-8-213" name="__codelineno-8-213"></a><span class="k">case</span><span class="w"> </span><span class="n">KEY_EXISTS</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-214"><a id="__codelineno-8-214" name="__codelineno-8-214"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ex</span><span class="w"> </span><span class="k">instanceof</span><span class="w"> </span><span class="n">CatalogEntityAlreadyExistsException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-215"><a id="__codelineno-8-215" name="__codelineno-8-215"></a><span class="w">    </span><span class="c1">// Produces different messages depending on the target type - just to get the tests</span>
+</span><span id="__span-8-216"><a id="__codelineno-8-216" name="__codelineno-8-216"></a><span class="w">    </span><span class="c1">// passing :facepalm:</span>
+</span><span id="__span-8-217"><a id="__codelineno-8-217" name="__codelineno-8-217"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">typeToEntityName</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">getExistingType</span><span class="p">());</span>
+</span><span id="__span-8-218"><a id="__codelineno-8-218" name="__codelineno-8-218"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">msg</span><span class="p">;</span>
+</span><span id="__span-8-219"><a id="__codelineno-8-219" name="__codelineno-8-219"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">isRename</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-220"><a id="__codelineno-8-220" name="__codelineno-8-220"></a><span class="w">      </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-8-221"><a id="__codelineno-8-221" name="__codelineno-8-221"></a><span class="w">          </span><span class="n">format</span><span class="p">(</span>
+</span><span id="__span-8-222"><a id="__codelineno-8-222" name="__codelineno-8-222"></a><span class="w">              </span><span class="s">"Cannot rename %s to %s. %s already exists"</span><span class="p">,</span>
+</span><span id="__span-8-223"><a id="__codelineno-8-223" name="__codelineno-8-223"></a><span class="w">              </span><span class="n">e</span><span class="p">.</span><span class="na">getConflictingKey</span><span class="p">(),</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="na">getExistingKey</span><span class="p">(),</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+</span><span id="__span-8-224"><a id="__codelineno-8-224" name="__codelineno-8-224"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-225"><a id="__codelineno-8-225" name="__codelineno-8-225"></a><span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span>
+</span><span id="__span-8-226"><a id="__codelineno-8-226" name="__codelineno-8-226"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">isRequirement</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="na">getExistingType</span><span class="p">().</span><span class="na">equals</span><span class="p">(</span><span class="n">ICEBERG_TABLE</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-227"><a id="__codelineno-8-227" name="__codelineno-8-227"></a><span class="w">        </span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Requirement failed: "</span><span class="p">;</span>
+</span><span id="__span-8-228"><a id="__codelineno-8-228" name="__codelineno-8-228"></a><span class="w">        </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">type</span><span class="p">.</span><span class="na">toLowerCase</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">ROOT</span><span class="p">);</span>
+</span><span id="__span-8-229"><a id="__codelineno-8-229" name="__codelineno-8-229"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-8-230"><a id="__codelineno-8-230" name="__codelineno-8-230"></a>
+</span><span id="__span-8-231"><a id="__codelineno-8-231" name="__codelineno-8-231"></a><span class="w">      </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-8-232"><a id="__codelineno-8-232" name="__codelineno-8-232"></a><span class="w">          </span><span class="n">format</span><span class="p">(</span>
+</span><span id="__span-8-233"><a id="__codelineno-8-233" name="__codelineno-8-233"></a><span class="w">              </span><span class="s">"%s%s %salready exists: %s"</span><span class="p">,</span>
+</span><span id="__span-8-234"><a id="__codelineno-8-234" name="__codelineno-8-234"></a><span class="w">              </span><span class="n">prefix</span><span class="p">,</span>
+</span><span id="__span-8-235"><a id="__codelineno-8-235" name="__codelineno-8-235"></a><span class="w">              </span><span class="n">type</span><span class="p">,</span>
+</span><span id="__span-8-236"><a id="__codelineno-8-236" name="__codelineno-8-236"></a><span class="w">              </span><span class="n">e</span><span class="p">.</span><span class="na">getConflictingType</span><span class="p">().</span><span class="na">equals</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">getExistingType</span><span class="p">())</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">""</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"with same name "</span><span class="p">,</span>
+</span><span id="__span-8-237"><a id="__codelineno-8-237" name="__codelineno-8-237"></a><span class="w">              </span><span class="n">e</span><span class="p">.</span><span class="na">getExistingKey</span><span class="p">());</span>
+</span><span id="__span-8-238"><a id="__codelineno-8-238" name="__codelineno-8-238"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-8-239"><a id="__codelineno-8-239" name="__codelineno-8-239"></a>
+</span><span id="__span-8-240"><a id="__codelineno-8-240" name="__codelineno-8-240"></a><span class="w">    </span><span class="kd">yield</span><span class="w"> </span><span class="nf">errorResponse</span><span class="p">(</span><span class="mi">409</span><span class="p">,</span><span class="w"> </span><span class="s">"AlreadyExistsException"</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">);</span>
+</span><span id="__span-8-241"><a id="__codelineno-8-241" name="__codelineno-8-241"></a><span class="w">  </span><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergErrorMapper.java` L213–L241](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergErrorMapper.java#L213-L241) <span>@ nessie-0.108.4</span></p>
+
+<p>This is a <code>Conflict</code> of type <code>KEY_EXISTS</code> — a per-key conflict raised by the version store, the structured detail Chapter 7.4 was careful to carry across — being turned into a <code>409</code> whose <code>type</code> is <code>AlreadyExistsException</code> and whose message is composed three different ways depending on whether the operation was a rename, a create, or a failed requirement check. The comment above it is honest about why: <em>"Produces different messages depending on the target type - just to get the tests passing <img alt="🤦" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f926.svg" title=":facepalm:" />"</em>.</p>
+<p><code>IcebergErrorMapper</code> does the same for the rest: <code>CONTENT_NOT_FOUND</code> becomes <code>404 NoSuchTableException</code> or <code>NoSuchViewException</code> depending on the <code>IcebergEntityKind</code> the resource passed in, <code>NAMESPACE_NOT_FOUND</code> becomes <code>404 NoSuchNamespaceException</code>, <code>REFERENCE_NOT_FOUND</code> becomes <code>400 NoSuchReferenceException</code>, and storage-side failures map to <code>429</code>, <code>401</code>, <code>403</code> or — for a missing object — <code>400</code>, on the reasoning that a bad location in Iceberg metadata is a client problem.</p>
+<p>Compatibility with a protocol includes compatibility with its failures. That is the part a feature matrix never captures.</p>
+<h2 id="10-what-the-catalog-stack-adds">10. What the catalog stack adds<a class="headerlink" href="#10-what-the-catalog-stack-adds" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CatalogServiceImpl — ObjectIO next to VersionStore</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-128">128</a></span>
+<span class="normal"><a href="#__codelineno-9-129">129</a></span>
+<span class="normal"><a href="#__codelineno-9-130">130</a></span>
+<span class="normal"><a href="#__codelineno-9-131">131</a></span>
+<span class="normal"><a href="#__codelineno-9-132">132</a></span>
+<span class="normal"><a href="#__codelineno-9-133">133</a></span>
+<span class="normal"><a href="#__codelineno-9-134">134</a></span>
+<span class="normal"><a href="#__codelineno-9-135">135</a></span>
+<span class="normal"><a href="#__codelineno-9-136">136</a></span>
+<span class="normal"><a href="#__codelineno-9-137">137</a></span>
+<span class="normal"><a href="#__codelineno-9-138">138</a></span>
+<span class="normal"><a href="#__codelineno-9-139">139</a></span>
+<span class="normal"><a href="#__codelineno-9-140">140</a></span>
+<span class="normal"><a href="#__codelineno-9-141">141</a></span>
+<span class="normal"><a href="#__codelineno-9-142">142</a></span>
+<span class="normal"><a href="#__codelineno-9-143">143</a></span>
+<span class="normal"><a href="#__codelineno-9-144">144</a></span>
+<span class="normal"><a href="#__codelineno-9-145">145</a></span>
+<span class="normal"><a href="#__codelineno-9-146">146</a></span>
+<span class="normal"><a href="#__codelineno-9-147">147</a></span>
+<span class="normal"><a href="#__codelineno-9-148">148</a></span>
+<span class="normal"><a href="#__codelineno-9-149">149</a></span>
+<span class="normal"><a href="#__codelineno-9-150">150</a></span>
+<span class="normal"><a href="#__codelineno-9-151">151</a></span>
+<span class="normal"><a href="#__codelineno-9-152">152</a></span>
+<span class="normal"><a href="#__codelineno-9-153">153</a></span>
+<span class="normal"><a href="#__codelineno-9-154">154</a></span>
+<span class="normal"><a href="#__codelineno-9-155">155</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-128"><a id="__codelineno-9-128" name="__codelineno-9-128"></a><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">"CdiInjectionPointsInspection"</span><span class="p">)</span>
+</span><span id="__span-9-129"><a id="__codelineno-9-129" name="__codelineno-9-129"></a><span class="nd">@RequestScoped</span>
+</span><span id="__span-9-130"><a id="__codelineno-9-130" name="__codelineno-9-130"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">CatalogServiceImpl</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">CatalogService</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-131"><a id="__codelineno-9-131" name="__codelineno-9-131"></a>
+</span><span id="__span-9-132"><a id="__codelineno-9-132" name="__codelineno-9-132"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Logger</span><span class="w"> </span><span class="n">LOGGER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoggerFactory</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="n">CatalogServiceImpl</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+</span><span id="__span-9-133"><a id="__codelineno-9-133" name="__codelineno-9-133"></a>
+</span><span id="__span-9-134"><a id="__codelineno-9-134" name="__codelineno-9-134"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">ObjectIO</span><span class="w"> </span><span class="n">objectIO</span><span class="p">;</span>
+</span><span id="__span-9-135"><a id="__codelineno-9-135" name="__codelineno-9-135"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">ServerConfig</span><span class="w"> </span><span class="n">serverConfig</span><span class="p">;</span>
+</span><span id="__span-9-136"><a id="__codelineno-9-136" name="__codelineno-9-136"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">LakehouseConfig</span><span class="w"> </span><span class="n">lakehouseConfig</span><span class="p">;</span>
+</span><span id="__span-9-137"><a id="__codelineno-9-137" name="__codelineno-9-137"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">VersionStore</span><span class="w"> </span><span class="n">versionStore</span><span class="p">;</span>
+</span><span id="__span-9-138"><a id="__codelineno-9-138" name="__codelineno-9-138"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">Authorizer</span><span class="w"> </span><span class="n">authorizer</span><span class="p">;</span>
+</span><span id="__span-9-139"><a id="__codelineno-9-139" name="__codelineno-9-139"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">AccessContext</span><span class="w"> </span><span class="n">accessContext</span><span class="p">;</span>
+</span><span id="__span-9-140"><a id="__codelineno-9-140" name="__codelineno-9-140"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">Persist</span><span class="w"> </span><span class="n">persist</span><span class="p">;</span>
+</span><span id="__span-9-141"><a id="__codelineno-9-141" name="__codelineno-9-141"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">TasksService</span><span class="w"> </span><span class="n">tasksService</span><span class="p">;</span>
+</span><span id="__span-9-142"><a id="__codelineno-9-142" name="__codelineno-9-142"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">BackendExceptionMapper</span><span class="w"> </span><span class="n">backendExceptionMapper</span><span class="p">;</span>
+</span><span id="__span-9-143"><a id="__codelineno-9-143" name="__codelineno-9-143"></a><span class="w">  </span><span class="nd">@Inject</span><span class="w"> </span><span class="n">ServiceConfig</span><span class="w"> </span><span class="n">serviceConfig</span><span class="p">;</span>
+</span><span id="__span-9-144"><a id="__codelineno-9-144" name="__codelineno-9-144"></a>
+</span><span id="__span-9-145"><a id="__codelineno-9-145" name="__codelineno-9-145"></a><span class="w">  </span><span class="nd">@Inject</span>
+</span><span id="__span-9-146"><a id="__codelineno-9-146" name="__codelineno-9-146"></a><span class="w">  </span><span class="nd">@Named</span><span class="p">(</span><span class="s">"import-jobs"</span><span class="p">)</span>
+</span><span id="__span-9-147"><a id="__codelineno-9-147" name="__codelineno-9-147"></a><span class="w">  </span><span class="n">Executor</span><span class="w"> </span><span class="n">executor</span><span class="p">;</span>
+</span><span id="__span-9-148"><a id="__codelineno-9-148" name="__codelineno-9-148"></a>
+</span><span id="__span-9-149"><a id="__codelineno-9-149" name="__codelineno-9-149"></a><span class="w">  </span><span class="n">TreeService</span><span class="w"> </span><span class="nf">treeService</span><span class="p">(</span><span class="n">ApiContext</span><span class="w"> </span><span class="n">apiContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-150"><a id="__codelineno-9-150" name="__codelineno-9-150"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TreeApiImpl</span><span class="p">(</span><span class="n">serverConfig</span><span class="p">,</span><span class="w"> </span><span class="n">versionStore</span><span class="p">,</span><span class="w"> </span><span class="n">authorizer</span><span class="p">,</span><span class="w"> </span><span class="n">accessContext</span><span class="p">,</span><span class="w"> </span><span class="n">apiContext</span><span class="p">);</span>
+</span><span id="__span-9-151"><a id="__codelineno-9-151" name="__codelineno-9-151"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-9-152"><a id="__codelineno-9-152" name="__codelineno-9-152"></a>
+</span><span id="__span-9-153"><a id="__codelineno-9-153" name="__codelineno-9-153"></a><span class="w">  </span><span class="n">ContentService</span><span class="w"> </span><span class="nf">contentService</span><span class="p">(</span><span class="n">ApiContext</span><span class="w"> </span><span class="n">apiContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-154"><a id="__codelineno-9-154" name="__codelineno-9-154"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ContentApiImpl</span><span class="p">(</span><span class="n">serverConfig</span><span class="p">,</span><span class="w"> </span><span class="n">versionStore</span><span class="p">,</span><span class="w"> </span><span class="n">authorizer</span><span class="p">,</span><span class="w"> </span><span class="n">accessContext</span><span class="p">,</span><span class="w"> </span><span class="n">apiContext</span><span class="p">);</span>
+</span><span id="__span-9-155"><a id="__codelineno-9-155" name="__codelineno-9-155"></a><span class="w">  </span><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/CatalogServiceImpl.java` L128–L156](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/CatalogServiceImpl.java#L128-L156) <span>@ nessie-0.108.4</span></p>
+
+<p>Two things stand out in the injection list. <code>treeService(ApiContext)</code> and <code>contentService(ApiContext)</code> are the same hand-built service objects again, now parameterised rather than fixed, because this layer is reached from more than one API context. And <code>ObjectIO</code> sits alongside <code>VersionStore</code>.</p>
+<p>That second one is the real difference between the two front doors. Nessie's own model stores a <em>pointer</em>: an <code>IcebergTable</code> content object is a metadata location plus snapshot, schema, spec and sort-order IDs (Chapter 7.2), and a Nessie client is expected to read <code>metadata.json</code> for itself. Iceberg's <code>loadTable</code> response, by contrast, must contain the full table metadata document, and its <code>updateTable</code> request contains changes that only mean something once applied to that document. So this layer parses, applies and writes <code>metadata.json</code> on the server.</p>
+<p>Everything else distinctive about this catalog follows. Because the server already resolves the table's data locations and already holds storage credentials, it can vend scoped credentials in the <code>loadTable</code> response and sign S3 requests at <code>IcebergApiV1S3SignResource</code>. A pointer-only catalog can do neither.</p>
+<h2 id="11-gotchas">11. Gotchas<a class="headerlink" href="#11-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">The reference can come from two places, and the table name wins</p>
+<p><code>fixupTableRef</code> parses the table identifier with <code>TableReference.parse</code>, whose grammar is <code>name ( '@' reference )? ( '#' hashOrTimestamp )?</code>. One identifier carrying an <code>@</code> — in a query, or buried in a view definition — overrides the session's branch for that statement. A job that "runs on <code>main</code>" can silently read <code>dev</code>, with nothing in its configuration to suggest it.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>|</code> and ASCII 31 are load-bearing characters in the prefix</p>
+<p><code>decodePrefix</code> replaces ASCII 31 with <code>/</code> and <em>then</em> splits on the first <code>|</code>, keeping everything after it as the warehouse. The split itself is safe: <code>|</code> is not legal in a Nessie reference name (<code>Validation.REF_NAME_RAW_REGEX</code>), so <code>main|ware|house</code> resolves to reference <code>main</code> and warehouse <code>ware|house</code>, and a malformed reference is rejected outright by <code>ReferenceResolver</code>. The ordering is what to watch. The same byte means "namespace level" in the <code>{namespace}</code> segment and "slash" in the <code>{prefix}</code> segment, and it is replaced <em>before</em> the split — so an ASCII 31 inside a warehouse name silently becomes a slash. And what <code>decodePrefix</code> will never complain about is an absent reference: an empty prefix, or the literal <code>-</code>, resolves to the server's default branch with no error at all.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Not every Iceberg REST endpoint is implemented</p>
+<p><code>POST /iceberg/v1/oauth/tokens</code> returns <code>501</code> with <em>"Endpoint not implemented: please configure the catalog client with the oauth2-server-uri property."</em> A client left on Iceberg's default OAuth flow fails at authentication, and the fix is client configuration, not server configuration. Chapter 10.3 reads Nessie's full declared endpoint set, including what it marks <code>// NOT implemented</code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">The audit trail knows which door you came through</p>
+<p><code>ApiContext("Iceberg", 1)</code> versus <code>ApiContext("Nessie", 2)</code> is threaded into every <code>BatchAccessChecker</code>, and the Iceberg resources additionally attach per-key <code>CatalogOps</code> actions — eight <code>CATALOG_*</code> values among them, <code>CREATE_ENTITY</code>, <code>UPDATE_ENTITY</code>, <code>DROP_ENTITY</code>, <code>RENAME_ENTITY_FROM</code> and <code>_TO</code>, <code>REGISTER_ENTITY</code>, <code>UPDATE_MULTIPLE</code>, <code>S3_SIGN</code>, alongside the <code>META_*</code> and <code>SNAP_*</code> groups. Authorization rules can be written against the operation a client attempted, not merely against the <code>Put</code> it produced.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Commit messages are server-generated for Iceberg clients</p>
+<p>Iceberg's requests carry no commit metadata, so the server writes it: a synthesised message per operation, plus whatever a client chose to send in <code>Nessie-Commit-*</code> headers. History produced by an Iceberg client is therefore uniform and machine-worded, which is worth knowing before reading a commit log for a table that two different kinds of client write to.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Nessie's Iceberg REST catalog is not an adapter over Nessie's REST API. Its resources construct <code>TreeApiImpl</code> and <code>ContentApiImpl</code> directly, stamped <code>ApiContext("Iceberg", 1)</code>, and re-enter exactly where Chapter 7.4 ended.</li>
+<li>The Iceberg spec's <code>prefix</code> segment is the extension point the spec itself provides for multi-tenancy, and Nessie spends it on <code>{ref}|{warehouse}</code> — accepting ASCII 31 in place of <code>/</code> so a slash-containing branch name fits one path segment even where an encoded slash will not travel. A per-reference <code>/v1/config</code> path is the second way in.</li>
+<li>The client never composes that string. The server puts it in the <code>defaults</code> block of <code>/v1/config</code>; <code>RESTSessionCatalog</code> merges it and <code>ResourcePaths</code> substitutes it into every URL. A stock Iceberg client becomes branch-aware with no Nessie-aware code in it.</li>
+<li>A reference written into the table identifier overrides the prefix for one statement. The precedence is identifier, then prefix, then default branch.</li>
+<li><code>renameTable</code> is the <code>Delete</code> + <code>Put</code> pair from Chapter 7.2 handed to <code>treeService.commitMultipleOperations</code>, with per-key <code>CatalogOps</code> actions attached so authorization can see the intent behind the operations.</li>
+<li>The catalog stack injects <code>ObjectIO</code> alongside <code>VersionStore</code> because Iceberg's protocol requires the full metadata document where Nessie stores only a pointer. Credential vending and S3 request signing are consequences of that one difference.</li>
+</ul>
+<p>Part 7 is complete: two protocols, one service layer, one storage boundary. Both doors end at the same six-argument <code>VersionStore.commit</code>.</p>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Iceberg REST resources</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1TableResource.java"><code>catalog/service/rest/.../IcebergApiV1TableResource.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1NamespaceResource.java"><code>IcebergApiV1NamespaceResource.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ViewResource.java"><code>IcebergApiV1ViewResource.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java"><code>IcebergApiV1GenericResource.java</code></a></td>
+</tr>
+<tr>
+<td>Shared decoding and service wiring</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java"><code>IcebergApiV1ResourceBase.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/AbstractCatalogResource.java"><code>AbstractCatalogResource.java</code></a></td>
+</tr>
+<tr>
+<td>Prefix and ref value types</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/DecodedPrefix.java"><code>DecodedPrefix.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/TableRef.java"><code>TableRef.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/NamespaceRef.java"><code>NamespaceRef.java</code></a></td>
+</tr>
+<tr>
+<td>The config response</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergConfigurer.java"><code>IcebergConfigurer.java</code></a></td>
+</tr>
+<tr>
+<td>Catalog service</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/CatalogServiceImpl.java"><code>catalog/service/impl/.../CatalogServiceImpl.java</code></a></td>
+</tr>
+<tr>
+<td>The <code>name@ref#hash</code> syntax</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/TableReference.java"><code>api/model/.../TableReference.java</code></a></td>
+</tr>
+<tr>
+<td>Client side, for the join (<code>RESTUtil</code> holds the namespace separator <code>decodePrefix</code> reuses)</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java"><code>core/.../rest/ResourcePaths.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java"><code>core/.../rest/RESTSessionCatalog.java</code></a></td>
+</tr>
+<tr>
+<td>Errors in Iceberg's shape</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergErrorMapper.java"><code>IcebergErrorMapper.java</code></a></td>
+</tr>
+<tr>
+<td>S3 request signing</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1S3SignResource.java"><code>IcebergApiV1S3SignResource.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Part 8 goes through that boundary. Chapter 8.1 starts at the <code>Persist</code> SPI — the interface underneath <code>VersionStore</code>, where commits stop being objects and become rows.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_7.4_request_path/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 7.4 From HTTP to the `VersionStore`">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                7.4 From HTTP to the `VersionStore`
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../part08_version_store/" class="md-footer__link md-footer__link--next" aria-label="Next: Part 8 · The Version Store">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Part 8 · The Version Store
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

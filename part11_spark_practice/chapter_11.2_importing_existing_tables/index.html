@@ -1,0 +1,3950 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part11_spark_practice/chapter_11.2_importing_existing_tables/">
+      
+      
+        <link rel="prev" href="../chapter_11.1_catalog_wiring/">
+      
+      
+        <link rel="next" href="../chapter_11.3_write_distribution/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table` - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-112-bringing-existing-tables-in-snapshot-migrate-add_files-register_table" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-one-mechanic-they-share" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The one mechanic they share
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-snapshot-a-test-drive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. snapshot — a test drive
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-migrate-in-place-and-it-renames-your-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. migrate — in place, and it renames your table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-add_files-adding-to-a-table-you-already-have" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. add_files — adding to a table you already have
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-register_table-a-pointer-and-nothing-else" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. register_table — a pointer, and nothing else
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-one-mechanic-they-share" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The one mechanic they share
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-snapshot-a-test-drive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. snapshot — a test drive
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-migrate-in-place-and-it-renames-your-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. migrate — in place, and it renames your table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-add_files-adding-to-a-table-you-already-have" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. add_files — adding to a table you already have
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-register_table-a-pointer-and-nothing-else" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. register_table — a pointer, and nothing else
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 11 · Spark in Practice
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-112-bringing-existing-tables-in-snapshot-migrate-add_files-register_table">Chapter 11.2 — Bringing existing tables in: <code>snapshot</code>, <code>migrate</code>, <code>add_files</code>, <code>register_table</code><a class="headerlink" href="#chapter-112-bringing-existing-tables-in-snapshot-migrate-add_files-register_table" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> which of the four import paths mutates the source table, which of them can be undone, and what happens to the original data files in each case?</p>
+<p><strong>Prerequisites:</strong> Chapter 11.1 (which catalog the source lives in is a precondition), Chapter 2.4 (what a manifest entry stores), Chapter 3.3 (<code>newAppend().commit()</code>)</p>
+<p><strong>Source covered:</strong> <code>data/.../TableMigrationUtil.java</code>, <code>spark/v3.5/.../spark/SparkTableUtil.java</code>, <code>.../actions/SnapshotTableSparkAction.java</code>, <code>.../actions/MigrateTableSparkAction.java</code>, <code>.../procedures/AddFilesProcedure.java</code>, <code>core/.../BaseMetastoreCatalog.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>You have a Hive table with four years of Parquet in it. You want it to be an Iceberg table. Iceberg offers four procedures, the documentation describes all four in similar language, and one of them renames your production table.</p>
+<p>The stakes are asymmetric. Picking the conservative option when you wanted the aggressive one costs an afternoon. Picking the reverse can leave two tables writing to one set of files, or a <code>metadata.json</code> registered in two catalogs that will eventually delete each other's data. These are not equivalent mistakes, and the difference is not visible in the procedure names.</p>
+<p>So this chapter is written to be checkable. Every claim about what a procedure does to your data is anchored to the line that does it.</p>
+<h2 id="2-the-one-mechanic-they-share">2. The one mechanic they share<a class="headerlink" href="#2-the-one-mechanic-they-share" title="Permanent link">&para;</a></h2>
+<p>Start with the fact that makes all four comparable.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">TableMigrationUtil.buildDataFile()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
+<span class="normal"><a href="#__codelineno-0-247">247</a></span>
+<span class="normal"><a href="#__codelineno-0-248">248</a></span>
+<span class="normal"><a href="#__codelineno-0-249">249</a></span>
+<span class="normal"><a href="#__codelineno-0-250">250</a></span>
+<span class="normal"><a href="#__codelineno-0-251">251</a></span>
+<span class="normal"><a href="#__codelineno-0-252">252</a></span>
+<span class="normal"><a href="#__codelineno-0-253">253</a></span>
+<span class="normal"><a href="#__codelineno-0-254">254</a></span>
+<span class="normal"><a href="#__codelineno-0-255">255</a></span>
+<span class="normal"><a href="#__codelineno-0-256">256</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">DataFile</span><span class="w"> </span><span class="nf">buildDataFile</span><span class="p">(</span>
+</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a><span class="w">    </span><span class="n">FileStatus</span><span class="w"> </span><span class="n">stat</span><span class="p">,</span>
+</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">partitionValues</span><span class="p">,</span>
+</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a><span class="w">    </span><span class="n">PartitionSpec</span><span class="w"> </span><span class="n">spec</span><span class="p">,</span>
+</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a><span class="w">    </span><span class="n">Metrics</span><span class="w"> </span><span class="n">metrics</span><span class="p">,</span>
+</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">format</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">DataFiles</span><span class="p">.</span><span class="na">builder</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a><span class="w">      </span><span class="p">.</span><span class="na">withPath</span><span class="p">(</span><span class="n">stat</span><span class="p">.</span><span class="na">getPath</span><span class="p">().</span><span class="na">toString</span><span class="p">())</span>
+</span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="w">      </span><span class="p">.</span><span class="na">withFormat</span><span class="p">(</span><span class="n">format</span><span class="p">)</span>
+</span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="w">      </span><span class="p">.</span><span class="na">withFileSizeInBytes</span><span class="p">(</span><span class="n">stat</span><span class="p">.</span><span class="na">getLen</span><span class="p">())</span>
+</span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a><span class="w">      </span><span class="p">.</span><span class="na">withMetrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+</span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a><span class="w">      </span><span class="p">.</span><span class="na">withPartitionValues</span><span class="p">(</span><span class="n">partitionValues</span><span class="p">)</span>
+</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="w">      </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `data/src/main/java/org/apache/iceberg/data/TableMigrationUtil.java` L243–L256](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/data/src/main/java/org/apache/iceberg/data/TableMigrationUtil.java#L243-L256) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>withPath(stat.getPath().toString())</code>. The <code>DataFile</code> that ends up in an Iceberg manifest carries the path the file already had.</p>
+<p><strong>No import procedure copies a data file.</strong> <code>listPartition</code> lists a directory, reads each file's footer for metrics and row count, and builds a <code>DataFile</code> describing bytes that are already on disk and are not moved, rewritten, or touched. <code>SparkTableUtil</code> then commits them, by one of two routes: <code>importSparkPartitions</code> packs them into manifests written to a staging directory and appends those, while the unpartitioned path skips manifests entirely and appends the <code>DataFile</code>s straight to <code>targetTable.newAppend()</code>. Either way the whole operation is an indexing pass.</p>
+<p>That single fact generates every difference between the four procedures. If import means "index files where they lie", then after an import two things may point at one set of bytes. What each procedure does about that — disarm one side, remove one side, or nothing — is the entire subject.</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph BEFORE["before any import"]
+        SRC["hive.db.events"] --&gt; F[("/warehouse/events/*.parquet")]
+    end
+
+    subgraph SNAP["after snapshot"]
+        S1["hive.db.events&lt;br/&gt;UNCHANGED"] --&gt; FS[("/warehouse/events/*.parquet")]
+        S2["ice.db.events_test&lt;br/&gt;gc.enabled=false&lt;br/&gt;metadata elsewhere"] --&gt; FS
+    end
+
+    subgraph MIG["after migrate"]
+        M1["db.events_BACKUP_&lt;br/&gt;the renamed source"] --&gt; FM[("/warehouse/events/*.parquet")]
+        M2["db.events&lt;br/&gt;NOW ICEBERG&lt;br/&gt;same location"] --&gt; FM
+    end
+
+    subgraph ADD["after add_files"]
+        A1["hive.db.events&lt;br/&gt;UNCHANGED"] --&gt; FA[("/warehouse/events/*.parquet")]
+        A2["ice.db.target&lt;br/&gt;pre-existing table"] --&gt; FA
+    end
+
+    subgraph REG["after register_table"]
+        R1["catA.db.events"] --&gt; MD["v42.metadata.json"]
+        R2["catB.db.events&lt;br/&gt;NEW ENTRY"] --&gt; MD
+        MD --&gt; FR[("data files")]
+    end</code></pre>
+<p>Every box has two arrows into one file set. That is the shape of the risk.</p>
+<h2 id="3-snapshot-a-test-drive">3. <code>snapshot</code> — a test drive<a class="headerlink" href="#3-snapshot-a-test-drive" title="Permanent link">&para;</a></h2>
+<p><code>snapshot</code> creates a new Iceberg table from a source table and leaves the source completely alone. Its metadata and manifests go to a new location; its <strong>data files are still the source table's files</strong>. <code>SnapshotTableSparkAction.doExecute</code> enforces the separation before doing any work, at <code>SnapshotTableSparkAction.java</code> L129–L136: the staged location must not equal the source location and neither may be a prefix of the other, <em>"because it would overlap with source table location … Overlapping snapshot and source would mix table files."</em></p>
+<p>The consequence is in the properties it sets on the new table.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SnapshotTableSparkAction.destTableProps()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-176">176</a></span>
+<span class="normal"><a href="#__codelineno-1-177">177</a></span>
+<span class="normal"><a href="#__codelineno-1-178">178</a></span>
+<span class="normal"><a href="#__codelineno-1-179">179</a></span>
+<span class="normal"><a href="#__codelineno-1-180">180</a></span>
+<span class="normal"><a href="#__codelineno-1-181">181</a></span>
+<span class="normal"><a href="#__codelineno-1-182">182</a></span>
+<span class="normal"><a href="#__codelineno-1-183">183</a></span>
+<span class="normal"><a href="#__codelineno-1-184">184</a></span>
+<span class="normal"><a href="#__codelineno-1-185">185</a></span>
+<span class="normal"><a href="#__codelineno-1-186">186</a></span>
+<span class="normal"><a href="#__codelineno-1-187">187</a></span>
+<span class="normal"><a href="#__codelineno-1-188">188</a></span>
+<span class="normal"><a href="#__codelineno-1-189">189</a></span>
+<span class="normal"><a href="#__codelineno-1-190">190</a></span>
+<span class="normal"><a href="#__codelineno-1-191">191</a></span>
+<span class="normal"><a href="#__codelineno-1-192">192</a></span>
+<span class="normal"><a href="#__codelineno-1-193">193</a></span>
+<span class="normal"><a href="#__codelineno-1-194">194</a></span>
+<span class="normal"><a href="#__codelineno-1-195">195</a></span>
+<span class="normal"><a href="#__codelineno-1-196">196</a></span>
+<span class="normal"><a href="#__codelineno-1-197">197</a></span>
+<span class="normal"><a href="#__codelineno-1-198">198</a></span>
+<span class="normal"><a href="#__codelineno-1-199">199</a></span>
+<span class="normal"><a href="#__codelineno-1-200">200</a></span>
+<span class="normal"><a href="#__codelineno-1-201">201</a></span>
+<span class="normal"><a href="#__codelineno-1-202">202</a></span>
+<span class="normal"><a href="#__codelineno-1-203">203</a></span>
+<span class="normal"><a href="#__codelineno-1-204">204</a></span>
+<span class="normal"><a href="#__codelineno-1-205">205</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-176"><a id="__codelineno-1-176" name="__codelineno-1-176"></a><span class="nd">@Override</span>
+</span><span id="__span-1-177"><a id="__codelineno-1-177" name="__codelineno-1-177"></a><span class="kd">protected</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">destTableProps</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-178"><a id="__codelineno-1-178" name="__codelineno-1-178"></a><span class="w">  </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Maps</span><span class="p">.</span><span class="na">newHashMap</span><span class="p">();</span>
+</span><span id="__span-1-179"><a id="__codelineno-1-179" name="__codelineno-1-179"></a>
+</span><span id="__span-1-180"><a id="__codelineno-1-180" name="__codelineno-1-180"></a><span class="w">  </span><span class="c1">// copy over relevant source table props</span>
+</span><span id="__span-1-181"><a id="__codelineno-1-181" name="__codelineno-1-181"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">putAll</span><span class="p">(</span><span class="n">JavaConverters</span><span class="p">.</span><span class="na">mapAsJavaMapConverter</span><span class="p">(</span><span class="n">v1SourceTable</span><span class="p">().</span><span class="na">properties</span><span class="p">()).</span><span class="na">asJava</span><span class="p">());</span>
+</span><span id="__span-1-182"><a id="__codelineno-1-182" name="__codelineno-1-182"></a><span class="w">  </span><span class="n">EXCLUDED_PROPERTIES</span><span class="p">.</span><span class="na">forEach</span><span class="p">(</span><span class="n">properties</span><span class="p">::</span><span class="n">remove</span><span class="p">);</span>
+</span><span id="__span-1-183"><a id="__codelineno-1-183" name="__codelineno-1-183"></a>
+</span><span id="__span-1-184"><a id="__codelineno-1-184" name="__codelineno-1-184"></a><span class="w">  </span><span class="c1">// remove any possible location properties from origin properties</span>
+</span><span id="__span-1-185"><a id="__codelineno-1-185" name="__codelineno-1-185"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">remove</span><span class="p">(</span><span class="n">LOCATION</span><span class="p">);</span>
+</span><span id="__span-1-186"><a id="__codelineno-1-186" name="__codelineno-1-186"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">remove</span><span class="p">(</span><span class="n">TableProperties</span><span class="p">.</span><span class="na">WRITE_METADATA_LOCATION</span><span class="p">);</span>
+</span><span id="__span-1-187"><a id="__codelineno-1-187" name="__codelineno-1-187"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">remove</span><span class="p">(</span><span class="n">TableProperties</span><span class="p">.</span><span class="na">WRITE_FOLDER_STORAGE_LOCATION</span><span class="p">);</span>
+</span><span id="__span-1-188"><a id="__codelineno-1-188" name="__codelineno-1-188"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">remove</span><span class="p">(</span><span class="n">TableProperties</span><span class="p">.</span><span class="na">OBJECT_STORE_PATH</span><span class="p">);</span>
+</span><span id="__span-1-189"><a id="__codelineno-1-189" name="__codelineno-1-189"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">remove</span><span class="p">(</span><span class="n">TableProperties</span><span class="p">.</span><span class="na">WRITE_DATA_LOCATION</span><span class="p">);</span>
+</span><span id="__span-1-190"><a id="__codelineno-1-190" name="__codelineno-1-190"></a>
+</span><span id="__span-1-191"><a id="__codelineno-1-191" name="__codelineno-1-191"></a><span class="w">  </span><span class="c1">// set default and user-provided props</span>
+</span><span id="__span-1-192"><a id="__codelineno-1-192" name="__codelineno-1-192"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">TableCatalog</span><span class="p">.</span><span class="na">PROP_PROVIDER</span><span class="p">,</span><span class="w"> </span><span class="s">"iceberg"</span><span class="p">);</span>
+</span><span id="__span-1-193"><a id="__codelineno-1-193" name="__codelineno-1-193"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">putAll</span><span class="p">(</span><span class="n">additionalProperties</span><span class="p">());</span>
+</span><span id="__span-1-194"><a id="__codelineno-1-194" name="__codelineno-1-194"></a>
+</span><span id="__span-1-195"><a id="__codelineno-1-195" name="__codelineno-1-195"></a><span class="w">  </span><span class="c1">// make sure we mark this table as a snapshot table</span>
+</span><span id="__span-1-196"><a id="__codelineno-1-196" name="__codelineno-1-196"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">TableProperties</span><span class="p">.</span><span class="na">GC_ENABLED</span><span class="p">,</span><span class="w"> </span><span class="s">"false"</span><span class="p">);</span>
+</span><span id="__span-1-197"><a id="__codelineno-1-197" name="__codelineno-1-197"></a><span class="w">  </span><span class="n">properties</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"snapshot"</span><span class="p">,</span><span class="w"> </span><span class="s">"true"</span><span class="p">);</span>
+</span><span id="__span-1-198"><a id="__codelineno-1-198" name="__codelineno-1-198"></a>
+</span><span id="__span-1-199"><a id="__codelineno-1-199" name="__codelineno-1-199"></a><span class="w">  </span><span class="c1">// set the destination table location if provided</span>
+</span><span id="__span-1-200"><a id="__codelineno-1-200" name="__codelineno-1-200"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">destTableLocation</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-201"><a id="__codelineno-1-201" name="__codelineno-1-201"></a><span class="w">    </span><span class="n">properties</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">LOCATION</span><span class="p">,</span><span class="w"> </span><span class="n">destTableLocation</span><span class="p">);</span>
+</span><span id="__span-1-202"><a id="__codelineno-1-202" name="__codelineno-1-202"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-203"><a id="__codelineno-1-203" name="__codelineno-1-203"></a>
+</span><span id="__span-1-204"><a id="__codelineno-1-204" name="__codelineno-1-204"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">properties</span><span class="p">;</span>
+</span><span id="__span-1-205"><a id="__codelineno-1-205" name="__codelineno-1-205"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/SnapshotTableSparkAction.java` L176–L205](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/SnapshotTableSparkAction.java#L176-L205) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Four moves. Copy the source's properties, minus <code>path</code>, <code>transient_lastDdlTime</code> and <code>serialization.format</code>. Strip every location-bearing property — <code>location</code>, <code>write.metadata.path</code>, <code>write.folder-storage.path</code>, <code>write.object-storage.path</code>, <code>write.data.path</code> — so the new table cannot inherit a path that points back into the source. Set <code>provider=iceberg</code> and merge in whatever the caller passed. Then:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">properties</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">TableProperties</span><span class="p">.</span><span class="na">GC_ENABLED</span><span class="p">,</span><span class="w"> </span><span class="s">"false"</span><span class="p">);</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">properties</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"snapshot"</span><span class="p">,</span><span class="w"> </span><span class="s">"true"</span><span class="p">);</span>
+</span></code></pre></div>
+<p>One property survives the strip: if the caller supplied a destination location explicitly, the method puts <code>location</code> back at the very end. That is the only way a snapshot table gets a path you chose rather than the catalog's default, and it is why the overlap precondition is checked against the staged table's resolved <code>location()</code> rather than against this map.</p>
+<p><code>gc.enabled=false</code> is not advisory. Five places refuse to run when it is set, with near-identical messages: the constructors of <code>ExpireSnapshotsSparkAction</code> and <code>DeleteOrphanFilesSparkAction</code>, <code>DeleteReachableFilesSparkAction.doExecute</code>, <code>SparkCatalog.purgeTable</code> — <em>"Cannot purge table: GC is disabled (deleting files may corrupt other tables)"</em> — and <code>RemoveSnapshots</code>' constructor in <strong>core</strong>. That last one is the one to remember: it is not a Spark check, so <code>table.expireSnapshots()</code> from plain Java refuses too (Chapter 5.5 §5). A sixth site does not refuse but changes behaviour — <code>CatalogUtil.dropTableData</code> skips deleting data files while still deleting manifests, manifest lists and metadata, which is what stops a catalog-level purge destroying somebody else's bytes.</p>
+<p><strong>Verdict.</strong> Source untouched. The catalog entry is reversible with a plain <code>DROP TABLE</code>; the files it wrote are not, and which of them survive depends on your catalog. <code>SparkCatalog.dropTable</code> calls <code>icebergCatalog.dropTable(ident, false /* don't purge data */)</code>. On a metastore catalog that removes the entry and nothing else — <code>HiveCatalog.dropTable</code> loads the metadata only when <code>purge</code> is true — so the snapshot table's <code>metadata.json</code>, manifest lists and manifests stay on storage as orphans no job will collect: the table they belonged to is gone, and while it existed <code>remove_orphan_files</code> was refused on it. <code>HadoopCatalog</code> is the exception, and for the wrong reason: it runs <code>fs.delete(tablePath, true)</code> regardless of the argument. That asymmetry is documented inside <code>purgeTable</code> itself — <em>"HadoopCatalog/HadoopTables will drop the warehouse directly and ignore the <code>purge</code> argument"</em>. In every case the source's data files are untouched, because they were never under the snapshot table's location. This is still the procedure to reach for when you want to test Iceberg against real data. Delete the leftover metadata directory yourself afterwards.</p>
+<h2 id="4-migrate-in-place-and-it-renames-your-table">4. <code>migrate</code> — in place, and it renames your table<a class="headerlink" href="#4-migrate-in-place-and-it-renames-your-table" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">MigrateTableSparkAction.doExecute()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-126">126</a></span>
+<span class="normal"><a href="#__codelineno-3-127">127</a></span>
+<span class="normal"><a href="#__codelineno-3-128">128</a></span>
+<span class="normal"><a href="#__codelineno-3-129">129</a></span>
+<span class="normal"><a href="#__codelineno-3-130">130</a></span>
+<span class="normal"><a href="#__codelineno-3-131">131</a></span>
+<span class="normal"><a href="#__codelineno-3-132">132</a></span>
+<span class="normal"><a href="#__codelineno-3-133">133</a></span>
+<span class="normal"><a href="#__codelineno-3-134">134</a></span>
+<span class="normal"><a href="#__codelineno-3-135">135</a></span>
+<span class="normal"><a href="#__codelineno-3-136">136</a></span>
+<span class="normal"><a href="#__codelineno-3-137">137</a></span>
+<span class="normal"><a href="#__codelineno-3-138">138</a></span>
+<span class="normal"><a href="#__codelineno-3-139">139</a></span>
+<span class="normal"><a href="#__codelineno-3-140">140</a></span>
+<span class="normal"><a href="#__codelineno-3-141">141</a></span>
+<span class="normal"><a href="#__codelineno-3-142">142</a></span>
+<span class="normal"><a href="#__codelineno-3-143">143</a></span>
+<span class="normal"><a href="#__codelineno-3-144">144</a></span>
+<span class="normal"><a href="#__codelineno-3-145">145</a></span>
+<span class="normal"><a href="#__codelineno-3-146">146</a></span>
+<span class="normal"><a href="#__codelineno-3-147">147</a></span>
+<span class="normal"><a href="#__codelineno-3-148">148</a></span>
+<span class="normal"><a href="#__codelineno-3-149">149</a></span>
+<span class="normal"><a href="#__codelineno-3-150">150</a></span>
+<span class="normal"><a href="#__codelineno-3-151">151</a></span>
+<span class="normal"><a href="#__codelineno-3-152">152</a></span>
+<span class="normal"><a href="#__codelineno-3-153">153</a></span>
+<span class="normal"><a href="#__codelineno-3-154">154</a></span>
+<span class="normal"><a href="#__codelineno-3-155">155</a></span>
+<span class="normal"><a href="#__codelineno-3-156">156</a></span>
+<span class="normal"><a href="#__codelineno-3-157">157</a></span>
+<span class="normal"><a href="#__codelineno-3-158">158</a></span>
+<span class="normal"><a href="#__codelineno-3-159">159</a></span>
+<span class="normal"><a href="#__codelineno-3-160">160</a></span>
+<span class="normal"><a href="#__codelineno-3-161">161</a></span>
+<span class="normal"><a href="#__codelineno-3-162">162</a></span>
+<span class="normal"><a href="#__codelineno-3-163">163</a></span>
+<span class="normal"><a href="#__codelineno-3-164">164</a></span>
+<span class="normal"><a href="#__codelineno-3-165">165</a></span>
+<span class="normal"><a href="#__codelineno-3-166">166</a></span>
+<span class="normal"><a href="#__codelineno-3-167">167</a></span>
+<span class="normal"><a href="#__codelineno-3-168">168</a></span>
+<span class="normal"><a href="#__codelineno-3-169">169</a></span>
+<span class="normal"><a href="#__codelineno-3-170">170</a></span>
+<span class="normal"><a href="#__codelineno-3-171">171</a></span>
+<span class="normal"><a href="#__codelineno-3-172">172</a></span>
+<span class="normal"><a href="#__codelineno-3-173">173</a></span>
+<span class="normal"><a href="#__codelineno-3-174">174</a></span>
+<span class="normal"><a href="#__codelineno-3-175">175</a></span>
+<span class="normal"><a href="#__codelineno-3-176">176</a></span>
+<span class="normal"><a href="#__codelineno-3-177">177</a></span>
+<span class="normal"><a href="#__codelineno-3-178">178</a></span>
+<span class="normal"><a href="#__codelineno-3-179">179</a></span>
+<span class="normal"><a href="#__codelineno-3-180">180</a></span>
+<span class="normal"><a href="#__codelineno-3-181">181</a></span>
+<span class="normal"><a href="#__codelineno-3-182">182</a></span>
+<span class="normal"><a href="#__codelineno-3-183">183</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-126"><a id="__codelineno-3-126" name="__codelineno-3-126"></a><span class="kd">private</span><span class="w"> </span><span class="n">MigrateTable</span><span class="p">.</span><span class="na">Result</span><span class="w"> </span><span class="nf">doExecute</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-127"><a id="__codelineno-3-127" name="__codelineno-3-127"></a><span class="w">  </span><span class="n">LOG</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Starting the migration of {} to Iceberg"</span><span class="p">,</span><span class="w"> </span><span class="n">sourceTableIdent</span><span class="p">());</span>
+</span><span id="__span-3-128"><a id="__codelineno-3-128" name="__codelineno-3-128"></a>
+</span><span id="__span-3-129"><a id="__codelineno-3-129" name="__codelineno-3-129"></a><span class="w">  </span><span class="c1">// move the source table to a new name, halting all modifications and allowing us to stage</span>
+</span><span id="__span-3-130"><a id="__codelineno-3-130" name="__codelineno-3-130"></a><span class="w">  </span><span class="c1">// the creation of a new Iceberg table in its place</span>
+</span><span id="__span-3-131"><a id="__codelineno-3-131" name="__codelineno-3-131"></a><span class="w">  </span><span class="n">renameAndBackupSourceTable</span><span class="p">();</span>
+</span><span id="__span-3-132"><a id="__codelineno-3-132" name="__codelineno-3-132"></a>
+</span><span id="__span-3-133"><a id="__codelineno-3-133" name="__codelineno-3-133"></a><span class="w">  </span><span class="n">StagedSparkTable</span><span class="w"> </span><span class="n">stagedTable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-3-134"><a id="__codelineno-3-134" name="__codelineno-3-134"></a><span class="w">  </span><span class="n">Table</span><span class="w"> </span><span class="n">icebergTable</span><span class="p">;</span>
+</span><span id="__span-3-135"><a id="__codelineno-3-135" name="__codelineno-3-135"></a><span class="w">  </span><span class="kt">boolean</span><span class="w"> </span><span class="n">threw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+</span><span id="__span-3-136"><a id="__codelineno-3-136" name="__codelineno-3-136"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-137"><a id="__codelineno-3-137" name="__codelineno-3-137"></a><span class="w">    </span><span class="n">LOG</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Staging a new Iceberg table {}"</span><span class="p">,</span><span class="w"> </span><span class="n">destTableIdent</span><span class="p">());</span>
+</span><span id="__span-3-138"><a id="__codelineno-3-138" name="__codelineno-3-138"></a><span class="w">    </span><span class="n">stagedTable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stageDestTable</span><span class="p">();</span>
+</span><span id="__span-3-139"><a id="__codelineno-3-139" name="__codelineno-3-139"></a><span class="w">    </span><span class="n">icebergTable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stagedTable</span><span class="p">.</span><span class="na">table</span><span class="p">();</span>
+</span><span id="__span-3-140"><a id="__codelineno-3-140" name="__codelineno-3-140"></a>
+</span><span id="__span-3-141"><a id="__codelineno-3-141" name="__codelineno-3-141"></a><span class="w">    </span><span class="n">LOG</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Ensuring {} has a valid name mapping"</span><span class="p">,</span><span class="w"> </span><span class="n">destTableIdent</span><span class="p">());</span>
+</span><span id="__span-3-142"><a id="__codelineno-3-142" name="__codelineno-3-142"></a><span class="w">    </span><span class="n">ensureNameMappingPresent</span><span class="p">(</span><span class="n">icebergTable</span><span class="p">);</span>
+</span><span id="__span-3-143"><a id="__codelineno-3-143" name="__codelineno-3-143"></a>
+</span><span id="__span-3-144"><a id="__codelineno-3-144" name="__codelineno-3-144"></a><span class="w">    </span><span class="n">Some</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">backupNamespace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Some</span><span class="p">.</span><span class="na">apply</span><span class="p">(</span><span class="n">backupIdent</span><span class="p">.</span><span class="na">namespace</span><span class="p">()</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">);</span>
+</span><span id="__span-3-145"><a id="__codelineno-3-145" name="__codelineno-3-145"></a><span class="w">    </span><span class="n">TableIdentifier</span><span class="w"> </span><span class="n">v1BackupIdent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TableIdentifier</span><span class="p">(</span><span class="n">backupIdent</span><span class="p">.</span><span class="na">name</span><span class="p">(),</span><span class="w"> </span><span class="n">backupNamespace</span><span class="p">);</span>
+</span><span id="__span-3-146"><a id="__codelineno-3-146" name="__codelineno-3-146"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">stagingLocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getMetadataLocation</span><span class="p">(</span><span class="n">icebergTable</span><span class="p">);</span>
+</span><span id="__span-3-147"><a id="__codelineno-3-147" name="__codelineno-3-147"></a><span class="w">    </span><span class="n">LOG</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Generating Iceberg metadata for {} in {}"</span><span class="p">,</span><span class="w"> </span><span class="n">destTableIdent</span><span class="p">(),</span><span class="w"> </span><span class="n">stagingLocation</span><span class="p">);</span>
+</span><span id="__span-3-148"><a id="__codelineno-3-148" name="__codelineno-3-148"></a><span class="w">    </span><span class="n">SparkTableUtil</span><span class="p">.</span><span class="na">importSparkTable</span><span class="p">(</span>
+</span><span id="__span-3-149"><a id="__codelineno-3-149" name="__codelineno-3-149"></a><span class="w">        </span><span class="n">spark</span><span class="p">(),</span><span class="w"> </span><span class="n">v1BackupIdent</span><span class="p">,</span><span class="w"> </span><span class="n">icebergTable</span><span class="p">,</span><span class="w"> </span><span class="n">stagingLocation</span><span class="p">,</span><span class="w"> </span><span class="n">executorService</span><span class="p">);</span>
+</span><span id="__span-3-150"><a id="__codelineno-3-150" name="__codelineno-3-150"></a>
+</span><span id="__span-3-151"><a id="__codelineno-3-151" name="__codelineno-3-151"></a><span class="w">    </span><span class="n">LOG</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Committing staged changes to {}"</span><span class="p">,</span><span class="w"> </span><span class="n">destTableIdent</span><span class="p">());</span>
+</span><span id="__span-3-152"><a id="__codelineno-3-152" name="__codelineno-3-152"></a><span class="w">    </span><span class="n">stagedTable</span><span class="p">.</span><span class="na">commitStagedChanges</span><span class="p">();</span>
+</span><span id="__span-3-153"><a id="__codelineno-3-153" name="__codelineno-3-153"></a><span class="w">    </span><span class="n">threw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+</span><span id="__span-3-154"><a id="__codelineno-3-154" name="__codelineno-3-154"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-155"><a id="__codelineno-3-155" name="__codelineno-3-155"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">threw</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-156"><a id="__codelineno-3-156" name="__codelineno-3-156"></a><span class="w">      </span><span class="n">LOG</span><span class="p">.</span><span class="na">error</span><span class="p">(</span>
+</span><span id="__span-3-157"><a id="__codelineno-3-157" name="__codelineno-3-157"></a><span class="w">          </span><span class="s">"Failed to perform the migration, aborting table creation and restoring the original table"</span><span class="p">);</span>
+</span><span id="__span-3-158"><a id="__codelineno-3-158" name="__codelineno-3-158"></a>
+</span><span id="__span-3-159"><a id="__codelineno-3-159" name="__codelineno-3-159"></a><span class="w">      </span><span class="n">restoreSourceTable</span><span class="p">();</span>
+</span><span id="__span-3-160"><a id="__codelineno-3-160" name="__codelineno-3-160"></a>
+</span><span id="__span-3-161"><a id="__codelineno-3-161" name="__codelineno-3-161"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">stagedTable</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-162"><a id="__codelineno-3-162" name="__codelineno-3-162"></a><span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-163"><a id="__codelineno-3-163" name="__codelineno-3-163"></a><span class="w">          </span><span class="n">stagedTable</span><span class="p">.</span><span class="na">abortStagedChanges</span><span class="p">();</span>
+</span><span id="__span-3-164"><a id="__codelineno-3-164" name="__codelineno-3-164"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">abortException</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-165"><a id="__codelineno-3-165" name="__codelineno-3-165"></a><span class="w">          </span><span class="n">LOG</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">"Cannot abort staged changes"</span><span class="p">,</span><span class="w"> </span><span class="n">abortException</span><span class="p">);</span>
+</span><span id="__span-3-166"><a id="__codelineno-3-166" name="__codelineno-3-166"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-3-167"><a id="__codelineno-3-167" name="__codelineno-3-167"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-168"><a id="__codelineno-3-168" name="__codelineno-3-168"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dropBackup</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-169"><a id="__codelineno-3-169" name="__codelineno-3-169"></a><span class="w">      </span><span class="n">dropBackupTable</span><span class="p">();</span>
+</span><span id="__span-3-170"><a id="__codelineno-3-170" name="__codelineno-3-170"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-171"><a id="__codelineno-3-171" name="__codelineno-3-171"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-172"><a id="__codelineno-3-172" name="__codelineno-3-172"></a>
+</span><span id="__span-3-173"><a id="__codelineno-3-173" name="__codelineno-3-173"></a><span class="w">  </span><span class="n">Snapshot</span><span class="w"> </span><span class="n">snapshot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">icebergTable</span><span class="p">.</span><span class="na">currentSnapshot</span><span class="p">();</span>
+</span><span id="__span-3-174"><a id="__codelineno-3-174" name="__codelineno-3-174"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">migratedDataFilesCount</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-175"><a id="__codelineno-3-175" name="__codelineno-3-175"></a><span class="w">      </span><span class="n">Long</span><span class="p">.</span><span class="na">parseLong</span><span class="p">(</span><span class="n">snapshot</span><span class="p">.</span><span class="na">summary</span><span class="p">().</span><span class="na">get</span><span class="p">(</span><span class="n">SnapshotSummary</span><span class="p">.</span><span class="na">TOTAL_DATA_FILES_PROP</span><span class="p">));</span>
+</span><span id="__span-3-176"><a id="__codelineno-3-176" name="__codelineno-3-176"></a><span class="w">  </span><span class="n">LOG</span><span class="p">.</span><span class="na">info</span><span class="p">(</span>
+</span><span id="__span-3-177"><a id="__codelineno-3-177" name="__codelineno-3-177"></a><span class="w">      </span><span class="s">"Successfully loaded Iceberg metadata for {} files to {}"</span><span class="p">,</span>
+</span><span id="__span-3-178"><a id="__codelineno-3-178" name="__codelineno-3-178"></a><span class="w">      </span><span class="n">migratedDataFilesCount</span><span class="p">,</span>
+</span><span id="__span-3-179"><a id="__codelineno-3-179" name="__codelineno-3-179"></a><span class="w">      </span><span class="n">destTableIdent</span><span class="p">());</span>
+</span><span id="__span-3-180"><a id="__codelineno-3-180" name="__codelineno-3-180"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ImmutableMigrateTable</span><span class="p">.</span><span class="na">Result</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+</span><span id="__span-3-181"><a id="__codelineno-3-181" name="__codelineno-3-181"></a><span class="w">      </span><span class="p">.</span><span class="na">migratedDataFilesCount</span><span class="p">(</span><span class="n">migratedDataFilesCount</span><span class="p">)</span>
+</span><span id="__span-3-182"><a id="__codelineno-3-182" name="__codelineno-3-182"></a><span class="w">      </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</span><span id="__span-3-183"><a id="__codelineno-3-183" name="__codelineno-3-183"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/MigrateTableSparkAction.java` L126–L183](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/MigrateTableSparkAction.java#L126-L183) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The comment on the first statement states the design: <em>"move the source table to a new name, halting all modifications and allowing us to stage the creation of a new Iceberg table in its place."</em></p>
+<p>Read it as five steps.</p>
+<ol>
+<li><code>renameAndBackupSourceTable()</code> — <code>db.events</code> becomes <code>db.events_BACKUP_</code> (or a name you pass as <code>backup_table_name</code>). The <em>source</em> was already checked in <code>BaseTableCreationSparkAction</code>'s constructor — <code>checkSourceCatalog</code>, then <code>validateSourceTable</code> — so a bucketed table or an unsupported provider is rejected before any rename happens. Nothing about the import itself is checked first. If the rename fails because the backup name is taken, you get <code>AlreadyExistsException</code> and nothing else has changed.</li>
+<li><code>stageDestTable()</code> — an Iceberg table is staged under the original identifier <code>db.events</code>, inheriting the source's location.</li>
+<li><code>ensureNameMappingPresent</code> — a <code>schema.name-mapping.default</code> is written so the existing Parquet, which has no Iceberg field IDs, resolves by name.</li>
+<li><code>SparkTableUtil.importSparkTable(...)</code> reading from <code>v1BackupIdent</code> — the file listing comes from the <em>backup</em> table's partition metadata.</li>
+<li><code>stagedTable.commitStagedChanges()</code>.</li>
+</ol>
+<p>The <code>finally</code> block is the recovery story. It has two halves, and only the first one recovers anything:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">threw</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">LOG</span><span class="p">.</span><span class="na">error</span><span class="p">(</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">        </span><span class="s">"Failed to perform the migration, aborting table creation and restoring the original table"</span><span class="p">);</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">restoreSourceTable</span><span class="p">();</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">stagedTable</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span><span class="n">stagedTable</span><span class="p">.</span><span class="na">abortStagedChanges</span><span class="p">();</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">abortException</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">        </span><span class="n">LOG</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">"Cannot abort staged changes"</span><span class="p">,</span><span class="w"> </span><span class="n">abortException</span><span class="p">);</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dropBackup</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="n">dropBackupTable</span><span class="p">();</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><code>restoreSourceTable()</code> renames the backup back. Its own catch blocks log rather than throw, including <em>"Cannot restore the original table, a table with the original name exists. Use the backup table {} to restore the original table manually."</em> So the <em>name</em> is recovered, and when it is not, the message tells you the backup is your recovery.</p>
+<p><code>abortStagedChanges()</code> recovers nothing, because it does nothing:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">StagedSparkTable — the abort that is a comment</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-24">24</a></span>
+<span class="normal"><a href="#__codelineno-5-25">25</a></span>
+<span class="normal"><a href="#__codelineno-5-26">26</a></span>
+<span class="normal"><a href="#__codelineno-5-27">27</a></span>
+<span class="normal"><a href="#__codelineno-5-28">28</a></span>
+<span class="normal"><a href="#__codelineno-5-29">29</a></span>
+<span class="normal"><a href="#__codelineno-5-30">30</a></span>
+<span class="normal"><a href="#__codelineno-5-31">31</a></span>
+<span class="normal"><a href="#__codelineno-5-32">32</a></span>
+<span class="normal"><a href="#__codelineno-5-33">33</a></span>
+<span class="normal"><a href="#__codelineno-5-34">34</a></span>
+<span class="normal"><a href="#__codelineno-5-35">35</a></span>
+<span class="normal"><a href="#__codelineno-5-36">36</a></span>
+<span class="normal"><a href="#__codelineno-5-37">37</a></span>
+<span class="normal"><a href="#__codelineno-5-38">38</a></span>
+<span class="normal"><a href="#__codelineno-5-39">39</a></span>
+<span class="normal"><a href="#__codelineno-5-40">40</a></span>
+<span class="normal"><a href="#__codelineno-5-41">41</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">StagedSparkTable</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">SparkTable</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">StagedTable</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Transaction</span><span class="w"> </span><span class="n">transaction</span><span class="p">;</span>
+</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26"></a>
+</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="nf">StagedSparkTable</span><span class="p">(</span><span class="n">Transaction</span><span class="w"> </span><span class="n">transaction</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28"></a><span class="w">    </span><span class="kd">super</span><span class="p">(</span><span class="n">transaction</span><span class="p">.</span><span class="na">table</span><span class="p">(),</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+</span><span id="__span-5-29"><a id="__codelineno-5-29" name="__codelineno-5-29"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">transaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">transaction</span><span class="p">;</span>
+</span><span id="__span-5-30"><a id="__codelineno-5-30" name="__codelineno-5-30"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-31"><a id="__codelineno-5-31" name="__codelineno-5-31"></a>
+</span><span id="__span-5-32"><a id="__codelineno-5-32" name="__codelineno-5-32"></a><span class="w">  </span><span class="nd">@Override</span>
+</span><span id="__span-5-33"><a id="__codelineno-5-33" name="__codelineno-5-33"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">commitStagedChanges</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-34"><a id="__codelineno-5-34" name="__codelineno-5-34"></a><span class="w">    </span><span class="n">transaction</span><span class="p">.</span><span class="na">commitTransaction</span><span class="p">();</span>
+</span><span id="__span-5-35"><a id="__codelineno-5-35" name="__codelineno-5-35"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-36"><a id="__codelineno-5-36" name="__codelineno-5-36"></a>
+</span><span id="__span-5-37"><a id="__codelineno-5-37" name="__codelineno-5-37"></a><span class="w">  </span><span class="nd">@Override</span>
+</span><span id="__span-5-38"><a id="__codelineno-5-38" name="__codelineno-5-38"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">abortStagedChanges</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-39"><a id="__codelineno-5-39" name="__codelineno-5-39"></a><span class="w">    </span><span class="c1">// TODO: clean up</span>
+</span><span id="__span-5-40"><a id="__codelineno-5-40" name="__codelineno-5-40"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-41"><a id="__codelineno-5-41" name="__codelineno-5-41"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/StagedSparkTable.java` L24–L41](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/StagedSparkTable.java#L24-L41) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>// TODO: clean up</code> is the entire implementation. Read it with the field above: a <code>StagedSparkTable</code> wraps a <code>Transaction</code>, and <code>commitStagedChanges()</code> is <code>transaction.commitTransaction()</code>. A transaction does not defer <em>writing</em> — it defers the catalog commit. By the time step 5 can fail, <code>ensureNameMappingPresent</code> has committed a property to that transaction and <code>SparkTableUtil</code> has appended manifests to it, so a <code>metadata.json</code> and a manifest list already exist under <code>getMetadataLocation(icebergTable)</code>.</p>
+<p>For <code>migrate</code> that location is the source table's own directory plus <code>/metadata</code>, because the staged table inherited <code>sourceTableLocation()</code>. <code>destTableProps</code> ends with <code>properties.putIfAbsent(LOCATION, sourceTableLocation())</code>, and <code>sourceTableLocation</code> is captured in <code>BaseTableCreationSparkAction</code>'s constructor — before the rename — so the new Iceberg table claims the source's original directory.</p>
+<p>So the concrete state after a failed migration is: the Hive table is back under its original name, its data files are untouched and correct, and there is now an Iceberg <code>metadata/</code> directory sitting inside it holding whatever the import got through. Nothing will delete it. <code>importSparkPartitions</code> does clean up after itself, but only the manifests it collected and only from its own <code>catch (Throwable e)</code>; anything an executor wrote before failing, and everything the transaction wrote, stays. <code>snapshot</code> leaks the same way on failure — with the mercy that its leftovers are under the new table's own directory, which you can delete wholesale.</p>
+<p><strong>Verdict.</strong> The source table is renamed, which is a mutation of the catalog, not of the data. The data files become the Iceberg table's data files in place. Reversible only while the backup exists, and only by renaming it back — and a reversal is not a return to the starting state, because the staging directory is still sitting in the restored table's location.</p>
+<h2 id="5-add_files-adding-to-a-table-you-already-have">5. <code>add_files</code> — adding to a table you already have<a class="headerlink" href="#5-add_files-adding-to-a-table-you-already-have" title="Permanent link">&para;</a></h2>
+<p><code>add_files</code> is the only one of the four that targets an existing Iceberg table. <code>AddFilesProcedure.call</code> resolves the source through the session catalog, then <code>importToIceberg</code> branches on whether the source identifier looks like <code>parquet.</code> / <code>orc.</code> / <code>avro.</code> followed by a path, or an ordinary catalog table. The path form always ends in <code>SparkTableUtil.importSparkPartitions</code> against the target; the catalog form goes through <code>importSparkTable</code>, which routes to <code>importUnpartitionedSparkTable</code> when the compatible spec is unpartitioned and appends <code>DataFile</code>s directly, with no manifests and no staging directory.</p>
+<p>Nothing is done to the source. The <em>target</em> is written to twice, though: <code>ensureNameMappingPresent</code> commits a <code>schema.name-mapping.default</code> property before the import begins, so a run that dies during the scan still leaves that commit in the target's history. Afterwards, the source table and the Iceberg table both reference the same files, and neither knows about the other. There is no <code>gc.enabled</code> interlock and no backup.</p>
+<p>Iceberg does ship an interlock for exactly this shape, and <code>add_files</code> is not what sets it. <code>ExpireSnapshots.CleanupLevel.METADATA_ONLY</code> names the case in its own javadoc — <em>"Consider <code>METADATA_ONLY</code> when data files are shared across tables or when using procedures like add-files that may reference the same data files"</em> — and expires snapshots while retaining data files. It is a core-API setting only: <code>ExpireSnapshotsSparkAction</code> hardcodes <code>cleanupLevel(CleanupLevel.NONE)</code> and then computes its own deletions, and neither it nor the <code>expire_snapshots</code> procedure exposes the level. From Spark there is no interlock, which is why the guidance below is about not creating the aliasing rather than about surviving it.</p>
+<p>The one guard it does have is duplicate detection, and it is not shared with the other procedures.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The importSparkTable overload that migrate and snapshot call</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-464">464</a></span>
+<span class="normal"><a href="#__codelineno-6-465">465</a></span>
+<span class="normal"><a href="#__codelineno-6-466">466</a></span>
+<span class="normal"><a href="#__codelineno-6-467">467</a></span>
+<span class="normal"><a href="#__codelineno-6-468">468</a></span>
+<span class="normal"><a href="#__codelineno-6-469">469</a></span>
+<span class="normal"><a href="#__codelineno-6-470">470</a></span>
+<span class="normal"><a href="#__codelineno-6-471">471</a></span>
+<span class="normal"><a href="#__codelineno-6-472">472</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-464"><a id="__codelineno-6-464" name="__codelineno-6-464"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">importSparkTable</span><span class="p">(</span>
+</span><span id="__span-6-465"><a id="__codelineno-6-465" name="__codelineno-6-465"></a><span class="w">    </span><span class="n">SparkSession</span><span class="w"> </span><span class="n">spark</span><span class="p">,</span>
+</span><span id="__span-6-466"><a id="__codelineno-6-466" name="__codelineno-6-466"></a><span class="w">    </span><span class="n">TableIdentifier</span><span class="w"> </span><span class="n">sourceTableIdent</span><span class="p">,</span>
+</span><span id="__span-6-467"><a id="__codelineno-6-467" name="__codelineno-6-467"></a><span class="w">    </span><span class="n">Table</span><span class="w"> </span><span class="n">targetTable</span><span class="p">,</span>
+</span><span id="__span-6-468"><a id="__codelineno-6-468" name="__codelineno-6-468"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">stagingDir</span><span class="p">,</span>
+</span><span id="__span-6-469"><a id="__codelineno-6-469" name="__codelineno-6-469"></a><span class="w">    </span><span class="n">ExecutorService</span><span class="w"> </span><span class="n">service</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-470"><a id="__codelineno-6-470" name="__codelineno-6-470"></a><span class="w">  </span><span class="n">importSparkTable</span><span class="p">(</span>
+</span><span id="__span-6-471"><a id="__codelineno-6-471" name="__codelineno-6-471"></a><span class="w">      </span><span class="n">spark</span><span class="p">,</span><span class="w"> </span><span class="n">sourceTableIdent</span><span class="p">,</span><span class="w"> </span><span class="n">targetTable</span><span class="p">,</span><span class="w"> </span><span class="n">stagingDir</span><span class="p">,</span><span class="w"> </span><span class="n">Collections</span><span class="p">.</span><span class="na">emptyMap</span><span class="p">(),</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">service</span><span class="p">);</span>
+</span><span id="__span-6-472"><a id="__codelineno-6-472" name="__codelineno-6-472"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkTableUtil.java` L464–L472](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkTableUtil.java#L464-L472) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>That overload — the one both <code>MigrateTableSparkAction</code> and <code>SnapshotTableSparkAction</code> invoke — passes <code>false</code> for <code>checkDuplicateFiles</code>. <code>AddFilesProcedure</code> reads its own parameter with <code>input.asBoolean(CHECK_DUPLICATE_FILES_PARAM, true)</code>.</p>
+<p>So running <code>add_files</code> twice over the same source fails loudly:</p>
+<blockquote>
+<p>Cannot complete import because data files to be imported already exist within the target table: … This is disabled by default as Iceberg is not designed for multiple references to the same file within the same table. If you are sure, you may set 'check_duplicate_files' to false to force the import.</p>
+</blockquote>
+<p>Re-running <code>migrate</code> after a partial failure has no such backstop.</p>
+<p><strong>Verdict.</strong> Source untouched, and the target gains references to files it does not own. There is no clean undo: rolling back to the pre-<code>add_files</code> snapshot leaves the added files still present and still referenced by the snapshot you rolled back from.</p>
+<h2 id="6-register_table-a-pointer-and-nothing-else">6. <code>register_table</code> — a pointer, and nothing else<a class="headerlink" href="#6-register_table-a-pointer-and-nothing-else" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseMetastoreCatalog.registerTable()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-73">73</a></span>
+<span class="normal"><a href="#__codelineno-7-74">74</a></span>
+<span class="normal"><a href="#__codelineno-7-75">75</a></span>
+<span class="normal"><a href="#__codelineno-7-76">76</a></span>
+<span class="normal"><a href="#__codelineno-7-77">77</a></span>
+<span class="normal"><a href="#__codelineno-7-78">78</a></span>
+<span class="normal"><a href="#__codelineno-7-79">79</a></span>
+<span class="normal"><a href="#__codelineno-7-80">80</a></span>
+<span class="normal"><a href="#__codelineno-7-81">81</a></span>
+<span class="normal"><a href="#__codelineno-7-82">82</a></span>
+<span class="normal"><a href="#__codelineno-7-83">83</a></span>
+<span class="normal"><a href="#__codelineno-7-84">84</a></span>
+<span class="normal"><a href="#__codelineno-7-85">85</a></span>
+<span class="normal"><a href="#__codelineno-7-86">86</a></span>
+<span class="normal"><a href="#__codelineno-7-87">87</a></span>
+<span class="normal"><a href="#__codelineno-7-88">88</a></span>
+<span class="normal"><a href="#__codelineno-7-89">89</a></span>
+<span class="normal"><a href="#__codelineno-7-90">90</a></span>
+<span class="normal"><a href="#__codelineno-7-91">91</a></span>
+<span class="normal"><a href="#__codelineno-7-92">92</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-73"><a id="__codelineno-7-73" name="__codelineno-7-73"></a><span class="nd">@Override</span>
+</span><span id="__span-7-74"><a id="__codelineno-7-74" name="__codelineno-7-74"></a><span class="kd">public</span><span class="w"> </span><span class="n">Table</span><span class="w"> </span><span class="nf">registerTable</span><span class="p">(</span><span class="n">TableIdentifier</span><span class="w"> </span><span class="n">identifier</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">metadataFileLocation</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-75"><a id="__codelineno-7-75" name="__codelineno-7-75"></a><span class="w">  </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-7-76"><a id="__codelineno-7-76" name="__codelineno-7-76"></a><span class="w">      </span><span class="n">identifier</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">isValidIdentifier</span><span class="p">(</span><span class="n">identifier</span><span class="p">),</span><span class="w"> </span><span class="s">"Invalid identifier: %s"</span><span class="p">,</span><span class="w"> </span><span class="n">identifier</span><span class="p">);</span>
+</span><span id="__span-7-77"><a id="__codelineno-7-77" name="__codelineno-7-77"></a><span class="w">  </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-7-78"><a id="__codelineno-7-78" name="__codelineno-7-78"></a><span class="w">      </span><span class="n">metadataFileLocation</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">metadataFileLocation</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">(),</span>
+</span><span id="__span-7-79"><a id="__codelineno-7-79" name="__codelineno-7-79"></a><span class="w">      </span><span class="s">"Cannot register an empty metadata file location as a table"</span><span class="p">);</span>
+</span><span id="__span-7-80"><a id="__codelineno-7-80" name="__codelineno-7-80"></a>
+</span><span id="__span-7-81"><a id="__codelineno-7-81" name="__codelineno-7-81"></a><span class="w">  </span><span class="c1">// Throw an exception if this table already exists in the catalog.</span>
+</span><span id="__span-7-82"><a id="__codelineno-7-82" name="__codelineno-7-82"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tableExists</span><span class="p">(</span><span class="n">identifier</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-83"><a id="__codelineno-7-83" name="__codelineno-7-83"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AlreadyExistsException</span><span class="p">(</span><span class="s">"Table already exists: %s"</span><span class="p">,</span><span class="w"> </span><span class="n">identifier</span><span class="p">);</span>
+</span><span id="__span-7-84"><a id="__codelineno-7-84" name="__codelineno-7-84"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-85"><a id="__codelineno-7-85" name="__codelineno-7-85"></a>
+</span><span id="__span-7-86"><a id="__codelineno-7-86" name="__codelineno-7-86"></a><span class="w">  </span><span class="n">TableOperations</span><span class="w"> </span><span class="n">ops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newTableOps</span><span class="p">(</span><span class="n">identifier</span><span class="p">);</span>
+</span><span id="__span-7-87"><a id="__codelineno-7-87" name="__codelineno-7-87"></a><span class="w">  </span><span class="n">InputFile</span><span class="w"> </span><span class="n">metadataFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">io</span><span class="p">().</span><span class="na">newInputFile</span><span class="p">(</span><span class="n">metadataFileLocation</span><span class="p">);</span>
+</span><span id="__span-7-88"><a id="__codelineno-7-88" name="__codelineno-7-88"></a><span class="w">  </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TableMetadataParser</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">metadataFile</span><span class="p">);</span>
+</span><span id="__span-7-89"><a id="__codelineno-7-89" name="__codelineno-7-89"></a><span class="w">  </span><span class="n">ops</span><span class="p">.</span><span class="na">commit</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">);</span>
+</span><span id="__span-7-90"><a id="__codelineno-7-90" name="__codelineno-7-90"></a>
+</span><span id="__span-7-91"><a id="__codelineno-7-91" name="__codelineno-7-91"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BaseTable</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="n">fullTableName</span><span class="p">(</span><span class="n">name</span><span class="p">(),</span><span class="w"> </span><span class="n">identifier</span><span class="p">),</span><span class="w"> </span><span class="n">metricsReporter</span><span class="p">());</span>
+</span><span id="__span-7-92"><a id="__codelineno-7-92" name="__codelineno-7-92"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java` L73–L92](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java#L73-L92) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>No scan. No footer reads. No manifest. It reads one <code>metadata.json</code>, parses it, and calls <code>ops.commit(null, metadata)</code> — creating a catalog entry that points at metadata someone else wrote.</p>
+<p>The guards are two <code>Preconditions</code> on argument shape and one existence check:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tableExists</span><span class="p">(</span><span class="n">identifier</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AlreadyExistsException</span><span class="p">(</span><span class="s">"Table already exists: %s"</span><span class="p">,</span><span class="w"> </span><span class="n">identifier</span><span class="p">);</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><code>tableExists</code> is a method on the catalog being written to. Nothing anywhere asks whether that <code>metadata.json</code> is already registered somewhere else. <code>RegisterTableProcedure</code> adds only that the catalog must be a <code>HasIcebergCatalog</code> — <em>"Cannot use Register Table in a non-Iceberg catalog"</em>.</p>
+<p><strong>Verdict.</strong> No data is read, moved or changed. Dropping the new entry undoes the registration. But this is the procedure that can produce the worst outcome of the four, because it is the one API that lets you break Iceberg's central assumption without an error.</p>
+<h2 id="7-the-comparison">7. The comparison<a class="headerlink" href="#7-the-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>snapshot</code></th>
+<th><code>migrate</code></th>
+<th><code>add_files</code></th>
+<th><code>register_table</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Target</td>
+<td>new Iceberg table</td>
+<td>the source identifier, in place</td>
+<td>existing Iceberg table</td>
+<td>new catalog entry</td>
+</tr>
+<tr>
+<td>Reads source data files</td>
+<td>yes, footers only</td>
+<td>yes, footers only</td>
+<td>yes, footers only</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Copies data</td>
+<td>no</td>
+<td>no</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Mutates source table</td>
+<td>no</td>
+<td><strong>yes — renamed to <code>_BACKUP_</code></strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Source queryable after</td>
+<td>yes</td>
+<td>only under the backup name</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Data files afterwards</td>
+<td>shared with source</td>
+<td>now the Iceberg table's</td>
+<td>shared with source</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td>Reversible by</td>
+<td><code>DROP TABLE</code> — the entry only (<code>PURGE</code> refused)</td>
+<td>renaming the backup back, while it exists</td>
+<td>no clean undo</td>
+<td>dropping the new entry</td>
+</tr>
+<tr>
+<td>If it fails midway</td>
+<td>source untouched; staged metadata leaked at the new location</td>
+<td>name restored; staging directory left <strong>inside</strong> the source's own directory</td>
+<td>collected manifests cleaned; the name-mapping commit stands</td>
+<td>no entry created</td>
+</tr>
+<tr>
+<td>Duplicate-file check</td>
+<td>off</td>
+<td>off</td>
+<td>on by default</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td>Safety interlock</td>
+<td><code>gc.enabled=false</code></td>
+<td><code>migrated=true</code>, a marker only</td>
+<td>none</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition danger">
+<p class="admonition-title"><code>register_table</code> does not check whether the metadata file is already registered elsewhere</p>
+<p>The only guard is <code>tableExists(identifier)</code> against the catalog being written to. Register one <code>metadata.json</code> in a second catalog and you get two <code>TableOperations</code>, each doing compare-and-swap against its own entry. Neither sees the other's commits, so writes are lost silently rather than rejected. Whichever side runs <code>expire_snapshots</code> first deletes files the other still references. Iceberg's commit protocol assumes exactly one catalog entry per table; this is the one API that lets you violate that without an error. And nothing sets <code>gc.enabled=false</code> on either side, so <code>expire_snapshots</code> is not even the fastest way to lose the data: a <code>DROP TABLE … PURGE</code> on either entry sails through the guard in <code>SparkCatalog.purgeTable</code>, because the property defaults to <code>true</code>. Use <code>register_table</code> to move a table between catalogs — deregistering the old entry — not to share one.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">After <code>migrate</code>, the backup table points at the migrated table's own data files</p>
+<p><code>db.events</code> (now Iceberg) and <code>db.events_BACKUP_</code> (still Hive) describe the same directory, because the Iceberg table inherited <code>sourceTableLocation()</code> and the backup is the renamed original. Any drop of the backup that purges data destroys the migrated table's data. <code>dropBackupTable()</code> catches <code>Exception</code> and only logs — <em>"Cannot drop the backup table {}, after the migration is completed."</em> — so <code>drop_backup =&gt; true</code> failing is invisible in the procedure's output, which reports only <code>migrated_files_count</code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">A <code>snapshot</code> table's data belongs to the source; do not enable GC on it</p>
+<p><code>gc.enabled=false</code> is checked in five places, all of which refuse to proceed, and one of them is in core rather than in Spark — so dropping to the Java API does not get you past it either. Setting the flag to <code>true</code> to make <code>expire_snapshots</code> or <code>remove_orphan_files</code> run will delete the source table's data files. If a snapshot table has served its purpose, drop it, then delete its metadata directory yourself.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>migrate</code> and <code>snapshot</code> skip duplicate detection; <code>add_files</code> does not</p>
+<p>The shared overload hardcodes <code>checkDuplicateFiles = false</code>. <code>add_files</code> defaults its parameter to <code>true</code>. If you are scripting repeated imports, <code>add_files</code> will stop you and the other two will not.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Partition listing is one level deep and skips <code>_</code>- and <code>.</code>-prefixed names</p>
+<p><code>TableMigrationUtil.listPartition</code> calls <code>fs.listStatus(partitionDir, HIDDEN_PATH_FILTER)</code> and keeps only entries where <code>FileStatus::isFile</code>. <code>listStatus</code> on a directory does not recurse, so a partition directory containing sub-directories contributes nothing from them. <code>HIDDEN_PATH_FILTER</code> is <code>p -&gt; !p.getName().startsWith("_") &amp;&amp; !p.getName().startsWith(".")</code> — correct for <code>_SUCCESS</code>, wrong for any data file an upstream job named that way. Neither case raises an error: you get a smaller <code>migrated_files_count</code> and a table quietly missing data. Compare the count against the source before trusting the result.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Which catalog the source lives in is a hard precondition</p>
+<p><code>MigrateTableSparkAction.checkSourceCatalog</code> requires the resolved source catalog to be an instance of <code>SparkSessionCatalog</code> — <em>"Cannot migrate a table from a non-Iceberg Spark Session Catalog"</em>. <code>SnapshotTableSparkAction.checkSourceCatalog</code> requires <code>catalog.name().equalsIgnoreCase("spark_catalog")</code>. Both share <code>BaseTableCreationSparkAction.validateSourceTable</code>, which rejects any provider outside <code>{parquet, avro, orc, hive}</code>, any table without an explicit location, and any bucketed table. The wiring choice from Chapter 11.1 decides which of these procedures you can run at all.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">What the source leaves ambiguous</p>
+<p>Whether dropping a Hive table deletes its data is decided by Hive and by Spark's <code>V2SessionCatalog</code>, not by Iceberg — a managed table and an external table behave differently, and neither is visible from this code. This chapter states what the Iceberg code does: <code>dropBackupTable()</code> calls <code>destCatalog().dropTable(backupIdent)</code> and the backup describes the same directory as the migrated table. Whether that particular drop removes files is a property of your metastore configuration. Verify it on a copy before running <code>drop_backup =&gt; true</code> in production.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>No import procedure copies data. <code>buildDataFile</code> records the file's existing path, so every import creates aliasing between whatever pointed at those bytes before and the Iceberg table that now indexes them.</li>
+<li><code>snapshot</code> is the one that touches nothing: the source is untouched, and <code>gc.enabled=false</code> is enforced in five places — one of them in core — to keep it from touching anything later. Dropping it reverses the catalog entry, not the metadata it wrote.</li>
+<li><code>migrate</code> is the only one that mutates the source, by renaming it. The backup is the entire recovery mechanism, it shares a directory with the migrated table, and <code>abortStagedChanges()</code> is an empty method — so a failed migration restores the name and leaves its staging metadata behind.</li>
+<li><code>add_files</code> leaves two tables referencing one file set with no interlock, and is the only procedure that checks for duplicates by default.</li>
+<li><code>register_table</code> reads no data and writes no manifest; its only guard is that the name is free in the destination catalog, which is not enough to prevent two catalogs owning one table.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DataFile</code> construction from footers</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/data/src/main/java/org/apache/iceberg/data/TableMigrationUtil.java"><code>data/.../TableMigrationUtil.java</code></a></td>
+</tr>
+<tr>
+<td>Shared import machinery</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkTableUtil.java"><code>spark/v3.5/.../spark/SparkTableUtil.java</code></a></td>
+</tr>
+<tr>
+<td><code>snapshot</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/SnapshotTableSparkAction.java"><code>.../actions/SnapshotTableSparkAction.java</code></a></td>
+</tr>
+<tr>
+<td><code>migrate</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/MigrateTableSparkAction.java"><code>.../actions/MigrateTableSparkAction.java</code></a></td>
+</tr>
+<tr>
+<td>Shared source validation</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/BaseTableCreationSparkAction.java"><code>.../actions/BaseTableCreationSparkAction.java</code></a></td>
+</tr>
+<tr>
+<td><code>add_files</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/procedures/AddFilesProcedure.java"><code>.../procedures/AddFilesProcedure.java</code></a></td>
+</tr>
+<tr>
+<td><code>register_table</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java"><code>core/.../BaseMetastoreCatalog.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Chapter 11.3 leaves imported tables behind and follows a real Spark write down to the files it produces — where the file count is decided before a byte is written.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_11.1_catalog_wiring/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../chapter_11.3_write_distribution/" class="md-footer__link md-footer__link--next" aria-label="Next: 11.3 The write path in Spark: distribution mode and the small-file problem">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                11.3 The write path in Spark: distribution mode and the small-file problem
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

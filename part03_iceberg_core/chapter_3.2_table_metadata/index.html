@@ -1,0 +1,4107 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part03_iceberg_core/chapter_3.2_table_metadata/">
+      
+      
+        <link rel="prev" href="../chapter_3.1_module_map/">
+      
+      
+        <link rel="next" href="../chapter_3.3_snapshot_producer/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>3.2 `TableMetadata` and `MetadataUpdate` - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-32-tablemetadata-and-metadataupdate" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              3.2 `TableMetadata` and `MetadataUpdate`
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-two-outputs-from-one-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Two outputs from one builder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-buildfrom-copies-everything-including-the-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. buildFrom copies everything, including the log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-every-mutator-does-two-things" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Every mutator does two things
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Every mutator does two things">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-a-ref-is-before-the-method-that-sets-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a ref is, before the method that sets one
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-metadataupdate-the-change-as-an-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. MetadataUpdate: the change as an object
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-haschanges-and-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. hasChanges() and build()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-why-the-log-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Why the log exists
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-two-outputs-from-one-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Two outputs from one builder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-buildfrom-copies-everything-including-the-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. buildFrom copies everything, including the log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-every-mutator-does-two-things" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Every mutator does two things
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Every mutator does two things">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-a-ref-is-before-the-method-that-sets-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a ref is, before the method that sets one
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-metadataupdate-the-change-as-an-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. MetadataUpdate: the change as an object
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-haschanges-and-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. hasChanges() and build()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-why-the-log-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Why the log exists
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 3 · Iceberg Core
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-32-tablemetadata-and-metadataupdate">Chapter 3.2 — <code>TableMetadata</code> and <code>MetadataUpdate</code><a class="headerlink" href="#chapter-32-tablemetadata-and-metadataupdate" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> <code>TableMetadata</code> is immutable, so how does a table ever change — and why does the new object carry a <em>list of the changes</em> that produced it, when the file it will be written to has no field for such a list?</p>
+<p><strong>Prerequisites:</strong> Chapter 2.2 (<code>metadata.json</code> field by field), Chapter 3.1 (the api/core split)</p>
+<p><strong>Source covered:</strong> <code>core/.../TableMetadata.java</code>, <code>core/.../MetadataUpdate.java</code>, <code>core/.../rest/CatalogHandlers.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p><code>TableMetadata</code> is the in-memory form of <code>metadata.json</code>: schemas, partition specs, sort orders, properties, every snapshot, every ref, the metadata log. Chapter 2.2 walked the file. This chapter is about the object, and the object has one property the file does not — nothing you can reach through its public API ever changes value.</p>
+<p>That is the right decision for a format built on optimistic concurrency. A writer holds a <code>TableMetadata</code> for the whole duration of a commit attempt and needs it to be a stable photograph; a reader may be scanning against it on another thread. Nothing may mutate underneath either of them.</p>
+<p>That is almost, but not quite, "every field is final". Five are not: <code>snapshotsSupplier</code>, <code>snapshots</code>, <code>snapshotsById</code>, <code>refs</code> and <code>snapshotsLoaded</code>. They exist for one purpose — a <code>TableMetadata</code> handed over by a REST catalog may arrive with its snapshot list replaced by a supplier, and <code>ensureSnapshotsLoaded()</code> fills the four <code>volatile</code> fields from it on first access, under <code>synchronized</code>, exactly once, then drops the supplier. It is lazy initialisation of a value that was always fixed, not mutation. Section 6 shows the <code>hasChanges()</code> clause that keeps it from being mistaken for a change.</p>
+<p>So a change means constructing a whole new object. <code>TableMetadata.Builder</code> does that. What is not obvious, and is the subject of this chapter, is that the builder produces <strong>two</strong> outputs and only one of them ends up in the file.</p>
+<h2 id="2-two-outputs-from-one-builder">2. Two outputs from one builder<a class="headerlink" href="#2-two-outputs-from-one-builder" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    BASE["base : TableMetadata"] --&gt; BF["buildFrom(base)"] --&gt; B["Builder"]
+    B --&gt;|"mutate fields"| NEW["new TableMetadata&lt;br/&gt;the state"]
+    B --&gt;|"changes.add(...)"| LOG["List of MetadataUpdate&lt;br/&gt;the diff"]
+    NEW --&gt; LOCAL["local commit: write the state&lt;br/&gt;the diff is never serialized&lt;br/&gt;Chapter 3.4"]
+    LOG --&gt; REST["REST commit: send the diff&lt;br/&gt;the state is never sent&lt;br/&gt;Chapter 6.3"]
+    REST --&gt; SRV["CatalogHandlers.commit&lt;br/&gt;update.applyTo(serverBuilder)"]
+    SRV --&gt; NEW2["server's own new TableMetadata"]</code></pre>
+<p>Same builder, two halves, two destinations. A local commit uses the state and throws the diff away. A REST commit sends the diff and throws the state away. Hold onto that shape; sections 6 and 7 are where it pays.</p>
+<h2 id="3-buildfrom-copies-everything-including-the-log">3. <code>buildFrom</code> copies everything, including the log<a class="headerlink" href="#3-buildfrom-copies-everything-including-the-log" title="Permanent link">&para;</a></h2>
+<p>There is no copy-on-write cleverness here. <code>buildFrom(base)</code> is a constructor that walks the base object field by field:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Builder(TableMetadata base)</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-974"> 974</a></span>
+<span class="normal"><a href="#__codelineno-0-975"> 975</a></span>
+<span class="normal"><a href="#__codelineno-0-976"> 976</a></span>
+<span class="normal"><a href="#__codelineno-0-977"> 977</a></span>
+<span class="normal"><a href="#__codelineno-0-978"> 978</a></span>
+<span class="normal"><a href="#__codelineno-0-979"> 979</a></span>
+<span class="normal"><a href="#__codelineno-0-980"> 980</a></span>
+<span class="normal"><a href="#__codelineno-0-981"> 981</a></span>
+<span class="normal"><a href="#__codelineno-0-982"> 982</a></span>
+<span class="normal"><a href="#__codelineno-0-983"> 983</a></span>
+<span class="normal"><a href="#__codelineno-0-984"> 984</a></span>
+<span class="normal"><a href="#__codelineno-0-985"> 985</a></span>
+<span class="normal"><a href="#__codelineno-0-986"> 986</a></span>
+<span class="normal"><a href="#__codelineno-0-987"> 987</a></span>
+<span class="normal"><a href="#__codelineno-0-988"> 988</a></span>
+<span class="normal"><a href="#__codelineno-0-989"> 989</a></span>
+<span class="normal"><a href="#__codelineno-0-990"> 990</a></span>
+<span class="normal"><a href="#__codelineno-0-991"> 991</a></span>
+<span class="normal"><a href="#__codelineno-0-992"> 992</a></span>
+<span class="normal"><a href="#__codelineno-0-993"> 993</a></span>
+<span class="normal"><a href="#__codelineno-0-994"> 994</a></span>
+<span class="normal"><a href="#__codelineno-0-995"> 995</a></span>
+<span class="normal"><a href="#__codelineno-0-996"> 996</a></span>
+<span class="normal"><a href="#__codelineno-0-997"> 997</a></span>
+<span class="normal"><a href="#__codelineno-0-998"> 998</a></span>
+<span class="normal"><a href="#__codelineno-0-999"> 999</a></span>
+<span class="normal"><a href="#__codelineno-0-1000">1000</a></span>
+<span class="normal"><a href="#__codelineno-0-1001">1001</a></span>
+<span class="normal"><a href="#__codelineno-0-1002">1002</a></span>
+<span class="normal"><a href="#__codelineno-0-1003">1003</a></span>
+<span class="normal"><a href="#__codelineno-0-1004">1004</a></span>
+<span class="normal"><a href="#__codelineno-0-1005">1005</a></span>
+<span class="normal"><a href="#__codelineno-0-1006">1006</a></span>
+<span class="normal"><a href="#__codelineno-0-1007">1007</a></span>
+<span class="normal"><a href="#__codelineno-0-1008">1008</a></span>
+<span class="normal"><a href="#__codelineno-0-1009">1009</a></span>
+<span class="normal"><a href="#__codelineno-0-1010">1010</a></span>
+<span class="normal"><a href="#__codelineno-0-1011">1011</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-974"><a id="__codelineno-0-974" name="__codelineno-0-974"></a><span class="kd">private</span><span class="w"> </span><span class="nf">Builder</span><span class="p">(</span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">base</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-975"><a id="__codelineno-0-975" name="__codelineno-0-975"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">;</span>
+</span><span id="__span-0-976"><a id="__codelineno-0-976" name="__codelineno-0-976"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">formatVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">;</span>
+</span><span id="__span-0-977"><a id="__codelineno-0-977" name="__codelineno-0-977"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">uuid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">uuid</span><span class="p">;</span>
+</span><span id="__span-0-978"><a id="__codelineno-0-978" name="__codelineno-0-978"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">lastUpdatedMillis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-0-979"><a id="__codelineno-0-979" name="__codelineno-0-979"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">location</span><span class="p">;</span>
+</span><span id="__span-0-980"><a id="__codelineno-0-980" name="__codelineno-0-980"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">lastSequenceNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">lastSequenceNumber</span><span class="p">;</span>
+</span><span id="__span-0-981"><a id="__codelineno-0-981" name="__codelineno-0-981"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">lastColumnId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">lastColumnId</span><span class="p">;</span>
+</span><span id="__span-0-982"><a id="__codelineno-0-982" name="__codelineno-0-982"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">currentSchemaId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">currentSchemaId</span><span class="p">;</span>
+</span><span id="__span-0-983"><a id="__codelineno-0-983" name="__codelineno-0-983"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">schemas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">schemas</span><span class="p">);</span>
+</span><span id="__span-0-984"><a id="__codelineno-0-984" name="__codelineno-0-984"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">defaultSpecId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">defaultSpecId</span><span class="p">;</span>
+</span><span id="__span-0-985"><a id="__codelineno-0-985" name="__codelineno-0-985"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">specs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">specs</span><span class="p">);</span>
+</span><span id="__span-0-986"><a id="__codelineno-0-986" name="__codelineno-0-986"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">lastAssignedPartitionId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">lastAssignedPartitionId</span><span class="p">;</span>
+</span><span id="__span-0-987"><a id="__codelineno-0-987" name="__codelineno-0-987"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">defaultSortOrderId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">defaultSortOrderId</span><span class="p">;</span>
+</span><span id="__span-0-988"><a id="__codelineno-0-988" name="__codelineno-0-988"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">sortOrders</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">sortOrders</span><span class="p">);</span>
+</span><span id="__span-0-989"><a id="__codelineno-0-989" name="__codelineno-0-989"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Maps</span><span class="p">.</span><span class="na">newHashMap</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">properties</span><span class="p">);</span>
+</span><span id="__span-0-990"><a id="__codelineno-0-990" name="__codelineno-0-990"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">currentSnapshotId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">currentSnapshotId</span><span class="p">;</span>
+</span><span id="__span-0-991"><a id="__codelineno-0-991" name="__codelineno-0-991"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">snapshots</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">snapshots</span><span class="p">());</span>
+</span><span id="__span-0-992"><a id="__codelineno-0-992" name="__codelineno-0-992"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">encryptionKeys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">encryptionKeys</span><span class="p">);</span>
+</span><span id="__span-0-993"><a id="__codelineno-0-993" name="__codelineno-0-993"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">changes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">changes</span><span class="p">);</span>
+</span><span id="__span-0-994"><a id="__codelineno-0-994" name="__codelineno-0-994"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">startingChangeCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">changes</span><span class="p">.</span><span class="na">size</span><span class="p">();</span>
+</span><span id="__span-0-995"><a id="__codelineno-0-995" name="__codelineno-0-995"></a>
+</span><span id="__span-0-996"><a id="__codelineno-0-996" name="__codelineno-0-996"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">snapshotLog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">snapshotLog</span><span class="p">);</span>
+</span><span id="__span-0-997"><a id="__codelineno-0-997" name="__codelineno-0-997"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">previousFileLocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">metadataFileLocation</span><span class="p">;</span>
+</span><span id="__span-0-998"><a id="__codelineno-0-998" name="__codelineno-0-998"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">previousFiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">previousFiles</span><span class="p">;</span>
+</span><span id="__span-0-999"><a id="__codelineno-0-999" name="__codelineno-0-999"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">refs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Maps</span><span class="p">.</span><span class="na">newHashMap</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">refs</span><span class="p">);</span>
+</span><span id="__span-0-1000"><a id="__codelineno-0-1000" name="__codelineno-0-1000"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">statisticsFiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">indexStatistics</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">statisticsFiles</span><span class="p">);</span>
+</span><span id="__span-0-1001"><a id="__codelineno-0-1001" name="__codelineno-0-1001"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">partitionStatisticsFiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">indexPartitionStatistics</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">partitionStatisticsFiles</span><span class="p">);</span>
+</span><span id="__span-0-1002"><a id="__codelineno-0-1002" name="__codelineno-0-1002"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">snapshotsById</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Maps</span><span class="p">.</span><span class="na">newHashMap</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">snapshotsById</span><span class="p">);</span>
+</span><span id="__span-0-1003"><a id="__codelineno-0-1003" name="__codelineno-0-1003"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">schemasById</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Maps</span><span class="p">.</span><span class="na">newHashMap</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">schemasById</span><span class="p">);</span>
+</span><span id="__span-0-1004"><a id="__codelineno-0-1004" name="__codelineno-0-1004"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">specsById</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Maps</span><span class="p">.</span><span class="na">newHashMap</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">specsById</span><span class="p">);</span>
+</span><span id="__span-0-1005"><a id="__codelineno-0-1005" name="__codelineno-0-1005"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">sortOrdersById</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Maps</span><span class="p">.</span><span class="na">newHashMap</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">sortOrdersById</span><span class="p">);</span>
+</span><span id="__span-0-1006"><a id="__codelineno-0-1006" name="__codelineno-0-1006"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">keysById</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-0-1007"><a id="__codelineno-0-1007" name="__codelineno-0-1007"></a><span class="w">      </span><span class="n">encryptionKeys</span><span class="p">.</span><span class="na">stream</span><span class="p">()</span>
+</span><span id="__span-0-1008"><a id="__codelineno-0-1008" name="__codelineno-0-1008"></a><span class="w">          </span><span class="p">.</span><span class="na">collect</span><span class="p">(</span><span class="n">Collectors</span><span class="p">.</span><span class="na">toMap</span><span class="p">(</span><span class="n">EncryptedKey</span><span class="p">::</span><span class="n">keyId</span><span class="p">,</span><span class="w"> </span><span class="n">Function</span><span class="p">.</span><span class="na">identity</span><span class="p">()));</span>
+</span><span id="__span-0-1009"><a id="__codelineno-0-1009" name="__codelineno-0-1009"></a>
+</span><span id="__span-0-1010"><a id="__codelineno-0-1010" name="__codelineno-0-1010"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">nextRowId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">nextRowId</span><span class="p">;</span>
+</span><span id="__span-0-1011"><a id="__codelineno-0-1011" name="__codelineno-0-1011"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L974–L1011](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L974-L1011) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Thirty-eight lines, and exactly one of them is not a copy. The fourth, <code>this.lastUpdatedMillis = null;</code>, is a deliberate reset: a new version of the table is a new point in time, so <code>build()</code> stamps <code>System.currentTimeMillis()</code> into whatever is still null. (<code>withMetadataLocation</code> is the single caller that puts the base value back, and only when the metadata is being attached to the file it already came from.)</p>
+<p>Two of the copies matter more than the rest:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">this</span><span class="p">.</span><span class="na">changes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">changes</span><span class="p">);</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">this</span><span class="p">.</span><span class="na">startingChangeCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">changes</span><span class="p">.</span><span class="na">size</span><span class="p">();</span>
+</span></code></pre></div>
+<p>The builder does not start with an empty change list. It <strong>inherits</strong> the base object's list, then records how long that list already was. <code>startingChangeCount</code> is a watermark separating "changes that arrived with the base" from "changes this builder made".</p>
+<p>That inheritance exists for transactions. A transaction runs several updates in sequence, each building on the metadata the previous one produced, and the accumulated log across all of them is exactly what a multi-update commit has to send. Section 7 shows the receiver.</p>
+<h2 id="4-every-mutator-does-two-things">4. Every mutator does two things<a class="headerlink" href="#4-every-mutator-does-two-things" title="Permanent link">&para;</a></h2>
+<h3 id="what-a-ref-is-before-the-method-that-sets-one">What a ref is, before the method that sets one<a class="headerlink" href="#what-a-ref-is-before-the-method-that-sets-one" title="Permanent link">&para;</a></h3>
+<p>Chapter 1.2 said <code>refs()</code> generalises <code>currentSnapshotId</code> to named branches and tags, and left the detail here. It is one small class:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SnapshotRef — five fields, and the constant that makes one of them special</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-26">26</a></span>
+<span class="normal"><a href="#__codelineno-2-27">27</a></span>
+<span class="normal"><a href="#__codelineno-2-28">28</a></span>
+<span class="normal"><a href="#__codelineno-2-29">29</a></span>
+<span class="normal"><a href="#__codelineno-2-30">30</a></span>
+<span class="normal"><a href="#__codelineno-2-31">31</a></span>
+<span class="normal"><a href="#__codelineno-2-32">32</a></span>
+<span class="normal"><a href="#__codelineno-2-33">33</a></span>
+<span class="normal"><a href="#__codelineno-2-34">34</a></span>
+<span class="normal"><a href="#__codelineno-2-35">35</a></span>
+<span class="normal"><a href="#__codelineno-2-36">36</a></span>
+<span class="normal"><a href="#__codelineno-2-37">37</a></span>
+<span class="normal"><a href="#__codelineno-2-38">38</a></span>
+<span class="normal"><a href="#__codelineno-2-39">39</a></span>
+<span class="normal"><a href="#__codelineno-2-40">40</a></span>
+<span class="normal"><a href="#__codelineno-2-41">41</a></span>
+<span class="normal"><a href="#__codelineno-2-42">42</a></span>
+<span class="normal"><a href="#__codelineno-2-43">43</a></span>
+<span class="normal"><a href="#__codelineno-2-44">44</a></span>
+<span class="normal"><a href="#__codelineno-2-45">45</a></span>
+<span class="normal"><a href="#__codelineno-2-46">46</a></span>
+<span class="normal"><a href="#__codelineno-2-47">47</a></span>
+<span class="normal"><a href="#__codelineno-2-48">48</a></span>
+<span class="normal"><a href="#__codelineno-2-49">49</a></span>
+<span class="normal"><a href="#__codelineno-2-50">50</a></span>
+<span class="normal"><a href="#__codelineno-2-51">51</a></span>
+<span class="normal"><a href="#__codelineno-2-52">52</a></span>
+<span class="normal"><a href="#__codelineno-2-53">53</a></span>
+<span class="normal"><a href="#__codelineno-2-54">54</a></span>
+<span class="normal"><a href="#__codelineno-2-55">55</a></span>
+<span class="normal"><a href="#__codelineno-2-56">56</a></span>
+<span class="normal"><a href="#__codelineno-2-57">57</a></span>
+<span class="normal"><a href="#__codelineno-2-58">58</a></span>
+<span class="normal"><a href="#__codelineno-2-59">59</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SnapshotRef</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">Serializable</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27"></a>
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">MAIN_BRANCH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"main"</span><span class="p">;</span>
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29"></a>
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">snapshotId</span><span class="p">;</span>
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">SnapshotRefType</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Integer</span><span class="w"> </span><span class="n">minSnapshotsToKeep</span><span class="p">;</span>
+</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Long</span><span class="w"> </span><span class="n">maxSnapshotAgeMs</span><span class="p">;</span>
+</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Long</span><span class="w"> </span><span class="n">maxRefAgeMs</span><span class="p">;</span>
+</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35"></a>
+</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="nf">SnapshotRef</span><span class="p">(</span>
+</span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37"></a><span class="w">      </span><span class="kt">long</span><span class="w"> </span><span class="n">snapshotId</span><span class="p">,</span>
+</span><span id="__span-2-38"><a id="__codelineno-2-38" name="__codelineno-2-38"></a><span class="w">      </span><span class="n">SnapshotRefType</span><span class="w"> </span><span class="n">type</span><span class="p">,</span>
+</span><span id="__span-2-39"><a id="__codelineno-2-39" name="__codelineno-2-39"></a><span class="w">      </span><span class="n">Integer</span><span class="w"> </span><span class="n">minSnapshotsToKeep</span><span class="p">,</span>
+</span><span id="__span-2-40"><a id="__codelineno-2-40" name="__codelineno-2-40"></a><span class="w">      </span><span class="n">Long</span><span class="w"> </span><span class="n">maxSnapshotAgeMs</span><span class="p">,</span>
+</span><span id="__span-2-41"><a id="__codelineno-2-41" name="__codelineno-2-41"></a><span class="w">      </span><span class="n">Long</span><span class="w"> </span><span class="n">maxRefAgeMs</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-42"><a id="__codelineno-2-42" name="__codelineno-2-42"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">snapshotId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">snapshotId</span><span class="p">;</span>
+</span><span id="__span-2-43"><a id="__codelineno-2-43" name="__codelineno-2-43"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+</span><span id="__span-2-44"><a id="__codelineno-2-44" name="__codelineno-2-44"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">minSnapshotsToKeep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">minSnapshotsToKeep</span><span class="p">;</span>
+</span><span id="__span-2-45"><a id="__codelineno-2-45" name="__codelineno-2-45"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">maxSnapshotAgeMs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxSnapshotAgeMs</span><span class="p">;</span>
+</span><span id="__span-2-46"><a id="__codelineno-2-46" name="__codelineno-2-46"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">maxRefAgeMs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxRefAgeMs</span><span class="p">;</span>
+</span><span id="__span-2-47"><a id="__codelineno-2-47" name="__codelineno-2-47"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-48"><a id="__codelineno-2-48" name="__codelineno-2-48"></a>
+</span><span id="__span-2-49"><a id="__codelineno-2-49" name="__codelineno-2-49"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="nf">snapshotId</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-50"><a id="__codelineno-2-50" name="__codelineno-2-50"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">snapshotId</span><span class="p">;</span>
+</span><span id="__span-2-51"><a id="__codelineno-2-51" name="__codelineno-2-51"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-52"><a id="__codelineno-2-52" name="__codelineno-2-52"></a>
+</span><span id="__span-2-53"><a id="__codelineno-2-53" name="__codelineno-2-53"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">SnapshotRefType</span><span class="w"> </span><span class="nf">type</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-54"><a id="__codelineno-2-54" name="__codelineno-2-54"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+</span><span id="__span-2-55"><a id="__codelineno-2-55" name="__codelineno-2-55"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-56"><a id="__codelineno-2-56" name="__codelineno-2-56"></a>
+</span><span id="__span-2-57"><a id="__codelineno-2-57" name="__codelineno-2-57"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">isBranch</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-58"><a id="__codelineno-2-58" name="__codelineno-2-58"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SnapshotRefType</span><span class="p">.</span><span class="na">BRANCH</span><span class="p">;</span>
+</span><span id="__span-2-59"><a id="__codelineno-2-59" name="__codelineno-2-59"></a><span class="w">  </span><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/SnapshotRef.java` L26–L60](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/SnapshotRef.java#L26-L60) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>A snapshot id, a <code>SnapshotRefType</code> that is <code>BRANCH</code> or <code>TAG</code>, and three nullable retention fields. <code>MAIN_BRANCH = "main"</code> is a plain string constant; nothing in the type marks the main branch as different, which is why the special-casing below is in the <em>builder</em> rather than in the ref.</p>
+<p>The three retention fields are where branch and tag stop being the same thing, and <code>SnapshotRef.Builder</code> is where the difference is enforced. <code>maxRefAgeMs</code> takes any positive value on either kind — it governs how long the ref itself survives. The other two are branch-only, and the builder refuses them by name: <code>minSnapshotsToKeep</code> and <code>maxSnapshotAgeMs</code> each open with a <code>Preconditions.checkArgument</code> on <code>value == null || !type.equals(SnapshotRefType.TAG)</code>, failing with <em>"Tags do not support setting minSnapshotsToKeep"</em> and <em>"Tags do not support setting maxSnapshotAgeMs"</em>.</p>
+<p>The asymmetry follows from what the two are for. A branch accumulates history, so it needs a policy saying how much of that history expiry must leave alone. A tag names one snapshot and never moves, so "keep the last N snapshots on it" has no referent to be a policy about.</p>
+<p>That is the whole difference in the format. A tag is a branch that may not move and may not retain — and <code>isBranch()</code> is the one-line test every caller uses, because the <code>type</code> field is the only thing separating them.</p>
+<p>Nearly every builder method changes state and describes what it changed in the same breath. <code>setRef</code> is the specimen — it is the method behind every branch move, and therefore behind every commit in Chapter 3.3:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Builder.setRef()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1308">1308</a></span>
+<span class="normal"><a href="#__codelineno-3-1309">1309</a></span>
+<span class="normal"><a href="#__codelineno-3-1310">1310</a></span>
+<span class="normal"><a href="#__codelineno-3-1311">1311</a></span>
+<span class="normal"><a href="#__codelineno-3-1312">1312</a></span>
+<span class="normal"><a href="#__codelineno-3-1313">1313</a></span>
+<span class="normal"><a href="#__codelineno-3-1314">1314</a></span>
+<span class="normal"><a href="#__codelineno-3-1315">1315</a></span>
+<span class="normal"><a href="#__codelineno-3-1316">1316</a></span>
+<span class="normal"><a href="#__codelineno-3-1317">1317</a></span>
+<span class="normal"><a href="#__codelineno-3-1318">1318</a></span>
+<span class="normal"><a href="#__codelineno-3-1319">1319</a></span>
+<span class="normal"><a href="#__codelineno-3-1320">1320</a></span>
+<span class="normal"><a href="#__codelineno-3-1321">1321</a></span>
+<span class="normal"><a href="#__codelineno-3-1322">1322</a></span>
+<span class="normal"><a href="#__codelineno-3-1323">1323</a></span>
+<span class="normal"><a href="#__codelineno-3-1324">1324</a></span>
+<span class="normal"><a href="#__codelineno-3-1325">1325</a></span>
+<span class="normal"><a href="#__codelineno-3-1326">1326</a></span>
+<span class="normal"><a href="#__codelineno-3-1327">1327</a></span>
+<span class="normal"><a href="#__codelineno-3-1328">1328</a></span>
+<span class="normal"><a href="#__codelineno-3-1329">1329</a></span>
+<span class="normal"><a href="#__codelineno-3-1330">1330</a></span>
+<span class="normal"><a href="#__codelineno-3-1331">1331</a></span>
+<span class="normal"><a href="#__codelineno-3-1332">1332</a></span>
+<span class="normal"><a href="#__codelineno-3-1333">1333</a></span>
+<span class="normal"><a href="#__codelineno-3-1334">1334</a></span>
+<span class="normal"><a href="#__codelineno-3-1335">1335</a></span>
+<span class="normal"><a href="#__codelineno-3-1336">1336</a></span>
+<span class="normal"><a href="#__codelineno-3-1337">1337</a></span>
+<span class="normal"><a href="#__codelineno-3-1338">1338</a></span>
+<span class="normal"><a href="#__codelineno-3-1339">1339</a></span>
+<span class="normal"><a href="#__codelineno-3-1340">1340</a></span>
+<span class="normal"><a href="#__codelineno-3-1341">1341</a></span>
+<span class="normal"><a href="#__codelineno-3-1342">1342</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1308"><a id="__codelineno-3-1308" name="__codelineno-3-1308"></a><span class="kd">public</span><span class="w"> </span><span class="n">Builder</span><span class="w"> </span><span class="nf">setRef</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">SnapshotRef</span><span class="w"> </span><span class="n">ref</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1309"><a id="__codelineno-3-1309" name="__codelineno-3-1309"></a><span class="w">  </span><span class="n">SnapshotRef</span><span class="w"> </span><span class="n">existingRef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">refs</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+</span><span id="__span-3-1310"><a id="__codelineno-3-1310" name="__codelineno-3-1310"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">existingRef</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">existingRef</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">ref</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1311"><a id="__codelineno-3-1311" name="__codelineno-3-1311"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span>
+</span><span id="__span-3-1312"><a id="__codelineno-3-1312" name="__codelineno-3-1312"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-1313"><a id="__codelineno-3-1313" name="__codelineno-3-1313"></a>
+</span><span id="__span-3-1314"><a id="__codelineno-3-1314" name="__codelineno-3-1314"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">snapshotId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">();</span>
+</span><span id="__span-3-1315"><a id="__codelineno-3-1315" name="__codelineno-3-1315"></a><span class="w">  </span><span class="n">Snapshot</span><span class="w"> </span><span class="n">snapshot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">snapshotsById</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">snapshotId</span><span class="p">);</span>
+</span><span id="__span-3-1316"><a id="__codelineno-3-1316" name="__codelineno-3-1316"></a><span class="w">  </span><span class="n">ValidationException</span><span class="p">.</span><span class="na">check</span><span class="p">(</span>
+</span><span id="__span-3-1317"><a id="__codelineno-3-1317" name="__codelineno-3-1317"></a><span class="w">      </span><span class="n">snapshot</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="s">"Cannot set %s to unknown snapshot: %s"</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">snapshotId</span><span class="p">);</span>
+</span><span id="__span-3-1318"><a id="__codelineno-3-1318" name="__codelineno-3-1318"></a>
+</span><span id="__span-3-1319"><a id="__codelineno-3-1319" name="__codelineno-3-1319"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SnapshotRef</span><span class="p">.</span><span class="na">MAIN_BRANCH</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">name</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1320"><a id="__codelineno-3-1320" name="__codelineno-3-1320"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentSnapshotId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">();</span>
+</span><span id="__span-3-1321"><a id="__codelineno-3-1321" name="__codelineno-3-1321"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lastUpdatedMillis</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-1322"><a id="__codelineno-3-1322" name="__codelineno-3-1322"></a><span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="na">lastUpdatedMillis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">();</span>
+</span><span id="__span-3-1323"><a id="__codelineno-3-1323" name="__codelineno-3-1323"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-1324"><a id="__codelineno-3-1324" name="__codelineno-3-1324"></a>
+</span><span id="__span-3-1325"><a id="__codelineno-3-1325" name="__codelineno-3-1325"></a><span class="w">    </span><span class="c1">// rollback to an existing snapshot will use current timestamp as the time of the change</span>
+</span><span id="__span-3-1326"><a id="__codelineno-3-1326" name="__codelineno-3-1326"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">timeOfChange</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-1327"><a id="__codelineno-3-1327" name="__codelineno-3-1327"></a><span class="w">        </span><span class="n">isAddedSnapshot</span><span class="p">(</span><span class="n">snapshotId</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">snapshot</span><span class="p">.</span><span class="na">timestampMillis</span><span class="p">()</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">lastUpdatedMillis</span><span class="p">;</span>
+</span><span id="__span-3-1328"><a id="__codelineno-3-1328" name="__codelineno-3-1328"></a><span class="w">    </span><span class="n">snapshotLog</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SnapshotLogEntry</span><span class="p">(</span><span class="n">timeOfChange</span><span class="p">,</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">()));</span>
+</span><span id="__span-3-1329"><a id="__codelineno-3-1329" name="__codelineno-3-1329"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-1330"><a id="__codelineno-3-1330" name="__codelineno-3-1330"></a>
+</span><span id="__span-3-1331"><a id="__codelineno-3-1331" name="__codelineno-3-1331"></a><span class="w">  </span><span class="n">refs</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">ref</span><span class="p">);</span>
+</span><span id="__span-3-1332"><a id="__codelineno-3-1332" name="__codelineno-3-1332"></a><span class="w">  </span><span class="n">MetadataUpdate</span><span class="p">.</span><span class="na">SetSnapshotRef</span><span class="w"> </span><span class="n">refUpdate</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-1333"><a id="__codelineno-3-1333" name="__codelineno-3-1333"></a><span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">MetadataUpdate</span><span class="p">.</span><span class="na">SetSnapshotRef</span><span class="p">(</span>
+</span><span id="__span-3-1334"><a id="__codelineno-3-1334" name="__codelineno-3-1334"></a><span class="w">          </span><span class="n">name</span><span class="p">,</span>
+</span><span id="__span-3-1335"><a id="__codelineno-3-1335" name="__codelineno-3-1335"></a><span class="w">          </span><span class="n">ref</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">(),</span>
+</span><span id="__span-3-1336"><a id="__codelineno-3-1336" name="__codelineno-3-1336"></a><span class="w">          </span><span class="n">ref</span><span class="p">.</span><span class="na">type</span><span class="p">(),</span>
+</span><span id="__span-3-1337"><a id="__codelineno-3-1337" name="__codelineno-3-1337"></a><span class="w">          </span><span class="n">ref</span><span class="p">.</span><span class="na">minSnapshotsToKeep</span><span class="p">(),</span>
+</span><span id="__span-3-1338"><a id="__codelineno-3-1338" name="__codelineno-3-1338"></a><span class="w">          </span><span class="n">ref</span><span class="p">.</span><span class="na">maxSnapshotAgeMs</span><span class="p">(),</span>
+</span><span id="__span-3-1339"><a id="__codelineno-3-1339" name="__codelineno-3-1339"></a><span class="w">          </span><span class="n">ref</span><span class="p">.</span><span class="na">maxRefAgeMs</span><span class="p">());</span>
+</span><span id="__span-3-1340"><a id="__codelineno-3-1340" name="__codelineno-3-1340"></a><span class="w">  </span><span class="n">changes</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">refUpdate</span><span class="p">);</span>
+</span><span id="__span-3-1341"><a id="__codelineno-3-1341" name="__codelineno-3-1341"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span>
+</span><span id="__span-3-1342"><a id="__codelineno-3-1342" name="__codelineno-3-1342"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L1308–L1342](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L1308-L1342) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Four things happen in order, and only the third is the "real" work.</p>
+<p><strong>It short-circuits an identity change.</strong> <code>if (existingRef != null &amp;&amp; existingRef.equals(ref)) return this;</code> — setting a ref to what it already is records nothing. This is one of the paths that lets <code>build()</code> return the base object unchanged, which Chapter 3.3 relies on when it declines to commit a no-op.</p>
+<p><strong>It special-cases <code>main</code>.</strong> Moving the main branch also sets <code>currentSnapshotId</code> and appends a <code>SnapshotLogEntry</code>. The timestamp chosen for that entry is worth reading twice: <code>isAddedSnapshot(snapshotId) ? snapshot.timestampMillis() : this.lastUpdatedMillis</code>. A brand new snapshot logs its own creation time; a <em>rollback</em> to an existing snapshot logs the time of the rollback, because that is when the change happened.</p>
+<p><strong>It mutates.</strong> <code>refs.put(name, ref)</code>.</p>
+<p><strong>It records.</strong> <code>changes.add(refUpdate)</code> with a fully populated <code>MetadataUpdate.SetSnapshotRef</code> — name, snapshot ID, type, and all three retention fields. Enough information to replay the operation somewhere else, which is the whole point.</p>
+<p>Twenty-odd other mutators follow the identical shape: <code>assignUUID</code>, <code>upgradeFormatVersion</code>, <code>setCurrentSchema</code>, <code>addSnapshot</code>, <code>removeRef</code>, <code>setProperties</code>, <code>setLocation</code>, <code>addEncryptionKey</code>.</p>
+<p>There is one method that breaks the shape, and upstream documents it as a break. <code>suppressHistoricalSnapshots()</code> drops from the builder every snapshot no ref points at — and adds no <code>RemoveSnapshots</code> change for any of them. Its javadoc is explicit: <em>"Note that the snapshots are not considered removed from metadata and no RemoveSnapshot changes are created."</em> Its one production caller is a REST server answering a load request in <code>REFS</code> snapshot mode, sending the client only the snapshots its refs name. Nothing was removed from the table, so there is nothing to replay; what changed is which snapshots this copy carries. Section 6 shows how <code>hasChanges()</code> accounts for a change that produced no <code>MetadataUpdate</code>.</p>
+<p>The other way to change a <code>TableMetadata</code> without leaving a trace is to not go through the builder at all — which is exactly what deserialization does, and section 6 has the precondition that keeps those two worlds from mixing.</p>
+<h2 id="5-metadataupdate-the-change-as-an-object">5. <code>MetadataUpdate</code>: the change as an object<a class="headerlink" href="#5-metadataupdate-the-change-as-an-object" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">MetadataUpdate, and AssignUUID as the pattern</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-30">30</a></span>
+<span class="normal"><a href="#__codelineno-4-31">31</a></span>
+<span class="normal"><a href="#__codelineno-4-32">32</a></span>
+<span class="normal"><a href="#__codelineno-4-33">33</a></span>
+<span class="normal"><a href="#__codelineno-4-34">34</a></span>
+<span class="normal"><a href="#__codelineno-4-35">35</a></span>
+<span class="normal"><a href="#__codelineno-4-36">36</a></span>
+<span class="normal"><a href="#__codelineno-4-37">37</a></span>
+<span class="normal"><a href="#__codelineno-4-38">38</a></span>
+<span class="normal"><a href="#__codelineno-4-39">39</a></span>
+<span class="normal"><a href="#__codelineno-4-40">40</a></span>
+<span class="normal"><a href="#__codelineno-4-41">41</a></span>
+<span class="normal"><a href="#__codelineno-4-42">42</a></span>
+<span class="normal"><a href="#__codelineno-4-43">43</a></span>
+<span class="normal"><a href="#__codelineno-4-44">44</a></span>
+<span class="normal"><a href="#__codelineno-4-45">45</a></span>
+<span class="normal"><a href="#__codelineno-4-46">46</a></span>
+<span class="normal"><a href="#__codelineno-4-47">47</a></span>
+<span class="normal"><a href="#__codelineno-4-48">48</a></span>
+<span class="normal"><a href="#__codelineno-4-49">49</a></span>
+<span class="normal"><a href="#__codelineno-4-50">50</a></span>
+<span class="normal"><a href="#__codelineno-4-51">51</a></span>
+<span class="normal"><a href="#__codelineno-4-52">52</a></span>
+<span class="normal"><a href="#__codelineno-4-53">53</a></span>
+<span class="normal"><a href="#__codelineno-4-54">54</a></span>
+<span class="normal"><a href="#__codelineno-4-55">55</a></span>
+<span class="normal"><a href="#__codelineno-4-56">56</a></span>
+<span class="normal"><a href="#__codelineno-4-57">57</a></span>
+<span class="normal"><a href="#__codelineno-4-58">58</a></span>
+<span class="normal"><a href="#__codelineno-4-59">59</a></span>
+<span class="normal"><a href="#__codelineno-4-60">60</a></span>
+<span class="normal"><a href="#__codelineno-4-61">61</a></span>
+<span class="normal"><a href="#__codelineno-4-62">62</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30"></a><span class="cm">/** Represents a change to table or view metadata. */</span>
+</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31"></a><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">MetadataUpdate</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Serializable</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-32"><a id="__codelineno-4-32" name="__codelineno-4-32"></a><span class="w">  </span><span class="k">default</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">applyTo</span><span class="p">(</span><span class="n">TableMetadata</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="n">metadataBuilder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-33"><a id="__codelineno-4-33" name="__codelineno-4-33"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UnsupportedOperationException</span><span class="p">(</span>
+</span><span id="__span-4-34"><a id="__codelineno-4-34" name="__codelineno-4-34"></a><span class="w">        </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"Cannot apply update %s to a table"</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">getClass</span><span class="p">().</span><span class="na">getSimpleName</span><span class="p">()));</span>
+</span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36"></a>
+</span><span id="__span-4-37"><a id="__codelineno-4-37" name="__codelineno-4-37"></a><span class="w">  </span><span class="k">default</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">applyTo</span><span class="p">(</span><span class="n">ViewMetadata</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="n">viewMetadataBuilder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-38"><a id="__codelineno-4-38" name="__codelineno-4-38"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UnsupportedOperationException</span><span class="p">(</span>
+</span><span id="__span-4-39"><a id="__codelineno-4-39" name="__codelineno-4-39"></a><span class="w">        </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"Cannot apply update %s to a view"</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">getClass</span><span class="p">().</span><span class="na">getSimpleName</span><span class="p">()));</span>
+</span><span id="__span-4-40"><a id="__codelineno-4-40" name="__codelineno-4-40"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-41"><a id="__codelineno-4-41" name="__codelineno-4-41"></a>
+</span><span id="__span-4-42"><a id="__codelineno-4-42" name="__codelineno-4-42"></a><span class="w">  </span><span class="kd">class</span> <span class="nc">AssignUUID</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">MetadataUpdate</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-43"><a id="__codelineno-4-43" name="__codelineno-4-43"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">uuid</span><span class="p">;</span>
+</span><span id="__span-4-44"><a id="__codelineno-4-44" name="__codelineno-4-44"></a>
+</span><span id="__span-4-45"><a id="__codelineno-4-45" name="__codelineno-4-45"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">AssignUUID</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">uuid</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-46"><a id="__codelineno-4-46" name="__codelineno-4-46"></a><span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="na">uuid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uuid</span><span class="p">;</span>
+</span><span id="__span-4-47"><a id="__codelineno-4-47" name="__codelineno-4-47"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-48"><a id="__codelineno-4-48" name="__codelineno-4-48"></a>
+</span><span id="__span-4-49"><a id="__codelineno-4-49" name="__codelineno-4-49"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">uuid</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-50"><a id="__codelineno-4-50" name="__codelineno-4-50"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">uuid</span><span class="p">;</span>
+</span><span id="__span-4-51"><a id="__codelineno-4-51" name="__codelineno-4-51"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-52"><a id="__codelineno-4-52" name="__codelineno-4-52"></a>
+</span><span id="__span-4-53"><a id="__codelineno-4-53" name="__codelineno-4-53"></a><span class="w">    </span><span class="nd">@Override</span>
+</span><span id="__span-4-54"><a id="__codelineno-4-54" name="__codelineno-4-54"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">applyTo</span><span class="p">(</span><span class="n">TableMetadata</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="n">metadataBuilder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-55"><a id="__codelineno-4-55" name="__codelineno-4-55"></a><span class="w">      </span><span class="n">metadataBuilder</span><span class="p">.</span><span class="na">assignUUID</span><span class="p">(</span><span class="n">uuid</span><span class="p">);</span>
+</span><span id="__span-4-56"><a id="__codelineno-4-56" name="__codelineno-4-56"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-57"><a id="__codelineno-4-57" name="__codelineno-4-57"></a>
+</span><span id="__span-4-58"><a id="__codelineno-4-58" name="__codelineno-4-58"></a><span class="w">    </span><span class="nd">@Override</span>
+</span><span id="__span-4-59"><a id="__codelineno-4-59" name="__codelineno-4-59"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">applyTo</span><span class="p">(</span><span class="n">ViewMetadata</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="n">metadataBuilder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-60"><a id="__codelineno-4-60" name="__codelineno-4-60"></a><span class="w">      </span><span class="n">metadataBuilder</span><span class="p">.</span><span class="na">assignUUID</span><span class="p">(</span><span class="n">uuid</span><span class="p">);</span>
+</span><span id="__span-4-61"><a id="__codelineno-4-61" name="__codelineno-4-61"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-62"><a id="__codelineno-4-62" name="__codelineno-4-62"></a><span class="w">  </span><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MetadataUpdate.java` L30–L62](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetadataUpdate.java#L30-L62) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The interface has two <code>applyTo</code> overloads — one for a table builder, one for a view builder — and both defaults throw <code>UnsupportedOperationException</code> naming the class that could not be applied. This is a hand-rolled visitor. A <code>MetadataUpdate</code> is not a passive record of what happened; it is the <em>inverse</em> of the builder mutator, able to reapply itself to any builder it is handed.</p>
+<p><code>AssignUUID</code> implements both overloads because a UUID means the same thing to a table and to a view. <code>SetCurrentSchema</code> implements only the table one and inherits the throwing default for views — the type system does not separate table updates from view updates, so the failure is deferred to runtime and made loud.</p>
+<p>There are 25 implementations in the file. They group cleanly:</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><strong>Identity and location</strong></p>
+<p><code>AssignUUID</code>, <code>UpgradeFormatVersion</code>, <code>SetLocation</code>, <code>SetProperties</code>, <code>RemoveProperties</code></p>
+</li>
+<li>
+<p><strong>Schema, spec, sort order</strong></p>
+<p><code>AddSchema</code>, <code>SetCurrentSchema</code>, <code>AddPartitionSpec</code>, <code>SetDefaultPartitionSpec</code>, <code>RemovePartitionSpecs</code>, <code>RemoveSchemas</code>, <code>AddSortOrder</code>, <code>SetDefaultSortOrder</code></p>
+</li>
+<li>
+<p><strong>Snapshots and refs</strong></p>
+<p><code>AddSnapshot</code>, <code>RemoveSnapshots</code>, <code>SetSnapshotRef</code>, <code>RemoveSnapshotRef</code></p>
+</li>
+<li>
+<p><strong>Statistics, keys, views</strong></p>
+<p><code>SetStatistics</code>, <code>RemoveStatistics</code>, <code>SetPartitionStatistics</code>, <code>RemovePartitionStatistics</code>, <code>AddEncryptionKey</code>, <code>RemoveEncryptionKey</code>, <code>AddViewVersion</code>, <code>SetCurrentViewVersion</code></p>
+</li>
+</ul>
+</div>
+<h2 id="6-haschanges-and-build">6. <code>hasChanges()</code> and <code>build()</code><a class="headerlink" href="#6-haschanges-and-build" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Builder.hasChanges()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1526">1526</a></span>
+<span class="normal"><a href="#__codelineno-5-1527">1527</a></span>
+<span class="normal"><a href="#__codelineno-5-1528">1528</a></span>
+<span class="normal"><a href="#__codelineno-5-1529">1529</a></span>
+<span class="normal"><a href="#__codelineno-5-1530">1530</a></span>
+<span class="normal"><a href="#__codelineno-5-1531">1531</a></span>
+<span class="normal"><a href="#__codelineno-5-1532">1532</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1526"><a id="__codelineno-5-1526" name="__codelineno-5-1526"></a><span class="kd">private</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">hasChanges</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-1527"><a id="__codelineno-5-1527" name="__codelineno-5-1527"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">changes</span><span class="p">.</span><span class="na">size</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">startingChangeCount</span>
+</span><span id="__span-5-1528"><a id="__codelineno-5-1528" name="__codelineno-5-1528"></a><span class="w">      </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">discardChanges</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">changes</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span>
+</span><span id="__span-5-1529"><a id="__codelineno-5-1529" name="__codelineno-5-1529"></a><span class="w">      </span><span class="o">||</span><span class="w"> </span><span class="n">metadataLocation</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-5-1530"><a id="__codelineno-5-1530" name="__codelineno-5-1530"></a><span class="w">      </span><span class="o">||</span><span class="w"> </span><span class="n">suppressHistoricalSnapshots</span>
+</span><span id="__span-5-1531"><a id="__codelineno-5-1531" name="__codelineno-5-1531"></a><span class="w">      </span><span class="o">||</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">snapshotsSupplier</span><span class="p">;</span>
+</span><span id="__span-5-1532"><a id="__codelineno-5-1532" name="__codelineno-5-1532"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L1526–L1532](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L1526-L1532) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The first clause is the watermark comparison from section 3 — not <code>changes.isEmpty()</code>, which would be wrong for any builder that inherited a log. The other four clauses cover changes that produce no <code>MetadataUpdate</code> at all: attaching a metadata file location, suppressing historical snapshots, installing a lazy snapshot supplier.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Builder.build()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1534">1534</a></span>
+<span class="normal"><a href="#__codelineno-6-1535">1535</a></span>
+<span class="normal"><a href="#__codelineno-6-1536">1536</a></span>
+<span class="normal"><a href="#__codelineno-6-1537">1537</a></span>
+<span class="normal"><a href="#__codelineno-6-1538">1538</a></span>
+<span class="normal"><a href="#__codelineno-6-1539">1539</a></span>
+<span class="normal"><a href="#__codelineno-6-1540">1540</a></span>
+<span class="normal"><a href="#__codelineno-6-1541">1541</a></span>
+<span class="normal"><a href="#__codelineno-6-1542">1542</a></span>
+<span class="normal"><a href="#__codelineno-6-1543">1543</a></span>
+<span class="normal"><a href="#__codelineno-6-1544">1544</a></span>
+<span class="normal"><a href="#__codelineno-6-1545">1545</a></span>
+<span class="normal"><a href="#__codelineno-6-1546">1546</a></span>
+<span class="normal"><a href="#__codelineno-6-1547">1547</a></span>
+<span class="normal"><a href="#__codelineno-6-1548">1548</a></span>
+<span class="normal"><a href="#__codelineno-6-1549">1549</a></span>
+<span class="normal"><a href="#__codelineno-6-1550">1550</a></span>
+<span class="normal"><a href="#__codelineno-6-1551">1551</a></span>
+<span class="normal"><a href="#__codelineno-6-1552">1552</a></span>
+<span class="normal"><a href="#__codelineno-6-1553">1553</a></span>
+<span class="normal"><a href="#__codelineno-6-1554">1554</a></span>
+<span class="normal"><a href="#__codelineno-6-1555">1555</a></span>
+<span class="normal"><a href="#__codelineno-6-1556">1556</a></span>
+<span class="normal"><a href="#__codelineno-6-1557">1557</a></span>
+<span class="normal"><a href="#__codelineno-6-1558">1558</a></span>
+<span class="normal"><a href="#__codelineno-6-1559">1559</a></span>
+<span class="normal"><a href="#__codelineno-6-1560">1560</a></span>
+<span class="normal"><a href="#__codelineno-6-1561">1561</a></span>
+<span class="normal"><a href="#__codelineno-6-1562">1562</a></span>
+<span class="normal"><a href="#__codelineno-6-1563">1563</a></span>
+<span class="normal"><a href="#__codelineno-6-1564">1564</a></span>
+<span class="normal"><a href="#__codelineno-6-1565">1565</a></span>
+<span class="normal"><a href="#__codelineno-6-1566">1566</a></span>
+<span class="normal"><a href="#__codelineno-6-1567">1567</a></span>
+<span class="normal"><a href="#__codelineno-6-1568">1568</a></span>
+<span class="normal"><a href="#__codelineno-6-1569">1569</a></span>
+<span class="normal"><a href="#__codelineno-6-1570">1570</a></span>
+<span class="normal"><a href="#__codelineno-6-1571">1571</a></span>
+<span class="normal"><a href="#__codelineno-6-1572">1572</a></span>
+<span class="normal"><a href="#__codelineno-6-1573">1573</a></span>
+<span class="normal"><a href="#__codelineno-6-1574">1574</a></span>
+<span class="normal"><a href="#__codelineno-6-1575">1575</a></span>
+<span class="normal"><a href="#__codelineno-6-1576">1576</a></span>
+<span class="normal"><a href="#__codelineno-6-1577">1577</a></span>
+<span class="normal"><a href="#__codelineno-6-1578">1578</a></span>
+<span class="normal"><a href="#__codelineno-6-1579">1579</a></span>
+<span class="normal"><a href="#__codelineno-6-1580">1580</a></span>
+<span class="normal"><a href="#__codelineno-6-1581">1581</a></span>
+<span class="normal"><a href="#__codelineno-6-1582">1582</a></span>
+<span class="normal"><a href="#__codelineno-6-1583">1583</a></span>
+<span class="normal"><a href="#__codelineno-6-1584">1584</a></span>
+<span class="normal"><a href="#__codelineno-6-1585">1585</a></span>
+<span class="normal"><a href="#__codelineno-6-1586">1586</a></span>
+<span class="normal"><a href="#__codelineno-6-1587">1587</a></span>
+<span class="normal"><a href="#__codelineno-6-1588">1588</a></span>
+<span class="normal"><a href="#__codelineno-6-1589">1589</a></span>
+<span class="normal"><a href="#__codelineno-6-1590">1590</a></span>
+<span class="normal"><a href="#__codelineno-6-1591">1591</a></span>
+<span class="normal"><a href="#__codelineno-6-1592">1592</a></span>
+<span class="normal"><a href="#__codelineno-6-1593">1593</a></span>
+<span class="normal"><a href="#__codelineno-6-1594">1594</a></span>
+<span class="normal"><a href="#__codelineno-6-1595">1595</a></span>
+<span class="normal"><a href="#__codelineno-6-1596">1596</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1534"><a id="__codelineno-6-1534" name="__codelineno-6-1534"></a><span class="kd">public</span><span class="w"> </span><span class="n">TableMetadata</span><span class="w"> </span><span class="nf">build</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-1535"><a id="__codelineno-6-1535" name="__codelineno-6-1535"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">hasChanges</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-1536"><a id="__codelineno-6-1536" name="__codelineno-6-1536"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">base</span><span class="p">;</span>
+</span><span id="__span-6-1537"><a id="__codelineno-6-1537" name="__codelineno-6-1537"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-1538"><a id="__codelineno-6-1538" name="__codelineno-6-1538"></a>
+</span><span id="__span-6-1539"><a id="__codelineno-6-1539" name="__codelineno-6-1539"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lastUpdatedMillis</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-1540"><a id="__codelineno-6-1540" name="__codelineno-6-1540"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">lastUpdatedMillis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">();</span>
+</span><span id="__span-6-1541"><a id="__codelineno-6-1541" name="__codelineno-6-1541"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-1542"><a id="__codelineno-6-1542" name="__codelineno-6-1542"></a>
+</span><span id="__span-6-1543"><a id="__codelineno-6-1543" name="__codelineno-6-1543"></a><span class="w">  </span><span class="c1">// when associated with a metadata file, table metadata must have no changes so that the</span>
+</span><span id="__span-6-1544"><a id="__codelineno-6-1544" name="__codelineno-6-1544"></a><span class="w">  </span><span class="c1">// metadata matches exactly</span>
+</span><span id="__span-6-1545"><a id="__codelineno-6-1545" name="__codelineno-6-1545"></a><span class="w">  </span><span class="c1">// what is in the metadata file, which does not store changes. metadata location with changes</span>
+</span><span id="__span-6-1546"><a id="__codelineno-6-1546" name="__codelineno-6-1546"></a><span class="w">  </span><span class="c1">// is inconsistent.</span>
+</span><span id="__span-6-1547"><a id="__codelineno-6-1547" name="__codelineno-6-1547"></a><span class="w">  </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-6-1548"><a id="__codelineno-6-1548" name="__codelineno-6-1548"></a><span class="w">      </span><span class="n">changes</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">discardChanges</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">metadataLocation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-6-1549"><a id="__codelineno-6-1549" name="__codelineno-6-1549"></a><span class="w">      </span><span class="s">"Cannot set metadata location with changes to table metadata: %s changes"</span><span class="p">,</span>
+</span><span id="__span-6-1550"><a id="__codelineno-6-1550" name="__codelineno-6-1550"></a><span class="w">      </span><span class="n">changes</span><span class="p">.</span><span class="na">size</span><span class="p">());</span>
+</span><span id="__span-6-1551"><a id="__codelineno-6-1551" name="__codelineno-6-1551"></a>
+</span><span id="__span-6-1552"><a id="__codelineno-6-1552" name="__codelineno-6-1552"></a><span class="w">  </span><span class="n">Schema</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">schemasById</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">currentSchemaId</span><span class="p">);</span>
+</span><span id="__span-6-1553"><a id="__codelineno-6-1553" name="__codelineno-6-1553"></a><span class="w">  </span><span class="n">PartitionSpec</span><span class="p">.</span><span class="na">checkCompatibility</span><span class="p">(</span><span class="n">specsById</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">defaultSpecId</span><span class="p">),</span><span class="w"> </span><span class="n">schema</span><span class="p">);</span>
+</span><span id="__span-6-1554"><a id="__codelineno-6-1554" name="__codelineno-6-1554"></a><span class="w">  </span><span class="n">SortOrder</span><span class="p">.</span><span class="na">checkCompatibility</span><span class="p">(</span><span class="n">sortOrdersById</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">defaultSortOrderId</span><span class="p">),</span><span class="w"> </span><span class="n">schema</span><span class="p">);</span>
+</span><span id="__span-6-1555"><a id="__codelineno-6-1555" name="__codelineno-6-1555"></a>
+</span><span id="__span-6-1556"><a id="__codelineno-6-1556" name="__codelineno-6-1556"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">MetadataLogEntry</span><span class="o">&gt;</span><span class="w"> </span><span class="n">metadataHistory</span><span class="p">;</span>
+</span><span id="__span-6-1557"><a id="__codelineno-6-1557" name="__codelineno-6-1557"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-1558"><a id="__codelineno-6-1558" name="__codelineno-6-1558"></a><span class="w">    </span><span class="n">metadataHistory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">();</span>
+</span><span id="__span-6-1559"><a id="__codelineno-6-1559" name="__codelineno-6-1559"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-1560"><a id="__codelineno-6-1560" name="__codelineno-6-1560"></a><span class="w">    </span><span class="n">metadataHistory</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-6-1561"><a id="__codelineno-6-1561" name="__codelineno-6-1561"></a><span class="w">        </span><span class="n">addPreviousFile</span><span class="p">(</span>
+</span><span id="__span-6-1562"><a id="__codelineno-6-1562" name="__codelineno-6-1562"></a><span class="w">            </span><span class="n">previousFiles</span><span class="p">,</span><span class="w"> </span><span class="n">previousFileLocation</span><span class="p">,</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">lastUpdatedMillis</span><span class="p">(),</span><span class="w"> </span><span class="n">properties</span><span class="p">);</span>
+</span><span id="__span-6-1563"><a id="__codelineno-6-1563" name="__codelineno-6-1563"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-1564"><a id="__codelineno-6-1564" name="__codelineno-6-1564"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">HistoryEntry</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newSnapshotLog</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-6-1565"><a id="__codelineno-6-1565" name="__codelineno-6-1565"></a><span class="w">      </span><span class="n">updateSnapshotLog</span><span class="p">(</span><span class="n">snapshotLog</span><span class="p">,</span><span class="w"> </span><span class="n">snapshotsById</span><span class="p">,</span><span class="w"> </span><span class="n">currentSnapshotId</span><span class="p">,</span><span class="w"> </span><span class="n">changes</span><span class="p">);</span>
+</span><span id="__span-6-1566"><a id="__codelineno-6-1566" name="__codelineno-6-1566"></a>
+</span><span id="__span-6-1567"><a id="__codelineno-6-1567" name="__codelineno-6-1567"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TableMetadata</span><span class="p">(</span>
+</span><span id="__span-6-1568"><a id="__codelineno-6-1568" name="__codelineno-6-1568"></a><span class="w">      </span><span class="n">metadataLocation</span><span class="p">,</span>
+</span><span id="__span-6-1569"><a id="__codelineno-6-1569" name="__codelineno-6-1569"></a><span class="w">      </span><span class="n">formatVersion</span><span class="p">,</span>
+</span><span id="__span-6-1570"><a id="__codelineno-6-1570" name="__codelineno-6-1570"></a><span class="w">      </span><span class="n">uuid</span><span class="p">,</span>
+</span><span id="__span-6-1571"><a id="__codelineno-6-1571" name="__codelineno-6-1571"></a><span class="w">      </span><span class="n">location</span><span class="p">,</span>
+</span><span id="__span-6-1572"><a id="__codelineno-6-1572" name="__codelineno-6-1572"></a><span class="w">      </span><span class="n">lastSequenceNumber</span><span class="p">,</span>
+</span><span id="__span-6-1573"><a id="__codelineno-6-1573" name="__codelineno-6-1573"></a><span class="w">      </span><span class="n">lastUpdatedMillis</span><span class="p">,</span>
+</span><span id="__span-6-1574"><a id="__codelineno-6-1574" name="__codelineno-6-1574"></a><span class="w">      </span><span class="n">lastColumnId</span><span class="p">,</span>
+</span><span id="__span-6-1575"><a id="__codelineno-6-1575" name="__codelineno-6-1575"></a><span class="w">      </span><span class="n">currentSchemaId</span><span class="p">,</span>
+</span><span id="__span-6-1576"><a id="__codelineno-6-1576" name="__codelineno-6-1576"></a><span class="w">      </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">schemas</span><span class="p">),</span>
+</span><span id="__span-6-1577"><a id="__codelineno-6-1577" name="__codelineno-6-1577"></a><span class="w">      </span><span class="n">defaultSpecId</span><span class="p">,</span>
+</span><span id="__span-6-1578"><a id="__codelineno-6-1578" name="__codelineno-6-1578"></a><span class="w">      </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">specs</span><span class="p">),</span>
+</span><span id="__span-6-1579"><a id="__codelineno-6-1579" name="__codelineno-6-1579"></a><span class="w">      </span><span class="n">lastAssignedPartitionId</span><span class="p">,</span>
+</span><span id="__span-6-1580"><a id="__codelineno-6-1580" name="__codelineno-6-1580"></a><span class="w">      </span><span class="n">defaultSortOrderId</span><span class="p">,</span>
+</span><span id="__span-6-1581"><a id="__codelineno-6-1581" name="__codelineno-6-1581"></a><span class="w">      </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">sortOrders</span><span class="p">),</span>
+</span><span id="__span-6-1582"><a id="__codelineno-6-1582" name="__codelineno-6-1582"></a><span class="w">      </span><span class="n">ImmutableMap</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">properties</span><span class="p">),</span>
+</span><span id="__span-6-1583"><a id="__codelineno-6-1583" name="__codelineno-6-1583"></a><span class="w">      </span><span class="n">currentSnapshotId</span><span class="p">,</span>
+</span><span id="__span-6-1584"><a id="__codelineno-6-1584" name="__codelineno-6-1584"></a><span class="w">      </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">snapshots</span><span class="p">),</span>
+</span><span id="__span-6-1585"><a id="__codelineno-6-1585" name="__codelineno-6-1585"></a><span class="w">      </span><span class="n">snapshotsSupplier</span><span class="p">,</span>
+</span><span id="__span-6-1586"><a id="__codelineno-6-1586" name="__codelineno-6-1586"></a><span class="w">      </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">newSnapshotLog</span><span class="p">),</span>
+</span><span id="__span-6-1587"><a id="__codelineno-6-1587" name="__codelineno-6-1587"></a><span class="w">      </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">metadataHistory</span><span class="p">),</span>
+</span><span id="__span-6-1588"><a id="__codelineno-6-1588" name="__codelineno-6-1588"></a><span class="w">      </span><span class="n">ImmutableMap</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">refs</span><span class="p">),</span>
+</span><span id="__span-6-1589"><a id="__codelineno-6-1589" name="__codelineno-6-1589"></a><span class="w">      </span><span class="n">statisticsFiles</span><span class="p">.</span><span class="na">values</span><span class="p">().</span><span class="na">stream</span><span class="p">().</span><span class="na">flatMap</span><span class="p">(</span><span class="n">List</span><span class="p">::</span><span class="n">stream</span><span class="p">).</span><span class="na">collect</span><span class="p">(</span><span class="n">Collectors</span><span class="p">.</span><span class="na">toList</span><span class="p">()),</span>
+</span><span id="__span-6-1590"><a id="__codelineno-6-1590" name="__codelineno-6-1590"></a><span class="w">      </span><span class="n">partitionStatisticsFiles</span><span class="p">.</span><span class="na">values</span><span class="p">().</span><span class="na">stream</span><span class="p">()</span>
+</span><span id="__span-6-1591"><a id="__codelineno-6-1591" name="__codelineno-6-1591"></a><span class="w">          </span><span class="p">.</span><span class="na">flatMap</span><span class="p">(</span><span class="n">List</span><span class="p">::</span><span class="n">stream</span><span class="p">)</span>
+</span><span id="__span-6-1592"><a id="__codelineno-6-1592" name="__codelineno-6-1592"></a><span class="w">          </span><span class="p">.</span><span class="na">collect</span><span class="p">(</span><span class="n">Collectors</span><span class="p">.</span><span class="na">toList</span><span class="p">()),</span>
+</span><span id="__span-6-1593"><a id="__codelineno-6-1593" name="__codelineno-6-1593"></a><span class="w">      </span><span class="n">nextRowId</span><span class="p">,</span>
+</span><span id="__span-6-1594"><a id="__codelineno-6-1594" name="__codelineno-6-1594"></a><span class="w">      </span><span class="n">encryptionKeys</span><span class="p">,</span>
+</span><span id="__span-6-1595"><a id="__codelineno-6-1595" name="__codelineno-6-1595"></a><span class="w">      </span><span class="n">discardChanges</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">()</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">changes</span><span class="p">));</span>
+</span><span id="__span-6-1596"><a id="__codelineno-6-1596" name="__codelineno-6-1596"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L1534–L1596](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L1534-L1596) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The first three lines are the ones to stop on:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">hasChanges</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">base</span><span class="p">;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Not a copy. The <strong>same reference</strong>. This is the mechanism behind two identity checks elsewhere in the codebase: <code>SnapshotProducer.commit</code>'s <code>if (updated.changes().isEmpty())</code>, which Chapter 3.3 reads next, and <code>BaseMetastoreTableOperations.commit</code>'s <code>if (base == metadata)</code> short circuit, which Chapter 3.4 reads after it. Both are cheap because this method makes them safe.</p>
+<p>Then the precondition that explains why the log is in-memory only:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="n">changes</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">discardChanges</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">metadataLocation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="s">"Cannot set metadata location with changes to table metadata: %s changes"</span><span class="p">,</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="n">changes</span><span class="p">.</span><span class="na">size</span><span class="p">());</span>
+</span></code></pre></div>
+<p>Metadata associated with a file must correspond to that file exactly. A file has no changes field. So metadata that carries a location must carry no log, and the builder's final constructor argument enforces it: <code>discardChanges ? ImmutableList.of() : ImmutableList.copyOf(changes)</code>.</p>
+<p>Two callers take the other route to the same place. <code>TableMetadataParser</code> skips the builder entirely and calls the constructor with a literal empty list, annotated <code>/* no changes from the file */</code>. <code>RESTSessionCatalog</code>, rebuilding metadata that arrived from a server, chains <code>.withMetadataLocation(...).setPreviousFileLocation(null).setSnapshotsSupplier(...).discardChanges()</code> before building — same rule, applied to metadata that never touched local storage.</p>
+<h2 id="7-why-the-log-exists">7. Why the log exists<a class="headerlink" href="#7-why-the-log-exists" title="Permanent link">&para;</a></h2>
+<p>Nothing so far explains why Iceberg bothers. A local commit writes the new state and never looks at <code>changes()</code>. The answer is on the other side of a network:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CatalogHandlers.commit() — the server side of a REST commit</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-613">613</a></span>
+<span class="normal"><a href="#__codelineno-9-614">614</a></span>
+<span class="normal"><a href="#__codelineno-9-615">615</a></span>
+<span class="normal"><a href="#__codelineno-9-616">616</a></span>
+<span class="normal"><a href="#__codelineno-9-617">617</a></span>
+<span class="normal"><a href="#__codelineno-9-618">618</a></span>
+<span class="normal"><a href="#__codelineno-9-619">619</a></span>
+<span class="normal"><a href="#__codelineno-9-620">620</a></span>
+<span class="normal"><a href="#__codelineno-9-621">621</a></span>
+<span class="normal"><a href="#__codelineno-9-622">622</a></span>
+<span class="normal"><a href="#__codelineno-9-623">623</a></span>
+<span class="normal"><a href="#__codelineno-9-624">624</a></span>
+<span class="normal"><a href="#__codelineno-9-625">625</a></span>
+<span class="normal"><a href="#__codelineno-9-626">626</a></span>
+<span class="normal"><a href="#__codelineno-9-627">627</a></span>
+<span class="normal"><a href="#__codelineno-9-628">628</a></span>
+<span class="normal"><a href="#__codelineno-9-629">629</a></span>
+<span class="normal"><a href="#__codelineno-9-630">630</a></span>
+<span class="normal"><a href="#__codelineno-9-631">631</a></span>
+<span class="normal"><a href="#__codelineno-9-632">632</a></span>
+<span class="normal"><a href="#__codelineno-9-633">633</a></span>
+<span class="normal"><a href="#__codelineno-9-634">634</a></span>
+<span class="normal"><a href="#__codelineno-9-635">635</a></span>
+<span class="normal"><a href="#__codelineno-9-636">636</a></span>
+<span class="normal"><a href="#__codelineno-9-637">637</a></span>
+<span class="normal"><a href="#__codelineno-9-638">638</a></span>
+<span class="normal"><a href="#__codelineno-9-639">639</a></span>
+<span class="normal"><a href="#__codelineno-9-640">640</a></span>
+<span class="normal"><a href="#__codelineno-9-641">641</a></span>
+<span class="normal"><a href="#__codelineno-9-642">642</a></span>
+<span class="normal"><a href="#__codelineno-9-643">643</a></span>
+<span class="normal"><a href="#__codelineno-9-644">644</a></span>
+<span class="normal"><a href="#__codelineno-9-645">645</a></span>
+<span class="normal"><a href="#__codelineno-9-646">646</a></span>
+<span class="normal"><a href="#__codelineno-9-647">647</a></span>
+<span class="normal"><a href="#__codelineno-9-648">648</a></span>
+<span class="normal"><a href="#__codelineno-9-649">649</a></span>
+<span class="normal"><a href="#__codelineno-9-650">650</a></span>
+<span class="normal"><a href="#__codelineno-9-651">651</a></span>
+<span class="normal"><a href="#__codelineno-9-652">652</a></span>
+<span class="normal"><a href="#__codelineno-9-653">653</a></span>
+<span class="normal"><a href="#__codelineno-9-654">654</a></span>
+<span class="normal"><a href="#__codelineno-9-655">655</a></span>
+<span class="normal"><a href="#__codelineno-9-656">656</a></span>
+<span class="normal"><a href="#__codelineno-9-657">657</a></span>
+<span class="normal"><a href="#__codelineno-9-658">658</a></span>
+<span class="normal"><a href="#__codelineno-9-659">659</a></span>
+<span class="normal"><a href="#__codelineno-9-660">660</a></span>
+<span class="normal"><a href="#__codelineno-9-661">661</a></span>
+<span class="normal"><a href="#__codelineno-9-662">662</a></span>
+<span class="normal"><a href="#__codelineno-9-663">663</a></span>
+<span class="normal"><a href="#__codelineno-9-664">664</a></span>
+<span class="normal"><a href="#__codelineno-9-665">665</a></span>
+<span class="normal"><a href="#__codelineno-9-666">666</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-613"><a id="__codelineno-9-613" name="__codelineno-9-613"></a><span class="kd">static</span><span class="w"> </span><span class="n">TableMetadata</span><span class="w"> </span><span class="nf">commit</span><span class="p">(</span><span class="n">TableOperations</span><span class="w"> </span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="n">UpdateTableRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-614"><a id="__codelineno-9-614" name="__codelineno-9-614"></a><span class="w">  </span><span class="n">AtomicBoolean</span><span class="w"> </span><span class="n">isRetry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AtomicBoolean</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+</span><span id="__span-9-615"><a id="__codelineno-9-615" name="__codelineno-9-615"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-616"><a id="__codelineno-9-616" name="__codelineno-9-616"></a><span class="w">    </span><span class="n">Tasks</span><span class="p">.</span><span class="na">foreach</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span>
+</span><span id="__span-9-617"><a id="__codelineno-9-617" name="__codelineno-9-617"></a><span class="w">        </span><span class="p">.</span><span class="na">retry</span><span class="p">(</span><span class="n">COMMIT_NUM_RETRIES_DEFAULT</span><span class="p">)</span>
+</span><span id="__span-9-618"><a id="__codelineno-9-618" name="__codelineno-9-618"></a><span class="w">        </span><span class="p">.</span><span class="na">exponentialBackoff</span><span class="p">(</span>
+</span><span id="__span-9-619"><a id="__codelineno-9-619" name="__codelineno-9-619"></a><span class="w">            </span><span class="n">COMMIT_MIN_RETRY_WAIT_MS_DEFAULT</span><span class="p">,</span>
+</span><span id="__span-9-620"><a id="__codelineno-9-620" name="__codelineno-9-620"></a><span class="w">            </span><span class="n">COMMIT_MAX_RETRY_WAIT_MS_DEFAULT</span><span class="p">,</span>
+</span><span id="__span-9-621"><a id="__codelineno-9-621" name="__codelineno-9-621"></a><span class="w">            </span><span class="n">COMMIT_TOTAL_RETRY_TIME_MS_DEFAULT</span><span class="p">,</span>
+</span><span id="__span-9-622"><a id="__codelineno-9-622" name="__codelineno-9-622"></a><span class="w">            </span><span class="mf">2.0</span><span class="w"> </span><span class="cm">/* exponential */</span><span class="p">)</span>
+</span><span id="__span-9-623"><a id="__codelineno-9-623" name="__codelineno-9-623"></a><span class="w">        </span><span class="p">.</span><span class="na">onlyRetryOn</span><span class="p">(</span><span class="n">CommitFailedException</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+</span><span id="__span-9-624"><a id="__codelineno-9-624" name="__codelineno-9-624"></a><span class="w">        </span><span class="p">.</span><span class="na">run</span><span class="p">(</span>
+</span><span id="__span-9-625"><a id="__codelineno-9-625" name="__codelineno-9-625"></a><span class="w">            </span><span class="n">taskOps</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-626"><a id="__codelineno-9-626" name="__codelineno-9-626"></a><span class="w">              </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">isRetry</span><span class="p">.</span><span class="na">get</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">taskOps</span><span class="p">.</span><span class="na">refresh</span><span class="p">()</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">taskOps</span><span class="p">.</span><span class="na">current</span><span class="p">();</span>
+</span><span id="__span-9-627"><a id="__codelineno-9-627" name="__codelineno-9-627"></a><span class="w">              </span><span class="n">isRetry</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</span><span id="__span-9-628"><a id="__codelineno-9-628" name="__codelineno-9-628"></a>
+</span><span id="__span-9-629"><a id="__codelineno-9-629" name="__codelineno-9-629"></a><span class="w">              </span><span class="c1">// validate requirements</span>
+</span><span id="__span-9-630"><a id="__codelineno-9-630" name="__codelineno-9-630"></a><span class="w">              </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-631"><a id="__codelineno-9-631" name="__codelineno-9-631"></a><span class="w">                </span><span class="n">request</span><span class="p">.</span><span class="na">requirements</span><span class="p">().</span><span class="na">forEach</span><span class="p">(</span><span class="n">requirement</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">requirement</span><span class="p">.</span><span class="na">validate</span><span class="p">(</span><span class="n">base</span><span class="p">));</span>
+</span><span id="__span-9-632"><a id="__codelineno-9-632" name="__codelineno-9-632"></a><span class="w">              </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">CommitFailedException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-633"><a id="__codelineno-9-633" name="__codelineno-9-633"></a><span class="w">                </span><span class="c1">// wrap and rethrow outside of tasks to avoid unnecessary retry</span>
+</span><span id="__span-9-634"><a id="__codelineno-9-634" name="__codelineno-9-634"></a><span class="w">                </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ValidationFailureException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-9-635"><a id="__codelineno-9-635" name="__codelineno-9-635"></a><span class="w">              </span><span class="p">}</span>
+</span><span id="__span-9-636"><a id="__codelineno-9-636" name="__codelineno-9-636"></a>
+</span><span id="__span-9-637"><a id="__codelineno-9-637" name="__codelineno-9-637"></a><span class="w">              </span><span class="c1">// apply changes</span>
+</span><span id="__span-9-638"><a id="__codelineno-9-638" name="__codelineno-9-638"></a><span class="w">              </span><span class="n">TableMetadata</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="n">metadataBuilder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TableMetadata</span><span class="p">.</span><span class="na">buildFrom</span><span class="p">(</span><span class="n">base</span><span class="p">);</span>
+</span><span id="__span-9-639"><a id="__codelineno-9-639" name="__codelineno-9-639"></a><span class="w">              </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-640"><a id="__codelineno-9-640" name="__codelineno-9-640"></a><span class="w">                </span><span class="n">request</span><span class="p">.</span><span class="na">updates</span><span class="p">().</span><span class="na">forEach</span><span class="p">(</span><span class="n">update</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">update</span><span class="p">.</span><span class="na">applyTo</span><span class="p">(</span><span class="n">metadataBuilder</span><span class="p">));</span>
+</span><span id="__span-9-641"><a id="__codelineno-9-641" name="__codelineno-9-641"></a><span class="w">              </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">RetryableValidationException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-642"><a id="__codelineno-9-642" name="__codelineno-9-642"></a><span class="w">                </span><span class="c1">// Validation failed because the commit includes stale values (e.g. sequence</span>
+</span><span id="__span-9-643"><a id="__codelineno-9-643" name="__codelineno-9-643"></a><span class="w">                </span><span class="c1">// number or first-row-id behind the current table state). This is not a conflict.</span>
+</span><span id="__span-9-644"><a id="__codelineno-9-644" name="__codelineno-9-644"></a><span class="w">                </span><span class="c1">// Server-side retry won't help since the stale values are in the request itself.</span>
+</span><span id="__span-9-645"><a id="__codelineno-9-645" name="__codelineno-9-645"></a><span class="w">                </span><span class="c1">// Wrap as CommitFailedException so the client can retry with refreshed metadata.</span>
+</span><span id="__span-9-646"><a id="__codelineno-9-646" name="__codelineno-9-646"></a><span class="w">                </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ValidationFailureException</span><span class="p">(</span>
+</span><span id="__span-9-647"><a id="__codelineno-9-647" name="__codelineno-9-647"></a><span class="w">                    </span><span class="k">new</span><span class="w"> </span><span class="n">CommitFailedException</span><span class="p">(</span>
+</span><span id="__span-9-648"><a id="__codelineno-9-648" name="__codelineno-9-648"></a><span class="w">                        </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="s">"Validation failed, please retry: %s"</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="na">getMessage</span><span class="p">()));</span>
+</span><span id="__span-9-649"><a id="__codelineno-9-649" name="__codelineno-9-649"></a><span class="w">              </span><span class="p">}</span>
+</span><span id="__span-9-650"><a id="__codelineno-9-650" name="__codelineno-9-650"></a>
+</span><span id="__span-9-651"><a id="__codelineno-9-651" name="__codelineno-9-651"></a><span class="w">              </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">updated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metadataBuilder</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</span><span id="__span-9-652"><a id="__codelineno-9-652" name="__codelineno-9-652"></a><span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">updated</span><span class="p">.</span><span class="na">changes</span><span class="p">().</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-653"><a id="__codelineno-9-653" name="__codelineno-9-653"></a><span class="w">                </span><span class="c1">// do not commit if the metadata has not changed</span>
+</span><span id="__span-9-654"><a id="__codelineno-9-654" name="__codelineno-9-654"></a><span class="w">                </span><span class="k">return</span><span class="p">;</span>
+</span><span id="__span-9-655"><a id="__codelineno-9-655" name="__codelineno-9-655"></a><span class="w">              </span><span class="p">}</span>
+</span><span id="__span-9-656"><a id="__codelineno-9-656" name="__codelineno-9-656"></a>
+</span><span id="__span-9-657"><a id="__codelineno-9-657" name="__codelineno-9-657"></a><span class="w">              </span><span class="c1">// commit</span>
+</span><span id="__span-9-658"><a id="__codelineno-9-658" name="__codelineno-9-658"></a><span class="w">              </span><span class="n">taskOps</span><span class="p">.</span><span class="na">commit</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">updated</span><span class="p">);</span>
+</span><span id="__span-9-659"><a id="__codelineno-9-659" name="__codelineno-9-659"></a><span class="w">            </span><span class="p">});</span>
+</span><span id="__span-9-660"><a id="__codelineno-9-660" name="__codelineno-9-660"></a>
+</span><span id="__span-9-661"><a id="__codelineno-9-661" name="__codelineno-9-661"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">ValidationFailureException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-662"><a id="__codelineno-9-662" name="__codelineno-9-662"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="na">wrapped</span><span class="p">();</span>
+</span><span id="__span-9-663"><a id="__codelineno-9-663" name="__codelineno-9-663"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-9-664"><a id="__codelineno-9-664" name="__codelineno-9-664"></a>
+</span><span id="__span-9-665"><a id="__codelineno-9-665" name="__codelineno-9-665"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">current</span><span class="p">();</span>
+</span><span id="__span-9-666"><a id="__codelineno-9-666" name="__codelineno-9-666"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java` L613–L666](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java#L613-L666) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>This runs in the catalog <em>server</em>. It never receives a <code>TableMetadata</code>. It receives an <code>UpdateTableRequest</code> containing two lists, and it does two things with them:</p>
+<ul>
+<li><code>request.requirements().forEach(requirement -&gt; requirement.validate(base))</code> — the client's preconditions, checked against whatever the <strong>server's</strong> current metadata is.</li>
+<li><code>request.updates().forEach(update -&gt; update.applyTo(metadataBuilder))</code> — the client's changes, replayed onto a builder over the <strong>server's</strong> base.</li>
+</ul>
+<p>That is the same <code>Tasks.foreach(...).onlyRetryOn(CommitFailedException.class)</code> loop and the same <code>updated.changes().isEmpty()</code> no-op check as the client-side loop Chapter 3.3 is about to read. The protocol did not need re-inventing for HTTP, because the update log made the client's intent transportable.</p>
+<p><strong><code>changes()</code> is the wire format.</strong> Everything else in this chapter is the machinery that keeps it accurate for free, on every mutation, whether or not anyone will ever send it. Chapter 6.3 takes the REST spec apart properly, and 6.4 shows where this model runs out — multi-table commits.</p>
+<h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title"><code>build()</code> can hand you back the object you started from</p>
+<p>When <code>hasChanges()</code> is false the return value is <code>base</code> itself, not an equal copy. Code that assumes <code>build()</code> allocates — comparing with <code>!=</code> to detect a change, or mutating the result in place — will be surprised. Iceberg relies on the behaviour deliberately in at least two places, so it is not going to change.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>changes.isEmpty()</code> is not the same question as <code>hasChanges()</code></p>
+<p>A builder created from metadata that already carries a log starts with a non-empty <code>changes</code> list and no changes of its own. That is why <code>hasChanges()</code> compares against <code>startingChangeCount</code>. <code>discardChanges()</code> handles the mirror case: metadata reconstructed from a file must publish no log at all, and <code>build()</code> enforces the combination with the metadata-location precondition.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Some builder validations are marked retryable on purpose</p>
+<p><code>Builder.addSnapshot</code> raises <code>RetryableValidationException</code>, not the plain <code>ValidationException</code>, when a snapshot's sequence number or <code>first-row-id</code> is behind the table's current state. The class javadoc is explicit: "This is specifically not a conflict... Retrying the commit with refreshed metadata can resolve the failure." <code>CatalogHandlers.commit</code> catches it and re-throws it as a <code>CommitFailedException</code>, with a comment noting that server-side retry cannot help because the stale values are in the request itself. Only the client, after a refresh, can fix it. Chapter 3.5 takes the whole exception taxonomy apart.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">The update log never reaches storage</p>
+<p><code>TableMetadataParser</code> constructs <code>TableMetadata</code> directly with an empty change list, and the upstream comment on that argument says why: <code>/* no changes from the file */</code>. <code>metadata.json</code> records the resulting state and the log of previous metadata files; it has no notion of the operations that produced them. Anything you want to know about <em>how</em> a table got somewhere has to come from snapshot summaries, not from this list.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>TableMetadata</code> is immutable, so every change constructs a new object through a <code>Builder</code> that copies all state up front.</li>
+<li>The builder inherits the base object's change log and records <code>startingChangeCount</code> as a watermark, so accumulated changes survive across a transaction's updates.</li>
+<li>Every mutator both changes a field and appends a <code>MetadataUpdate</code> describing it; a <code>MetadataUpdate</code> can replay itself onto any builder via <code>applyTo</code>.</li>
+<li><code>build()</code> returns the base object unchanged when nothing happened, which is what makes the identity-based no-op checks in Chapters 3.3 and 3.4 correct.</li>
+<li>The change log is never written to <code>metadata.json</code>. It exists so a client can send its <em>intent</em> to a catalog server, which is what makes REST catalogs possible — Chapter 6.3 collects on this.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TableMetadata</code> and its <code>Builder</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java"><code>core/.../TableMetadata.java</code></a></td>
+</tr>
+<tr>
+<td>The update hierarchy</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetadataUpdate.java"><code>core/.../MetadataUpdate.java</code></a></td>
+</tr>
+<tr>
+<td>State serialization, with no <code>changes</code> field</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadataParser.java"><code>core/.../TableMetadataParser.java</code></a></td>
+</tr>
+<tr>
+<td>Update serialization, for the wire</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetadataUpdateParser.java"><code>core/.../MetadataUpdateParser.java</code></a></td>
+</tr>
+<tr>
+<td>Commit preconditions</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/UpdateRequirement.java"><code>core/.../UpdateRequirement.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/UpdateRequirements.java"><code>UpdateRequirements.java</code></a></td>
+</tr>
+<tr>
+<td>Server-side replay</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java"><code>core/.../rest/CatalogHandlers.java</code></a></td>
+</tr>
+<tr>
+<td>Retryable builder validation</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/RetryableValidationException.java"><code>core/.../RetryableValidationException.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Chapter 3.3 puts all of this to work from the writer's side — <code>TableMetadata.buildFrom(base)</code>, <code>setBranchSnapshot</code>, <code>build()</code>, then <code>ops.commit</code> — inside a retry loop, on a <code>SnapshotProducer</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_3.1_module_map/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 3.1 Module map and the core abstractions">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                3.1 Module map and the core abstractions
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../chapter_3.3_snapshot_producer/" class="md-footer__link md-footer__link--next" aria-label="Next: 3.3 `SnapshotProducer`: the life of a commit">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                3.3 `SnapshotProducer`: the life of a commit
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

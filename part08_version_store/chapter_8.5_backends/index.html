@@ -1,0 +1,4074 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part08_version_store/chapter_8.5_backends/">
+      
+      
+        <link rel="prev" href="../chapter_8.4_references_cas/">
+      
+      
+        <link rel="next" href="../../part09_branching/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-85-backends-rocksdb-jdbc-dynamodb-cassandra" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-one-test-eleven-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. One test, eleven modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-jdbc-update-where-checked-by-row-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. JDBC: UPDATE … WHERE, checked by row count
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-cassandra-a-lightweight-transaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Cassandra: a lightweight transaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-dynamodb-a-condition-expression-and-a-hard-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. DynamoDB: a condition expression, and a hard limit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-rocksdb-and-in-memory-the-cas-that-is-not-a-cas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. RocksDB and in-memory: the CAS that is not a CAS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-the-axis-that-only-appears-under-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The axis that only appears under failure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-whole-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The whole comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-what-the-v2-rewrite-was-actually-about" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. What the v2 rewrite was actually about
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-one-test-eleven-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. One test, eleven modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-jdbc-update-where-checked-by-row-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. JDBC: UPDATE … WHERE, checked by row count
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-cassandra-a-lightweight-transaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Cassandra: a lightweight transaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-dynamodb-a-condition-expression-and-a-hard-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. DynamoDB: a condition expression, and a hard limit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-rocksdb-and-in-memory-the-cas-that-is-not-a-cas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. RocksDB and in-memory: the CAS that is not a CAS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-the-axis-that-only-appears-under-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The axis that only appears under failure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-whole-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The whole comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-what-the-v2-rewrite-was-actually-about" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. What the v2 rewrite was actually about
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 8 · Version Store
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-85-backends-rocksdb-jdbc-dynamodb-cassandra">Chapter 8.5 — Backends: RocksDB, JDBC, DynamoDB, Cassandra<a class="headerlink" href="#chapter-85-backends-rocksdb-jdbc-dynamodb-cassandra" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> chapter 8.4 reduced every guarantee Nessie makes to one conditional update on one row — which databases can actually perform that, how does each one express it, and what happens when the database cannot say whether it did?</p>
+<p><strong>Prerequisites:</strong> Chapter 8.1 (the <code>Persist</code> operation list), Chapter 8.4 (why the reference CAS is the only operation that has to be perfect)</p>
+<p><strong>Source covered:</strong> <code>versioned/storage/jdbc2/</code>, <code>.../cassandra2/</code>, <code>.../dynamodb2/</code>, <code>.../rocksdb/</code>, <code>.../mongodb2/</code>, <code>.../bigtable/</code>, <code>.../inmemory/</code></p>
+</div>
+<h2 id="1-one-test-eleven-modules">1. One test, eleven modules<a class="headerlink" href="#1-one-test-eleven-modules" title="Permanent link">&para;</a></h2>
+<p>The pinned source ships <strong>eleven</strong> backend modules: <code>inmemory</code>, <code>rocksdb</code>, <code>jdbc</code>, <code>jdbc2</code>, <code>dynamodb</code>, <code>dynamodb2</code>, <code>cassandra</code>, <code>cassandra2</code>, <code>mongodb</code>, <code>mongodb2</code>, <code>bigtable</code>. That is a lot of surface area for an SPI that 8.1 showed fits on one screen, and reading them all as separate systems is the wrong way in.</p>
+<p>Read them against one test instead. Chapter 8.4 established that Nessie needs exactly two things a plain key-value store does not give you:</p>
+<ol>
+<li><strong>insert-if-absent</strong> on the objects table, so that an object ID cannot be silently overwritten;</li>
+<li><strong>compare-and-swap</strong> on a reference row, comparing the whole record.</li>
+</ol>
+<p>So for each backend, ask three questions. <em>How is the condition expressed? How is failure detected? Can the outcome be unknown?</em> The first two sort the backends by dialect. The third — which only appears under failure — is the split that actually matters, because it is the difference between a commit that gets retried and one that is reported as an error.</p>
+<p>Before any of that, the SPI's own concession that databases are physical:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Persist — the physical-limit knobs</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span>
+<span class="normal"><a href="#__codelineno-0-52">52</a></span>
+<span class="normal"><a href="#__codelineno-0-53">53</a></span>
+<span class="normal"><a href="#__codelineno-0-54">54</a></span>
+<span class="normal"><a href="#__codelineno-0-55">55</a></span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">Persist</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="w">  </span><span class="k">default</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">hardObjectSizeLimit</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Integer</span><span class="p">.</span><span class="na">MAX_VALUE</span><span class="p">;</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="w">  </span><span class="k">default</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">effectiveIndexSegmentSizeLimit</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="na">min</span><span class="p">(</span><span class="n">config</span><span class="p">().</span><span class="na">maxSerializedIndexSize</span><span class="p">(),</span><span class="w"> </span><span class="n">hardObjectSizeLimit</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="w">  </span><span class="k">default</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">effectiveIncrementalIndexSizeLimit</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="na">min</span><span class="p">(</span><span class="n">config</span><span class="p">().</span><span class="na">maxIncrementalIndexSize</span><span class="p">(),</span><span class="w"> </span><span class="n">hardObjectSizeLimit</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="w">  </span><span class="nd">@Nonnull</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="nf">name</span><span class="p">();</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="w">  </span><span class="nd">@Nonnull</span>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="w">  </span><span class="n">StoreConfig</span><span class="w"> </span><span class="nf">config</span><span class="p">();</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java` L38–L57](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java#L38-L57) <span>@ nessie-0.108.4</span></p>
+
+<p><code>hardObjectSizeLimit()</code> defaults to <code>Integer.MAX_VALUE</code> and is overridden by exactly the backends that have a real row limit. The two <code>effective…SizeLimit()</code> methods clamp chapter 8.3's spill thresholds to <em>half</em> of it — half, because a commit row must hold its incremental index plus everything else. This is the whole abstraction leak, in three default methods.</p>
+<h2 id="2-jdbc-update-where-checked-by-row-count">2. JDBC: <code>UPDATE … WHERE</code>, checked by row count<a class="headerlink" href="#2-jdbc-update-where-checked-by-row-count" title="Permanent link">&para;</a></h2>
+<p><code>jdbc2</code> covers PostgreSQL, CockroachDB, MariaDB/MySQL and H2. It is the most legible implementation, so start here:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Jdbc2 — UPDATE … WHERE, checked by row count</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-255">255</a></span>
+<span class="normal"><a href="#__codelineno-1-256">256</a></span>
+<span class="normal"><a href="#__codelineno-1-257">257</a></span>
+<span class="normal"><a href="#__codelineno-1-258">258</a></span>
+<span class="normal"><a href="#__codelineno-1-259">259</a></span>
+<span class="normal"><a href="#__codelineno-1-260">260</a></span>
+<span class="normal"><a href="#__codelineno-1-261">261</a></span>
+<span class="normal"><a href="#__codelineno-1-262">262</a></span>
+<span class="normal"><a href="#__codelineno-1-263">263</a></span>
+<span class="normal"><a href="#__codelineno-1-264">264</a></span>
+<span class="normal"><a href="#__codelineno-1-265">265</a></span>
+<span class="normal"><a href="#__codelineno-1-266">266</a></span>
+<span class="normal"><a href="#__codelineno-1-267">267</a></span>
+<span class="normal"><a href="#__codelineno-1-268">268</a></span>
+<span class="normal"><a href="#__codelineno-1-269">269</a></span>
+<span class="normal"><a href="#__codelineno-1-270">270</a></span>
+<span class="normal"><a href="#__codelineno-1-271">271</a></span>
+<span class="normal"><a href="#__codelineno-1-272">272</a></span>
+<span class="normal"><a href="#__codelineno-1-273">273</a></span>
+<span class="normal"><a href="#__codelineno-1-274">274</a></span>
+<span class="normal"><a href="#__codelineno-1-275">275</a></span>
+<span class="normal"><a href="#__codelineno-1-276">276</a></span>
+<span class="normal"><a href="#__codelineno-1-277">277</a></span>
+<span class="normal"><a href="#__codelineno-1-278">278</a></span>
+<span class="normal"><a href="#__codelineno-1-279">279</a></span>
+<span class="normal"><a href="#__codelineno-1-280">280</a></span>
+<span class="normal"><a href="#__codelineno-1-281">281</a></span>
+<span class="normal"><a href="#__codelineno-1-282">282</a></span>
+<span class="normal"><a href="#__codelineno-1-283">283</a></span>
+<span class="normal"><a href="#__codelineno-1-284">284</a></span>
+<span class="normal"><a href="#__codelineno-1-285">285</a></span>
+<span class="normal"><a href="#__codelineno-1-286">286</a></span>
+<span class="normal"><a href="#__codelineno-1-287">287</a></span>
+<span class="normal"><a href="#__codelineno-1-288">288</a></span>
+<span class="normal"><a href="#__codelineno-1-289">289</a></span>
+<span class="normal"><a href="#__codelineno-1-290">290</a></span>
+<span class="normal"><a href="#__codelineno-1-291">291</a></span>
+<span class="normal"><a href="#__codelineno-1-292">292</a></span>
+<span class="normal"><a href="#__codelineno-1-293">293</a></span>
+<span class="normal"><a href="#__codelineno-1-294">294</a></span>
+<span class="normal"><a href="#__codelineno-1-295">295</a></span>
+<span class="normal"><a href="#__codelineno-1-296">296</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-255"><a id="__codelineno-1-255" name="__codelineno-1-255"></a><span class="nd">@Nonnull</span>
+</span><span id="__span-1-256"><a id="__codelineno-1-256" name="__codelineno-1-256"></a><span class="kd">protected</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="nf">updateReferencePointer</span><span class="p">(</span>
+</span><span id="__span-1-257"><a id="__codelineno-1-257" name="__codelineno-1-257"></a><span class="w">    </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">Connection</span><span class="w"> </span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">reference</span><span class="p">,</span><span class="w"> </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">ObjId</span><span class="w"> </span><span class="n">newPointer</span><span class="p">)</span>
+</span><span id="__span-1-258"><a id="__codelineno-1-258" name="__codelineno-1-258"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">RefNotFoundException</span><span class="p">,</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-259"><a id="__codelineno-1-259" name="__codelineno-1-259"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">PreparedStatement</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-260"><a id="__codelineno-1-260" name="__codelineno-1-260"></a><span class="w">      </span><span class="n">conn</span><span class="p">.</span><span class="na">prepareStatement</span><span class="p">(</span><span class="n">referencesDml</span><span class="p">(</span><span class="n">UPDATE_REFERENCE_POINTER</span><span class="p">,</span><span class="w"> </span><span class="n">reference</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-261"><a id="__codelineno-1-261" name="__codelineno-1-261"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-1-262"><a id="__codelineno-1-262" name="__codelineno-1-262"></a><span class="w">    </span><span class="n">serializeObjId</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">newPointer</span><span class="p">,</span><span class="w"> </span><span class="n">databaseSpecific</span><span class="p">);</span>
+</span><span id="__span-1-263"><a id="__codelineno-1-263" name="__codelineno-1-263"></a><span class="w">    </span><span class="n">Reference</span><span class="w"> </span><span class="n">updated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">forNewPointer</span><span class="p">(</span><span class="n">newPointer</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">);</span>
+</span><span id="__span-1-264"><a id="__codelineno-1-264" name="__codelineno-1-264"></a><span class="w">    </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">previous</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serializePreviousPointers</span><span class="p">(</span><span class="n">updated</span><span class="p">.</span><span class="na">previousPointers</span><span class="p">());</span>
+</span><span id="__span-1-265"><a id="__codelineno-1-265" name="__codelineno-1-265"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">previous</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-266"><a id="__codelineno-1-266" name="__codelineno-1-266"></a><span class="w">      </span><span class="n">ps</span><span class="p">.</span><span class="na">setBytes</span><span class="p">(</span><span class="n">idx</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">previous</span><span class="p">);</span>
+</span><span id="__span-1-267"><a id="__codelineno-1-267" name="__codelineno-1-267"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-268"><a id="__codelineno-1-268" name="__codelineno-1-268"></a><span class="w">      </span><span class="n">ps</span><span class="p">.</span><span class="na">setNull</span><span class="p">(</span><span class="n">idx</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">Types</span><span class="p">.</span><span class="na">BINARY</span><span class="p">);</span>
+</span><span id="__span-1-269"><a id="__codelineno-1-269" name="__codelineno-1-269"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-270"><a id="__codelineno-1-270" name="__codelineno-1-270"></a>
+</span><span id="__span-1-271"><a id="__codelineno-1-271" name="__codelineno-1-271"></a><span class="w">    </span><span class="n">ps</span><span class="p">.</span><span class="na">setString</span><span class="p">(</span><span class="n">idx</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">().</span><span class="na">repositoryId</span><span class="p">());</span>
+</span><span id="__span-1-272"><a id="__codelineno-1-272" name="__codelineno-1-272"></a><span class="w">    </span><span class="n">ps</span><span class="p">.</span><span class="na">setString</span><span class="p">(</span><span class="n">idx</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">name</span><span class="p">());</span>
+</span><span id="__span-1-273"><a id="__codelineno-1-273" name="__codelineno-1-273"></a><span class="w">    </span><span class="n">serializeObjId</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">pointer</span><span class="p">(),</span><span class="w"> </span><span class="n">databaseSpecific</span><span class="p">);</span>
+</span><span id="__span-1-274"><a id="__codelineno-1-274" name="__codelineno-1-274"></a><span class="w">    </span><span class="n">ps</span><span class="p">.</span><span class="na">setBoolean</span><span class="p">(</span><span class="n">idx</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+</span><span id="__span-1-275"><a id="__codelineno-1-275" name="__codelineno-1-275"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">createdAtMicros</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">createdAtMicros</span><span class="p">();</span>
+</span><span id="__span-1-276"><a id="__codelineno-1-276" name="__codelineno-1-276"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">createdAtMicros</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-277"><a id="__codelineno-1-277" name="__codelineno-1-277"></a><span class="w">      </span><span class="n">ps</span><span class="p">.</span><span class="na">setLong</span><span class="p">(</span><span class="n">idx</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">createdAtMicros</span><span class="p">);</span>
+</span><span id="__span-1-278"><a id="__codelineno-1-278" name="__codelineno-1-278"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-279"><a id="__codelineno-1-279" name="__codelineno-1-279"></a><span class="w">    </span><span class="n">ObjId</span><span class="w"> </span><span class="n">extendedInfoObj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">extendedInfoObj</span><span class="p">();</span>
+</span><span id="__span-1-280"><a id="__codelineno-1-280" name="__codelineno-1-280"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">extendedInfoObj</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-281"><a id="__codelineno-1-281" name="__codelineno-1-281"></a><span class="w">      </span><span class="n">serializeObjId</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="n">extendedInfoObj</span><span class="p">,</span><span class="w"> </span><span class="n">databaseSpecific</span><span class="p">);</span>
+</span><span id="__span-1-282"><a id="__codelineno-1-282" name="__codelineno-1-282"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-283"><a id="__codelineno-1-283" name="__codelineno-1-283"></a>
+</span><span id="__span-1-284"><a id="__codelineno-1-284" name="__codelineno-1-284"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ps</span><span class="p">.</span><span class="na">executeUpdate</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-285"><a id="__codelineno-1-285" name="__codelineno-1-285"></a><span class="w">      </span><span class="n">Reference</span><span class="w"> </span><span class="n">ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">findReference</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">name</span><span class="p">());</span>
+</span><span id="__span-1-286"><a id="__codelineno-1-286" name="__codelineno-1-286"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ref</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-287"><a id="__codelineno-1-287" name="__codelineno-1-287"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RefNotFoundException</span><span class="p">(</span><span class="n">reference</span><span class="p">);</span>
+</span><span id="__span-1-288"><a id="__codelineno-1-288" name="__codelineno-1-288"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-1-289"><a id="__codelineno-1-289" name="__codelineno-1-289"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="p">(</span><span class="n">ref</span><span class="p">);</span>
+</span><span id="__span-1-290"><a id="__codelineno-1-290" name="__codelineno-1-290"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-291"><a id="__codelineno-1-291" name="__codelineno-1-291"></a>
+</span><span id="__span-1-292"><a id="__codelineno-1-292" name="__codelineno-1-292"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">updated</span><span class="p">;</span>
+</span><span id="__span-1-293"><a id="__codelineno-1-293" name="__codelineno-1-293"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">SQLException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-294"><a id="__codelineno-1-294" name="__codelineno-1-294"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">unhandledSQLException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-1-295"><a id="__codelineno-1-295" name="__codelineno-1-295"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-296"><a id="__codelineno-1-296" name="__codelineno-1-296"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java` L255–L296](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java#L255-L296) <span>@ nessie-0.108.4</span></p>
+
+<p>The statement is <code>UPDATE refs2 SET pointer=?, prev_ptr=? WHERE repo=? AND ref_name=? AND pointer=? AND deleted=? AND created_at… AND ext_info…</code> — the <code>2</code> in the table name is the v2 layout of section 8. The first two parameters are the new state — note <code>reference.forNewPointer(newPointer, config)</code> computing the previous-pointer list from 8.4 §6 — and everything after is the expected record. <code>deleted</code> is bound to a literal <code>false</code>: this update asserts the reference is live, exactly as the SPI javadoc promises.</p>
+<p>The failure signal is <code>executeUpdate() != 1</code>. Zero rows updated means the <code>WHERE</code> clause did not match, and the code then re-reads the row to decide <em>which</em> failure it was: absent means <code>RefNotFoundException</code>, present means <code>RefConditionFailedException</code> carrying the reference as it actually is. The database never tells you why the condition failed; you find out by asking a second question.</p>
+<p>Two nullable columns spoil the simple story, and six lines fix it:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Jdbc2.referencesDml() — the NULL problem</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-298">298</a></span>
+<span class="normal"><a href="#__codelineno-2-299">299</a></span>
+<span class="normal"><a href="#__codelineno-2-300">300</a></span>
+<span class="normal"><a href="#__codelineno-2-301">301</a></span>
+<span class="normal"><a href="#__codelineno-2-302">302</a></span>
+<span class="normal"><a href="#__codelineno-2-303">303</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-298"><a id="__codelineno-2-298" name="__codelineno-2-298"></a><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">referencesDml</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">sql</span><span class="p">,</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">reference</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-299"><a id="__codelineno-2-299" name="__codelineno-2-299"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">createdAtCond</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">createdAtMicros</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="n">L</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"=?"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">" IS NULL"</span><span class="p">;</span>
+</span><span id="__span-2-300"><a id="__codelineno-2-300" name="__codelineno-2-300"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">extendedInfoCond</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">extendedInfoObj</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"=?"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">" IS NULL"</span><span class="p">;</span>
+</span><span id="__span-2-301"><a id="__codelineno-2-301" name="__codelineno-2-301"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">sql</span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="n">REFS_CREATED_AT_COND</span><span class="p">,</span><span class="w"> </span><span class="n">createdAtCond</span><span class="p">)</span>
+</span><span id="__span-2-302"><a id="__codelineno-2-302" name="__codelineno-2-302"></a><span class="w">      </span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="n">REFS_EXTENDED_INFO_COND</span><span class="p">,</span><span class="w"> </span><span class="n">extendedInfoCond</span><span class="p">);</span>
+</span><span id="__span-2-303"><a id="__codelineno-2-303" name="__codelineno-2-303"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java` L298–L303](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java#L298-L303) <span>@ nessie-0.108.4</span></p>
+
+<p><code>created_at = ?</code> bound to null is never true in SQL, because <code>NULL = NULL</code> is unknown. So the SQL text itself is rewritten per call: <code>=?</code> when there is a value, <code>IS NULL</code> when there is not, with placeholder tokens substituted before the statement is prepared. A three-valued logic bug that would have shown up as "the CAS never succeeds on references created by an older Nessie", avoided by generating two statement shapes.</p>
+<p>One thing <code>jdbc2</code> deliberately does <em>not</em> use the transaction for: the connection runs with auto-commit off so that multi-statement <em>object</em> writes can be rolled back, but the reference CAS is a single statement and needs no transaction at all. The atomicity is in the <code>WHERE</code> clause.</p>
+<h2 id="3-cassandra-a-lightweight-transaction">3. Cassandra: a lightweight transaction<a class="headerlink" href="#3-cassandra-a-lightweight-transaction" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Cassandra2 — UPDATE … IF</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-212">212</a></span>
+<span class="normal"><a href="#__codelineno-3-213">213</a></span>
+<span class="normal"><a href="#__codelineno-3-214">214</a></span>
+<span class="normal"><a href="#__codelineno-3-215">215</a></span>
+<span class="normal"><a href="#__codelineno-3-216">216</a></span>
+<span class="normal"><a href="#__codelineno-3-217">217</a></span>
+<span class="normal"><a href="#__codelineno-3-218">218</a></span>
+<span class="normal"><a href="#__codelineno-3-219">219</a></span>
+<span class="normal"><a href="#__codelineno-3-220">220</a></span>
+<span class="normal"><a href="#__codelineno-3-221">221</a></span>
+<span class="normal"><a href="#__codelineno-3-222">222</a></span>
+<span class="normal"><a href="#__codelineno-3-223">223</a></span>
+<span class="normal"><a href="#__codelineno-3-224">224</a></span>
+<span class="normal"><a href="#__codelineno-3-225">225</a></span>
+<span class="normal"><a href="#__codelineno-3-226">226</a></span>
+<span class="normal"><a href="#__codelineno-3-227">227</a></span>
+<span class="normal"><a href="#__codelineno-3-228">228</a></span>
+<span class="normal"><a href="#__codelineno-3-229">229</a></span>
+<span class="normal"><a href="#__codelineno-3-230">230</a></span>
+<span class="normal"><a href="#__codelineno-3-231">231</a></span>
+<span class="normal"><a href="#__codelineno-3-232">232</a></span>
+<span class="normal"><a href="#__codelineno-3-233">233</a></span>
+<span class="normal"><a href="#__codelineno-3-234">234</a></span>
+<span class="normal"><a href="#__codelineno-3-235">235</a></span>
+<span class="normal"><a href="#__codelineno-3-236">236</a></span>
+<span class="normal"><a href="#__codelineno-3-237">237</a></span>
+<span class="normal"><a href="#__codelineno-3-238">238</a></span>
+<span class="normal"><a href="#__codelineno-3-239">239</a></span>
+<span class="normal"><a href="#__codelineno-3-240">240</a></span>
+<span class="normal"><a href="#__codelineno-3-241">241</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-212"><a id="__codelineno-3-212" name="__codelineno-3-212"></a><span class="nd">@Nonnull</span>
+</span><span id="__span-3-213"><a id="__codelineno-3-213" name="__codelineno-3-213"></a><span class="nd">@Override</span>
+</span><span id="__span-3-214"><a id="__codelineno-3-214" name="__codelineno-3-214"></a><span class="kd">public</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="nf">updateReferencePointer</span><span class="p">(</span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">reference</span><span class="p">,</span><span class="w"> </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">ObjId</span><span class="w"> </span><span class="n">newPointer</span><span class="p">)</span>
+</span><span id="__span-3-215"><a id="__codelineno-3-215" name="__codelineno-3-215"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">RefNotFoundException</span><span class="p">,</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-216"><a id="__codelineno-3-216" name="__codelineno-3-216"></a><span class="w">  </span><span class="n">Reference</span><span class="w"> </span><span class="n">updated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">forNewPointer</span><span class="p">(</span><span class="n">newPointer</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">);</span>
+</span><span id="__span-3-217"><a id="__codelineno-3-217" name="__codelineno-3-217"></a><span class="w">  </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">serializedPreviousPointers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serializePreviousPointers</span><span class="p">(</span><span class="n">updated</span><span class="p">.</span><span class="na">previousPointers</span><span class="p">());</span>
+</span><span id="__span-3-218"><a id="__codelineno-3-218" name="__codelineno-3-218"></a><span class="w">  </span><span class="n">ByteBuffer</span><span class="w"> </span><span class="n">previous</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-219"><a id="__codelineno-3-219" name="__codelineno-3-219"></a><span class="w">      </span><span class="n">serializedPreviousPointers</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">ByteBuffer</span><span class="p">.</span><span class="na">wrap</span><span class="p">(</span><span class="n">serializedPreviousPointers</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-3-220"><a id="__codelineno-3-220" name="__codelineno-3-220"></a><span class="w">  </span><span class="n">BoundStatement</span><span class="w"> </span><span class="n">stmt</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-221"><a id="__codelineno-3-221" name="__codelineno-3-221"></a><span class="w">      </span><span class="n">backend</span><span class="p">.</span><span class="na">buildStatement</span><span class="p">(</span>
+</span><span id="__span-3-222"><a id="__codelineno-3-222" name="__codelineno-3-222"></a><span class="w">          </span><span class="n">UPDATE_REFERENCE_POINTER</span><span class="p">,</span>
+</span><span id="__span-3-223"><a id="__codelineno-3-223" name="__codelineno-3-223"></a><span class="w">          </span><span class="kc">false</span><span class="p">,</span>
+</span><span id="__span-3-224"><a id="__codelineno-3-224" name="__codelineno-3-224"></a><span class="w">          </span><span class="n">serializeObjId</span><span class="p">(</span><span class="n">newPointer</span><span class="p">),</span>
+</span><span id="__span-3-225"><a id="__codelineno-3-225" name="__codelineno-3-225"></a><span class="w">          </span><span class="n">previous</span><span class="p">,</span>
+</span><span id="__span-3-226"><a id="__codelineno-3-226" name="__codelineno-3-226"></a><span class="w">          </span><span class="n">config</span><span class="p">().</span><span class="na">repositoryId</span><span class="p">(),</span>
+</span><span id="__span-3-227"><a id="__codelineno-3-227" name="__codelineno-3-227"></a><span class="w">          </span><span class="n">reference</span><span class="p">.</span><span class="na">name</span><span class="p">(),</span>
+</span><span id="__span-3-228"><a id="__codelineno-3-228" name="__codelineno-3-228"></a><span class="w">          </span><span class="n">serializeObjId</span><span class="p">(</span><span class="n">reference</span><span class="p">.</span><span class="na">pointer</span><span class="p">()),</span>
+</span><span id="__span-3-229"><a id="__codelineno-3-229" name="__codelineno-3-229"></a><span class="w">          </span><span class="kc">false</span><span class="p">,</span>
+</span><span id="__span-3-230"><a id="__codelineno-3-230" name="__codelineno-3-230"></a><span class="w">          </span><span class="n">reference</span><span class="p">.</span><span class="na">createdAtMicros</span><span class="p">(),</span>
+</span><span id="__span-3-231"><a id="__codelineno-3-231" name="__codelineno-3-231"></a><span class="w">          </span><span class="n">serializeObjId</span><span class="p">(</span><span class="n">reference</span><span class="p">.</span><span class="na">extendedInfoObj</span><span class="p">()));</span>
+</span><span id="__span-3-232"><a id="__codelineno-3-232" name="__codelineno-3-232"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">backend</span><span class="p">.</span><span class="na">executeCas</span><span class="p">(</span><span class="n">stmt</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-233"><a id="__codelineno-3-233" name="__codelineno-3-233"></a><span class="w">    </span><span class="n">Reference</span><span class="w"> </span><span class="n">ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fetchReference</span><span class="p">(</span><span class="n">reference</span><span class="p">.</span><span class="na">name</span><span class="p">());</span>
+</span><span id="__span-3-234"><a id="__codelineno-3-234" name="__codelineno-3-234"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ref</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-235"><a id="__codelineno-3-235" name="__codelineno-3-235"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RefNotFoundException</span><span class="p">(</span><span class="n">reference</span><span class="p">);</span>
+</span><span id="__span-3-236"><a id="__codelineno-3-236" name="__codelineno-3-236"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-237"><a id="__codelineno-3-237" name="__codelineno-3-237"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="p">(</span><span class="n">ref</span><span class="p">);</span>
+</span><span id="__span-3-238"><a id="__codelineno-3-238" name="__codelineno-3-238"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-239"><a id="__codelineno-3-239" name="__codelineno-3-239"></a>
+</span><span id="__span-3-240"><a id="__codelineno-3-240" name="__codelineno-3-240"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">updated</span><span class="p">;</span>
+</span><span id="__span-3-241"><a id="__codelineno-3-241" name="__codelineno-3-241"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Persist.java` L212–L241](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Persist.java#L212-L241) <span>@ nessie-0.108.4</span></p>
+
+<p>The same expected record, bound in the same order, into <code>UPDATE … WHERE repo=? AND ref_name=? IF pointer=? AND deleted=? AND created_at=? AND ext_info=?</code>. The <code>IF</code> clause makes it a Paxos lightweight transaction, executed at <code>LOCAL_QUORUM</code> with <code>LOCAL_SERIAL</code> serial consistency, and the whole detection mechanism is <code>backend.executeCas(stmt)</code>: <code>session.execute(stmt)</code>, then <code>wasApplied()</code> on the result — wrapped in a <code>catch (DriverException)</code> that routes through <code>unhandledException</code>, which is where section 6's third outcome enters from a CAS.</p>
+<p>Two things are worth naming. The statement is built with <code>setIdempotence(false)</code> — the driver must not silently retry an LWT on its own, because a driver-level retry of a conditional update is precisely the "unknown outcome" case that Nessie wants to handle itself, one level up. And an LWT is not cheap: Paxos costs four round trips per conditional write, per branch, per commit. Cassandra's throughput ceiling for a single hot branch is set by that, not by write bandwidth.</p>
+<h2 id="4-dynamodb-a-condition-expression-and-a-hard-limit">4. DynamoDB: a condition expression, and a hard limit<a class="headerlink" href="#4-dynamodb-a-condition-expression-and-a-hard-limit" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DynamoDB2.conditionalReferencePut()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-730">730</a></span>
+<span class="normal"><a href="#__codelineno-4-731">731</a></span>
+<span class="normal"><a href="#__codelineno-4-732">732</a></span>
+<span class="normal"><a href="#__codelineno-4-733">733</a></span>
+<span class="normal"><a href="#__codelineno-4-734">734</a></span>
+<span class="normal"><a href="#__codelineno-4-735">735</a></span>
+<span class="normal"><a href="#__codelineno-4-736">736</a></span>
+<span class="normal"><a href="#__codelineno-4-737">737</a></span>
+<span class="normal"><a href="#__codelineno-4-738">738</a></span>
+<span class="normal"><a href="#__codelineno-4-739">739</a></span>
+<span class="normal"><a href="#__codelineno-4-740">740</a></span>
+<span class="normal"><a href="#__codelineno-4-741">741</a></span>
+<span class="normal"><a href="#__codelineno-4-742">742</a></span>
+<span class="normal"><a href="#__codelineno-4-743">743</a></span>
+<span class="normal"><a href="#__codelineno-4-744">744</a></span>
+<span class="normal"><a href="#__codelineno-4-745">745</a></span>
+<span class="normal"><a href="#__codelineno-4-746">746</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-730"><a id="__codelineno-4-730" name="__codelineno-4-730"></a><span class="kd">private</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">conditionalReferencePut</span><span class="p">(</span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">reference</span><span class="p">,</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">expected</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-731"><a id="__codelineno-4-731" name="__codelineno-4-731"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">condition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">referenceCondition</span><span class="p">(</span><span class="n">expected</span><span class="p">);</span>
+</span><span id="__span-4-732"><a id="__codelineno-4-732" name="__codelineno-4-732"></a><span class="w">  </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">AttributeValue</span><span class="o">&gt;</span><span class="w"> </span><span class="n">values</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">referenceConditionAttributes</span><span class="p">(</span><span class="n">expected</span><span class="p">);</span>
+</span><span id="__span-4-733"><a id="__codelineno-4-733" name="__codelineno-4-733"></a>
+</span><span id="__span-4-734"><a id="__codelineno-4-734" name="__codelineno-4-734"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-735"><a id="__codelineno-4-735" name="__codelineno-4-735"></a><span class="w">    </span><span class="n">backend</span>
+</span><span id="__span-4-736"><a id="__codelineno-4-736" name="__codelineno-4-736"></a><span class="w">        </span><span class="p">.</span><span class="na">client</span><span class="p">()</span>
+</span><span id="__span-4-737"><a id="__codelineno-4-737" name="__codelineno-4-737"></a><span class="w">        </span><span class="p">.</span><span class="na">putItem</span><span class="p">(</span>
+</span><span id="__span-4-738"><a id="__codelineno-4-738" name="__codelineno-4-738"></a><span class="w">            </span><span class="n">b</span><span class="w"> </span><span class="o">-&gt;</span>
+</span><span id="__span-4-739"><a id="__codelineno-4-739" name="__codelineno-4-739"></a><span class="w">                </span><span class="n">b</span><span class="p">.</span><span class="na">tableName</span><span class="p">(</span><span class="n">backend</span><span class="p">.</span><span class="na">tableRefs</span><span class="p">)</span>
+</span><span id="__span-4-740"><a id="__codelineno-4-740" name="__codelineno-4-740"></a><span class="w">                    </span><span class="p">.</span><span class="na">conditionExpression</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
+</span><span id="__span-4-741"><a id="__codelineno-4-741" name="__codelineno-4-741"></a><span class="w">                    </span><span class="p">.</span><span class="na">expressionAttributeValues</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+</span><span id="__span-4-742"><a id="__codelineno-4-742" name="__codelineno-4-742"></a><span class="w">                    </span><span class="p">.</span><span class="na">item</span><span class="p">(</span><span class="n">referenceAttributeValues</span><span class="p">(</span><span class="n">reference</span><span class="p">)));</span>
+</span><span id="__span-4-743"><a id="__codelineno-4-743" name="__codelineno-4-743"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">RuntimeException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-744"><a id="__codelineno-4-744" name="__codelineno-4-744"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">unhandledException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-4-745"><a id="__codelineno-4-745" name="__codelineno-4-745"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-746"><a id="__codelineno-4-746" name="__codelineno-4-746"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java` L730–L746](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java#L730-L746) <span>@ nessie-0.108.4</span></p>
+
+<p>A <code>PutItem</code> that replaces the <em>whole</em> reference item, guarded by a <code>conditionExpression</code> built from the expected reference. The fixed half lives in <code>DynamoDB2Constants</code> and reads <code>(d = :deleted) AND (p = :pointer)</code>. <code>referenceCondition</code> appends two more clauses and <em>chooses</em> each one as it builds the string: <code>AND (c = :createdAt)</code> when the reference has a creation timestamp, <code>AND attribute_not_exists(c)</code> when it does not, and the same pair for <code>e</code>. No <code>OR</code> survives into the expression — the two forms are mutually exclusive, picked in Java before the request is sent. It is exactly the alternation <code>jdbc2</code> performs on SQL text, for exactly the same reason: an equality against an absent attribute can never be true, so the absence has to be tested for directly. Failure arrives as <code>ConditionalCheckFailedException</code>, which the caller catches and turns into the same re-read-then-classify sequence as everywhere else.</p>
+<p>Notably, the storage layer uses no DynamoDB transactions at all — not even in <code>storeObj</code>, where a comment records the reason: DynamoDB does not support "PUT IF NOT EXISTS" inside a <code>BatchWriteItemRequest</code>, so conditional inserts are issued as single-item writes.</p>
+<p>This is also the backend where chapter 8.3's arithmetic becomes concrete:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DynamoDB2.hardObjectSizeLimit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-121">121</a></span>
+<span class="normal"><a href="#__codelineno-5-122">122</a></span>
+<span class="normal"><a href="#__codelineno-5-123">123</a></span>
+<span class="normal"><a href="#__codelineno-5-124">124</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-121"><a id="__codelineno-5-121" name="__codelineno-5-121"></a><span class="nd">@Override</span>
+</span><span id="__span-5-122"><a id="__codelineno-5-122" name="__codelineno-5-122"></a><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">hardObjectSizeLimit</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-123"><a id="__codelineno-5-123" name="__codelineno-5-123"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ITEM_SIZE_LIMIT</span><span class="p">;</span>
+</span><span id="__span-5-124"><a id="__codelineno-5-124" name="__codelineno-5-124"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java` L121–L124](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java#L121-L124) <span>@ nessie-0.108.4</span></p>
+
+<p><code>ITEM_SIZE_LIMIT</code> is <code>400 * 1024</code>, commented in the source as "the hard item size limit in DynamoDB". Feed that through §1's formula: <code>effectiveIncrementalIndexSizeLimit()</code> becomes <code>min(50 KiB, 200 KiB)</code> — the configured 50 KiB still wins — but <code>effectiveIndexSegmentSizeLimit()</code> becomes <code>min(200 KiB, 200 KiB)</code>, exactly at the ceiling. On DynamoDB, the stripe size limit is the database's limit, and the spill machinery of 8.3 is what keeps commits under it.</p>
+<h2 id="5-rocksdb-and-in-memory-the-cas-that-is-not-a-cas">5. RocksDB and in-memory: the CAS that is not a CAS<a class="headerlink" href="#5-rocksdb-and-in-memory-the-cas-that-is-not-a-cas" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RocksDB — read, compare, write, under a lock</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-235">235</a></span>
+<span class="normal"><a href="#__codelineno-6-236">236</a></span>
+<span class="normal"><a href="#__codelineno-6-237">237</a></span>
+<span class="normal"><a href="#__codelineno-6-238">238</a></span>
+<span class="normal"><a href="#__codelineno-6-239">239</a></span>
+<span class="normal"><a href="#__codelineno-6-240">240</a></span>
+<span class="normal"><a href="#__codelineno-6-241">241</a></span>
+<span class="normal"><a href="#__codelineno-6-242">242</a></span>
+<span class="normal"><a href="#__codelineno-6-243">243</a></span>
+<span class="normal"><a href="#__codelineno-6-244">244</a></span>
+<span class="normal"><a href="#__codelineno-6-245">245</a></span>
+<span class="normal"><a href="#__codelineno-6-246">246</a></span>
+<span class="normal"><a href="#__codelineno-6-247">247</a></span>
+<span class="normal"><a href="#__codelineno-6-248">248</a></span>
+<span class="normal"><a href="#__codelineno-6-249">249</a></span>
+<span class="normal"><a href="#__codelineno-6-250">250</a></span>
+<span class="normal"><a href="#__codelineno-6-251">251</a></span>
+<span class="normal"><a href="#__codelineno-6-252">252</a></span>
+<span class="normal"><a href="#__codelineno-6-253">253</a></span>
+<span class="normal"><a href="#__codelineno-6-254">254</a></span>
+<span class="normal"><a href="#__codelineno-6-255">255</a></span>
+<span class="normal"><a href="#__codelineno-6-256">256</a></span>
+<span class="normal"><a href="#__codelineno-6-257">257</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-235"><a id="__codelineno-6-235" name="__codelineno-6-235"></a><span class="nd">@Override</span>
+</span><span id="__span-6-236"><a id="__codelineno-6-236" name="__codelineno-6-236"></a><span class="nd">@Nonnull</span>
+</span><span id="__span-6-237"><a id="__codelineno-6-237" name="__codelineno-6-237"></a><span class="kd">public</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="nf">updateReferencePointer</span><span class="p">(</span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">reference</span><span class="p">,</span><span class="w"> </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">ObjId</span><span class="w"> </span><span class="n">newPointer</span><span class="p">)</span>
+</span><span id="__span-6-238"><a id="__codelineno-6-238" name="__codelineno-6-238"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">RefNotFoundException</span><span class="p">,</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-239"><a id="__codelineno-6-239" name="__codelineno-6-239"></a><span class="w">  </span><span class="n">Lock</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repo</span><span class="p">.</span><span class="na">referencesLock</span><span class="p">(</span><span class="n">reference</span><span class="p">.</span><span class="na">name</span><span class="p">());</span>
+</span><span id="__span-6-240"><a id="__codelineno-6-240" name="__codelineno-6-240"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-241"><a id="__codelineno-6-241" name="__codelineno-6-241"></a><span class="w">    </span><span class="n">RocksDBBackend</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">backend</span><span class="p">;</span>
+</span><span id="__span-6-242"><a id="__codelineno-6-242" name="__codelineno-6-242"></a><span class="w">    </span><span class="n">TransactionDB</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="na">db</span><span class="p">();</span>
+</span><span id="__span-6-243"><a id="__codelineno-6-243" name="__codelineno-6-243"></a><span class="w">    </span><span class="n">ColumnFamilyHandle</span><span class="w"> </span><span class="n">cf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="na">refs</span><span class="p">();</span>
+</span><span id="__span-6-244"><a id="__codelineno-6-244" name="__codelineno-6-244"></a><span class="w">    </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dbKey</span><span class="p">(</span><span class="n">reference</span><span class="p">.</span><span class="na">name</span><span class="p">());</span>
+</span><span id="__span-6-245"><a id="__codelineno-6-245" name="__codelineno-6-245"></a>
+</span><span id="__span-6-246"><a id="__codelineno-6-246" name="__codelineno-6-246"></a><span class="w">    </span><span class="n">checkReference</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span><span class="w"> </span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">cf</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+</span><span id="__span-6-247"><a id="__codelineno-6-247" name="__codelineno-6-247"></a>
+</span><span id="__span-6-248"><a id="__codelineno-6-248" name="__codelineno-6-248"></a><span class="w">    </span><span class="n">Reference</span><span class="w"> </span><span class="n">updated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">forNewPointer</span><span class="p">(</span><span class="n">newPointer</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">);</span>
+</span><span id="__span-6-249"><a id="__codelineno-6-249" name="__codelineno-6-249"></a>
+</span><span id="__span-6-250"><a id="__codelineno-6-250" name="__codelineno-6-250"></a><span class="w">    </span><span class="n">db</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">serializeReference</span><span class="p">(</span><span class="n">updated</span><span class="p">));</span>
+</span><span id="__span-6-251"><a id="__codelineno-6-251" name="__codelineno-6-251"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">updated</span><span class="p">;</span>
+</span><span id="__span-6-252"><a id="__codelineno-6-252" name="__codelineno-6-252"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">RocksDBException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-253"><a id="__codelineno-6-253" name="__codelineno-6-253"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">rocksDbException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-6-254"><a id="__codelineno-6-254" name="__codelineno-6-254"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-255"><a id="__codelineno-6-255" name="__codelineno-6-255"></a><span class="w">    </span><span class="n">l</span><span class="p">.</span><span class="na">unlock</span><span class="p">();</span>
+</span><span id="__span-6-256"><a id="__codelineno-6-256" name="__codelineno-6-256"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-257"><a id="__codelineno-6-257" name="__codelineno-6-257"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBPersist.java` L235–L257](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBPersist.java#L235-L257) <span>@ nessie-0.108.4</span></p>
+
+<p><code>repo.referencesLock(name)</code>, then a hand-written <code>checkReference</code> (a <code>db.get</code>, a deserialize, and <code>ref.deleted() != expectDeleted || !ref.equals(expected)</code>), then a plain <code>db.put</code>, then <code>unlock()</code> in a <code>finally</code>. No conditional write anywhere. The lock is the condition.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RocksDBRepo — sixteen stripes of lock</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-22">22</a></span>
+<span class="normal"><a href="#__codelineno-7-23">23</a></span>
+<span class="normal"><a href="#__codelineno-7-24">24</a></span>
+<span class="normal"><a href="#__codelineno-7-25">25</a></span>
+<span class="normal"><a href="#__codelineno-7-26">26</a></span>
+<span class="normal"><a href="#__codelineno-7-27">27</a></span>
+<span class="normal"><a href="#__codelineno-7-28">28</a></span>
+<span class="normal"><a href="#__codelineno-7-29">29</a></span>
+<span class="normal"><a href="#__codelineno-7-30">30</a></span>
+<span class="normal"><a href="#__codelineno-7-31">31</a></span>
+<span class="normal"><a href="#__codelineno-7-32">32</a></span>
+<span class="normal"><a href="#__codelineno-7-33">33</a></span>
+<span class="normal"><a href="#__codelineno-7-34">34</a></span>
+<span class="normal"><a href="#__codelineno-7-35">35</a></span>
+<span class="normal"><a href="#__codelineno-7-36">36</a></span>
+<span class="normal"><a href="#__codelineno-7-37">37</a></span>
+<span class="normal"><a href="#__codelineno-7-38">38</a></span>
+<span class="normal"><a href="#__codelineno-7-39">39</a></span>
+<span class="normal"><a href="#__codelineno-7-40">40</a></span>
+<span class="normal"><a href="#__codelineno-7-41">41</a></span>
+<span class="normal"><a href="#__codelineno-7-42">42</a></span>
+<span class="normal"><a href="#__codelineno-7-43">43</a></span>
+<span class="normal"><a href="#__codelineno-7-44">44</a></span>
+<span class="normal"><a href="#__codelineno-7-45">45</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22"></a><span class="kd">final</span><span class="w"> </span><span class="kd">class</span> <span class="nc">RocksDBRepo</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23"></a>
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">STRIPES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span>
+</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25"></a>
+</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26"></a><span class="w">  </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">"UnstableApiUsage"</span><span class="p">)</span>
+</span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Striped</span><span class="o">&lt;</span><span class="n">Lock</span><span class="o">&gt;</span><span class="w"> </span><span class="n">referencesLocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Striped</span><span class="p">.</span><span class="na">lock</span><span class="p">(</span><span class="n">STRIPES</span><span class="p">);</span>
+</span><span id="__span-7-28"><a id="__codelineno-7-28" name="__codelineno-7-28"></a>
+</span><span id="__span-7-29"><a id="__codelineno-7-29" name="__codelineno-7-29"></a><span class="w">  </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">"UnstableApiUsage"</span><span class="p">)</span>
+</span><span id="__span-7-30"><a id="__codelineno-7-30" name="__codelineno-7-30"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Striped</span><span class="o">&lt;</span><span class="n">Lock</span><span class="o">&gt;</span><span class="w"> </span><span class="n">objLocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Striped</span><span class="p">.</span><span class="na">lock</span><span class="p">(</span><span class="n">STRIPES</span><span class="p">);</span>
+</span><span id="__span-7-31"><a id="__codelineno-7-31" name="__codelineno-7-31"></a>
+</span><span id="__span-7-32"><a id="__codelineno-7-32" name="__codelineno-7-32"></a><span class="w">  </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">"UnstableApiUsage"</span><span class="p">)</span>
+</span><span id="__span-7-33"><a id="__codelineno-7-33" name="__codelineno-7-33"></a><span class="w">  </span><span class="n">Lock</span><span class="w"> </span><span class="nf">referencesLock</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">referenceName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-34"><a id="__codelineno-7-34" name="__codelineno-7-34"></a><span class="w">    </span><span class="n">Lock</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">referencesLocks</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">referenceName</span><span class="p">);</span>
+</span><span id="__span-7-35"><a id="__codelineno-7-35" name="__codelineno-7-35"></a><span class="w">    </span><span class="n">l</span><span class="p">.</span><span class="na">lock</span><span class="p">();</span>
+</span><span id="__span-7-36"><a id="__codelineno-7-36" name="__codelineno-7-36"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">l</span><span class="p">;</span>
+</span><span id="__span-7-37"><a id="__codelineno-7-37" name="__codelineno-7-37"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-38"><a id="__codelineno-7-38" name="__codelineno-7-38"></a>
+</span><span id="__span-7-39"><a id="__codelineno-7-39" name="__codelineno-7-39"></a><span class="w">  </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">"UnstableApiUsage"</span><span class="p">)</span>
+</span><span id="__span-7-40"><a id="__codelineno-7-40" name="__codelineno-7-40"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Lock</span><span class="w"> </span><span class="nf">objLock</span><span class="p">(</span><span class="n">ObjId</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-41"><a id="__codelineno-7-41" name="__codelineno-7-41"></a><span class="w">    </span><span class="n">Lock</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objLocks</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+</span><span id="__span-7-42"><a id="__codelineno-7-42" name="__codelineno-7-42"></a><span class="w">    </span><span class="n">l</span><span class="p">.</span><span class="na">lock</span><span class="p">();</span>
+</span><span id="__span-7-43"><a id="__codelineno-7-43" name="__codelineno-7-43"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">l</span><span class="p">;</span>
+</span><span id="__span-7-44"><a id="__codelineno-7-44" name="__codelineno-7-44"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-45"><a id="__codelineno-7-45" name="__codelineno-7-45"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBRepo.java` L22–L45](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBRepo.java#L22-L45) <span>@ nessie-0.108.4</span></p>
+
+<p>Two Guava <code>Striped&lt;Lock&gt;</code> instances, sixteen stripes each, one keyed by reference name and one by <code>ObjId</code>. Sixteen is not a correctness parameter — striping only bounds contention between unrelated keys; two operations on the same reference name always land on the same lock.</p>
+<p>This is the right answer for an embedded store, and it is also the whole reason RocksDB is a development and single-node backend. The correctness argument in 8.4 depended on the <em>database</em> evaluating the condition. Here it is evaluated by a lock inside one JVM's heap, and a second Nessie process opening the same directory would violate every guarantee in that chapter with nothing in the code to stop it.</p>
+<p>The in-memory backend is in the same family and makes the point more compactly, because <code>ConcurrentHashMap</code> supplies the mutual exclusion for free:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">In-memory — computeIfPresent as the CAS</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-153">153</a></span>
+<span class="normal"><a href="#__codelineno-8-154">154</a></span>
+<span class="normal"><a href="#__codelineno-8-155">155</a></span>
+<span class="normal"><a href="#__codelineno-8-156">156</a></span>
+<span class="normal"><a href="#__codelineno-8-157">157</a></span>
+<span class="normal"><a href="#__codelineno-8-158">158</a></span>
+<span class="normal"><a href="#__codelineno-8-159">159</a></span>
+<span class="normal"><a href="#__codelineno-8-160">160</a></span>
+<span class="normal"><a href="#__codelineno-8-161">161</a></span>
+<span class="normal"><a href="#__codelineno-8-162">162</a></span>
+<span class="normal"><a href="#__codelineno-8-163">163</a></span>
+<span class="normal"><a href="#__codelineno-8-164">164</a></span>
+<span class="normal"><a href="#__codelineno-8-165">165</a></span>
+<span class="normal"><a href="#__codelineno-8-166">166</a></span>
+<span class="normal"><a href="#__codelineno-8-167">167</a></span>
+<span class="normal"><a href="#__codelineno-8-168">168</a></span>
+<span class="normal"><a href="#__codelineno-8-169">169</a></span>
+<span class="normal"><a href="#__codelineno-8-170">170</a></span>
+<span class="normal"><a href="#__codelineno-8-171">171</a></span>
+<span class="normal"><a href="#__codelineno-8-172">172</a></span>
+<span class="normal"><a href="#__codelineno-8-173">173</a></span>
+<span class="normal"><a href="#__codelineno-8-174">174</a></span>
+<span class="normal"><a href="#__codelineno-8-175">175</a></span>
+<span class="normal"><a href="#__codelineno-8-176">176</a></span>
+<span class="normal"><a href="#__codelineno-8-177">177</a></span>
+<span class="normal"><a href="#__codelineno-8-178">178</a></span>
+<span class="normal"><a href="#__codelineno-8-179">179</a></span>
+<span class="normal"><a href="#__codelineno-8-180">180</a></span>
+<span class="normal"><a href="#__codelineno-8-181">181</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-153"><a id="__codelineno-8-153" name="__codelineno-8-153"></a><span class="nd">@Override</span>
+</span><span id="__span-8-154"><a id="__codelineno-8-154" name="__codelineno-8-154"></a><span class="nd">@Nonnull</span>
+</span><span id="__span-8-155"><a id="__codelineno-8-155" name="__codelineno-8-155"></a><span class="kd">public</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="nf">updateReferencePointer</span><span class="p">(</span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">reference</span><span class="p">,</span><span class="w"> </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">ObjId</span><span class="w"> </span><span class="n">newPointer</span><span class="p">)</span>
+</span><span id="__span-8-156"><a id="__codelineno-8-156" name="__codelineno-8-156"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">RefNotFoundException</span><span class="p">,</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-157"><a id="__codelineno-8-157" name="__codelineno-8-157"></a><span class="w">  </span><span class="n">Reference</span><span class="w"> </span><span class="n">asUpdated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="na">forNewPointer</span><span class="p">(</span><span class="n">newPointer</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">);</span>
+</span><span id="__span-8-158"><a id="__codelineno-8-158" name="__codelineno-8-158"></a>
+</span><span id="__span-8-159"><a id="__codelineno-8-159" name="__codelineno-8-159"></a><span class="w">  </span><span class="n">Reference</span><span class="o">[]</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Reference</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span><span class="p">;</span>
+</span><span id="__span-8-160"><a id="__codelineno-8-160" name="__codelineno-8-160"></a><span class="w">  </span><span class="n">Reference</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-8-161"><a id="__codelineno-8-161" name="__codelineno-8-161"></a><span class="w">      </span><span class="n">inmemory</span><span class="p">.</span><span class="na">references</span><span class="p">.</span><span class="na">computeIfPresent</span><span class="p">(</span>
+</span><span id="__span-8-162"><a id="__codelineno-8-162" name="__codelineno-8-162"></a><span class="w">          </span><span class="n">compositeKey</span><span class="p">(</span><span class="n">reference</span><span class="p">.</span><span class="na">name</span><span class="p">()),</span>
+</span><span id="__span-8-163"><a id="__codelineno-8-163" name="__codelineno-8-163"></a><span class="w">          </span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-164"><a id="__codelineno-8-164" name="__codelineno-8-164"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">r</span><span class="p">.</span><span class="na">deleted</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-165"><a id="__codelineno-8-165" name="__codelineno-8-165"></a><span class="w">              </span><span class="n">result</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+</span><span id="__span-8-166"><a id="__codelineno-8-166" name="__codelineno-8-166"></a><span class="w">              </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">asUpdated</span><span class="p">;</span>
+</span><span id="__span-8-167"><a id="__codelineno-8-167" name="__codelineno-8-167"></a><span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-168"><a id="__codelineno-8-168" name="__codelineno-8-168"></a><span class="w">              </span><span class="n">result</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+</span><span id="__span-8-169"><a id="__codelineno-8-169" name="__codelineno-8-169"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-8-170"><a id="__codelineno-8-170" name="__codelineno-8-170"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+</span><span id="__span-8-171"><a id="__codelineno-8-171" name="__codelineno-8-171"></a><span class="w">          </span><span class="p">});</span>
+</span><span id="__span-8-172"><a id="__codelineno-8-172" name="__codelineno-8-172"></a>
+</span><span id="__span-8-173"><a id="__codelineno-8-173" name="__codelineno-8-173"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-174"><a id="__codelineno-8-174" name="__codelineno-8-174"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RefNotFoundException</span><span class="p">(</span><span class="n">reference</span><span class="p">);</span>
+</span><span id="__span-8-175"><a id="__codelineno-8-175" name="__codelineno-8-175"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-176"><a id="__codelineno-8-176" name="__codelineno-8-176"></a><span class="w">  </span><span class="n">Reference</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">;</span>
+</span><span id="__span-8-177"><a id="__codelineno-8-177" name="__codelineno-8-177"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-178"><a id="__codelineno-8-178" name="__codelineno-8-178"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">asUpdated</span><span class="p">;</span>
+</span><span id="__span-8-179"><a id="__codelineno-8-179" name="__codelineno-8-179"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-180"><a id="__codelineno-8-180" name="__codelineno-8-180"></a><span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="p">(</span><span class="n">result</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="p">);</span>
+</span><span id="__span-8-181"><a id="__codelineno-8-181" name="__codelineno-8-181"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/inmemory/src/main/java/org/projectnessie/versioned/storage/inmemory/InmemoryPersist.java` L153–L181](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/inmemory/src/main/java/org/projectnessie/versioned/storage/inmemory/InmemoryPersist.java#L153-L181) <span>@ nessie-0.108.4</span></p>
+
+<p><code>computeIfPresent</code> runs its remapping function under the map's per-bin lock, so the <code>!r.deleted() &amp;&amp; r.equals(reference)</code> test and the replacement are one atomic step. The two-element <code>Reference[] result</code> array is the workaround for a lambda that cannot return two different kinds of outcome: index 0 is set on success, index 1 on condition failure, and the caller reads them afterwards to decide which exception to throw. A <code>null</code> return from <code>computeIfPresent</code> means the key was absent — <code>RefNotFoundException</code>. Same three outcomes as PostgreSQL, expressed in a <code>HashMap</code>.</p>
+<pre class="mermaid"><code>flowchart LR
+    SPI["Persist.updateReferencePointer&lt;br/&gt;(expected Reference, newPointer)"]
+    SPI --&gt; NATIVE["Native conditional write:&lt;br/&gt;the database evaluates the predicate"]
+    SPI --&gt; LOCAL["Emulated:&lt;br/&gt;read - compare - write&lt;br/&gt;under a process-local lock"]
+    NATIVE --&gt; J["JDBC2: UPDATE ... WHERE&lt;br/&gt;rows == 1"]
+    NATIVE --&gt; C["Cassandra2: UPDATE ... IF&lt;br/&gt;wasApplied()"]
+    NATIVE --&gt; D["DynamoDB2: PutItem + ConditionExpression&lt;br/&gt;ConditionalCheckFailedException"]
+    NATIVE --&gt; M["MongoDB2: updateOne(filter)&lt;br/&gt;modifiedCount"]
+    NATIVE --&gt; B["Bigtable: CheckAndMutateRow&lt;br/&gt;predicate matched"]
+    LOCAL --&gt; R["RocksDB: Striped&amp;lt;Lock&amp;gt; x 16"]
+    LOCAL --&gt; I["In-memory: ConcurrentHashMap"]
+    NATIVE -.-&gt; SAFE(["safe across N Nessie servers"])
+    LOCAL -.-&gt; UNSAFE(["one JVM only"])</code></pre>
+<h2 id="6-the-axis-that-only-appears-under-failure">6. The axis that only appears under failure<a class="headerlink" href="#6-the-axis-that-only-appears-under-failure" title="Permanent link">&para;</a></h2>
+<p>Every conditional write can end three ways: applied, not applied, or <em>the connection died and nobody knows</em>. Chapter 8.4 showed <code>bumpReferencePointer</code> handling the third with a single re-read — but that path only runs if the backend raises <code>UnknownOperationResultException</code> rather than a plain <code>RuntimeException</code>. Each backend defines the boundary in its own failure vocabulary:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Cassandra2Backend.unhandledException()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-347">347</a></span>
+<span class="normal"><a href="#__codelineno-9-348">348</a></span>
+<span class="normal"><a href="#__codelineno-9-349">349</a></span>
+<span class="normal"><a href="#__codelineno-9-350">350</a></span>
+<span class="normal"><a href="#__codelineno-9-351">351</a></span>
+<span class="normal"><a href="#__codelineno-9-352">352</a></span>
+<span class="normal"><a href="#__codelineno-9-353">353</a></span>
+<span class="normal"><a href="#__codelineno-9-354">354</a></span>
+<span class="normal"><a href="#__codelineno-9-355">355</a></span>
+<span class="normal"><a href="#__codelineno-9-356">356</a></span>
+<span class="normal"><a href="#__codelineno-9-357">357</a></span>
+<span class="normal"><a href="#__codelineno-9-358">358</a></span>
+<span class="normal"><a href="#__codelineno-9-359">359</a></span>
+<span class="normal"><a href="#__codelineno-9-360">360</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-347"><a id="__codelineno-9-347" name="__codelineno-9-347"></a><span class="kd">static</span><span class="w"> </span><span class="n">RuntimeException</span><span class="w"> </span><span class="nf">unhandledException</span><span class="p">(</span><span class="n">DriverException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-348"><a id="__codelineno-9-348" name="__codelineno-9-348"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isUnknownOperationResult</span><span class="p">(</span><span class="n">e</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-349"><a id="__codelineno-9-349" name="__codelineno-9-349"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UnknownOperationResultException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-9-350"><a id="__codelineno-9-350" name="__codelineno-9-350"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="k">instanceof</span><span class="w"> </span><span class="n">AllNodesFailedException</span><span class="w"> </span><span class="n">all</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-351"><a id="__codelineno-9-351" name="__codelineno-9-351"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">all</span><span class="p">.</span><span class="na">getAllErrors</span><span class="p">().</span><span class="na">values</span><span class="p">().</span><span class="na">stream</span><span class="p">()</span>
+</span><span id="__span-9-352"><a id="__codelineno-9-352" name="__codelineno-9-352"></a><span class="w">        </span><span class="p">.</span><span class="na">flatMap</span><span class="p">(</span><span class="n">List</span><span class="p">::</span><span class="n">stream</span><span class="p">)</span>
+</span><span id="__span-9-353"><a id="__codelineno-9-353" name="__codelineno-9-353"></a><span class="w">        </span><span class="p">.</span><span class="na">filter</span><span class="p">(</span><span class="n">DriverException</span><span class="p">.</span><span class="na">class</span><span class="p">::</span><span class="n">isInstance</span><span class="p">)</span>
+</span><span id="__span-9-354"><a id="__codelineno-9-354" name="__codelineno-9-354"></a><span class="w">        </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">DriverException</span><span class="p">.</span><span class="na">class</span><span class="p">::</span><span class="n">cast</span><span class="p">)</span>
+</span><span id="__span-9-355"><a id="__codelineno-9-355" name="__codelineno-9-355"></a><span class="w">        </span><span class="p">.</span><span class="na">anyMatch</span><span class="p">(</span><span class="n">Cassandra2Backend</span><span class="p">::</span><span class="n">isUnknownOperationResult</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-356"><a id="__codelineno-9-356" name="__codelineno-9-356"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UnknownOperationResultException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-9-357"><a id="__codelineno-9-357" name="__codelineno-9-357"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-358"><a id="__codelineno-9-358" name="__codelineno-9-358"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-9-359"><a id="__codelineno-9-359" name="__codelineno-9-359"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">e</span><span class="p">;</span>
+</span><span id="__span-9-360"><a id="__codelineno-9-360" name="__codelineno-9-360"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Backend.java` L347–L360](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Backend.java#L347-L360) <span>@ nessie-0.108.4</span></p>
+
+<p><code>QueryConsistencyException</code> or <code>DriverTimeoutException</code> means unknown. Everything else is rethrown as-is and fails the commit. The <code>AllNodesFailedException</code> branch matters: the driver wraps per-node errors, so a timeout can arrive nested inside an aggregate exception, and the code flattens <code>getAllErrors()</code> to check whether <em>any</em> inner error was one of the two. Miss that unwrapping and a timed-out LWT would be reported as a hard failure.</p>
+<p>The others make the same decision with different vocabulary:</p>
+<table>
+<thead>
+<tr>
+<th>Backend</th>
+<th>"I do not know" is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JDBC2</td>
+<td><code>databaseSpecific.isRetryTransaction(e)</code> — SQLSTATE <code>40001</code> (Cockroach "retry, write too old") and <code>40P01</code> (Postgres deadlock)</td>
+</tr>
+<tr>
+<td>Cassandra2</td>
+<td><code>QueryConsistencyException</code>, <code>DriverTimeoutException</code>, including inside <code>AllNodesFailedException</code></td>
+</tr>
+<tr>
+<td>DynamoDB2</td>
+<td><code>SdkException.retryable()</code>, the two API-call timeouts, <code>AbortedException</code>, plus any throttling <code>AwsServiceException</code></td>
+</tr>
+<tr>
+<td>Bigtable</td>
+<td><code>DeadlineExceededException</code>, <code>WatchdogTimeoutException</code>, <code>UnknownException</code>, <code>AbortedException</code></td>
+</tr>
+<tr>
+<td>RocksDB / in-memory</td>
+<td>never — <code>rocksDbException</code> always returns a plain <code>RuntimeException</code></td>
+</tr>
+</tbody>
+</table>
+<p>RocksDB's mapper is the clearest statement of the whole axis, because there is nothing in it:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RocksDBBackend.rocksDbException()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-202">202</a></span>
+<span class="normal"><a href="#__codelineno-10-203">203</a></span>
+<span class="normal"><a href="#__codelineno-10-204">204</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-202"><a id="__codelineno-10-202" name="__codelineno-10-202"></a><span class="kd">static</span><span class="w"> </span><span class="n">RuntimeException</span><span class="w"> </span><span class="nf">rocksDbException</span><span class="p">(</span><span class="n">RocksDBException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-203"><a id="__codelineno-10-203" name="__codelineno-10-203"></a><span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RuntimeException</span><span class="p">(</span><span class="s">"Unhandled RocksDB exception"</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-10-204"><a id="__codelineno-10-204" name="__codelineno-10-204"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBBackend.java` L202–L204](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBBackend.java#L202-L204) <span>@ nessie-0.108.4</span></p>
+
+<p>Three lines, no classification, no <code>UnknownOperationResultException</code> anywhere in the module. A local operation either happened or threw; there is no third outcome to model. Every remote backend has one, and misclassifying it in either direction is a real bug — call an unknown result a failure and a landed commit is reported as an error; call a genuine failure unknown and 8.4's re-read runs against a reference that never moved.</p>
+<h2 id="7-the-whole-comparison">7. The whole comparison<a class="headerlink" href="#7-the-whole-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Backend</th>
+<th>Reference CAS mechanism</th>
+<th>Failure signal</th>
+<th>Objects: insert-if-absent</th>
+<th>Unknown result?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>In-memory</td>
+<td><code>ConcurrentHashMap.computeIfPresent</code></td>
+<td>remapping function saw a mismatch</td>
+<td><code>compute</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td>RocksDB</td>
+<td>read-compare-write under <code>Striped&lt;Lock&gt;</code> (16)</td>
+<td><code>checkReference</code> throws</td>
+<td><code>get</code> then <code>put</code> under the obj lock</td>
+<td>no</td>
+</tr>
+<tr>
+<td>JDBC2 (PG, CRDB, MariaDB, H2)</td>
+<td><code>UPDATE … WHERE</code></td>
+<td><code>executeUpdate() != 1</code></td>
+<td><code>ON CONFLICT DO NOTHING</code> / <code>INSERT IGNORE</code></td>
+<td>SQLSTATE <code>40001</code>, <code>40P01</code></td>
+</tr>
+<tr>
+<td>Cassandra2</td>
+<td><code>UPDATE … IF</code> (Paxos LWT)</td>
+<td><code>wasApplied()</code></td>
+<td><code>INSERT … IF NOT EXISTS</code></td>
+<td>consistency / timeout exceptions</td>
+</tr>
+<tr>
+<td>DynamoDB2</td>
+<td><code>PutItem</code> + <code>ConditionExpression</code></td>
+<td><code>ConditionalCheckFailedException</code></td>
+<td><code>attribute_not_exists(y)</code></td>
+<td>retryable / timeout / throttling</td>
+</tr>
+<tr>
+<td>MongoDB2</td>
+<td><code>updateOne</code> with a filter document</td>
+<td>modified and matched counts</td>
+<td><code>insertOne</code> + <code>DUPLICATE_KEY</code></td>
+<td>timeout / interrupt exceptions</td>
+</tr>
+<tr>
+<td>Bigtable</td>
+<td><code>CheckAndMutateRow</code> on the serialized value</td>
+<td>the predicate boolean</td>
+<td><code>CheckAndMutateRow</code> then/otherwise</td>
+<td>deadline / watchdog / unknown / aborted</td>
+</tr>
+</tbody>
+</table>
+<p>One row needs a footnote. <strong>MongoDB2</strong> treats <code>modifiedCount != 1</code> with <code>matchedCount == 1</code> as <em>success</em> — the filter matched, so the expected record was current, but the document came out unchanged because the new pointer equalled the old one. Treating that as a failure would turn a legitimate no-op commit into a retry loop that can never make progress.</p>
+<p>The <code>storeObj</code> half is more uniform than the reference half, because every one of these databases can express insert-if-absent. The shape is the same everywhere: attempt the conditional insert, and if it conflicts the object already exists, so issue a cheap second write that only bumps the <code>referenced</code> timestamp (8.1) and return <code>false</code>. Cassandra's version of that second write carries a comment worth transplanting into any similar design — "IF EXISTS is necessary to prevent writing just the referenced timestamp after an object has been deleted".</p>
+<h2 id="8-what-the-v2-rewrite-was-actually-about">8. What the v2 rewrite was actually about<a class="headerlink" href="#8-what-the-v2-rewrite-was-actually-about" title="Permanent link">&para;</a></h2>
+<p>Four backends exist twice: <code>jdbc</code>/<code>jdbc2</code>, <code>cassandra</code>/<code>cassandra2</code>, <code>dynamodb</code>/<code>dynamodb2</code>, <code>mongodb</code>/<code>mongodb2</code>. The v1 variants are <code>@Deprecated</code> at the Quarkus config level, and the one-line javadocs there say exactly what the difference is — "variant using many distinct columns" against "variant using few columns, saves storage overhead".</p>
+<p>That is the whole change: v1 gives every object type its own columns or attributes; v2 stores one serialized blob plus a type and a version. The object <em>layout</em> was rewritten. The reference CAS is essentially unchanged between each pair — the same expected record, the same conditional statement, the same re-read-and-classify on failure.</p>
+<p>Which is the closing argument of Part 8. The part of the design that turned out to need a second attempt was how objects are laid out in rows. The one-conditional-update-on-one-row primitive that everything else rests on was right the first time, and it is the same primitive in seven dialects.</p>
+<h2 id="9-gotchas">9. Gotchas<a class="headerlink" href="#9-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">RocksDB opens a <code>TransactionDB</code> and never starts a transaction</p>
+<p><code>RocksDBBackend</code> calls <code>TransactionDB.open(...)</code>, which reads like the module uses RocksDB transactions. Grep it for <code>beginTransaction</code>, <code>getForUpdate</code> or <code>WriteBatch</code> and there are no hits — every operation is a plain <code>db.get</code> / <code>db.put</code>, and all atomicity comes from <code>RocksDBRepo</code>'s striped locks. The consequence must be stated plainly: two Nessie processes pointed at the same RocksDB directory would violate every guarantee in chapter 8.4, and nothing in the code prevents it.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">The DynamoDB backend factory names are swapped at this tag</p>
+<p>The deprecated <code>dynamodb</code> module declares <code>public static final String NAME = "DynamoDB2"</code>, and the current <code>dynamodb2</code> module declares <code>NAME = "DynamoDB"</code> (<code>DynamoDBBackendFactory.java:23</code>, <code>DynamoDB2BackendFactory.java:23</code>). So <code>PersistLoader.findFactoryByName("DynamoDB")</code> resolves the <em>v2</em> module and vice versa. No other module pair does this. Quarkus is unaffected because it selects by <code>@StoreType</code> rather than by name, but code using <code>PersistLoader</code> directly — or anyone reading <code>Persist.name()</code> out of a log line — will be misled. Stated here as a fact of the pinned source, not as a claim about intent.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Bigtable pins a constant cell timestamp, and the comment says why</p>
+<p><code>refsMutation</code> writes at a fixed <code>CELL_TIMESTAMP</code>: <em>"must use a constant timestamp, otherwise BigTable will pile up historic values, which would also break our CAS conditions, because historic values could match."</em> Bigtable's <code>CheckAndMutateRow</code> filter matches on cell <em>value</em>, and with versioned cells the filter could match a superseded version and let a stale update through. It is the sharpest illustration in the codebase of how narrow the margin is between "this database can do a CAS" and "this database can do a CAS correctly".</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Three backends knowingly get <code>deleteWithReferenced</code> wrong for pre-existing objects</p>
+<p>Cassandra2, DynamoDB2 and Bigtable each carry a variant of the same comment — <em>"We take a risk here in case the given object does not have a <code>referenced()</code> value (old object)"</em> — because Cassandra's conditional <code>DELETE … IF</code> cannot express <code>IF col IS NULL</code>, DynamoDB cannot check <code>== 0 OR IS ABSENT</code>, and Bigtable cannot test for the <em>absence</em> of a cell. JDBC2 can, and carries two SQL variants for it. This is a maintenance-path correctness gap on repositories written before <code>referenced()</code> existed, and it is documented in the source rather than hidden.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title"><code>BatchingPersist.storeObj</code> returns <code>true</code> unconditionally</p>
+<p>It buffers into a pending map and reports success for everything; the real conditional insert happens at <code>flush()</code>. Any code reading that boolean as "I created this object" is wrong under batching — which is part of why the commit path re-reads and compares in <code>mitigateHashCollision</code> (8.2) instead of trusting the flag.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Grade a backend on one axis: what it provides for the reference CAS. Every production backend gets it natively and differs only in dialect.</li>
+<li>Two families exist. Native conditional writes — JDBC, Cassandra, DynamoDB, MongoDB, Bigtable — are evaluated by the database and are safe across N Nessie servers. Emulated ones — RocksDB, in-memory — are evaluated under a process-local lock and are correct in exactly one JVM.</li>
+<li>Every backend widens the condition to the whole reference record, and two of them had to work around their database's handling of <code>NULL</code> to do it.</li>
+<li>The second, subtler split is whether a backend can raise <code>UnknownOperationResultException</code>. Local backends never can; every remote one defines it against its own timeout vocabulary, and that classification decides whether a commit is retried or failed.</li>
+<li><code>hardObjectSizeLimit()</code> is the SPI's only physical concession, and DynamoDB's 400 KB item limit is what makes chapter 8.3's stripe threshold a hard ceiling rather than a tuning knob.</li>
+<li>The v1→v2 rewrite changed the object row layout and left the reference CAS alone. That is a statement about which part of the design was load-bearing and correct from the start.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The SPI and its physical-limit knobs</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java"><code>versioned/storage/common/.../persist/Persist.java</code></a></td>
+</tr>
+<tr>
+<td>RocksDB</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBPersist.java"><code>versioned/storage/rocksdb/.../RocksDBPersist.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBRepo.java"><code>.../RocksDBRepo.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBBackend.java"><code>.../RocksDBBackend.java</code></a></td>
+</tr>
+<tr>
+<td>JDBC (current)</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java"><code>versioned/storage/jdbc2/.../AbstractJdbc2Persist.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/SqlConstants.java"><code>.../SqlConstants.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/Jdbc2Backend.java"><code>.../Jdbc2Backend.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/DatabaseSpecifics.java"><code>.../DatabaseSpecifics.java</code></a></td>
+</tr>
+<tr>
+<td>DynamoDB (current)</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java"><code>versioned/storage/dynamodb2/.../DynamoDB2Persist.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Constants.java"><code>.../DynamoDB2Constants.java</code></a></td>
+</tr>
+<tr>
+<td>Cassandra (current)</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Persist.java"><code>versioned/storage/cassandra2/.../Cassandra2Persist.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Constants.java"><code>.../Cassandra2Constants.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Backend.java"><code>.../Cassandra2Backend.java</code></a></td>
+</tr>
+<tr>
+<td>MongoDB, Bigtable, in-memory</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/mongodb2/src/main/java/org/projectnessie/versioned/storage/mongodb2/MongoDB2Persist.java"><code>versioned/storage/mongodb2/.../MongoDB2Persist.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/bigtable/src/main/java/org/projectnessie/versioned/storage/bigtable/BigTablePersist.java"><code>versioned/storage/bigtable/.../BigTablePersist.java</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/inmemory/src/main/java/org/projectnessie/versioned/storage/inmemory/InmemoryPersist.java"><code>versioned/storage/inmemory/.../InmemoryPersist.java</code></a></td>
+</tr>
+<tr>
+<td>Where deprecation of the v1 variants is declared</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/servers/quarkus-config/src/main/java/org/projectnessie/quarkus/config/VersionStoreConfig.java"><code>servers/quarkus-config/.../config/VersionStoreConfig.java</code></a></td>
+</tr>
+<tr>
+<td>Indeterminate outcomes</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/exceptions/UnknownOperationResultException.java"><code>versioned/storage/common/.../exceptions/UnknownOperationResultException.java</code></a></td>
+</tr>
+<tr>
+<td>Batching wrapper</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/batching/src/main/java/org/projectnessie/versioned/storage/batching/BatchingPersistImpl.java"><code>versioned/storage/batching/.../BatchingPersistImpl.java</code></a></td>
+</tr>
+<tr>
+<td>Upstream's own backend impressions</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/README.md"><code>versioned/storage/README.md</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Part 9 builds Nessie's branching algorithms — commit, merge, transplant, garbage collection — on top of everything in this part, and from here on "the CAS" can be said without qualification.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_8.4_references_cas/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 8.4 References and CAS: where atomicity actually lands">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                8.4 References and CAS: where atomicity actually lands
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../part09_branching/" class="md-footer__link md-footer__link--next" aria-label="Next: Part 9 · Branching Algorithms">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Part 9 · Branching Algorithms
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

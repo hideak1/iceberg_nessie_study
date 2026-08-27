@@ -1,0 +1,27 @@
+/* Provenance line under every injected source block. */
+.snip-src {
+  margin-top: -0.9rem;
+  font-size: 0.72rem;
+  color: var(--md-default-fg-color--light);
+  border-left: 2px solid var(--md-accent-fg-color);
+  padding-left: 0.6rem;
+}
+.snip-src span {
+  opacity: 0.65;
+  font-style: italic;
+}
+.snip-src code {
+  font-size: 0.72rem;
+  background: transparent;
+  padding: 0 0.15rem;
+}
+
+/* Chapter header block */
+.chapter-meta {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 4px;
+  padding: 0.7rem 1rem;
+  font-size: 0.8rem;
+  background: var(--md-code-bg-color);
+}
+.chapter-meta p { margin: 0.25rem 0; }

@@ -1,0 +1,4048 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part05_write_path/chapter_5.1_writers/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../chapter_5.2_append_strategies/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>5.1 The writer family and metrics collection - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-51-the-writer-family-and-metrics-collection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              5.1 The writer family and metrics collection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-two-axes-and-one-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Two axes and one contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-floor-filewriter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The floor: FileWriter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-size-axis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The size axis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-routing-axis-clustered-or-fanout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The routing axis: clustered or fanout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-where-a-datafile-is-born" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Where a DataFile is born
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-metricsconfig-deciding-what-to-collect-before-any-row-is-written" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. MetricsConfig: deciding what to collect, before any row is written
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-applying-the-modes-parquetmetrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Applying the modes: ParquetMetrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-two-axes-and-one-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Two axes and one contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-floor-filewriter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The floor: FileWriter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-size-axis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The size axis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-routing-axis-clustered-or-fanout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The routing axis: clustered or fanout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-where-a-datafile-is-born" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Where a DataFile is born
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-metricsconfig-deciding-what-to-collect-before-any-row-is-written" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. MetricsConfig: deciding what to collect, before any row is written
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-applying-the-modes-parquetmetrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Applying the modes: ParquetMetrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 5 · Write Path
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-51-the-writer-family-and-metrics-collection">Chapter 5.1 — The writer family and metrics collection<a class="headerlink" href="#chapter-51-the-writer-family-and-metrics-collection" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> between an engine handing Iceberg a row and a <code>DataFile</code> object appearing with column bounds inside it, which classes touch that row — and where do the bounds that Chapter 4.3 prunes on actually get computed?</p>
+<p><strong>Prerequisites:</strong> Chapter 2.4 (the manifest's <code>data_file</code> struct and its <code>lower_bounds</code> / <code>upper_bounds</code> maps), Chapter 4.3 (metrics pruning — this chapter is its other half)</p>
+<p><strong>Source covered:</strong> <code>core/.../io/FileWriter.java</code>, <code>core/.../io/RollingFileWriter.java</code>, <code>core/.../io/ClusteredWriter.java</code>, <code>core/.../io/DataWriter.java</code>, <code>core/.../MetricsConfig.java</code>, <code>parquet/.../ParquetMetrics.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>Chapter 4.3 showed the read path throwing away entire files without opening them, on the strength of a few bytes in a manifest: <code>lower_bounds</code>, <code>upper_bounds</code>, <code>value_counts</code>, <code>null_value_counts</code>. That chapter treated those bytes as given.</p>
+<p>They are not given. Somebody wrote them, at write time, having made a decision about which columns deserved them. If that decision went the wrong way, the file has no bounds for the column you filter on, and nothing downstream can recover them — not a re-plan, not a rewrite of the manifest, not a hint. The pruning simply does not happen, and the query plan will not tell you why.</p>
+<p>So this chapter is the counterpart to 4.3. Half a mechanism lives there; the other half lives here, in the writer stack. And the writer stack has to solve three problems for every row, on behalf of every engine:</p>
+<ol>
+<li><strong>Which file</strong> does this row belong in — which partition, under which spec?</li>
+<li><strong>How big</strong> is that file allowed to get before we cut a new one?</li>
+<li><strong>What do we record</strong> about the file once it is closed?</li>
+</ol>
+<p>Iceberg answers these in three separate layers, so that Spark, Flink and Trino do not each invent their own answer and then disagree about it. The layers compose: routing on top of rolling on top of a single writer contract, with metrics falling out of the bottom.</p>
+<h2 id="2-two-axes-and-one-contract">2. Two axes and one contract<a class="headerlink" href="#2-two-axes-and-one-contract" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>classDiagram
+    class FileAppender~T~ {
+        &lt;&lt;interface&gt;&gt;
+        +add(T) void
+        +metrics() Metrics
+        +length() long
+    }
+    class FileWriter~T,R~ {
+        &lt;&lt;interface&gt;&gt;
+        +write(T) void
+        +length() long
+        +result() R
+    }
+    class DataWriter~T~ {
+        +close() void
+        +toDataFile() DataFile
+    }
+    class EqualityDeleteWriter~T~
+    class PositionDeleteWriter~T~
+    class RollingFileWriter~T,W,R~ {
+        &lt;&lt;abstract&gt;&gt;
+        #newWriter(EncryptedOutputFile) W
+    }
+    class RollingDataWriter~T~
+    class PartitioningWriter~T,R~ {
+        &lt;&lt;interface&gt;&gt;
+        +write(T, PartitionSpec, StructLike) void
+        +result() R
+    }
+    class ClusteredWriter~T,R~ {
+        &lt;&lt;abstract&gt;&gt;
+        at most one file open
+    }
+    class FanoutWriter~T,R~ {
+        &lt;&lt;abstract&gt;&gt;
+        every seen partition open
+    }
+    class ClusteredDataWriter~T~
+    class FanoutDataWriter~T~
+
+    FileWriter &lt;|.. DataWriter
+    FileWriter &lt;|.. EqualityDeleteWriter
+    FileWriter &lt;|.. PositionDeleteWriter
+    FileWriter &lt;|.. RollingFileWriter
+    RollingFileWriter &lt;|-- RollingDataWriter
+    FileAppender &lt;.. DataWriter : wraps
+    DataWriter &lt;.. RollingDataWriter : creates per file
+    PartitioningWriter &lt;|.. ClusteredWriter
+    PartitioningWriter &lt;|.. FanoutWriter
+    ClusteredWriter &lt;|-- ClusteredDataWriter
+    FanoutWriter &lt;|-- FanoutDataWriter
+    RollingDataWriter &lt;.. ClusteredDataWriter : newWriter(spec, partition)
+    RollingDataWriter &lt;.. FanoutDataWriter : newWriter(spec, partition)</code></pre>
+<p>Read the diagram as two axes rather than one hierarchy. <code>RollingFileWriter</code> adds <strong>size</strong>. <code>PartitioningWriter</code> adds <strong>routing</strong>. <code>ClusteredDataWriter</code> and <code>FanoutDataWriter</code> are the two corners where both are switched on, and they differ only in their routing strategy.</p>
+<div class="admonition note">
+<p class="admonition-title">There are two writer families in the tree, and both are live</p>
+<p>Everything above is the <code>PartitioningWriter</code> family, which Spark uses. There is a second, older family — <code>TaskWriter</code>, <code>BaseTaskWriter</code>, <code>PartitionedWriter</code>, <code>PartitionedFanoutWriter</code>, <code>UnpartitionedWriter</code> — still used by the Flink sink, and not deprecated at this tag. <code>PartitionedFanoutWriter</code> belongs to that older family; its counterpart in the newer one is <code>FanoutDataWriter</code>. Naming a class without naming its family is how people end up reading the wrong file.</p>
+</div>
+<h2 id="3-the-floor-filewriter">3. The floor: <code>FileWriter</code><a class="headerlink" href="#3-the-floor-filewriter" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">FileWriter — the base contract</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span>
+<span class="normal"><a href="#__codelineno-0-52">52</a></span>
+<span class="normal"><a href="#__codelineno-0-53">53</a></span>
+<span class="normal"><a href="#__codelineno-0-54">54</a></span>
+<span class="normal"><a href="#__codelineno-0-55">55</a></span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span>
+<span class="normal"><a href="#__codelineno-0-57">57</a></span>
+<span class="normal"><a href="#__codelineno-0-58">58</a></span>
+<span class="normal"><a href="#__codelineno-0-59">59</a></span>
+<span class="normal"><a href="#__codelineno-0-60">60</a></span>
+<span class="normal"><a href="#__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#__codelineno-0-63">63</a></span>
+<span class="normal"><a href="#__codelineno-0-64">64</a></span>
+<span class="normal"><a href="#__codelineno-0-65">65</a></span>
+<span class="normal"><a href="#__codelineno-0-66">66</a></span>
+<span class="normal"><a href="#__codelineno-0-67">67</a></span>
+<span class="normal"><a href="#__codelineno-0-68">68</a></span>
+<span class="normal"><a href="#__codelineno-0-69">69</a></span>
+<span class="normal"><a href="#__codelineno-0-70">70</a></span>
+<span class="normal"><a href="#__codelineno-0-71">71</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">FileWriter</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="o">&gt;</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Closeable</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="w">  </span><span class="cm">/**</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="cm">   * Writes rows to a predefined spec/partition.</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="cm">   *</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="cm">   * @param rows data or delete records</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="cm">   */</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="w">  </span><span class="k">default</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="n">rows</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">rows</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="w">      </span><span class="n">write</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="w">  </span><span class="cm">/**</span>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="cm">   * Writes a row to a predefined spec/partition.</span>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="cm">   *</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="cm">   * @param row a data or delete record</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="cm">   */</span>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">row</span><span class="p">);</span>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a>
+</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="w">  </span><span class="cm">/**</span>
+</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="cm">   * Returns the number of bytes that were currently written by this writer.</span>
+</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="cm">   *</span>
+</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="cm">   * @return the number of written bytes</span>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="cm">   */</span>
+</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="nf">length</span><span class="p">();</span>
+</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a>
+</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="w">  </span><span class="cm">/**</span>
+</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="cm">   * Returns a result that contains information about written {@link DataFile}s or {@link</span>
+</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="cm">   * DeleteFile}s. The result is valid only after the writer is closed.</span>
+</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="cm">   *</span>
+</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="cm">   * @return the file writer result</span>
+</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="cm">   */</span>
+</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="w">  </span><span class="n">R</span><span class="w"> </span><span class="nf">result</span><span class="p">();</span>
+</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/FileWriter.java` L37–L71](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/FileWriter.java#L37-L71) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The interface is four methods, and the javadoc carries the whole point: as opposed to <code>FileAppender</code>, implementations "not only append records to files but actually produce <code>DataFile</code>s or <code>DeleteFile</code>s objects with Iceberg metadata."</p>
+<p>That is the boundary this chapter is about. A <code>FileAppender</code> knows Parquet; it does not know what a partition is. A <code>FileWriter</code> wraps one with "extra information such as spec, partition, sort order ID needed to construct <code>DataFile</code>s". One spec, one partition, one file — and a result object, not bytes.</p>
+<p>The generic result type <code>R</code> is why the same interface serves three purposes: <code>DataWriter</code> returns <code>DataWriteResult</code>, <code>EqualityDeleteWriter</code> and <code>PositionDeleteWriter</code> return <code>DeleteWriteResult</code>. Chapter 5.3 picks up the delete side.</p>
+<h2 id="4-the-size-axis">4. The size axis<a class="headerlink" href="#4-the-size-axis" title="Permanent link">&para;</a></h2>
+<p><code>RollingFileWriter</code> implements <code>FileWriter</code> by delegating to a <em>sequence</em> of <code>FileWriter</code>s, cutting a new one when the current file reaches the target size. The check is deliberately cheap:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RollingFileWriter.shouldRollToNewFile()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-103">103</a></span>
+<span class="normal"><a href="#__codelineno-1-104">104</a></span>
+<span class="normal"><a href="#__codelineno-1-105">105</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-103"><a id="__codelineno-1-103" name="__codelineno-1-103"></a><span class="kd">private</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">shouldRollToNewFile</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-104"><a id="__codelineno-1-104" name="__codelineno-1-104"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">currentFileRows</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">ROWS_DIVISOR</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">currentWriter</span><span class="p">.</span><span class="na">length</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">targetFileSizeInBytes</span><span class="p">;</span>
+</span><span id="__span-1-105"><a id="__codelineno-1-105" name="__codelineno-1-105"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java` L103–L105](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java#L103-L105) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>ROWS_DIVISOR</code> is 1000. Asking a Parquet appender for its current length is not free — it has to account for buffered, uncompressed row-group state — so the size is <em>sampled</em> every thousand rows rather than checked per row. This is the first place <code>write.target-file-size-bytes</code> reveals itself as a target rather than a cap.</p>
+<p>The interesting method is the one that closes a file, because it has a branch that has nothing to do with rolling:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RollingFileWriter.closeCurrentWriter()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-123">123</a></span>
+<span class="normal"><a href="#__codelineno-2-124">124</a></span>
+<span class="normal"><a href="#__codelineno-2-125">125</a></span>
+<span class="normal"><a href="#__codelineno-2-126">126</a></span>
+<span class="normal"><a href="#__codelineno-2-127">127</a></span>
+<span class="normal"><a href="#__codelineno-2-128">128</a></span>
+<span class="normal"><a href="#__codelineno-2-129">129</a></span>
+<span class="normal"><a href="#__codelineno-2-130">130</a></span>
+<span class="normal"><a href="#__codelineno-2-131">131</a></span>
+<span class="normal"><a href="#__codelineno-2-132">132</a></span>
+<span class="normal"><a href="#__codelineno-2-133">133</a></span>
+<span class="normal"><a href="#__codelineno-2-134">134</a></span>
+<span class="normal"><a href="#__codelineno-2-135">135</a></span>
+<span class="normal"><a href="#__codelineno-2-136">136</a></span>
+<span class="normal"><a href="#__codelineno-2-137">137</a></span>
+<span class="normal"><a href="#__codelineno-2-138">138</a></span>
+<span class="normal"><a href="#__codelineno-2-139">139</a></span>
+<span class="normal"><a href="#__codelineno-2-140">140</a></span>
+<span class="normal"><a href="#__codelineno-2-141">141</a></span>
+<span class="normal"><a href="#__codelineno-2-142">142</a></span>
+<span class="normal"><a href="#__codelineno-2-143">143</a></span>
+<span class="normal"><a href="#__codelineno-2-144">144</a></span>
+<span class="normal"><a href="#__codelineno-2-145">145</a></span>
+<span class="normal"><a href="#__codelineno-2-146">146</a></span>
+<span class="normal"><a href="#__codelineno-2-147">147</a></span>
+<span class="normal"><a href="#__codelineno-2-148">148</a></span>
+<span class="normal"><a href="#__codelineno-2-149">149</a></span>
+<span class="normal"><a href="#__codelineno-2-150">150</a></span>
+<span class="normal"><a href="#__codelineno-2-151">151</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-123"><a id="__codelineno-2-123" name="__codelineno-2-123"></a><span class="kd">private</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">closeCurrentWriter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-124"><a id="__codelineno-2-124" name="__codelineno-2-124"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">currentWriter</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-125"><a id="__codelineno-2-125" name="__codelineno-2-125"></a><span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-126"><a id="__codelineno-2-126" name="__codelineno-2-126"></a><span class="w">      </span><span class="n">currentWriter</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+</span><span id="__span-2-127"><a id="__codelineno-2-127" name="__codelineno-2-127"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">IOException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-128"><a id="__codelineno-2-128" name="__codelineno-2-128"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UncheckedIOException</span><span class="p">(</span><span class="s">"Failed to close current writer"</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+</span><span id="__span-2-129"><a id="__codelineno-2-129" name="__codelineno-2-129"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-2-130"><a id="__codelineno-2-130" name="__codelineno-2-130"></a>
+</span><span id="__span-2-131"><a id="__codelineno-2-131" name="__codelineno-2-131"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">currentFileRows</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-132"><a id="__codelineno-2-132" name="__codelineno-2-132"></a><span class="w">      </span><span class="c1">// the file may not have been created or cannot be deleted, and it isn't worth failing</span>
+</span><span id="__span-2-133"><a id="__codelineno-2-133" name="__codelineno-2-133"></a><span class="w">      </span><span class="c1">// the job to clean up, skip deleting</span>
+</span><span id="__span-2-134"><a id="__codelineno-2-134" name="__codelineno-2-134"></a><span class="w">      </span><span class="n">Tasks</span><span class="p">.</span><span class="na">foreach</span><span class="p">(</span><span class="n">currentFile</span><span class="p">.</span><span class="na">encryptingOutputFile</span><span class="p">())</span>
+</span><span id="__span-2-135"><a id="__codelineno-2-135" name="__codelineno-2-135"></a><span class="w">          </span><span class="p">.</span><span class="na">suppressFailureWhenFinished</span><span class="p">()</span>
+</span><span id="__span-2-136"><a id="__codelineno-2-136" name="__codelineno-2-136"></a><span class="w">          </span><span class="p">.</span><span class="na">onFailure</span><span class="p">(</span>
+</span><span id="__span-2-137"><a id="__codelineno-2-137" name="__codelineno-2-137"></a><span class="w">              </span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="n">exc</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+</span><span id="__span-2-138"><a id="__codelineno-2-138" name="__codelineno-2-138"></a><span class="w">                  </span><span class="n">LOG</span><span class="p">.</span><span class="na">warn</span><span class="p">(</span>
+</span><span id="__span-2-139"><a id="__codelineno-2-139" name="__codelineno-2-139"></a><span class="w">                      </span><span class="s">"Failed to delete the uncommitted empty file during writer clean up: {}"</span><span class="p">,</span>
+</span><span id="__span-2-140"><a id="__codelineno-2-140" name="__codelineno-2-140"></a><span class="w">                      </span><span class="n">file</span><span class="p">,</span>
+</span><span id="__span-2-141"><a id="__codelineno-2-141" name="__codelineno-2-141"></a><span class="w">                      </span><span class="n">exc</span><span class="p">))</span>
+</span><span id="__span-2-142"><a id="__codelineno-2-142" name="__codelineno-2-142"></a><span class="w">          </span><span class="p">.</span><span class="na">run</span><span class="p">(</span><span class="n">io</span><span class="p">::</span><span class="n">deleteFile</span><span class="p">);</span>
+</span><span id="__span-2-143"><a id="__codelineno-2-143" name="__codelineno-2-143"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-144"><a id="__codelineno-2-144" name="__codelineno-2-144"></a><span class="w">      </span><span class="n">addResult</span><span class="p">(</span><span class="n">currentWriter</span><span class="p">.</span><span class="na">result</span><span class="p">());</span>
+</span><span id="__span-2-145"><a id="__codelineno-2-145" name="__codelineno-2-145"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-2-146"><a id="__codelineno-2-146" name="__codelineno-2-146"></a>
+</span><span id="__span-2-147"><a id="__codelineno-2-147" name="__codelineno-2-147"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-2-148"><a id="__codelineno-2-148" name="__codelineno-2-148"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentFileRows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-2-149"><a id="__codelineno-2-149" name="__codelineno-2-149"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentWriter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-2-150"><a id="__codelineno-2-150" name="__codelineno-2-150"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-151"><a id="__codelineno-2-151" name="__codelineno-2-151"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java` L123–L151](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java#L123-L151) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>If <code>currentFileRows == 0</code>, the file is deleted instead of being added to the result. A zero-row data file is not wrong, exactly — it is a valid Parquet file with a valid footer — but it is a manifest entry that will be planned, opened and discarded forever after, for nothing. So it is removed.</p>
+<p>Note <em>how</em> it is removed: <code>Tasks.foreach(...).suppressFailureWhenFinished()</code>, with a comment saying the file "may not have been created or cannot be deleted, and it isn't worth failing the job to clean up". The same preference that Chapter 3.3 §6 established for commits shows up here in miniature — a leaked empty file is cheaper than a failed write job.</p>
+<h2 id="5-the-routing-axis-clustered-or-fanout">5. The routing axis: clustered or fanout<a class="headerlink" href="#5-the-routing-axis-clustered-or-fanout" title="Permanent link">&para;</a></h2>
+<p><code>PartitioningWriter.write(row, spec, partition)</code> takes the partition as an argument, so the engine has already computed it. What remains is a bookkeeping question: how many files do you keep open at once?</p>
+<p>There are exactly two answers, and they are not preferences. <code>FanoutWriter</code> keeps a <code>Map&lt;Integer, StructLikeMap&lt;FileWriter&gt;&gt;</code> — every spec/partition pair it has ever seen stays open until close. <code>ClusteredWriter</code> keeps one:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ClusteredWriter.write() — the clustering assumption, enforced</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-65"> 65</a></span>
+<span class="normal"><a href="#__codelineno-3-66"> 66</a></span>
+<span class="normal"><a href="#__codelineno-3-67"> 67</a></span>
+<span class="normal"><a href="#__codelineno-3-68"> 68</a></span>
+<span class="normal"><a href="#__codelineno-3-69"> 69</a></span>
+<span class="normal"><a href="#__codelineno-3-70"> 70</a></span>
+<span class="normal"><a href="#__codelineno-3-71"> 71</a></span>
+<span class="normal"><a href="#__codelineno-3-72"> 72</a></span>
+<span class="normal"><a href="#__codelineno-3-73"> 73</a></span>
+<span class="normal"><a href="#__codelineno-3-74"> 74</a></span>
+<span class="normal"><a href="#__codelineno-3-75"> 75</a></span>
+<span class="normal"><a href="#__codelineno-3-76"> 76</a></span>
+<span class="normal"><a href="#__codelineno-3-77"> 77</a></span>
+<span class="normal"><a href="#__codelineno-3-78"> 78</a></span>
+<span class="normal"><a href="#__codelineno-3-79"> 79</a></span>
+<span class="normal"><a href="#__codelineno-3-80"> 80</a></span>
+<span class="normal"><a href="#__codelineno-3-81"> 81</a></span>
+<span class="normal"><a href="#__codelineno-3-82"> 82</a></span>
+<span class="normal"><a href="#__codelineno-3-83"> 83</a></span>
+<span class="normal"><a href="#__codelineno-3-84"> 84</a></span>
+<span class="normal"><a href="#__codelineno-3-85"> 85</a></span>
+<span class="normal"><a href="#__codelineno-3-86"> 86</a></span>
+<span class="normal"><a href="#__codelineno-3-87"> 87</a></span>
+<span class="normal"><a href="#__codelineno-3-88"> 88</a></span>
+<span class="normal"><a href="#__codelineno-3-89"> 89</a></span>
+<span class="normal"><a href="#__codelineno-3-90"> 90</a></span>
+<span class="normal"><a href="#__codelineno-3-91"> 91</a></span>
+<span class="normal"><a href="#__codelineno-3-92"> 92</a></span>
+<span class="normal"><a href="#__codelineno-3-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-3-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-3-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-3-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-3-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-3-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-3-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-3-100">100</a></span>
+<span class="normal"><a href="#__codelineno-3-101">101</a></span>
+<span class="normal"><a href="#__codelineno-3-102">102</a></span>
+<span class="normal"><a href="#__codelineno-3-103">103</a></span>
+<span class="normal"><a href="#__codelineno-3-104">104</a></span>
+<span class="normal"><a href="#__codelineno-3-105">105</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-65"><a id="__codelineno-3-65" name="__codelineno-3-65"></a><span class="nd">@Override</span>
+</span><span id="__span-3-66"><a id="__codelineno-3-66" name="__codelineno-3-66"></a><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">PartitionSpec</span><span class="w"> </span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">StructLike</span><span class="w"> </span><span class="n">partition</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-67"><a id="__codelineno-3-67" name="__codelineno-3-67"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">spec</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">currentSpec</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-68"><a id="__codelineno-3-68" name="__codelineno-3-68"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">currentSpec</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-69"><a id="__codelineno-3-69" name="__codelineno-3-69"></a><span class="w">      </span><span class="n">closeCurrentWriter</span><span class="p">();</span>
+</span><span id="__span-3-70"><a id="__codelineno-3-70" name="__codelineno-3-70"></a><span class="w">      </span><span class="n">completedSpecIds</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">currentSpec</span><span class="p">.</span><span class="na">specId</span><span class="p">());</span>
+</span><span id="__span-3-71"><a id="__codelineno-3-71" name="__codelineno-3-71"></a><span class="w">      </span><span class="n">completedPartitions</span><span class="p">.</span><span class="na">clear</span><span class="p">();</span>
+</span><span id="__span-3-72"><a id="__codelineno-3-72" name="__codelineno-3-72"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-73"><a id="__codelineno-3-73" name="__codelineno-3-73"></a>
+</span><span id="__span-3-74"><a id="__codelineno-3-74" name="__codelineno-3-74"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">completedSpecIds</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">spec</span><span class="p">.</span><span class="na">specId</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-75"><a id="__codelineno-3-75" name="__codelineno-3-75"></a><span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">errorCtx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"spec %s"</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">);</span>
+</span><span id="__span-3-76"><a id="__codelineno-3-76" name="__codelineno-3-76"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalStateException</span><span class="p">(</span><span class="n">NOT_CLUSTERED_ROWS_ERROR_MSG_TEMPLATE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">errorCtx</span><span class="p">);</span>
+</span><span id="__span-3-77"><a id="__codelineno-3-77" name="__codelineno-3-77"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-78"><a id="__codelineno-3-78" name="__codelineno-3-78"></a>
+</span><span id="__span-3-79"><a id="__codelineno-3-79" name="__codelineno-3-79"></a><span class="w">    </span><span class="n">StructType</span><span class="w"> </span><span class="n">partitionType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spec</span><span class="p">.</span><span class="na">partitionType</span><span class="p">();</span>
+</span><span id="__span-3-80"><a id="__codelineno-3-80" name="__codelineno-3-80"></a>
+</span><span id="__span-3-81"><a id="__codelineno-3-81" name="__codelineno-3-81"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentSpec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spec</span><span class="p">;</span>
+</span><span id="__span-3-82"><a id="__codelineno-3-82" name="__codelineno-3-82"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">partitionComparator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Comparators</span><span class="p">.</span><span class="na">forType</span><span class="p">(</span><span class="n">partitionType</span><span class="p">);</span>
+</span><span id="__span-3-83"><a id="__codelineno-3-83" name="__codelineno-3-83"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">completedPartitions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StructLikeSet</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">partitionType</span><span class="p">);</span>
+</span><span id="__span-3-84"><a id="__codelineno-3-84" name="__codelineno-3-84"></a><span class="w">    </span><span class="c1">// copy the partition key as the key object may be reused</span>
+</span><span id="__span-3-85"><a id="__codelineno-3-85" name="__codelineno-3-85"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentPartition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StructLikeUtil</span><span class="p">.</span><span class="na">copy</span><span class="p">(</span><span class="n">partition</span><span class="p">);</span>
+</span><span id="__span-3-86"><a id="__codelineno-3-86" name="__codelineno-3-86"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentWriter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newWriter</span><span class="p">(</span><span class="n">currentSpec</span><span class="p">,</span><span class="w"> </span><span class="n">currentPartition</span><span class="p">);</span>
+</span><span id="__span-3-87"><a id="__codelineno-3-87" name="__codelineno-3-87"></a>
+</span><span id="__span-3-88"><a id="__codelineno-3-88" name="__codelineno-3-88"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">currentPartition</span>
+</span><span id="__span-3-89"><a id="__codelineno-3-89" name="__codelineno-3-89"></a><span class="w">      </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">partitionComparator</span><span class="p">.</span><span class="na">compare</span><span class="p">(</span><span class="n">partition</span><span class="p">,</span><span class="w"> </span><span class="n">currentPartition</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-90"><a id="__codelineno-3-90" name="__codelineno-3-90"></a><span class="w">    </span><span class="n">closeCurrentWriter</span><span class="p">();</span>
+</span><span id="__span-3-91"><a id="__codelineno-3-91" name="__codelineno-3-91"></a><span class="w">    </span><span class="n">completedPartitions</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">currentPartition</span><span class="p">);</span>
+</span><span id="__span-3-92"><a id="__codelineno-3-92" name="__codelineno-3-92"></a>
+</span><span id="__span-3-93"><a id="__codelineno-3-93" name="__codelineno-3-93"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">completedPartitions</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">partition</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-94"><a id="__codelineno-3-94" name="__codelineno-3-94"></a><span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">errorCtx</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-95"><a id="__codelineno-3-95" name="__codelineno-3-95"></a><span class="w">          </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"partition '%s' in spec %s"</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">.</span><span class="na">partitionToPath</span><span class="p">(</span><span class="n">partition</span><span class="p">),</span><span class="w"> </span><span class="n">spec</span><span class="p">);</span>
+</span><span id="__span-3-96"><a id="__codelineno-3-96" name="__codelineno-3-96"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalStateException</span><span class="p">(</span><span class="n">NOT_CLUSTERED_ROWS_ERROR_MSG_TEMPLATE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">errorCtx</span><span class="p">);</span>
+</span><span id="__span-3-97"><a id="__codelineno-3-97" name="__codelineno-3-97"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-98"><a id="__codelineno-3-98" name="__codelineno-3-98"></a>
+</span><span id="__span-3-99"><a id="__codelineno-3-99" name="__codelineno-3-99"></a><span class="w">    </span><span class="c1">// copy the partition key as the key object may be reused</span>
+</span><span id="__span-3-100"><a id="__codelineno-3-100" name="__codelineno-3-100"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentPartition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StructLikeUtil</span><span class="p">.</span><span class="na">copy</span><span class="p">(</span><span class="n">partition</span><span class="p">);</span>
+</span><span id="__span-3-101"><a id="__codelineno-3-101" name="__codelineno-3-101"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentWriter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newWriter</span><span class="p">(</span><span class="n">currentSpec</span><span class="p">,</span><span class="w"> </span><span class="n">currentPartition</span><span class="p">);</span>
+</span><span id="__span-3-102"><a id="__codelineno-3-102" name="__codelineno-3-102"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-103"><a id="__codelineno-3-103" name="__codelineno-3-103"></a>
+</span><span id="__span-3-104"><a id="__codelineno-3-104" name="__codelineno-3-104"></a><span class="w">  </span><span class="n">currentWriter</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
+</span><span id="__span-3-105"><a id="__codelineno-3-105" name="__codelineno-3-105"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java` L65–L105](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java#L65-L105) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Three things are happening here.</p>
+<p><strong>A spec change closes the current writer</strong> and clears the completed-partition set, because partitions are only comparable within a spec.</p>
+<p><strong>A partition change closes the current writer too</strong> — this is the memory guarantee. At most one file is open, so peak memory does not scale with partition cardinality.</p>
+<p><strong>Revisiting a completed spec or partition throws.</strong> <code>completedSpecIds</code> and <code>completedPartitions</code> exist purely to detect that case, and the message names the remedy: <em>"Either cluster the incoming records or switch to fanout writers."</em> The class does not sort. It asserts that the caller sorted, and refuses to silently produce a second file per partition — which is what a lenient implementation would do, quietly turning one file per partition into hundreds and defeating the very guarantee the class exists to provide.</p>
+<p>Both classes copy the partition key on the way in — <code>StructLikeUtil.copy(partition)</code>, with the comment "the key object may be reused". Engines hand the same mutable <code>PartitionKey</code> instance back on every row. Storing it as a map key without copying would corrupt the map on the next row.</p>
+<h2 id="6-where-a-datafile-is-born">6. Where a <code>DataFile</code> is born<a class="headerlink" href="#6-where-a-datafile-is-born" title="Permanent link">&para;</a></h2>
+<p>Rolling and routing decide which appender gets the row. Closing is where metadata comes into existence:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DataWriter.close() — bytes become metadata</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-80">80</a></span>
+<span class="normal"><a href="#__codelineno-4-81">81</a></span>
+<span class="normal"><a href="#__codelineno-4-82">82</a></span>
+<span class="normal"><a href="#__codelineno-4-83">83</a></span>
+<span class="normal"><a href="#__codelineno-4-84">84</a></span>
+<span class="normal"><a href="#__codelineno-4-85">85</a></span>
+<span class="normal"><a href="#__codelineno-4-86">86</a></span>
+<span class="normal"><a href="#__codelineno-4-87">87</a></span>
+<span class="normal"><a href="#__codelineno-4-88">88</a></span>
+<span class="normal"><a href="#__codelineno-4-89">89</a></span>
+<span class="normal"><a href="#__codelineno-4-90">90</a></span>
+<span class="normal"><a href="#__codelineno-4-91">91</a></span>
+<span class="normal"><a href="#__codelineno-4-92">92</a></span>
+<span class="normal"><a href="#__codelineno-4-93">93</a></span>
+<span class="normal"><a href="#__codelineno-4-94">94</a></span>
+<span class="normal"><a href="#__codelineno-4-95">95</a></span>
+<span class="normal"><a href="#__codelineno-4-96">96</a></span>
+<span class="normal"><a href="#__codelineno-4-97">97</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-80"><a id="__codelineno-4-80" name="__codelineno-4-80"></a><span class="nd">@Override</span>
+</span><span id="__span-4-81"><a id="__codelineno-4-81" name="__codelineno-4-81"></a><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">close</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">IOException</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-82"><a id="__codelineno-4-82" name="__codelineno-4-82"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dataFile</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-83"><a id="__codelineno-4-83" name="__codelineno-4-83"></a><span class="w">    </span><span class="n">appender</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+</span><span id="__span-4-84"><a id="__codelineno-4-84" name="__codelineno-4-84"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">dataFile</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-4-85"><a id="__codelineno-4-85" name="__codelineno-4-85"></a><span class="w">        </span><span class="n">DataFiles</span><span class="p">.</span><span class="na">builder</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+</span><span id="__span-4-86"><a id="__codelineno-4-86" name="__codelineno-4-86"></a><span class="w">            </span><span class="p">.</span><span class="na">withFormat</span><span class="p">(</span><span class="n">format</span><span class="p">)</span>
+</span><span id="__span-4-87"><a id="__codelineno-4-87" name="__codelineno-4-87"></a><span class="w">            </span><span class="p">.</span><span class="na">withPath</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+</span><span id="__span-4-88"><a id="__codelineno-4-88" name="__codelineno-4-88"></a><span class="w">            </span><span class="p">.</span><span class="na">withPartition</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
+</span><span id="__span-4-89"><a id="__codelineno-4-89" name="__codelineno-4-89"></a><span class="w">            </span><span class="p">.</span><span class="na">withEncryptionKeyMetadata</span><span class="p">(</span>
+</span><span id="__span-4-90"><a id="__codelineno-4-90" name="__codelineno-4-90"></a><span class="w">                </span><span class="n">EncryptionUtil</span><span class="p">.</span><span class="na">setFileLength</span><span class="p">(</span><span class="n">keyMetadata</span><span class="p">,</span><span class="w"> </span><span class="n">appender</span><span class="p">.</span><span class="na">length</span><span class="p">()))</span>
+</span><span id="__span-4-91"><a id="__codelineno-4-91" name="__codelineno-4-91"></a><span class="w">            </span><span class="p">.</span><span class="na">withFileSizeInBytes</span><span class="p">(</span><span class="n">appender</span><span class="p">.</span><span class="na">length</span><span class="p">())</span>
+</span><span id="__span-4-92"><a id="__codelineno-4-92" name="__codelineno-4-92"></a><span class="w">            </span><span class="p">.</span><span class="na">withMetrics</span><span class="p">(</span><span class="n">appender</span><span class="p">.</span><span class="na">metrics</span><span class="p">())</span>
+</span><span id="__span-4-93"><a id="__codelineno-4-93" name="__codelineno-4-93"></a><span class="w">            </span><span class="p">.</span><span class="na">withSplitOffsets</span><span class="p">(</span><span class="n">appender</span><span class="p">.</span><span class="na">splitOffsets</span><span class="p">())</span>
+</span><span id="__span-4-94"><a id="__codelineno-4-94" name="__codelineno-4-94"></a><span class="w">            </span><span class="p">.</span><span class="na">withSortOrder</span><span class="p">(</span><span class="n">sortOrder</span><span class="p">)</span>
+</span><span id="__span-4-95"><a id="__codelineno-4-95" name="__codelineno-4-95"></a><span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</span><span id="__span-4-96"><a id="__codelineno-4-96" name="__codelineno-4-96"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-97"><a id="__codelineno-4-97" name="__codelineno-4-97"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/DataWriter.java` L80–L97](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/DataWriter.java#L80-L97) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Every field of the manifest entry is assembled here: format, path, partition, encryption key metadata, size, split offsets, sort order. And one line that this chapter exists for:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">.</span><span class="na">withMetrics</span><span class="p">(</span><span class="n">appender</span><span class="p">.</span><span class="na">metrics</span><span class="p">())</span>
+</span></code></pre></div>
+<p><code>appender.metrics()</code> is the appender's summary of what it just wrote — row count, per-column sizes, value counts, null counts, NaN counts, lower bounds, upper bounds. From here the <code>DataFile</code> travels into a manifest (Chapter 5.2), and from the manifest into <code>InclusiveMetricsEvaluator</code> (Chapter 4.3). <strong>Nothing between those two points can add a statistic that was not computed on this line.</strong></p>
+<h2 id="7-metricsconfig-deciding-what-to-collect-before-any-row-is-written">7. <code>MetricsConfig</code>: deciding what to collect, before any row is written<a class="headerlink" href="#7-metricsconfig-deciding-what-to-collect-before-any-row-is-written" title="Permanent link">&para;</a></h2>
+<p><code>Metrics</code> is not "everything the format knows". It is a filtered projection, and the filter is <code>MetricsConfig</code>, resolved from table properties, schema and sort order:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">MetricsConfig.from()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-226">226</a></span>
+<span class="normal"><a href="#__codelineno-6-227">227</a></span>
+<span class="normal"><a href="#__codelineno-6-228">228</a></span>
+<span class="normal"><a href="#__codelineno-6-229">229</a></span>
+<span class="normal"><a href="#__codelineno-6-230">230</a></span>
+<span class="normal"><a href="#__codelineno-6-231">231</a></span>
+<span class="normal"><a href="#__codelineno-6-232">232</a></span>
+<span class="normal"><a href="#__codelineno-6-233">233</a></span>
+<span class="normal"><a href="#__codelineno-6-234">234</a></span>
+<span class="normal"><a href="#__codelineno-6-235">235</a></span>
+<span class="normal"><a href="#__codelineno-6-236">236</a></span>
+<span class="normal"><a href="#__codelineno-6-237">237</a></span>
+<span class="normal"><a href="#__codelineno-6-238">238</a></span>
+<span class="normal"><a href="#__codelineno-6-239">239</a></span>
+<span class="normal"><a href="#__codelineno-6-240">240</a></span>
+<span class="normal"><a href="#__codelineno-6-241">241</a></span>
+<span class="normal"><a href="#__codelineno-6-242">242</a></span>
+<span class="normal"><a href="#__codelineno-6-243">243</a></span>
+<span class="normal"><a href="#__codelineno-6-244">244</a></span>
+<span class="normal"><a href="#__codelineno-6-245">245</a></span>
+<span class="normal"><a href="#__codelineno-6-246">246</a></span>
+<span class="normal"><a href="#__codelineno-6-247">247</a></span>
+<span class="normal"><a href="#__codelineno-6-248">248</a></span>
+<span class="normal"><a href="#__codelineno-6-249">249</a></span>
+<span class="normal"><a href="#__codelineno-6-250">250</a></span>
+<span class="normal"><a href="#__codelineno-6-251">251</a></span>
+<span class="normal"><a href="#__codelineno-6-252">252</a></span>
+<span class="normal"><a href="#__codelineno-6-253">253</a></span>
+<span class="normal"><a href="#__codelineno-6-254">254</a></span>
+<span class="normal"><a href="#__codelineno-6-255">255</a></span>
+<span class="normal"><a href="#__codelineno-6-256">256</a></span>
+<span class="normal"><a href="#__codelineno-6-257">257</a></span>
+<span class="normal"><a href="#__codelineno-6-258">258</a></span>
+<span class="normal"><a href="#__codelineno-6-259">259</a></span>
+<span class="normal"><a href="#__codelineno-6-260">260</a></span>
+<span class="normal"><a href="#__codelineno-6-261">261</a></span>
+<span class="normal"><a href="#__codelineno-6-262">262</a></span>
+<span class="normal"><a href="#__codelineno-6-263">263</a></span>
+<span class="normal"><a href="#__codelineno-6-264">264</a></span>
+<span class="normal"><a href="#__codelineno-6-265">265</a></span>
+<span class="normal"><a href="#__codelineno-6-266">266</a></span>
+<span class="normal"><a href="#__codelineno-6-267">267</a></span>
+<span class="normal"><a href="#__codelineno-6-268">268</a></span>
+<span class="normal"><a href="#__codelineno-6-269">269</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-226"><a id="__codelineno-6-226" name="__codelineno-6-226"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">MetricsConfig</span><span class="w"> </span><span class="nf">from</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">props</span><span class="p">,</span><span class="w"> </span><span class="n">Schema</span><span class="w"> </span><span class="n">schema</span><span class="p">,</span><span class="w"> </span><span class="n">SortOrder</span><span class="w"> </span><span class="n">order</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-227"><a id="__codelineno-6-227" name="__codelineno-6-227"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">maxInferredDefaultColumns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxInferredColumnDefaults</span><span class="p">(</span><span class="n">props</span><span class="p">);</span>
+</span><span id="__span-6-228"><a id="__codelineno-6-228" name="__codelineno-6-228"></a><span class="w">  </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">MetricsMode</span><span class="o">&gt;</span><span class="w"> </span><span class="n">columnModes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Maps</span><span class="p">.</span><span class="na">newHashMap</span><span class="p">();</span>
+</span><span id="__span-6-229"><a id="__codelineno-6-229" name="__codelineno-6-229"></a>
+</span><span id="__span-6-230"><a id="__codelineno-6-230" name="__codelineno-6-230"></a><span class="w">  </span><span class="c1">// Handle user override of default mode</span>
+</span><span id="__span-6-231"><a id="__codelineno-6-231" name="__codelineno-6-231"></a><span class="w">  </span><span class="n">MetricsMode</span><span class="w"> </span><span class="n">defaultMode</span><span class="p">;</span>
+</span><span id="__span-6-232"><a id="__codelineno-6-232" name="__codelineno-6-232"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">configuredDefault</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">props</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">DEFAULT_WRITE_METRICS_MODE</span><span class="p">);</span>
+</span><span id="__span-6-233"><a id="__codelineno-6-233" name="__codelineno-6-233"></a>
+</span><span id="__span-6-234"><a id="__codelineno-6-234" name="__codelineno-6-234"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">configuredDefault</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-235"><a id="__codelineno-6-235" name="__codelineno-6-235"></a><span class="w">    </span><span class="c1">// a user-configured default mode is applied for all columns</span>
+</span><span id="__span-6-236"><a id="__codelineno-6-236" name="__codelineno-6-236"></a><span class="w">    </span><span class="n">defaultMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parseMode</span><span class="p">(</span><span class="n">configuredDefault</span><span class="p">,</span><span class="w"> </span><span class="n">DEFAULT_MODE</span><span class="p">,</span><span class="w"> </span><span class="s">"default"</span><span class="p">);</span>
+</span><span id="__span-6-237"><a id="__codelineno-6-237" name="__codelineno-6-237"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">schema</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-238"><a id="__codelineno-6-238" name="__codelineno-6-238"></a><span class="w">    </span><span class="n">defaultMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DEFAULT_MODE</span><span class="p">;</span>
+</span><span id="__span-6-239"><a id="__codelineno-6-239" name="__codelineno-6-239"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-240"><a id="__codelineno-6-240" name="__codelineno-6-240"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">TypeUtil</span><span class="p">.</span><span class="na">getProjectedIds</span><span class="p">(</span><span class="n">schema</span><span class="p">).</span><span class="na">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">maxInferredDefaultColumns</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-241"><a id="__codelineno-6-241" name="__codelineno-6-241"></a><span class="w">      </span><span class="c1">// there are less than the inferred limit (including structs), so the default is used</span>
+</span><span id="__span-6-242"><a id="__codelineno-6-242" name="__codelineno-6-242"></a><span class="w">      </span><span class="c1">// everywhere</span>
+</span><span id="__span-6-243"><a id="__codelineno-6-243" name="__codelineno-6-243"></a><span class="w">      </span><span class="n">defaultMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DEFAULT_MODE</span><span class="p">;</span>
+</span><span id="__span-6-244"><a id="__codelineno-6-244" name="__codelineno-6-244"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-245"><a id="__codelineno-6-245" name="__codelineno-6-245"></a><span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Integer</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">limitFieldIds</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span><span class="w"> </span><span class="n">maxInferredDefaultColumns</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-246"><a id="__codelineno-6-246" name="__codelineno-6-246"></a><span class="w">        </span><span class="n">columnModes</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">schema</span><span class="p">.</span><span class="na">findColumnName</span><span class="p">(</span><span class="n">id</span><span class="p">),</span><span class="w"> </span><span class="n">DEFAULT_MODE</span><span class="p">);</span>
+</span><span id="__span-6-247"><a id="__codelineno-6-247" name="__codelineno-6-247"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-6-248"><a id="__codelineno-6-248" name="__codelineno-6-248"></a>
+</span><span id="__span-6-249"><a id="__codelineno-6-249" name="__codelineno-6-249"></a><span class="w">      </span><span class="c1">// all other columns don't use metrics</span>
+</span><span id="__span-6-250"><a id="__codelineno-6-250" name="__codelineno-6-250"></a><span class="w">      </span><span class="n">defaultMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MetricsModes</span><span class="p">.</span><span class="na">None</span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
+</span><span id="__span-6-251"><a id="__codelineno-6-251" name="__codelineno-6-251"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-252"><a id="__codelineno-6-252" name="__codelineno-6-252"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-253"><a id="__codelineno-6-253" name="__codelineno-6-253"></a>
+</span><span id="__span-6-254"><a id="__codelineno-6-254" name="__codelineno-6-254"></a><span class="w">  </span><span class="c1">// First set sorted column with sorted column default (can be overridden by user)</span>
+</span><span id="__span-6-255"><a id="__codelineno-6-255" name="__codelineno-6-255"></a><span class="w">  </span><span class="n">MetricsMode</span><span class="w"> </span><span class="n">sortedColDefaultMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sortedColumnDefaultMode</span><span class="p">(</span><span class="n">defaultMode</span><span class="p">);</span>
+</span><span id="__span-6-256"><a id="__codelineno-6-256" name="__codelineno-6-256"></a><span class="w">  </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sortedCols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SortOrderUtil</span><span class="p">.</span><span class="na">orderPreservingSortedColumns</span><span class="p">(</span><span class="n">order</span><span class="p">);</span>
+</span><span id="__span-6-257"><a id="__codelineno-6-257" name="__codelineno-6-257"></a><span class="w">  </span><span class="n">sortedCols</span><span class="p">.</span><span class="na">forEach</span><span class="p">(</span><span class="n">sc</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">columnModes</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span><span class="w"> </span><span class="n">sortedColDefaultMode</span><span class="p">));</span>
+</span><span id="__span-6-258"><a id="__codelineno-6-258" name="__codelineno-6-258"></a>
+</span><span id="__span-6-259"><a id="__codelineno-6-259" name="__codelineno-6-259"></a><span class="w">  </span><span class="c1">// Handle user overrides of defaults</span>
+</span><span id="__span-6-260"><a id="__codelineno-6-260" name="__codelineno-6-260"></a><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">props</span><span class="p">.</span><span class="na">keySet</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-261"><a id="__codelineno-6-261" name="__codelineno-6-261"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">key</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="n">METRICS_MODE_COLUMN_CONF_PREFIX</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-262"><a id="__codelineno-6-262" name="__codelineno-6-262"></a><span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">columnAlias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">key</span><span class="p">.</span><span class="na">replaceFirst</span><span class="p">(</span><span class="n">METRICS_MODE_COLUMN_CONF_PREFIX</span><span class="p">,</span><span class="w"> </span><span class="s">""</span><span class="p">);</span>
+</span><span id="__span-6-263"><a id="__codelineno-6-263" name="__codelineno-6-263"></a><span class="w">      </span><span class="n">MetricsMode</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parseMode</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">key</span><span class="p">),</span><span class="w"> </span><span class="n">defaultMode</span><span class="p">,</span><span class="w"> </span><span class="s">"column "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">columnAlias</span><span class="p">);</span>
+</span><span id="__span-6-264"><a id="__codelineno-6-264" name="__codelineno-6-264"></a><span class="w">      </span><span class="n">columnModes</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">columnAlias</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span>
+</span><span id="__span-6-265"><a id="__codelineno-6-265" name="__codelineno-6-265"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-266"><a id="__codelineno-6-266" name="__codelineno-6-266"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-267"><a id="__codelineno-6-267" name="__codelineno-6-267"></a>
+</span><span id="__span-6-268"><a id="__codelineno-6-268" name="__codelineno-6-268"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MetricsConfig</span><span class="p">(</span><span class="n">columnModes</span><span class="p">,</span><span class="w"> </span><span class="n">defaultMode</span><span class="p">);</span>
+</span><span id="__span-6-269"><a id="__codelineno-6-269" name="__codelineno-6-269"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MetricsConfig.java` L226–L269](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetricsConfig.java#L226-L269) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Four decisions, in order:</p>
+<ol>
+<li><strong>A configured default wins.</strong> <code>write.metadata.metrics.default</code> — parsed into a <code>MetricsMode</code>: <code>none</code>, <code>counts</code>, <code>truncate(n)</code>, or <code>full</code>. The built-in default is <code>truncate(16)</code>.</li>
+<li><strong>Otherwise the schema width decides.</strong> If the schema has more projected ids than <code>write.metadata.metrics.max-inferred-column-defaults</code> (default 100), only the first N metrics-eligible field ids keep the default mode and <strong>everything else becomes <code>none</code></strong>. The field's declaration carries the reason: <em>"Disable metrics by default for wide tables to prevent excessive metadata."</em></li>
+<li><strong>Sorted columns get promoted.</strong> <code>sortedColumnDefaultMode</code> lifts <code>none</code> and <code>counts</code> to <code>truncate(16)</code> for any order-preserving sort column. Sorting a table by a column and then having no bounds on it would be perverse — the sort exists to make that column prunable.</li>
+<li><strong>Per-column overrides are applied last.</strong> <code>write.metadata.metrics.column.&lt;name&gt;</code>.</li>
+</ol>
+<p>Everything downstream reads the resolved mode through one accessor, <code>MetricsUtil.metricsMode(schema, config, fieldId)</code>, which maps the field id to a column name and asks the config.</p>
+<h2 id="8-applying-the-modes-parquetmetrics">8. Applying the modes: <code>ParquetMetrics</code><a class="headerlink" href="#8-applying-the-modes-parquetmetrics" title="Permanent link">&para;</a></h2>
+<p>The Parquet writer collects the modes and applies them column by column when the footer is available:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ParquetMetrics.MetricsVisitor.primitive()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-202">202</a></span>
+<span class="normal"><a href="#__codelineno-7-203">203</a></span>
+<span class="normal"><a href="#__codelineno-7-204">204</a></span>
+<span class="normal"><a href="#__codelineno-7-205">205</a></span>
+<span class="normal"><a href="#__codelineno-7-206">206</a></span>
+<span class="normal"><a href="#__codelineno-7-207">207</a></span>
+<span class="normal"><a href="#__codelineno-7-208">208</a></span>
+<span class="normal"><a href="#__codelineno-7-209">209</a></span>
+<span class="normal"><a href="#__codelineno-7-210">210</a></span>
+<span class="normal"><a href="#__codelineno-7-211">211</a></span>
+<span class="normal"><a href="#__codelineno-7-212">212</a></span>
+<span class="normal"><a href="#__codelineno-7-213">213</a></span>
+<span class="normal"><a href="#__codelineno-7-214">214</a></span>
+<span class="normal"><a href="#__codelineno-7-215">215</a></span>
+<span class="normal"><a href="#__codelineno-7-216">216</a></span>
+<span class="normal"><a href="#__codelineno-7-217">217</a></span>
+<span class="normal"><a href="#__codelineno-7-218">218</a></span>
+<span class="normal"><a href="#__codelineno-7-219">219</a></span>
+<span class="normal"><a href="#__codelineno-7-220">220</a></span>
+<span class="normal"><a href="#__codelineno-7-221">221</a></span>
+<span class="normal"><a href="#__codelineno-7-222">222</a></span>
+<span class="normal"><a href="#__codelineno-7-223">223</a></span>
+<span class="normal"><a href="#__codelineno-7-224">224</a></span>
+<span class="normal"><a href="#__codelineno-7-225">225</a></span>
+<span class="normal"><a href="#__codelineno-7-226">226</a></span>
+<span class="normal"><a href="#__codelineno-7-227">227</a></span>
+<span class="normal"><a href="#__codelineno-7-228">228</a></span>
+<span class="normal"><a href="#__codelineno-7-229">229</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-202"><a id="__codelineno-7-202" name="__codelineno-7-202"></a><span class="nd">@Override</span>
+</span><span id="__span-7-203"><a id="__codelineno-7-203" name="__codelineno-7-203"></a><span class="kd">public</span><span class="w"> </span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">FieldMetrics</span><span class="o">&lt;</span><span class="n">ByteBuffer</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nf">primitive</span><span class="p">(</span>
+</span><span id="__span-7-204"><a id="__codelineno-7-204" name="__codelineno-7-204"></a><span class="w">    </span><span class="n">org</span><span class="p">.</span><span class="na">apache</span><span class="p">.</span><span class="na">iceberg</span><span class="p">.</span><span class="na">types</span><span class="p">.</span><span class="na">Type</span><span class="p">.</span><span class="na">PrimitiveType</span><span class="w"> </span><span class="n">iPrimitive</span><span class="p">,</span><span class="w"> </span><span class="n">PrimitiveType</span><span class="w"> </span><span class="n">primitive</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-205"><a id="__codelineno-7-205" name="__codelineno-7-205"></a><span class="w">  </span><span class="n">Type</span><span class="p">.</span><span class="na">ID</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">primitive</span><span class="p">.</span><span class="na">getId</span><span class="p">();</span>
+</span><span id="__span-7-206"><a id="__codelineno-7-206" name="__codelineno-7-206"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">null</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-207"><a id="__codelineno-7-207" name="__codelineno-7-207"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">();</span>
+</span><span id="__span-7-208"><a id="__codelineno-7-208" name="__codelineno-7-208"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-209"><a id="__codelineno-7-209" name="__codelineno-7-209"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">fieldId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">id</span><span class="p">.</span><span class="na">intValue</span><span class="p">();</span>
+</span><span id="__span-7-210"><a id="__codelineno-7-210" name="__codelineno-7-210"></a>
+</span><span id="__span-7-211"><a id="__codelineno-7-211" name="__codelineno-7-211"></a><span class="w">  </span><span class="n">MetricsModes</span><span class="p">.</span><span class="na">MetricsMode</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MetricsUtil</span><span class="p">.</span><span class="na">metricsMode</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span><span class="w"> </span><span class="n">metricsConfig</span><span class="p">,</span><span class="w"> </span><span class="n">fieldId</span><span class="p">);</span>
+</span><span id="__span-7-212"><a id="__codelineno-7-212" name="__codelineno-7-212"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MetricsModes</span><span class="p">.</span><span class="na">None</span><span class="p">.</span><span class="na">get</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-213"><a id="__codelineno-7-213" name="__codelineno-7-213"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">();</span>
+</span><span id="__span-7-214"><a id="__codelineno-7-214" name="__codelineno-7-214"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-215"><a id="__codelineno-7-215" name="__codelineno-7-215"></a>
+</span><span id="__span-7-216"><a id="__codelineno-7-216" name="__codelineno-7-216"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">truncateLength</span><span class="p">(</span><span class="n">mode</span><span class="p">);</span>
+</span><span id="__span-7-217"><a id="__codelineno-7-217" name="__codelineno-7-217"></a>
+</span><span id="__span-7-218"><a id="__codelineno-7-218" name="__codelineno-7-218"></a><span class="w">  </span><span class="n">FieldMetrics</span><span class="o">&lt;</span><span class="n">ByteBuffer</span><span class="o">&gt;</span><span class="w"> </span><span class="n">metrics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metricsFromFieldMetrics</span><span class="p">(</span><span class="n">fieldId</span><span class="p">,</span><span class="w"> </span><span class="n">iPrimitive</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">);</span>
+</span><span id="__span-7-219"><a id="__codelineno-7-219" name="__codelineno-7-219"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metrics</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-220"><a id="__codelineno-7-220" name="__codelineno-7-220"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">metrics</span><span class="p">);</span>
+</span><span id="__span-7-221"><a id="__codelineno-7-221" name="__codelineno-7-221"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-222"><a id="__codelineno-7-222" name="__codelineno-7-222"></a>
+</span><span id="__span-7-223"><a id="__codelineno-7-223" name="__codelineno-7-223"></a><span class="w">  </span><span class="n">metrics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metricsFromFooter</span><span class="p">(</span><span class="n">fieldId</span><span class="p">,</span><span class="w"> </span><span class="n">iPrimitive</span><span class="p">,</span><span class="w"> </span><span class="n">primitive</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">);</span>
+</span><span id="__span-7-224"><a id="__codelineno-7-224" name="__codelineno-7-224"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metrics</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-225"><a id="__codelineno-7-225" name="__codelineno-7-225"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">metrics</span><span class="p">);</span>
+</span><span id="__span-7-226"><a id="__codelineno-7-226" name="__codelineno-7-226"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-227"><a id="__codelineno-7-227" name="__codelineno-7-227"></a>
+</span><span id="__span-7-228"><a id="__codelineno-7-228" name="__codelineno-7-228"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">();</span>
+</span><span id="__span-7-229"><a id="__codelineno-7-229" name="__codelineno-7-229"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `parquet/src/main/java/org/apache/iceberg/parquet/ParquetMetrics.java` L202–L229](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/parquet/src/main/java/org/apache/iceberg/parquet/ParquetMetrics.java#L202-L229) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The shape is: resolve the mode, convert it to a truncate length, then take the first available source of statistics.</p>
+<p><code>truncateLength(mode)</code> returns <code>0</code> for both <code>None</code> and <code>Counts</code>, and <code>Integer.MAX_VALUE</code> for <code>Full</code>. So the length is doing double duty — a length of zero means "counts only, no bounds", which is why <code>metricsFromFooter</code> branches to <code>counts(fieldId)</code> rather than <code>bounds(...)</code>.</p>
+<p>Mode <code>None</code> returns <code>ImmutableList.of()</code> before that: no entry at all. Not a null bound, not an empty one — the column is absent from <code>valueCounts</code>, <code>nullValueCounts</code>, <code>lowerBounds</code> and <code>upperBounds</code> entirely. It is also excluded from <code>columnSizes</code> in the enclosing <code>metrics()</code> method. A reader cannot distinguish "no metrics collected" from "no such column".</p>
+<p>Truncation is directional. <code>truncateLowerBound</code> calls <code>UnicodeUtil.truncateStringMin</code>, which shortens the string — always smaller, so the bound stays a valid <em>lower</em> bound. <code>truncateUpperBound</code> calls <code>truncateStringMax</code>, which must shorten <em>and then increment</em> to stay a valid upper bound. That increment can fail:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">UnicodeUtil.internalTruncateMax()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-8-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-8-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-8-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-8-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-8-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-8-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-8-100">100</a></span>
+<span class="normal"><a href="#__codelineno-8-101">101</a></span>
+<span class="normal"><a href="#__codelineno-8-102">102</a></span>
+<span class="normal"><a href="#__codelineno-8-103">103</a></span>
+<span class="normal"><a href="#__codelineno-8-104">104</a></span>
+<span class="normal"><a href="#__codelineno-8-105">105</a></span>
+<span class="normal"><a href="#__codelineno-8-106">106</a></span>
+<span class="normal"><a href="#__codelineno-8-107">107</a></span>
+<span class="normal"><a href="#__codelineno-8-108">108</a></span>
+<span class="normal"><a href="#__codelineno-8-109">109</a></span>
+<span class="normal"><a href="#__codelineno-8-110">110</a></span>
+<span class="normal"><a href="#__codelineno-8-111">111</a></span>
+<span class="normal"><a href="#__codelineno-8-112">112</a></span>
+<span class="normal"><a href="#__codelineno-8-113">113</a></span>
+<span class="normal"><a href="#__codelineno-8-114">114</a></span>
+<span class="normal"><a href="#__codelineno-8-115">115</a></span>
+<span class="normal"><a href="#__codelineno-8-116">116</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-93"><a id="__codelineno-8-93" name="__codelineno-8-93"></a><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">CharSequence</span><span class="w"> </span><span class="nf">internalTruncateMax</span><span class="p">(</span><span class="n">CharSequence</span><span class="w"> </span><span class="n">inputCharSeq</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-94"><a id="__codelineno-8-94" name="__codelineno-8-94"></a><span class="w">  </span><span class="c1">// Truncate the input to the specified truncate length.</span>
+</span><span id="__span-8-95"><a id="__codelineno-8-95" name="__codelineno-8-95"></a><span class="w">  </span><span class="n">StringBuilder</span><span class="w"> </span><span class="n">truncatedStringBuilder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">StringBuilder</span><span class="p">(</span><span class="n">truncateString</span><span class="p">(</span><span class="n">inputCharSeq</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">));</span>
+</span><span id="__span-8-96"><a id="__codelineno-8-96" name="__codelineno-8-96"></a>
+</span><span id="__span-8-97"><a id="__codelineno-8-97" name="__codelineno-8-97"></a><span class="w">  </span><span class="c1">// No need to increment if the input length is under the truncate length</span>
+</span><span id="__span-8-98"><a id="__codelineno-8-98" name="__codelineno-8-98"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">inputCharSeq</span><span class="p">.</span><span class="na">length</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">truncatedStringBuilder</span><span class="p">.</span><span class="na">length</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-99"><a id="__codelineno-8-99" name="__codelineno-8-99"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">inputCharSeq</span><span class="p">;</span>
+</span><span id="__span-8-100"><a id="__codelineno-8-100" name="__codelineno-8-100"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-101"><a id="__codelineno-8-101" name="__codelineno-8-101"></a>
+</span><span id="__span-8-102"><a id="__codelineno-8-102" name="__codelineno-8-102"></a><span class="w">  </span><span class="c1">// Try incrementing the code points from the end</span>
+</span><span id="__span-8-103"><a id="__codelineno-8-103" name="__codelineno-8-103"></a><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">--</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-104"><a id="__codelineno-8-104" name="__codelineno-8-104"></a><span class="w">    </span><span class="c1">// Get the offset in the truncated string buffer where the number of unicode characters = i</span>
+</span><span id="__span-8-105"><a id="__codelineno-8-105" name="__codelineno-8-105"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">offsetByCodePoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">truncatedStringBuilder</span><span class="p">.</span><span class="na">offsetByCodePoints</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+</span><span id="__span-8-106"><a id="__codelineno-8-106" name="__codelineno-8-106"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">nextCodePoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">incrementCodePoint</span><span class="p">(</span><span class="n">truncatedStringBuilder</span><span class="p">.</span><span class="na">codePointAt</span><span class="p">(</span><span class="n">offsetByCodePoint</span><span class="p">));</span>
+</span><span id="__span-8-107"><a id="__codelineno-8-107" name="__codelineno-8-107"></a><span class="w">    </span><span class="c1">// No overflow</span>
+</span><span id="__span-8-108"><a id="__codelineno-8-108" name="__codelineno-8-108"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nextCodePoint</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-109"><a id="__codelineno-8-109" name="__codelineno-8-109"></a><span class="w">      </span><span class="n">truncatedStringBuilder</span><span class="p">.</span><span class="na">setLength</span><span class="p">(</span><span class="n">offsetByCodePoint</span><span class="p">);</span>
+</span><span id="__span-8-110"><a id="__codelineno-8-110" name="__codelineno-8-110"></a><span class="w">      </span><span class="c1">// Append next code point to the truncated substring</span>
+</span><span id="__span-8-111"><a id="__codelineno-8-111" name="__codelineno-8-111"></a><span class="w">      </span><span class="n">truncatedStringBuilder</span><span class="p">.</span><span class="na">appendCodePoint</span><span class="p">(</span><span class="n">nextCodePoint</span><span class="p">);</span>
+</span><span id="__span-8-112"><a id="__codelineno-8-112" name="__codelineno-8-112"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">truncatedStringBuilder</span><span class="p">.</span><span class="na">toString</span><span class="p">();</span>
+</span><span id="__span-8-113"><a id="__codelineno-8-113" name="__codelineno-8-113"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-8-114"><a id="__codelineno-8-114" name="__codelineno-8-114"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-115"><a id="__codelineno-8-115" name="__codelineno-8-115"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="c1">// Cannot find a valid upper bound</span>
+</span><span id="__span-8-116"><a id="__codelineno-8-116" name="__codelineno-8-116"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/util/UnicodeUtil.java` L93–L116](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/util/UnicodeUtil.java#L93-L116) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>It walks backwards through code points looking for one it can increment without overflow. If every position overflows, it returns <code>null</code> — and the upper bound is omitted from <code>Metrics</code> altogether, while the lower bound survives.</p>
+<p>This is the direction that matters for 4.3. A truncated lower bound is smaller than the true minimum; a truncated upper bound is larger than the true maximum. The stored range is always a <em>superset</em> of the real range, so <code>InclusiveMetricsEvaluator</code> may fail to prune a file it could have pruned, but never prunes one it should have kept. Correctness beat precision, and the truncation direction is where that decision is implemented.</p>
+<h2 id="9-gotchas">9. Gotchas<a class="headerlink" href="#9-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">A wide table silently loses metrics beyond the first 100 columns</p>
+<p>With no explicit <code>write.metadata.metrics.default</code>, a schema of more than 100 projected ids gets default-mode metrics on the first 100 metrics-eligible fields and <code>none</code> on everything else. Manifests stay small; a filter on column 1001 becomes unprunable. Nothing warns you, at write time or at read time. On wide tables, set the mode explicitly for the columns you actually filter on.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Clustered writers do not sort — they assume sorting and fail loudly</p>
+<p><code>IllegalStateException: Incoming records violate the writer assumption that records are clustered by spec and by partition within each spec.</code> This is not a bug to work around by retrying. It means the engine promised sorted input and did not deliver, and the two legitimate fixes are in the message: cluster the input, or pay the memory cost of a fanout writer.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>write.target-file-size-bytes</code> is a target, not a cap</p>
+<p>The roll check fires only on multiples of 1000 rows. A batch of very wide rows can overshoot the target substantially before the next check lands. Sizing downstream systems on the assumption that no data file exceeds the target will eventually be wrong.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">An upper bound can be missing while the lower bound is present</p>
+<p><code>internalTruncateMax</code> returning <code>null</code> drops the upper bound and nothing else. Readers must treat a missing bound as <em>unknown</em>, never as <em>empty</em> — and they do. Any tool that reads manifests directly and assumes bounds come in pairs will mis-prune.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The writer stack composes two independent axes — rolling for file size, routing for spec/partition — over a single <code>FileWriter</code> contract whose job is to produce Iceberg metadata, not bytes.</li>
+<li>Clustered and fanout are a memory-versus-input-ordering trade, not a preference: clustered keeps one file open and throws when the input is unsorted; fanout keeps every seen partition open and scales memory with cardinality.</li>
+<li><code>DataWriter.close()</code> is where a <code>DataFile</code> comes into existence, and <code>withMetrics(appender.metrics())</code> is the single line that feeds Chapter 4.3's pruning.</li>
+<li><code>MetricsConfig.from()</code> decides per-column modes before a row is written, and its wide-table fallback to <code>none</code> is the most consequential default in the write path.</li>
+<li>Bounds are truncated outward — lower down, upper up — so the stored range always contains the real one. When the upper bound cannot be incremented it is dropped rather than made wrong.</li>
+<li>A statistic not collected at write time cannot be recovered later. Metrics configuration is a permanent property of every file written under it.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FileWriter</code>, <code>DataWriter</code>, <code>DataWriteResult</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/FileWriter.java"><code>core/.../io/FileWriter.java</code></a></td>
+</tr>
+<tr>
+<td><code>RollingFileWriter</code>, <code>RollingDataWriter</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java"><code>core/.../io/RollingFileWriter.java</code></a></td>
+</tr>
+<tr>
+<td><code>PartitioningWriter</code>, <code>ClusteredWriter</code>, <code>FanoutWriter</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java"><code>core/.../io/ClusteredWriter.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/FanoutWriter.java"><code>FanoutWriter.java</code></a></td>
+</tr>
+<tr>
+<td><code>ClusteredDataWriter</code>, <code>FanoutDataWriter</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/ClusteredDataWriter.java"><code>core/.../io/ClusteredDataWriter.java</code></a></td>
+</tr>
+<tr>
+<td>Older family (Flink)</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/BaseTaskWriter.java"><code>core/.../io/BaseTaskWriter.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/PartitionedFanoutWriter.java"><code>PartitionedFanoutWriter.java</code></a></td>
+</tr>
+<tr>
+<td>Writer and output-file factories</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/FileWriterFactory.java"><code>core/.../io/FileWriterFactory.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/OutputFileFactory.java"><code>OutputFileFactory.java</code></a></td>
+</tr>
+<tr>
+<td>Where <code>MetricsConfig.forTable</code> is injected</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/data/src/main/java/org/apache/iceberg/data/BaseFileWriterFactory.java"><code>data/.../BaseFileWriterFactory.java</code></a></td>
+</tr>
+<tr>
+<td><code>MetricsConfig</code>, <code>MetricsModes</code>, <code>MetricsUtil</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetricsConfig.java"><code>core/.../MetricsConfig.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetricsModes.java"><code>MetricsModes.java</code></a></td>
+</tr>
+<tr>
+<td>Metrics collection for Parquet</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/parquet/src/main/java/org/apache/iceberg/parquet/ParquetMetrics.java"><code>parquet/.../ParquetMetrics.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/parquet/src/main/java/org/apache/iceberg/parquet/ParquetUtil.java"><code>ParquetUtil.java</code></a></td>
+</tr>
+<tr>
+<td>Bound truncation</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/util/UnicodeUtil.java"><code>api/.../util/UnicodeUtil.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/util/BinaryUtil.java"><code>BinaryUtil.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Chapter 5.2 takes the <code>DataFile</code> objects this chapter produced and asks how they get into manifests — where <code>FastAppend</code> and <code>MergeAppend</code> give opposite answers.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Part 5 · The Write Path">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Part 5 · The Write Path
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../chapter_5.2_append_strategies/" class="md-footer__link md-footer__link--next" aria-label="Next: 5.2 `FastAppend` vs `MergeAppend`">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                5.2 `FastAppend` vs `MergeAppend`
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

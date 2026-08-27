@@ -1,0 +1,3836 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part01_foundations/chapter_1.4_reading_the_codebases/">
+      
+      
+        <link rel="prev" href="../chapter_1.3_nessie_core_idea/">
+      
+      
+        <link rel="next" href="../../part02_table_spec/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>1.4 Reading these codebases: module maps and navigation - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-14-reading-these-codebases-module-maps-and-navigation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.4 Reading these codebases: module maps and navigation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-search-that-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The search that fails
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-iceberg-twenty-five-includes-and-one-naming-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Iceberg: twenty-five includes and one naming rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-engine-modules-are-conditional-and-renamed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Engine modules are conditional, and renamed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-nessie-a-settings-file-that-declares-no-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Nessie: a settings file that declares no modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-same-rule-stated-for-both-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The same rule, stated for both projects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-from-an-interface-to-the-class-that-implements-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. From an interface to the class that implements it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-routine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The routine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-search-that-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The search that fails
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-iceberg-twenty-five-includes-and-one-naming-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Iceberg: twenty-five includes and one naming rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-engine-modules-are-conditional-and-renamed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Engine modules are conditional, and renamed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-nessie-a-settings-file-that-declares-no-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Nessie: a settings file that declares no modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-same-rule-stated-for-both-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The same rule, stated for both projects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-from-an-interface-to-the-class-that-implements-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. From an interface to the class that implements it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-routine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The routine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 1 · Foundations
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-14-reading-these-codebases-module-maps-and-navigation">Chapter 1.4 — Reading these codebases: module maps and navigation<a class="headerlink" href="#chapter-14-reading-these-codebases-module-maps-and-navigation" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> given a class name, an interface, or a config string, where in these two repositories do you actually look — and why does the obvious search so often return nothing?</p>
+<p><strong>Prerequisites:</strong> Chapter 1.2 (<code>TableMetadata</code> and the one atomic pointer), Chapter 1.3 (<code>CommitObj</code>, <code>Operation</code>, <code>IcebergTable</code>)</p>
+<p><strong>Source covered:</strong> <code>settings.gradle</code>, <code>settings.gradle.kts</code>, <code>gradle/projects.main.properties</code>, <code>core/.../CatalogUtil.java</code>, <code>versioned/storage/common/.../PersistLoader.java</code></p>
+</div>
+<h2 id="1-the-search-that-fails">1. The search that fails<a class="headerlink" href="#1-the-search-that-fails" title="Permanent link">&para;</a></h2>
+<p>You have a stack trace with <code>BaseMetastoreTableOperations</code> three frames down. Or a Spark config line that reads <code>type=nessie</code> and a <code>ClassNotFoundException</code> that names nothing you recognise. Or you are holding <code>org.apache.iceberg.catalog.Catalog</code> in an editor and you press "go to implementation", and you get a list of thirty classes, none of which is the one your cluster is running.</p>
+<p>This is not bad luck. It is the direct consequence of how both projects are built.</p>
+<p>Iceberg puts every interface in one Gradle module, <code>api/</code>, and every implementation in another, <code>core/</code>, and then chooses between implementations by <strong>reflecting on a class-name string</strong> that came out of table properties. Nessie splits the wire model from the storage engine and chooses a backend through <strong><code>ServiceLoader</code></strong>. In both cases the edge from an abstraction to the thing that implements it is <em>data</em> — a string in a config map, a line in a <code>META-INF/services</code> file — not a compile-time reference. A code search follows compile-time references. There is nothing there to follow.</p>
+<p>Two moves work instead, and this chapter is about both:</p>
+<ol>
+<li>Read the settings file to learn what the modules are and what each one holds.</li>
+<li>Read the <strong>registry</strong> — <code>CatalogUtil</code>'s constants on the Iceberg side, <code>META-INF/services</code> on the Nessie side — to learn which class a string resolves to.</li>
+</ol>
+<h2 id="2-iceberg-twenty-five-includes-and-one-naming-rule">2. Iceberg: twenty-five includes and one naming rule<a class="headerlink" href="#2-iceberg-twenty-five-includes-and-one-naming-rule" title="Permanent link">&para;</a></h2>
+<p>Iceberg's entire static module list fits on one screen:</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Iceberg&#x27;s static module list</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
+<span class="normal"><a href="#__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a>rootProject.name = 'iceberg'
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a>include 'bom'
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>include 'api'
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>include 'common'
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>include 'core'
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>include 'data'
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a>include 'aliyun'
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a>include 'aws'
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>include 'aws-bundle'
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a>include 'azure'
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>include 'azure-bundle'
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a>include 'orc'
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a>include 'arrow'
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>include 'parquet'
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>include 'bundled-guava'
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>include 'spark'
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>include 'hive-metastore'
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a>include 'nessie'
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>include 'gcp'
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a>include 'gcp-bundle'
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a>include 'bigquery'
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>include 'dell'
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>include 'snowflake'
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>include 'delta-lake'
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a>include 'open-api'
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a>include 'mr'
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `settings.gradle` L20–L45](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/settings.gradle#L20-L45) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Twenty-five <code>include</code> lines, with <code>api</code> second and <code>core</code> fourth. The lines immediately below rename each project to its published artifact — <code>project(':core').name = 'iceberg-core'</code> — which is why the coordinate you see in a dependency report (<code>org.apache.iceberg:iceberg-core</code>) never quite matches the directory on disk.</p>
+<p>The split those first four lines encode is the one navigation rule worth memorising:</p>
+<blockquote>
+<p>An interface <code>Foo</code> in <code>api/src/main/java/org/apache/iceberg/</code> almost always has a <code>BaseFoo</code> in the <strong>same package</strong> under <code>core/</code>.</p>
+</blockquote>
+<p><code>Table</code> → <code>BaseTable</code>. <code>Transaction</code> → <code>BaseTransaction</code>. <code>RewriteFiles</code> → <code>BaseRewriteFiles</code>. There are 39 <code>Base*.java</code> files in <code>core</code>'s root package alone. When "go to implementation" fails, replacing <code>api/</code> with <code>core/</code> in the path and prefixing <code>Base</code> succeeds far more often than it has any right to.</p>
+<pre class="mermaid"><code>flowchart BT
+    API["api&lt;br/&gt;interfaces only"]
+    COMMON["common&lt;br/&gt;Dyn* reflection"]
+    CORE["core&lt;br/&gt;Base*, TableMetadata,&lt;br/&gt;rest / jdbc / hadoop catalogs"]
+    DATA["data"]
+    FMT["parquet · orc · arrow"]
+    HMS["hive-metastore&lt;br/&gt;HiveCatalog"]
+    NES["nessie&lt;br/&gt;NessieCatalog"]
+    CLOUD["aws · azure · gcp · bigquery"]
+    ENG["spark · flink · mr · kafka-connect&lt;br/&gt;(versioned subprojects)"]
+    CORE --&gt; API
+    CORE --&gt; COMMON
+    DATA --&gt; CORE
+    FMT --&gt; CORE
+    HMS --&gt; CORE
+    NES --&gt; CORE
+    CLOUD --&gt; CORE
+    ENG --&gt; CORE
+    ENG --&gt; DATA</code></pre>
+<p>Arrows point at what a module depends on. Everything depends on <code>api</code>; <code>api</code> depends on nothing; <strong>no arrow ever runs from <code>api</code> to <code>core</code></strong>. That asymmetry is the whole reason the first search fails, and it is deliberate — it is what lets an engine compile against <code>iceberg-api</code> without pulling in a catalog implementation.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Gradle project</th>
+<th>What lives there</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>api/</code></td>
+<td><code>iceberg-api</code></td>
+<td>The contracts: <code>Table</code>, <code>Snapshot</code>, <code>DataFile</code>, <code>Schema</code>, <code>SnapshotRef</code>, plus <code>expressions</code>, <code>types</code>, <code>transforms</code>, <code>catalog</code>, <code>io</code>, <code>view</code>, <code>actions</code>, <code>metrics</code>, <code>variants</code>, <code>geospatial</code></td>
+</tr>
+<tr>
+<td><code>core/</code></td>
+<td><code>iceberg-core</code></td>
+<td>The implementations: <code>TableMetadata</code>, <code>SnapshotProducer</code>, <code>BaseMetastoreTableOperations</code>, 39 <code>Base*.java</code> in the root package, plus <code>avro</code>, <code>hadoop</code>, <code>rest</code>, <code>jdbc</code>, <code>catalog</code>, <code>deletes</code>, <code>encryption</code>, <code>puffin</code>, <code>mapping</code>, <code>inmemory</code></td>
+</tr>
+<tr>
+<td><code>common/</code></td>
+<td><code>iceberg-common</code></td>
+<td>Four files only: <code>DynClasses</code>, <code>DynConstructors</code>, <code>DynFields</code>, <code>DynMethods</code> — the reflection helpers everything else loads implementations with</td>
+</tr>
+<tr>
+<td><code>data/</code></td>
+<td><code>iceberg-data</code></td>
+<td>Generic record read/write, <code>DeleteFilter</code>, and <code>TableMigrationUtil</code> (Chapter 1.1)</td>
+</tr>
+<tr>
+<td><code>parquet/</code>, <code>orc/</code>, <code>arrow/</code></td>
+<td><code>iceberg-parquet</code>, …</td>
+<td>Per-format readers, writers and metrics</td>
+</tr>
+<tr>
+<td><code>hive-metastore/</code></td>
+<td><code>iceberg-hive-metastore</code></td>
+<td><code>org.apache.iceberg.hive.HiveCatalog</code>, <code>HiveTableOperations</code></td>
+</tr>
+<tr>
+<td><code>nessie/</code></td>
+<td><code>iceberg-nessie</code></td>
+<td><code>org.apache.iceberg.nessie.NessieCatalog</code>, <code>NessieTableOperations</code>, <code>UpdateableReference</code> — the bridge Part 10 covers</td>
+</tr>
+<tr>
+<td><code>aws/</code>, <code>azure/</code>, <code>gcp/</code>, <code>aliyun/</code>, <code>dell/</code></td>
+<td><code>iceberg-aws</code>, …</td>
+<td>Cloud <code>FileIO</code>s; <code>GlueCatalog</code> is in <code>aws/.../aws/glue/</code></td>
+</tr>
+<tr>
+<td><code>bigquery/</code>, <code>snowflake/</code>, <code>delta-lake/</code></td>
+<td><code>iceberg-bigquery</code>, …</td>
+<td>Further catalog and format integrations</td>
+</tr>
+<tr>
+<td><code>open-api/</code></td>
+<td><code>iceberg-open-api</code></td>
+<td><code>rest-catalog-open-api.yaml</code> — the REST catalog spec itself</td>
+</tr>
+<tr>
+<td><code>mr/</code></td>
+<td><code>iceberg-mr</code></td>
+<td>Hive <code>mapred</code>/<code>mapreduce</code> input formats</td>
+</tr>
+<tr>
+<td><code>*-bundle/</code>, <code>bundled-guava/</code></td>
+<td>…</td>
+<td>Shading, no logic. <code>include 'bom'</code> is in the settings file too, but there is no <code>bom</code> directory: <code>iceberg-bom</code> is configured entirely from a <code>project(':iceberg-bom') { … }</code> block in the root <code>build.gradle</code></td>
+</tr>
+<tr>
+<td><code>spark/</code></td>
+<td><code>iceberg-spark</code></td>
+<td>An umbrella project only. The code lives in versioned subprojects added conditionally, below</td>
+</tr>
+</tbody>
+</table>
+<p><code>flink/</code> and <code>kafka-connect/</code> are absent from the list above on purpose: unlike <code>spark</code>, not even their umbrella projects are included unless a version property selects them.</p>
+<h2 id="3-engine-modules-are-conditional-and-renamed">3. Engine modules are conditional, and renamed<a class="headerlink" href="#3-engine-modules-are-conditional-and-renamed" title="Permanent link">&para;</a></h2>
+<p>Every <code>include</code> after line 45 of <code>settings.gradle</code> is inside an <code>if</code>. (Not everything after it: lines 79-108 are unguarded top-level statements that parse the version lists and throw <code>GradleException</code> on an unknown one.)</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Engine modules: directory name is not project name</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-142">142</a></span>
+<span class="normal"><a href="#__codelineno-1-143">143</a></span>
+<span class="normal"><a href="#__codelineno-1-144">144</a></span>
+<span class="normal"><a href="#__codelineno-1-145">145</a></span>
+<span class="normal"><a href="#__codelineno-1-146">146</a></span>
+<span class="normal"><a href="#__codelineno-1-147">147</a></span>
+<span class="normal"><a href="#__codelineno-1-148">148</a></span>
+<span class="normal"><a href="#__codelineno-1-149">149</a></span>
+<span class="normal"><a href="#__codelineno-1-150">150</a></span>
+<span class="normal"><a href="#__codelineno-1-151">151</a></span>
+<span class="normal"><a href="#__codelineno-1-152">152</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-142"><a id="__codelineno-1-142" name="__codelineno-1-142"></a>if (sparkVersions.contains("3.4")) {
+</span><span id="__span-1-143"><a id="__codelineno-1-143" name="__codelineno-1-143"></a>  include ":iceberg-spark:spark-3.4_${scalaVersion}"
+</span><span id="__span-1-144"><a id="__codelineno-1-144" name="__codelineno-1-144"></a>  include ":iceberg-spark:spark-extensions-3.4_${scalaVersion}"
+</span><span id="__span-1-145"><a id="__codelineno-1-145" name="__codelineno-1-145"></a>  include ":iceberg-spark:spark-runtime-3.4_${scalaVersion}"
+</span><span id="__span-1-146"><a id="__codelineno-1-146" name="__codelineno-1-146"></a>  project(":iceberg-spark:spark-3.4_${scalaVersion}").projectDir = file('spark/v3.4/spark')
+</span><span id="__span-1-147"><a id="__codelineno-1-147" name="__codelineno-1-147"></a>  project(":iceberg-spark:spark-3.4_${scalaVersion}").name = "iceberg-spark-3.4_${scalaVersion}"
+</span><span id="__span-1-148"><a id="__codelineno-1-148" name="__codelineno-1-148"></a>  project(":iceberg-spark:spark-extensions-3.4_${scalaVersion}").projectDir = file('spark/v3.4/spark-extensions')
+</span><span id="__span-1-149"><a id="__codelineno-1-149" name="__codelineno-1-149"></a>  project(":iceberg-spark:spark-extensions-3.4_${scalaVersion}").name = "iceberg-spark-extensions-3.4_${scalaVersion}"
+</span><span id="__span-1-150"><a id="__codelineno-1-150" name="__codelineno-1-150"></a>  project(":iceberg-spark:spark-runtime-3.4_${scalaVersion}").projectDir = file('spark/v3.4/spark-runtime')
+</span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a>  project(":iceberg-spark:spark-runtime-3.4_${scalaVersion}").name = "iceberg-spark-runtime-3.4_${scalaVersion}"
+</span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a>}
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `settings.gradle` L142–L153](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/settings.gradle#L142-L153) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Read the three halves separately, because there are three. <code>include ":iceberg-spark:spark-3.4_${scalaVersion}"</code> creates the project. <code>projectDir = file('spark/v3.4/spark')</code> says where the code is. <code>.name = "iceberg-spark-3.4_${scalaVersion}"</code> says what Gradle calls it — and renaming a project <em>changes its path</em>, so the path you can actually invoke is <code>:iceberg-spark:iceberg-spark-3.4_2.12</code>, with <code>iceberg-</code> twice. The path in the <code>include</code> line is dead the moment the <code>.name =</code> assignment further down the same block runs. The whole block only executes if <code>sparkVersions.contains("3.4")</code>.</p>
+<p>Neither name is derivable from the other by inspection, which is the practical point: the directory says <code>spark/v3.4/spark</code>, the artifact says <code>iceberg-spark-3.4_2.12</code>, and only the settings file connects them.</p>
+<p>Two consequences you will hit in the first hour:</p>
+<ul>
+<li><code>./gradlew :iceberg-spark:iceberg-spark-3.5_2.13:test</code> needs the matching <code>-DsparkVersions=3.5 -DscalaVersion=2.13</code> or it fails with "project not found" — the task is not missing, the project was never included. Get the path wrong as well (<code>:iceberg-spark:spark-3.5_2.13</code>, the pre-rename form) and the same error means something different. Upstream's own CI is the reference: <code>.github/workflows/spark-ci.yml</code> invokes <code>:iceberg-spark:iceberg-spark-${matrix.spark}_${matrix.scala}:check</code>. <code>-DallModules</code> sets every version list to its known-versions value at once.</li>
+<li>The same class name exists once per supported Spark version under <code>spark/v3.4/</code>, <code>spark/v3.5/</code>, <code>spark/v4.0/</code>, <code>spark/v4.1/</code>. A grep hit is not necessarily the code your cluster runs, and a fix applied to one copy is not applied to the others.</li>
+</ul>
+<p>Flink (<code>flink/v1.20</code>, <code>v2.0</code>, <code>v2.1</code>) and Kafka Connect follow the same pattern with their own property names.</p>
+<h2 id="4-nessie-a-settings-file-that-declares-no-modules">4. Nessie: a settings file that declares no modules<a class="headerlink" href="#4-nessie-a-settings-file-that-declares-no-modules" title="Permanent link">&para;</a></h2>
+<p>Nessie is larger — 120 projects in the main build, about 135 after a full configure — and its <code>settings.gradle.kts</code> does not list a single one of them. It reads them out of a properties file at configuration time, so the module map is not in the build script:</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">gradle/projects.main.properties — the file to grep</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-67"> 67</a></span>
+<span class="normal"><a href="#__codelineno-2-68"> 68</a></span>
+<span class="normal"><a href="#__codelineno-2-69"> 69</a></span>
+<span class="normal"><a href="#__codelineno-2-70"> 70</a></span>
+<span class="normal"><a href="#__codelineno-2-71"> 71</a></span>
+<span class="normal"><a href="#__codelineno-2-72"> 72</a></span>
+<span class="normal"><a href="#__codelineno-2-73"> 73</a></span>
+<span class="normal"><a href="#__codelineno-2-74"> 74</a></span>
+<span class="normal"><a href="#__codelineno-2-75"> 75</a></span>
+<span class="normal"><a href="#__codelineno-2-76"> 76</a></span>
+<span class="normal"><a href="#__codelineno-2-77"> 77</a></span>
+<span class="normal"><a href="#__codelineno-2-78"> 78</a></span>
+<span class="normal"><a href="#__codelineno-2-79"> 79</a></span>
+<span class="normal"><a href="#__codelineno-2-80"> 80</a></span>
+<span class="normal"><a href="#__codelineno-2-81"> 81</a></span>
+<span class="normal"><a href="#__codelineno-2-82"> 82</a></span>
+<span class="normal"><a href="#__codelineno-2-83"> 83</a></span>
+<span class="normal"><a href="#__codelineno-2-84"> 84</a></span>
+<span class="normal"><a href="#__codelineno-2-85"> 85</a></span>
+<span class="normal"><a href="#__codelineno-2-86"> 86</a></span>
+<span class="normal"><a href="#__codelineno-2-87"> 87</a></span>
+<span class="normal"><a href="#__codelineno-2-88"> 88</a></span>
+<span class="normal"><a href="#__codelineno-2-89"> 89</a></span>
+<span class="normal"><a href="#__codelineno-2-90"> 90</a></span>
+<span class="normal"><a href="#__codelineno-2-91"> 91</a></span>
+<span class="normal"><a href="#__codelineno-2-92"> 92</a></span>
+<span class="normal"><a href="#__codelineno-2-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-2-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-2-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-2-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-2-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-2-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-2-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-2-100">100</a></span>
+<span class="normal"><a href="#__codelineno-2-101">101</a></span>
+<span class="normal"><a href="#__codelineno-2-102">102</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-67"><a id="__codelineno-2-67" name="__codelineno-2-67"></a>nessie-versioned-spi=versioned/spi
+</span><span id="__span-2-68"><a id="__codelineno-2-68" name="__codelineno-2-68"></a>nessie-versioned-storage-batching=versioned/storage/batching
+</span><span id="__span-2-69"><a id="__codelineno-2-69" name="__codelineno-2-69"></a>nessie-versioned-storage-bigtable=versioned/storage/bigtable
+</span><span id="__span-2-70"><a id="__codelineno-2-70" name="__codelineno-2-70"></a>nessie-versioned-storage-bigtable-tests=versioned/storage/bigtable-tests
+</span><span id="__span-2-71"><a id="__codelineno-2-71" name="__codelineno-2-71"></a>nessie-versioned-storage-cache=versioned/storage/cache
+</span><span id="__span-2-72"><a id="__codelineno-2-72" name="__codelineno-2-72"></a>nessie-versioned-storage-cassandra=versioned/storage/cassandra
+</span><span id="__span-2-73"><a id="__codelineno-2-73" name="__codelineno-2-73"></a>nessie-versioned-storage-cassandra-tests=versioned/storage/cassandra-tests
+</span><span id="__span-2-74"><a id="__codelineno-2-74" name="__codelineno-2-74"></a>nessie-versioned-storage-cassandra2=versioned/storage/cassandra2
+</span><span id="__span-2-75"><a id="__codelineno-2-75" name="__codelineno-2-75"></a>nessie-versioned-storage-cassandra2-tests=versioned/storage/cassandra2-tests
+</span><span id="__span-2-76"><a id="__codelineno-2-76" name="__codelineno-2-76"></a>nessie-versioned-storage-cleanup=versioned/storage/cleanup
+</span><span id="__span-2-77"><a id="__codelineno-2-77" name="__codelineno-2-77"></a>nessie-versioned-storage-common=versioned/storage/common
+</span><span id="__span-2-78"><a id="__codelineno-2-78" name="__codelineno-2-78"></a>nessie-versioned-storage-common-proto=versioned/storage/common-proto
+</span><span id="__span-2-79"><a id="__codelineno-2-79" name="__codelineno-2-79"></a>nessie-versioned-storage-common-serialize=versioned/storage/common-serialize
+</span><span id="__span-2-80"><a id="__codelineno-2-80" name="__codelineno-2-80"></a>nessie-versioned-storage-common-tests=versioned/storage/common-tests
+</span><span id="__span-2-81"><a id="__codelineno-2-81" name="__codelineno-2-81"></a>nessie-versioned-storage-dynamodb=versioned/storage/dynamodb
+</span><span id="__span-2-82"><a id="__codelineno-2-82" name="__codelineno-2-82"></a>nessie-versioned-storage-dynamodb-tests=versioned/storage/dynamodb-tests
+</span><span id="__span-2-83"><a id="__codelineno-2-83" name="__codelineno-2-83"></a>nessie-versioned-storage-dynamodb2=versioned/storage/dynamodb2
+</span><span id="__span-2-84"><a id="__codelineno-2-84" name="__codelineno-2-84"></a>nessie-versioned-storage-dynamodb2-tests=versioned/storage/dynamodb2-tests
+</span><span id="__span-2-85"><a id="__codelineno-2-85" name="__codelineno-2-85"></a>nessie-versioned-storage-inmemory=versioned/storage/inmemory
+</span><span id="__span-2-86"><a id="__codelineno-2-86" name="__codelineno-2-86"></a>nessie-versioned-storage-inmemory-tests=versioned/storage/inmemory-tests
+</span><span id="__span-2-87"><a id="__codelineno-2-87" name="__codelineno-2-87"></a>nessie-versioned-storage-jdbc=versioned/storage/jdbc
+</span><span id="__span-2-88"><a id="__codelineno-2-88" name="__codelineno-2-88"></a>nessie-versioned-storage-jdbc-tests=versioned/storage/jdbc-tests
+</span><span id="__span-2-89"><a id="__codelineno-2-89" name="__codelineno-2-89"></a>nessie-versioned-storage-jdbc2=versioned/storage/jdbc2
+</span><span id="__span-2-90"><a id="__codelineno-2-90" name="__codelineno-2-90"></a>nessie-versioned-storage-jdbc2-tests=versioned/storage/jdbc2-tests
+</span><span id="__span-2-91"><a id="__codelineno-2-91" name="__codelineno-2-91"></a>nessie-versioned-storage-mongodb=versioned/storage/mongodb
+</span><span id="__span-2-92"><a id="__codelineno-2-92" name="__codelineno-2-92"></a>nessie-versioned-storage-mongodb-tests=versioned/storage/mongodb-tests
+</span><span id="__span-2-93"><a id="__codelineno-2-93" name="__codelineno-2-93"></a>nessie-versioned-storage-mongodb2=versioned/storage/mongodb2
+</span><span id="__span-2-94"><a id="__codelineno-2-94" name="__codelineno-2-94"></a>nessie-versioned-storage-mongodb2-tests=versioned/storage/mongodb2-tests
+</span><span id="__span-2-95"><a id="__codelineno-2-95" name="__codelineno-2-95"></a>nessie-versioned-storage-rocksdb=versioned/storage/rocksdb
+</span><span id="__span-2-96"><a id="__codelineno-2-96" name="__codelineno-2-96"></a>nessie-versioned-storage-rocksdb-tests=versioned/storage/rocksdb-tests
+</span><span id="__span-2-97"><a id="__codelineno-2-97" name="__codelineno-2-97"></a>nessie-versioned-storage-store=versioned/storage/store
+</span><span id="__span-2-98"><a id="__codelineno-2-98" name="__codelineno-2-98"></a>nessie-versioned-storage-testextension=versioned/storage/testextension
+</span><span id="__span-2-99"><a id="__codelineno-2-99" name="__codelineno-2-99"></a>nessie-versioned-tests=versioned/tests
+</span><span id="__span-2-100"><a id="__codelineno-2-100" name="__codelineno-2-100"></a>nessie-versioned-transfer-proto=versioned/transfer-proto
+</span><span id="__span-2-101"><a id="__codelineno-2-101" name="__codelineno-2-101"></a>nessie-versioned-transfer-related=versioned/transfer-related
+</span><span id="__span-2-102"><a id="__codelineno-2-102" name="__codelineno-2-102"></a>nessie-versioned-transfer=versioned/transfer
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `gradle/projects.main.properties` L67–L102](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/gradle/projects.main.properties#L67-L102) <span>@ nessie-0.108.4</span></p>
+
+<p>Artifact name on the left, directory on the right, one per line. This answers "where does <code>nessie-versioned-storage-common</code> live" and "what is the artifact for <code>versioned/spi</code>" in both directions, and it is the fastest thing to grep in the entire repository. That is the whole navigation rule for this side of the book; <strong>Chapter 7.1 reads the loader that consumes this file, groups the modules into bands, and draws the layer stack they form.</strong> What matters here is only that the file exists and that nothing else answers the question.</p>
+<p>A third source of projects has no file at all. Nessie's Spark extensions are generated from a matrix: <code>integrations/spark-scala.properties</code> lists <code>sparkVersions=4.0,3.5,3.4</code> and a Scala version list per Spark version, and <code>settings.gradle.kts</code> loops over the cross product creating <code>nessie-spark-extensions-${sparkVersion}_${scalaVersion}</code> projects that all share one directory, <code>integrations/spark-extensions/v${sparkVersion}</code>. Searching for a project name that a Gradle error mentions will not find it in any file, because the string was assembled at configuration time.</p>
+<h2 id="5-the-same-rule-stated-for-both-projects">5. The same rule, stated for both projects<a class="headerlink" href="#5-the-same-rule-stated-for-both-projects" title="Permanent link">&para;</a></h2>
+<p>Iceberg and Nessie fail a code search for opposite-looking reasons that turn out to be the same reason.</p>
+<p>Iceberg's module list is static and its directories match its <code>include</code> lines, right up until an engine module renames itself; there, the answer is in <code>settings.gradle</code>. Nessie's module list is not in the build script at all; there, the answer is in <code>gradle/projects.main.properties</code>. In both cases the mapping from a name you have to a directory you need is <strong>data read at configuration time</strong>, and in both cases exactly one file holds it.</p>
+<p>The api/core rule of section 2 has an equivalent on the Nessie side, and it is worth carrying forward even before the modules mean anything. Nessie splits contract from behaviour twice over. <code>api/model</code> holds the wire types a client and a server both compile against; <code>versioned/spi</code> holds <code>VersionStore</code>, the interface between the service layer and storage; and <code>versioned/storage/common</code> holds the engine that implements it. Three names, one rule: <strong>when a Nessie type has an obvious interface and an obvious implementation, they are in different Gradle modules, and the implementation is the one further down that list.</strong></p>
+<p>The rule has the same practical payoff as <code>api/</code> → <code>core/</code>. A search that lands on <code>VersionStore</code> and finds no logic has landed on the contract; <code>versioned/storage/store</code> holds the class that satisfies it. A search that lands on <code>Reference</code> may have landed on any of three unrelated types, which is Chapter 1.3's second gotcha and the reason this book keeps naming packages.</p>
+<p>That is the first of two places a search dies. The second is worse, because the file that would answer it is not a build file:</p>
+<h2 id="6-from-an-interface-to-the-class-that-implements-it">6. From an interface to the class that implements it<a class="headerlink" href="#6-from-an-interface-to-the-class-that-implements-it" title="Permanent link">&para;</a></h2>
+<p>Iceberg's registry is a block of constants. Read it top to bottom and the whole <code>type=</code> mechanism falls out:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CatalogUtil — catalog type to class name</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-61">61</a></span>
+<span class="normal"><a href="#__codelineno-3-62">62</a></span>
+<span class="normal"><a href="#__codelineno-3-63">63</a></span>
+<span class="normal"><a href="#__codelineno-3-64">64</a></span>
+<span class="normal"><a href="#__codelineno-3-65">65</a></span>
+<span class="normal"><a href="#__codelineno-3-66">66</a></span>
+<span class="normal"><a href="#__codelineno-3-67">67</a></span>
+<span class="normal"><a href="#__codelineno-3-68">68</a></span>
+<span class="normal"><a href="#__codelineno-3-69">69</a></span>
+<span class="normal"><a href="#__codelineno-3-70">70</a></span>
+<span class="normal"><a href="#__codelineno-3-71">71</a></span>
+<span class="normal"><a href="#__codelineno-3-72">72</a></span>
+<span class="normal"><a href="#__codelineno-3-73">73</a></span>
+<span class="normal"><a href="#__codelineno-3-74">74</a></span>
+<span class="normal"><a href="#__codelineno-3-75">75</a></span>
+<span class="normal"><a href="#__codelineno-3-76">76</a></span>
+<span class="normal"><a href="#__codelineno-3-77">77</a></span>
+<span class="normal"><a href="#__codelineno-3-78">78</a></span>
+<span class="normal"><a href="#__codelineno-3-79">79</a></span>
+<span class="normal"><a href="#__codelineno-3-80">80</a></span>
+<span class="normal"><a href="#__codelineno-3-81">81</a></span>
+<span class="normal"><a href="#__codelineno-3-82">82</a></span>
+<span class="normal"><a href="#__codelineno-3-83">83</a></span>
+<span class="normal"><a href="#__codelineno-3-84">84</a></span>
+<span class="normal"><a href="#__codelineno-3-85">85</a></span>
+<span class="normal"><a href="#__codelineno-3-86">86</a></span>
+<span class="normal"><a href="#__codelineno-3-87">87</a></span>
+<span class="normal"><a href="#__codelineno-3-88">88</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-61"><a id="__codelineno-3-61" name="__codelineno-3-61"></a><span class="cm">/**</span>
+</span><span id="__span-3-62"><a id="__codelineno-3-62" name="__codelineno-3-62"></a><span class="cm"> * Shortcut catalog property to load a catalog implementation through a short type name, instead</span>
+</span><span id="__span-3-63"><a id="__codelineno-3-63" name="__codelineno-3-63"></a><span class="cm"> * of specifying a full java class through {@link CatalogProperties#CATALOG_IMPL}. Currently the</span>
+</span><span id="__span-3-64"><a id="__codelineno-3-64" name="__codelineno-3-64"></a><span class="cm"> * following type to implementation mappings are supported:</span>
+</span><span id="__span-3-65"><a id="__codelineno-3-65" name="__codelineno-3-65"></a><span class="cm"> *</span>
+</span><span id="__span-3-66"><a id="__codelineno-3-66" name="__codelineno-3-66"></a><span class="cm"> * &lt;ul&gt;</span>
+</span><span id="__span-3-67"><a id="__codelineno-3-67" name="__codelineno-3-67"></a><span class="cm"> *   &lt;li&gt;hive: org.apache.iceberg.hive.HiveCatalog</span>
+</span><span id="__span-3-68"><a id="__codelineno-3-68" name="__codelineno-3-68"></a><span class="cm"> *   &lt;li&gt;hadoop: org.apache.iceberg.hadoop.HadoopCatalog</span>
+</span><span id="__span-3-69"><a id="__codelineno-3-69" name="__codelineno-3-69"></a><span class="cm"> * &lt;/ul&gt;</span>
+</span><span id="__span-3-70"><a id="__codelineno-3-70" name="__codelineno-3-70"></a><span class="cm"> */</span>
+</span><span id="__span-3-71"><a id="__codelineno-3-71" name="__codelineno-3-71"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"type"</span><span class="p">;</span>
+</span><span id="__span-3-72"><a id="__codelineno-3-72" name="__codelineno-3-72"></a>
+</span><span id="__span-3-73"><a id="__codelineno-3-73" name="__codelineno-3-73"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_HADOOP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"hadoop"</span><span class="p">;</span>
+</span><span id="__span-3-74"><a id="__codelineno-3-74" name="__codelineno-3-74"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_HIVE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"hive"</span><span class="p">;</span>
+</span><span id="__span-3-75"><a id="__codelineno-3-75" name="__codelineno-3-75"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_REST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"rest"</span><span class="p">;</span>
+</span><span id="__span-3-76"><a id="__codelineno-3-76" name="__codelineno-3-76"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_GLUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"glue"</span><span class="p">;</span>
+</span><span id="__span-3-77"><a id="__codelineno-3-77" name="__codelineno-3-77"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_NESSIE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"nessie"</span><span class="p">;</span>
+</span><span id="__span-3-78"><a id="__codelineno-3-78" name="__codelineno-3-78"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_JDBC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"jdbc"</span><span class="p">;</span>
+</span><span id="__span-3-79"><a id="__codelineno-3-79" name="__codelineno-3-79"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_TYPE_BIGQUERY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"bigquery"</span><span class="p">;</span>
+</span><span id="__span-3-80"><a id="__codelineno-3-80" name="__codelineno-3-80"></a>
+</span><span id="__span-3-81"><a id="__codelineno-3-81" name="__codelineno-3-81"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_HADOOP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"org.apache.iceberg.hadoop.HadoopCatalog"</span><span class="p">;</span>
+</span><span id="__span-3-82"><a id="__codelineno-3-82" name="__codelineno-3-82"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_HIVE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"org.apache.iceberg.hive.HiveCatalog"</span><span class="p">;</span>
+</span><span id="__span-3-83"><a id="__codelineno-3-83" name="__codelineno-3-83"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_REST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"org.apache.iceberg.rest.RESTCatalog"</span><span class="p">;</span>
+</span><span id="__span-3-84"><a id="__codelineno-3-84" name="__codelineno-3-84"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_GLUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"org.apache.iceberg.aws.glue.GlueCatalog"</span><span class="p">;</span>
+</span><span id="__span-3-85"><a id="__codelineno-3-85" name="__codelineno-3-85"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_NESSIE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"org.apache.iceberg.nessie.NessieCatalog"</span><span class="p">;</span>
+</span><span id="__span-3-86"><a id="__codelineno-3-86" name="__codelineno-3-86"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_JDBC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"org.apache.iceberg.jdbc.JdbcCatalog"</span><span class="p">;</span>
+</span><span id="__span-3-87"><a id="__codelineno-3-87" name="__codelineno-3-87"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_BIGQUERY</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-88"><a id="__codelineno-3-88" name="__codelineno-3-88"></a><span class="w">    </span><span class="s">"org.apache.iceberg.gcp.bigquery.BigQueryMetastoreCatalog"</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/CatalogUtil.java` L61–L88](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/CatalogUtil.java#L61-L88) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Seven short names, then the fully-qualified class each one resolves to. This is what a Spark session's <code>spark.sql.catalog.x.type=nessie</code> finally means — but note <em>which</em> method does the mapping, because opening the wrong one is its own failed search. <code>CatalogUtil.buildIcebergCatalog</code> holds the <code>switch</code> over the short names and turns <code>nessie</code> into the string <code>"org.apache.iceberg.nessie.NessieCatalog"</code>; <code>CatalogUtil.loadCatalog</code> receives an already-resolved class name and only reflects on it, <code>DynConstructors.builder(Catalog.class).impl(impl).buildChecked()</code>. A reader who goes straight to <code>loadCatalog</code> finds no mapping at all. <code>buildIcebergCatalog</code> consults <code>type</code> only when <code>catalog-impl</code> is absent, and its <code>else</code> branch is a <code>Preconditions.checkArgument</code> refusing both at once — <em>"Cannot create catalog %s, both type and catalog-impl are set"</em> — so the two properties are mutually exclusive by construction, and <code>loadCatalog</code> is the single funnel they both end in.</p>
+<p>The package prefix then names the module, most of the time — <code>org.apache.iceberg.hadoop</code>, <code>.rest</code> and <code>.jdbc</code> are subpackages of <code>core/</code>; <code>org.apache.iceberg.aws.glue</code> is <code>aws/</code>; <code>org.apache.iceberg.nessie</code> is <code>nessie/</code>. The javadoc on <code>ICEBERG_CATALOG_TYPE</code> lists only <code>hive</code> and <code>hadoop</code>, so it is out of date with the seven type constants beneath it; trust the constants.</p>
+<p>Nessie makes the same hop, and the answer is not in Java at all:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">PersistLoader.findFactory()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-37">37</a></span>
+<span class="normal"><a href="#__codelineno-4-38">38</a></span>
+<span class="normal"><a href="#__codelineno-4-39">39</a></span>
+<span class="normal"><a href="#__codelineno-4-40">40</a></span>
+<span class="normal"><a href="#__codelineno-4-41">41</a></span>
+<span class="normal"><a href="#__codelineno-4-42">42</a></span>
+<span class="normal"><a href="#__codelineno-4-43">43</a></span>
+<span class="normal"><a href="#__codelineno-4-44">44</a></span>
+<span class="normal"><a href="#__codelineno-4-45">45</a></span>
+<span class="normal"><a href="#__codelineno-4-46">46</a></span>
+<span class="normal"><a href="#__codelineno-4-47">47</a></span>
+<span class="normal"><a href="#__codelineno-4-48">48</a></span>
+<span class="normal"><a href="#__codelineno-4-49">49</a></span>
+<span class="normal"><a href="#__codelineno-4-50">50</a></span>
+<span class="normal"><a href="#__codelineno-4-51">51</a></span>
+<span class="normal"><a href="#__codelineno-4-52">52</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-37"><a id="__codelineno-4-37" name="__codelineno-4-37"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="o">&lt;</span><span class="n">C</span><span class="o">&gt;</span><span class="w"> </span><span class="n">BackendFactory</span><span class="o">&lt;</span><span class="n">C</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">findFactory</span><span class="p">(</span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">BackendFactory</span><span class="o">&lt;?&gt;&gt;</span><span class="w"> </span><span class="n">filter</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-38"><a id="__codelineno-4-38" name="__codelineno-4-38"></a><span class="w">  </span><span class="n">ServiceLoader</span><span class="o">&lt;</span><span class="n">BackendFactory</span><span class="o">&lt;</span><span class="n">C</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">loader</span><span class="p">();</span>
+</span><span id="__span-4-39"><a id="__codelineno-4-39" name="__codelineno-4-39"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BackendFactory</span><span class="o">&lt;?&gt;&gt;</span><span class="w"> </span><span class="n">candidates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+</span><span id="__span-4-40"><a id="__codelineno-4-40" name="__codelineno-4-40"></a><span class="w">  </span><span class="kt">boolean</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+</span><span id="__span-4-41"><a id="__codelineno-4-41" name="__codelineno-4-41"></a><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">BackendFactory</span><span class="o">&lt;</span><span class="n">C</span><span class="o">&gt;</span><span class="w"> </span><span class="n">backendFactory</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">loader</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-42"><a id="__codelineno-4-42" name="__codelineno-4-42"></a><span class="w">    </span><span class="n">any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+</span><span id="__span-4-43"><a id="__codelineno-4-43" name="__codelineno-4-43"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">filter</span><span class="p">.</span><span class="na">test</span><span class="p">(</span><span class="n">backendFactory</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-44"><a id="__codelineno-4-44" name="__codelineno-4-44"></a><span class="w">      </span><span class="n">candidates</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">backendFactory</span><span class="p">);</span>
+</span><span id="__span-4-45"><a id="__codelineno-4-45" name="__codelineno-4-45"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-46"><a id="__codelineno-4-46" name="__codelineno-4-46"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-47"><a id="__codelineno-4-47" name="__codelineno-4-47"></a><span class="w">  </span><span class="n">checkState</span><span class="p">(</span><span class="n">any</span><span class="p">,</span><span class="w"> </span><span class="s">"No BackendFactory on class path"</span><span class="p">);</span>
+</span><span id="__span-4-48"><a id="__codelineno-4-48" name="__codelineno-4-48"></a><span class="w">  </span><span class="n">checkArgument</span><span class="p">(</span><span class="o">!</span><span class="n">candidates</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">(),</span><span class="w"> </span><span class="s">"No BackendFactory matched the given filter"</span><span class="p">);</span>
+</span><span id="__span-4-49"><a id="__codelineno-4-49" name="__codelineno-4-49"></a><span class="w">  </span><span class="n">checkState</span><span class="p">(</span><span class="n">candidates</span><span class="p">.</span><span class="na">size</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"More than one BackendFactory matched the given filter"</span><span class="p">);</span>
+</span><span id="__span-4-50"><a id="__codelineno-4-50" name="__codelineno-4-50"></a>
+</span><span id="__span-4-51"><a id="__codelineno-4-51" name="__codelineno-4-51"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">cast</span><span class="p">(</span><span class="n">candidates</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+</span><span id="__span-4-52"><a id="__codelineno-4-52" name="__codelineno-4-52"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/PersistLoader.java` L37–L52](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/PersistLoader.java#L37-L52) <span>@ nessie-0.108.4</span></p>
+
+<p>A <code>ServiceLoader</code>, filtered by predicate, then three assertions in a row: something was on the classpath, something matched, and <em>exactly</em> one thing matched. The <code>ServiceLoader.load(BackendFactory.class)</code> call itself is one level down, in the private <code>loader()</code> helper, which is why the method above shows only <code>ServiceLoader&lt;BackendFactory&lt;C&gt;&gt; loader = loader();</code>.</p>
+<p><code>findFactoryByName("jdbc")</code> is <code>findFactory(f -&gt; f.name().equals("jdbc"))</code>, and the class it returns is named in <code>versioned/storage/jdbc/src/main/resources/META-INF/services/org.projectnessie.versioned.storage.common.persist.BackendFactory</code> — a 16-line resource file with exactly one meaningful line under a 15-line Apache licence header: <code>org.projectnessie.versioned.storage.jdbc.JdbcBackendFactory</code>.</p>
+<p>When a Nessie server refuses to start with "No BackendFactory on class path", that resource is what is missing, and no Java search will tell you so.</p>
+<h2 id="7-the-routine">7. The routine<a class="headerlink" href="#7-the-routine" title="Permanent link">&para;</a></h2>
+<p>Three steps, and the rest of this book assumes them:</p>
+<ol>
+<li><strong>Module from the settings file.</strong> Iceberg: <code>settings.gradle</code>, twenty-five includes plus the conditional engine blocks. Nessie: <code>grep &lt;name&gt; gradle/projects.main.properties</code>.</li>
+<li><strong>Class from the registry.</strong> A <code>type=</code> string → <code>CatalogUtil</code>'s constants. A backend name → <code>META-INF/services</code>. A <code>Content</code> payload type → <code>ContentTypes</code>.</li>
+<li><strong>Contract in <code>api/</code>, behaviour in <code>core/</code>.</strong> On the Nessie side the equivalent pair is <code>versioned/spi</code> for the contract and <code>versioned/storage/common</code> for the behaviour.</li>
+</ol>
+<h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">The package prefix names the module — except when it does not</p>
+<p><code>CatalogUtil</code>'s own constants contain the counterexample: <code>org.apache.iceberg.gcp.bigquery.BigQueryMetastoreCatalog</code> lives in <strong><code>bigquery/</code></strong>, not <code>gcp/</code>. <code>HiveCatalog</code> is package <code>org.apache.iceberg.hive</code> in module <code>hive-metastore/</code>. The rule is a heuristic; the settings file is the authority.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">The Gradle project name is not the directory name for any engine module</p>
+<p><code>spark/v3.4/spark</code> is invoked as <code>:iceberg-spark:iceberg-spark-3.4_${scalaVersion}</code> — the <code>include</code> line spells it <code>spark-3.4_…</code>, and a <code>.name =</code> assignment further down the same block rewrites it. All of it sits inside <code>if (sparkVersions.contains("3.4"))</code>, so a <code>./gradlew</code> task on it also fails without the matching <code>-DsparkVersions</code>/<code>-DscalaVersion</code>, and the same class exists once per supported version under <code>spark/v*/</code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">In both projects, the last hop is data, not code</p>
+<p>Iceberg's is <code>DynConstructors.builder(Catalog.class).impl(impl)</code> driven by a string from table properties. Nessie's is <code>ServiceLoader.load(BackendFactory.class)</code> resolved against <code>META-INF/services</code>. No static analysis will follow either edge for you, which is why the registries in section 6 are worth knowing by name.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Neither repository contains a compile-time reference from an abstraction to its implementation, which is exactly what a code search follows — hence the failed search this chapter opens with.</li>
+<li>Iceberg's 25 static <code>include</code> lines are the whole module list; <code>api/</code> holds interfaces, <code>core/</code> holds <code>Base*</code> implementations in the same package, and no dependency arrow ever runs from <code>api</code> to <code>core</code>.</li>
+<li>Every engine module is conditional and renamed twice over: the directory is <code>spark/v3.4/spark</code>, the <code>include</code> path is <code>:iceberg-spark:spark-3.4_2.12</code>, and the path you can actually invoke — after the <code>.name =</code> line runs — is <code>:iceberg-spark:iceberg-spark-3.4_2.12</code>. The block only executes when a version property selects it.</li>
+<li>Nessie's <code>settings.gradle.kts</code> declares nothing. <code>gradle/projects.main.properties</code> maps 120 artifact names to directories and is the single fastest file to grep in that repository; Chapter 7.1 turns it into a map of the architecture.</li>
+<li>Both projects split contract from behaviour across module boundaries: <code>api/</code> → <code>core/</code> in Iceberg, <code>api/model</code> → <code>versioned/spi</code> → <code>versioned/storage/common</code> in Nessie. A search that finds an interface with no logic in it has found the contract, not the bug.</li>
+<li>The two registries that end a search are <code>CatalogUtil</code>'s <code>ICEBERG_CATALOG_*</code> constants and the <code>META-INF/services</code> files behind <code>PersistLoader.findFactory</code>.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Iceberg's module list</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/settings.gradle"><code>settings.gradle</code></a></td>
+</tr>
+<tr>
+<td>Nessie's project loader</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/settings.gradle.kts"><code>settings.gradle.kts</code></a></td>
+</tr>
+<tr>
+<td>Nessie's module map</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/gradle/projects.main.properties"><code>gradle/projects.main.properties</code></a>, <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/gradle/projects.iceberg.properties"><code>gradle/projects.iceberg.properties</code></a></td>
+</tr>
+<tr>
+<td>Nessie's Spark/Scala matrix</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/integrations/spark-scala.properties"><code>integrations/spark-scala.properties</code></a></td>
+</tr>
+<tr>
+<td>Iceberg's catalog registry</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/CatalogUtil.java"><code>core/.../CatalogUtil.java</code></a></td>
+</tr>
+<tr>
+<td>Iceberg's reflective loader</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/common/src/main/java/org/apache/iceberg/common/DynConstructors.java"><code>common/.../DynConstructors.java</code></a></td>
+</tr>
+<tr>
+<td>Nessie's backend loader</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/PersistLoader.java"><code>versioned/storage/common/.../PersistLoader.java</code></a></td>
+</tr>
+<tr>
+<td>Nessie's content-type registry</td>
+<td><a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/types/ContentTypes.java"><code>api/model/.../types/ContentTypes.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Part 2 opens the files themselves. Chapter 2.1 walks the directory an Iceberg table leaves behind after one real write, and names every file in it.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_1.3_nessie_core_idea/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 1.3 Nessie&#39;s core idea: Git semantics for the catalog">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                1.3 Nessie's core idea: Git semantics for the catalog
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../part02_table_spec/" class="md-footer__link md-footer__link--next" aria-label="Next: Part 2 · The Table Spec, byte by byte">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Part 2 · The Table Spec, byte by byte
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

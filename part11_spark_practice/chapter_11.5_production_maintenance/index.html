@@ -1,0 +1,3967 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part11_spark_practice/chapter_11.5_production_maintenance/">
+      
+      
+        <link rel="prev" href="../chapter_11.4_merge_and_conflicts/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>11.5 Running it in production: maintenance procedures and their traps - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-115-running-it-in-production-maintenance-procedures-and-their-traps" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              11.5 Running it in production: maintenance procedures and their traps
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-compaction-and-the-two-defaults-that-decide-whether-it-does-anything" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Compaction, and the two defaults that decide whether it does anything
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-expiry-commits-before-it-deletes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Expiry commits before it deletes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-orphan-removal-reverses-the-direction-of-proof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Orphan removal reverses the direction of proof
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-exactly-what-protects-you-and-exactly-what-does-not" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Exactly what protects you, and exactly what does not
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-runbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The runbook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-compaction-and-the-two-defaults-that-decide-whether-it-does-anything" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Compaction, and the two defaults that decide whether it does anything
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-expiry-commits-before-it-deletes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Expiry commits before it deletes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-orphan-removal-reverses-the-direction-of-proof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Orphan removal reverses the direction of proof
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-exactly-what-protects-you-and-exactly-what-does-not" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Exactly what protects you, and exactly what does not
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-runbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The runbook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 11 · Spark in Practice
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-115-running-it-in-production-maintenance-procedures-and-their-traps">Chapter 11.5 — Running it in production: maintenance procedures and their traps<a class="headerlink" href="#chapter-115-running-it-in-production-maintenance-procedures-and-their-traps" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> <code>rewrite_data_files</code>, <code>expire_snapshots</code>, <code>remove_orphan_files</code> — what order must they run in, what does each one actually delete, and which of the three can destroy a table that is not even its argument?</p>
+<p><strong>Prerequisites:</strong> Chapter 5.5 (the mechanism of all four maintenance actions), Chapter 3.3 (files exist before the commit that references them), Chapter 11.2 (<code>gc.enabled=false</code> and <code>add_files</code> aliasing), Chapter 11.4 (the conflict window compaction competes for)</p>
+<p><strong>Source covered:</strong> <code>spark/v3.5/.../actions/ExpireSnapshotsSparkAction.java</code>, <code>.../actions/DeleteOrphanFilesSparkAction.java</code>, <code>.../procedures/RemoveOrphanFilesProcedure.java</code>, <code>.../actions/BaseSparkAction.java</code>, <code>core/.../util/FileSystemWalker.java</code>, <code>core/.../actions/BinPackRewriteFilePlanner.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>These are not three independent chores. They are one pipeline with a direction, and the direction falls out of what each job is able to <em>prove</em>.</p>
+<ul>
+<li><strong>Compaction creates garbage.</strong> It writes new files and marks old ones replaced, but the old ones are still referenced by older snapshots. Nothing is reclaimed.</li>
+<li><strong>Expiry identifies garbage by set difference and deletes it</strong> — but it commits the metadata change <em>before</em> it starts deleting, so a job that dies in between leaks.</li>
+<li><strong>Orphan removal is the only job that can clean that leak up</strong>, because it is the only one that works by listing storage rather than by reading metadata. That is also exactly why it is the dangerous one.</li>
+</ul>
+<p>Chapter 5.5 owns the mechanism of all four maintenance actions, these three included. This chapter is the operational view: the order, the arguments, and — for <code>remove_orphan_files</code> — an exact accounting of which safety checks the code performs and which it does not, because someone will point this at production storage.</p>
+<div class="admonition danger">
+<p class="admonition-title">Read section 6 before running <code>remove_orphan_files</code> against anything you care about</p>
+<p><code>DeleteOrphanFilesSparkAction</code> builds its "valid" set from <strong>one</strong> table and anti-joins it against <strong>everything under a location</strong>. It never checks that the location belongs to that table alone. Two tables under one warehouse prefix is a data-loss configuration, and nothing warns you.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">None of this applies to a table in a Nessie catalog</p>
+<p>Every procedure in this chapter reasons from <strong>one table's snapshot history</strong>. A Nessie repository has many branches, and a snapshot that is unreachable from one branch is current on another. <code>expire_snapshots</code> cannot see the other branches and will delete files they are still reading; <code>remove_orphan_files</code> has the same blind spot, one level down.</p>
+<p>Chapter 9.4 covers the mechanism and the replacement: Nessie's own <code>gc/</code> tools walk manifest entries of <strong>every</strong> status precisely because another branch may still need them. Do not run this chapter's runbook against a Nessie-backed table — read 9.4 instead.</p>
+</div>
+<h2 id="2-the-pipeline">2. The pipeline<a class="headerlink" href="#2-the-pipeline" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    RW["rewrite_data_files&lt;br/&gt;RewriteDataFilesSparkAction"] --&gt;|"old files still referenced by&lt;br/&gt;older snapshots — nothing&lt;br/&gt;is reclaimed yet"| EX
+    EX["expire_snapshots&lt;br/&gt;ExpireSnapshotsSparkAction"] --&gt;|"commits metadata FIRST&lt;br/&gt;(cleanupLevel NONE),&lt;br/&gt;then deletes → a crash leaks"| OR
+    OR["remove_orphan_files&lt;br/&gt;DeleteOrphanFilesSparkAction"]
+
+    subgraph EXD["what expiry deletes"]
+        E1["fileDS(original, expiredSnapshotIds)"] --&gt; E2["except"]
+        E3["fileDS(updated) ← all retained snapshots"] --&gt; E2
+        E2 --&gt; E4["delete: content + manifests&lt;br/&gt;+ manifest lists + statistics"]
+    end
+
+    subgraph ORD["what orphan removal deletes"]
+        O1["actualFileIdentDS()&lt;br/&gt;recursive listing of `location`"] --&gt; O2["leftouter join on path"]
+        O3["validFileIdentDS()&lt;br/&gt;THIS table only:&lt;br/&gt;content ∪ manifests ∪&lt;br/&gt;manifest lists ∪ metadata"] --&gt; O2
+        O2 --&gt; O4["valid == null → DELETE"]
+    end
+
+    EX -.-&gt; EXD
+    OR -.-&gt; ORD
+
+    O3 -. "no check that `location`&lt;br/&gt;belongs to this table" .-&gt; WARN[["another table's files&lt;br/&gt;under the same prefix&lt;br/&gt;are 'orphans'"]]</code></pre>
+<p><strong>The ordering is operational, not enforced.</strong> No code refuses to run these out of order. Run orphan removal before expiry and it simply finds less, because the files expiry would have freed are still referenced. Run expiry before compaction and you keep the un-compacted files alive in whatever snapshots you retained. The pipeline is a consequence of the mechanisms, and the rest of this chapter is those mechanisms.</p>
+<h2 id="3-compaction-and-the-two-defaults-that-decide-whether-it-does-anything">3. Compaction, and the two defaults that decide whether it does anything<a class="headerlink" href="#3-compaction-and-the-two-defaults-that-decide-whether-it-does-anything" title="Permanent link">&para;</a></h2>
+<p>Compaction is the only one of the three that a reader is likely to run and see <em>no effect</em> from, so the selection rules matter operationally.</p>
+<p>Selection happens twice — once per file, once per group — and the per-file rule is not about size alone.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BinPackRewriteFilePlanner.filterFiles() — three ways in, not one</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-188">188</a></span>
+<span class="normal"><a href="#__codelineno-0-189">189</a></span>
+<span class="normal"><a href="#__codelineno-0-190">190</a></span>
+<span class="normal"><a href="#__codelineno-0-191">191</a></span>
+<span class="normal"><a href="#__codelineno-0-192">192</a></span>
+<span class="normal"><a href="#__codelineno-0-193">193</a></span>
+<span class="normal"><a href="#__codelineno-0-194">194</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a><span class="nd">@Override</span>
+</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="kd">protected</span><span class="w"> </span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">FileScanTask</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">filterFiles</span><span class="p">(</span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">FileScanTask</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tasks</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">Iterables</span><span class="p">.</span><span class="na">filter</span><span class="p">(</span>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a><span class="w">      </span><span class="n">tasks</span><span class="p">,</span>
+</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a><span class="w">      </span><span class="n">task</span><span class="w"> </span><span class="o">-&gt;</span>
+</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="w">          </span><span class="n">outsideDesiredFileSizeRange</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">tooManyDeletes</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">tooHighDeleteRatio</span><span class="p">(</span><span class="n">task</span><span class="p">));</span>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/actions/BinPackRewriteFilePlanner.java` L188–L194](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/actions/BinPackRewriteFilePlanner.java#L188-L194) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Size is one of three. <code>outsideDesiredFileSizeRange</code> fires when a file falls outside <code>[0.75 × target, 1.80 × target]</code> — <code>MIN_FILE_SIZE_DEFAULT_RATIO</code> and <code>MAX_FILE_SIZE_DEFAULT_RATIO</code> — but a file sitting comfortably inside that window is still selected if it carries enough deletes. Of the two delete predicates only one is live out of the box: <code>delete-file-threshold</code> defaults to <code>Integer.MAX_VALUE</code>, and upstream says why in its javadoc — <em>"this feature is not enabled by default"</em> — while <code>delete-ratio-threshold</code> defaults to <code>0.3</code>, so any file with 30% of its rows deleted is a candidate at any size.</p>
+<p>That is the rule to carry into Chapter 11.4's tables. On a merge-on-read table with a 512 MB target, a 500 MB data file is never selected on size and can be selected constantly on delete ratio; "compaction is about file size" predicts neither. It also inherits 5.5 §8's blind spot: only file-scoped delete files contribute a countable number, so the ratio predicate goes quiet on a table using partition-scoped deletes.</p>
+<p>The surviving files are bin-packed into groups, and <code>filterFileGroups</code> keeps a group only if at least one of five predicates holds: <code>enoughInputFiles</code>, <code>enoughContent</code>, <code>tooMuchContent</code>, <code>tooManyDeletes</code>, <code>tooHighDeleteRatio</code>.</p>
+<p>With a 512 MB target and no delete files, a partition holding four 1 MB files satisfies none of them — <code>enoughInputFiles</code> needs <code>min-input-files</code>, default <code>5</code>. A default <code>rewrite_data_files</code> reports zero rewritten files and leaves the partition exactly as it was. <code>rewrite-all=true</code> bypasses both the size selection and the group filter.</p>
+<p>Two other defaults are worth knowing before you schedule this:</p>
+<p><code>use-starting-sequence-number</code> defaults to <code>true</code>, and its javadoc says what it buys: <em>"If the compaction should use the sequence number of the snapshot at compaction start time for new data files … This avoids commit conflicts with updates that add newer equality deletes at a higher sequence number."</em> That is Chapter 11.4's conflict surface, pre-empted by a default. Chapter 5.5 §8 explains what turning it off costs: deleted rows reappear, with no error anywhere.</p>
+<p><code>partial-progress.enabled</code> defaults to <code>false</code> — one commit for the whole rewrite, and a single failed group loses everything. Enabling it produces up to <code>partial-progress.max-commits</code> (default <code>10</code>) separate commits, and the interface javadoc is explicit that this <em>"will not change the correctness of the rewrite operation as file groups can be compacted independently."</em> On a large table the choice is between one long conflict window and ten short ones — a scheduling decision, not a correctness one.</p>
+<h2 id="4-expiry-commits-before-it-deletes">4. Expiry commits before it deletes<a class="headerlink" href="#4-expiry-commits-before-it-deletes" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ExpireSnapshotsSparkAction.expireFiles()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-149">149</a></span>
+<span class="normal"><a href="#__codelineno-1-150">150</a></span>
+<span class="normal"><a href="#__codelineno-1-151">151</a></span>
+<span class="normal"><a href="#__codelineno-1-152">152</a></span>
+<span class="normal"><a href="#__codelineno-1-153">153</a></span>
+<span class="normal"><a href="#__codelineno-1-154">154</a></span>
+<span class="normal"><a href="#__codelineno-1-155">155</a></span>
+<span class="normal"><a href="#__codelineno-1-156">156</a></span>
+<span class="normal"><a href="#__codelineno-1-157">157</a></span>
+<span class="normal"><a href="#__codelineno-1-158">158</a></span>
+<span class="normal"><a href="#__codelineno-1-159">159</a></span>
+<span class="normal"><a href="#__codelineno-1-160">160</a></span>
+<span class="normal"><a href="#__codelineno-1-161">161</a></span>
+<span class="normal"><a href="#__codelineno-1-162">162</a></span>
+<span class="normal"><a href="#__codelineno-1-163">163</a></span>
+<span class="normal"><a href="#__codelineno-1-164">164</a></span>
+<span class="normal"><a href="#__codelineno-1-165">165</a></span>
+<span class="normal"><a href="#__codelineno-1-166">166</a></span>
+<span class="normal"><a href="#__codelineno-1-167">167</a></span>
+<span class="normal"><a href="#__codelineno-1-168">168</a></span>
+<span class="normal"><a href="#__codelineno-1-169">169</a></span>
+<span class="normal"><a href="#__codelineno-1-170">170</a></span>
+<span class="normal"><a href="#__codelineno-1-171">171</a></span>
+<span class="normal"><a href="#__codelineno-1-172">172</a></span>
+<span class="normal"><a href="#__codelineno-1-173">173</a></span>
+<span class="normal"><a href="#__codelineno-1-174">174</a></span>
+<span class="normal"><a href="#__codelineno-1-175">175</a></span>
+<span class="normal"><a href="#__codelineno-1-176">176</a></span>
+<span class="normal"><a href="#__codelineno-1-177">177</a></span>
+<span class="normal"><a href="#__codelineno-1-178">178</a></span>
+<span class="normal"><a href="#__codelineno-1-179">179</a></span>
+<span class="normal"><a href="#__codelineno-1-180">180</a></span>
+<span class="normal"><a href="#__codelineno-1-181">181</a></span>
+<span class="normal"><a href="#__codelineno-1-182">182</a></span>
+<span class="normal"><a href="#__codelineno-1-183">183</a></span>
+<span class="normal"><a href="#__codelineno-1-184">184</a></span>
+<span class="normal"><a href="#__codelineno-1-185">185</a></span>
+<span class="normal"><a href="#__codelineno-1-186">186</a></span>
+<span class="normal"><a href="#__codelineno-1-187">187</a></span>
+<span class="normal"><a href="#__codelineno-1-188">188</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-149"><a id="__codelineno-1-149" name="__codelineno-1-149"></a><span class="kd">public</span><span class="w"> </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">expireFiles</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-150"><a id="__codelineno-1-150" name="__codelineno-1-150"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">expiredFileDS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a><span class="w">    </span><span class="c1">// fetch metadata before expiration</span>
+</span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a><span class="w">    </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">originalMetadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">current</span><span class="p">();</span>
+</span><span id="__span-1-153"><a id="__codelineno-1-153" name="__codelineno-1-153"></a>
+</span><span id="__span-1-154"><a id="__codelineno-1-154" name="__codelineno-1-154"></a><span class="w">    </span><span class="c1">// perform expiration</span>
+</span><span id="__span-1-155"><a id="__codelineno-1-155" name="__codelineno-1-155"></a><span class="w">    </span><span class="n">org</span><span class="p">.</span><span class="na">apache</span><span class="p">.</span><span class="na">iceberg</span><span class="p">.</span><span class="na">ExpireSnapshots</span><span class="w"> </span><span class="n">expireSnapshots</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="na">expireSnapshots</span><span class="p">();</span>
+</span><span id="__span-1-156"><a id="__codelineno-1-156" name="__codelineno-1-156"></a>
+</span><span id="__span-1-157"><a id="__codelineno-1-157" name="__codelineno-1-157"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">long</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">expiredSnapshotIds</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-158"><a id="__codelineno-1-158" name="__codelineno-1-158"></a><span class="w">      </span><span class="n">expireSnapshots</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expireSnapshots</span><span class="p">.</span><span class="na">expireSnapshotId</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+</span><span id="__span-1-159"><a id="__codelineno-1-159" name="__codelineno-1-159"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-160"><a id="__codelineno-1-160" name="__codelineno-1-160"></a>
+</span><span id="__span-1-161"><a id="__codelineno-1-161" name="__codelineno-1-161"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">expireOlderThanValue</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-162"><a id="__codelineno-1-162" name="__codelineno-1-162"></a><span class="w">      </span><span class="n">expireSnapshots</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expireSnapshots</span><span class="p">.</span><span class="na">expireOlderThan</span><span class="p">(</span><span class="n">expireOlderThanValue</span><span class="p">);</span>
+</span><span id="__span-1-163"><a id="__codelineno-1-163" name="__codelineno-1-163"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-164"><a id="__codelineno-1-164" name="__codelineno-1-164"></a>
+</span><span id="__span-1-165"><a id="__codelineno-1-165" name="__codelineno-1-165"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">retainLastValue</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-166"><a id="__codelineno-1-166" name="__codelineno-1-166"></a><span class="w">      </span><span class="n">expireSnapshots</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expireSnapshots</span><span class="p">.</span><span class="na">retainLast</span><span class="p">(</span><span class="n">retainLastValue</span><span class="p">);</span>
+</span><span id="__span-1-167"><a id="__codelineno-1-167" name="__codelineno-1-167"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-168"><a id="__codelineno-1-168" name="__codelineno-1-168"></a>
+</span><span id="__span-1-169"><a id="__codelineno-1-169" name="__codelineno-1-169"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cleanExpiredMetadata</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-170"><a id="__codelineno-1-170" name="__codelineno-1-170"></a><span class="w">      </span><span class="n">expireSnapshots</span><span class="p">.</span><span class="na">cleanExpiredMetadata</span><span class="p">(</span><span class="n">cleanExpiredMetadata</span><span class="p">);</span>
+</span><span id="__span-1-171"><a id="__codelineno-1-171" name="__codelineno-1-171"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-172"><a id="__codelineno-1-172" name="__codelineno-1-172"></a>
+</span><span id="__span-1-173"><a id="__codelineno-1-173" name="__codelineno-1-173"></a><span class="w">    </span><span class="n">expireSnapshots</span><span class="p">.</span><span class="na">cleanupLevel</span><span class="p">(</span><span class="n">CleanupLevel</span><span class="p">.</span><span class="na">NONE</span><span class="p">).</span><span class="na">commit</span><span class="p">();</span>
+</span><span id="__span-1-174"><a id="__codelineno-1-174" name="__codelineno-1-174"></a>
+</span><span id="__span-1-175"><a id="__codelineno-1-175" name="__codelineno-1-175"></a><span class="w">    </span><span class="c1">// fetch valid files after expiration</span>
+</span><span id="__span-1-176"><a id="__codelineno-1-176" name="__codelineno-1-176"></a><span class="w">    </span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">updatedMetadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">refresh</span><span class="p">();</span>
+</span><span id="__span-1-177"><a id="__codelineno-1-177" name="__codelineno-1-177"></a><span class="w">    </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">validFileDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fileDS</span><span class="p">(</span><span class="n">updatedMetadata</span><span class="p">);</span>
+</span><span id="__span-1-178"><a id="__codelineno-1-178" name="__codelineno-1-178"></a>
+</span><span id="__span-1-179"><a id="__codelineno-1-179" name="__codelineno-1-179"></a><span class="w">    </span><span class="c1">// fetch files referenced by expired snapshots</span>
+</span><span id="__span-1-180"><a id="__codelineno-1-180" name="__codelineno-1-180"></a><span class="w">    </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="n">deletedSnapshotIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">findExpiredSnapshotIds</span><span class="p">(</span><span class="n">originalMetadata</span><span class="p">,</span><span class="w"> </span><span class="n">updatedMetadata</span><span class="p">);</span>
+</span><span id="__span-1-181"><a id="__codelineno-1-181" name="__codelineno-1-181"></a><span class="w">    </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">deleteCandidateFileDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fileDS</span><span class="p">(</span><span class="n">originalMetadata</span><span class="p">,</span><span class="w"> </span><span class="n">deletedSnapshotIds</span><span class="p">);</span>
+</span><span id="__span-1-182"><a id="__codelineno-1-182" name="__codelineno-1-182"></a>
+</span><span id="__span-1-183"><a id="__codelineno-1-183" name="__codelineno-1-183"></a><span class="w">    </span><span class="c1">// determine expired files</span>
+</span><span id="__span-1-184"><a id="__codelineno-1-184" name="__codelineno-1-184"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">expiredFileDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deleteCandidateFileDS</span><span class="p">.</span><span class="na">except</span><span class="p">(</span><span class="n">validFileDS</span><span class="p">);</span>
+</span><span id="__span-1-185"><a id="__codelineno-1-185" name="__codelineno-1-185"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-186"><a id="__codelineno-1-186" name="__codelineno-1-186"></a>
+</span><span id="__span-1-187"><a id="__codelineno-1-187" name="__codelineno-1-187"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">expiredFileDS</span><span class="p">;</span>
+</span><span id="__span-1-188"><a id="__codelineno-1-188" name="__codelineno-1-188"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/ExpireSnapshotsSparkAction.java` L149–L188](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/ExpireSnapshotsSparkAction.java#L149-L188) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Read it as four moves.</p>
+<ol>
+<li><code>TableMetadata originalMetadata = ops.current()</code> — capture the world before.</li>
+<li><code>expireSnapshots.cleanupLevel(CleanupLevel.NONE).commit()</code> — perform the expiry as a <strong>metadata-only</strong> commit. The enum constant is documented as <em>"Skip all file cleanup, only remove snapshot metadata"</em>, and <code>cleanupLevel(CleanupLevel)</code>'s own javadoc — a different one — recommends it <em>"when data and metadata files may be more efficiently removed using a distributed framework through the actions API"</em>, which is precisely what this action is. That second javadoc names a third level, <code>METADATA_ONLY</code>, for tables whose data files are shared with something else; no Spark action or procedure exposes it, which is why Chapter 11.2 can say <code>add_files</code> leaves you with no interlock.</li>
+<li><code>ops.refresh()</code> and build <code>validFileDS</code> from the metadata that survived.</li>
+<li><code>deleteCandidateFileDS.except(validFileDS)</code> — a distributed set difference. <code>doExecute()</code> then streams or collects that and deletes.</li>
+</ol>
+<p>The commit lands at step 2. Deletion is a separate distributed job at step 4. Kill the driver between them and the snapshots are gone from metadata while their files remain in storage — and re-running expiry will not find them, because those snapshots are no longer in <code>originalMetadata</code> to become delete candidates. Only orphan removal can.</p>
+<p>That is not a bug. It is the only ordering that keeps the table correct: deleting first and committing second would, on a crash, leave a live snapshot pointing at files that no longer exist. Chapter 3.3's rule again — leaked storage is recoverable, a corrupted table is not. It is also the reason the third job exists at all.</p>
+<p>The method's own javadoc is worth quoting because it is easy to misread the API: <em>"This does not delete data files. To delete data files, run <code>execute()</code>."</em> Calling <code>expireFiles()</code> for a preview has already committed the expiry.</p>
+<h2 id="5-orphan-removal-reverses-the-direction-of-proof">5. Orphan removal reverses the direction of proof<a class="headerlink" href="#5-orphan-removal-reverses-the-direction-of-proof" title="Permanent link">&para;</a></h2>
+<p>Every other job in this book reasons forward from metadata: here is what the table references, therefore here is what must be kept. Orphan removal reasons backwards from storage: here is what exists, subtract what the table references, delete the remainder.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DeleteOrphanFilesSparkAction.validFileIdentDS()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-391">391</a></span>
+<span class="normal"><a href="#__codelineno-2-392">392</a></span>
+<span class="normal"><a href="#__codelineno-2-393">393</a></span>
+<span class="normal"><a href="#__codelineno-2-394">394</a></span>
+<span class="normal"><a href="#__codelineno-2-395">395</a></span>
+<span class="normal"><a href="#__codelineno-2-396">396</a></span>
+<span class="normal"><a href="#__codelineno-2-397">397</a></span>
+<span class="normal"><a href="#__codelineno-2-398">398</a></span>
+<span class="normal"><a href="#__codelineno-2-399">399</a></span>
+<span class="normal"><a href="#__codelineno-2-400">400</a></span>
+<span class="normal"><a href="#__codelineno-2-401">401</a></span>
+<span class="normal"><a href="#__codelineno-2-402">402</a></span>
+<span class="normal"><a href="#__codelineno-2-403">403</a></span>
+<span class="normal"><a href="#__codelineno-2-404">404</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-391"><a id="__codelineno-2-391" name="__codelineno-2-391"></a><span class="kd">private</span><span class="w"> </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileURI</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">validFileIdentDS</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-392"><a id="__codelineno-2-392" name="__codelineno-2-392"></a><span class="w">  </span><span class="c1">// transform before union to avoid extra serialization/deserialization</span>
+</span><span id="__span-2-393"><a id="__codelineno-2-393" name="__codelineno-2-393"></a><span class="w">  </span><span class="n">FileInfoToFileURI</span><span class="w"> </span><span class="n">toFileURI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FileInfoToFileURI</span><span class="p">(</span><span class="n">equalSchemes</span><span class="p">,</span><span class="w"> </span><span class="n">equalAuthorities</span><span class="p">);</span>
+</span><span id="__span-2-394"><a id="__codelineno-2-394" name="__codelineno-2-394"></a>
+</span><span id="__span-2-395"><a id="__codelineno-2-395" name="__codelineno-2-395"></a><span class="w">  </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileURI</span><span class="o">&gt;</span><span class="w"> </span><span class="n">contentFileIdentDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toFileURI</span><span class="p">.</span><span class="na">apply</span><span class="p">(</span><span class="n">contentFileDS</span><span class="p">(</span><span class="n">table</span><span class="p">));</span>
+</span><span id="__span-2-396"><a id="__codelineno-2-396" name="__codelineno-2-396"></a><span class="w">  </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileURI</span><span class="o">&gt;</span><span class="w"> </span><span class="n">manifestFileIdentDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toFileURI</span><span class="p">.</span><span class="na">apply</span><span class="p">(</span><span class="n">manifestDS</span><span class="p">(</span><span class="n">table</span><span class="p">));</span>
+</span><span id="__span-2-397"><a id="__codelineno-2-397" name="__codelineno-2-397"></a><span class="w">  </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileURI</span><span class="o">&gt;</span><span class="w"> </span><span class="n">manifestListIdentDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toFileURI</span><span class="p">.</span><span class="na">apply</span><span class="p">(</span><span class="n">manifestListDS</span><span class="p">(</span><span class="n">table</span><span class="p">));</span>
+</span><span id="__span-2-398"><a id="__codelineno-2-398" name="__codelineno-2-398"></a><span class="w">  </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileURI</span><span class="o">&gt;</span><span class="w"> </span><span class="n">otherMetadataFileIdentDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toFileURI</span><span class="p">.</span><span class="na">apply</span><span class="p">(</span><span class="n">otherMetadataFileDS</span><span class="p">(</span><span class="n">table</span><span class="p">));</span>
+</span><span id="__span-2-399"><a id="__codelineno-2-399" name="__codelineno-2-399"></a>
+</span><span id="__span-2-400"><a id="__codelineno-2-400" name="__codelineno-2-400"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">contentFileIdentDS</span>
+</span><span id="__span-2-401"><a id="__codelineno-2-401" name="__codelineno-2-401"></a><span class="w">      </span><span class="p">.</span><span class="na">union</span><span class="p">(</span><span class="n">manifestFileIdentDS</span><span class="p">)</span>
+</span><span id="__span-2-402"><a id="__codelineno-2-402" name="__codelineno-2-402"></a><span class="w">      </span><span class="p">.</span><span class="na">union</span><span class="p">(</span><span class="n">manifestListIdentDS</span><span class="p">)</span>
+</span><span id="__span-2-403"><a id="__codelineno-2-403" name="__codelineno-2-403"></a><span class="w">      </span><span class="p">.</span><span class="na">union</span><span class="p">(</span><span class="n">otherMetadataFileIdentDS</span><span class="p">);</span>
+</span><span id="__span-2-404"><a id="__codelineno-2-404" name="__codelineno-2-404"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L391–L404](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L391-L404) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Four unions, and every one of them is <code>(table)</code> — the single <code>Table</code> handed to the action's constructor. <code>contentFileDS</code> and <code>manifestDS</code> read the <code>ALL_MANIFESTS</code> metadata table unfiltered, so they cover every snapshot still in table metadata, on every branch and tag, not just the current one. <code>manifestListDS</code> iterates <code>table.snapshots()</code>. <code>otherMetadataFileDS</code> is the current <code>metadata.json</code>, the entries in its metadata log, the version-hint file, and the statistics files.</p>
+<p>That is a correct and generous valid set — <strong>for one table</strong>. Nothing in it is scoped to a location, and nothing anywhere asks whether some other table's files live under the location being listed.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DeleteOrphanFilesSparkAction.findOrphanFiles()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-349">349</a></span>
+<span class="normal"><a href="#__codelineno-3-350">350</a></span>
+<span class="normal"><a href="#__codelineno-3-351">351</a></span>
+<span class="normal"><a href="#__codelineno-3-352">352</a></span>
+<span class="normal"><a href="#__codelineno-3-353">353</a></span>
+<span class="normal"><a href="#__codelineno-3-354">354</a></span>
+<span class="normal"><a href="#__codelineno-3-355">355</a></span>
+<span class="normal"><a href="#__codelineno-3-356">356</a></span>
+<span class="normal"><a href="#__codelineno-3-357">357</a></span>
+<span class="normal"><a href="#__codelineno-3-358">358</a></span>
+<span class="normal"><a href="#__codelineno-3-359">359</a></span>
+<span class="normal"><a href="#__codelineno-3-360">360</a></span>
+<span class="normal"><a href="#__codelineno-3-361">361</a></span>
+<span class="normal"><a href="#__codelineno-3-362">362</a></span>
+<span class="normal"><a href="#__codelineno-3-363">363</a></span>
+<span class="normal"><a href="#__codelineno-3-364">364</a></span>
+<span class="normal"><a href="#__codelineno-3-365">365</a></span>
+<span class="normal"><a href="#__codelineno-3-366">366</a></span>
+<span class="normal"><a href="#__codelineno-3-367">367</a></span>
+<span class="normal"><a href="#__codelineno-3-368">368</a></span>
+<span class="normal"><a href="#__codelineno-3-369">369</a></span>
+<span class="normal"><a href="#__codelineno-3-370">370</a></span>
+<span class="normal"><a href="#__codelineno-3-371">371</a></span>
+<span class="normal"><a href="#__codelineno-3-372">372</a></span>
+<span class="normal"><a href="#__codelineno-3-373">373</a></span>
+<span class="normal"><a href="#__codelineno-3-374">374</a></span>
+<span class="normal"><a href="#__codelineno-3-375">375</a></span>
+<span class="normal"><a href="#__codelineno-3-376">376</a></span>
+<span class="normal"><a href="#__codelineno-3-377">377</a></span>
+<span class="normal"><a href="#__codelineno-3-378">378</a></span>
+<span class="normal"><a href="#__codelineno-3-379">379</a></span>
+<span class="normal"><a href="#__codelineno-3-380">380</a></span>
+<span class="normal"><a href="#__codelineno-3-381">381</a></span>
+<span class="normal"><a href="#__codelineno-3-382">382</a></span>
+<span class="normal"><a href="#__codelineno-3-383">383</a></span>
+<span class="normal"><a href="#__codelineno-3-384">384</a></span>
+<span class="normal"><a href="#__codelineno-3-385">385</a></span>
+<span class="normal"><a href="#__codelineno-3-386">386</a></span>
+<span class="normal"><a href="#__codelineno-3-387">387</a></span>
+<span class="normal"><a href="#__codelineno-3-388">388</a></span>
+<span class="normal"><a href="#__codelineno-3-389">389</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-349"><a id="__codelineno-3-349" name="__codelineno-3-349"></a><span class="nd">@VisibleForTesting</span>
+</span><span id="__span-3-350"><a id="__codelineno-3-350" name="__codelineno-3-350"></a><span class="kd">static</span><span class="w"> </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">findOrphanFiles</span><span class="p">(</span>
+</span><span id="__span-3-351"><a id="__codelineno-3-351" name="__codelineno-3-351"></a><span class="w">    </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileURI</span><span class="o">&gt;</span><span class="w"> </span><span class="n">actualFileIdentDS</span><span class="p">,</span>
+</span><span id="__span-3-352"><a id="__codelineno-3-352" name="__codelineno-3-352"></a><span class="w">    </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">FileURI</span><span class="o">&gt;</span><span class="w"> </span><span class="n">validFileIdentDS</span><span class="p">,</span>
+</span><span id="__span-3-353"><a id="__codelineno-3-353" name="__codelineno-3-353"></a><span class="w">    </span><span class="n">PrefixMismatchMode</span><span class="w"> </span><span class="n">prefixMismatchMode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-354"><a id="__codelineno-3-354" name="__codelineno-3-354"></a>
+</span><span id="__span-3-355"><a id="__codelineno-3-355" name="__codelineno-3-355"></a><span class="w">  </span><span class="n">SetAccumulator</span><span class="o">&lt;</span><span class="n">Pair</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">conflicts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SetAccumulator</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+</span><span id="__span-3-356"><a id="__codelineno-3-356" name="__codelineno-3-356"></a><span class="w">  </span><span class="n">actualFileIdentDS</span><span class="p">.</span><span class="na">sparkSession</span><span class="p">().</span><span class="na">sparkContext</span><span class="p">().</span><span class="na">register</span><span class="p">(</span><span class="n">conflicts</span><span class="p">);</span>
+</span><span id="__span-3-357"><a id="__codelineno-3-357" name="__codelineno-3-357"></a>
+</span><span id="__span-3-358"><a id="__codelineno-3-358" name="__codelineno-3-358"></a><span class="w">  </span><span class="n">Column</span><span class="w"> </span><span class="n">joinCond</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">actualFileIdentDS</span><span class="p">.</span><span class="na">col</span><span class="p">(</span><span class="s">"path"</span><span class="p">).</span><span class="na">equalTo</span><span class="p">(</span><span class="n">validFileIdentDS</span><span class="p">.</span><span class="na">col</span><span class="p">(</span><span class="s">"path"</span><span class="p">));</span>
+</span><span id="__span-3-359"><a id="__codelineno-3-359" name="__codelineno-3-359"></a>
+</span><span id="__span-3-360"><a id="__codelineno-3-360" name="__codelineno-3-360"></a><span class="w">  </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">orphanFileDS</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-361"><a id="__codelineno-3-361" name="__codelineno-3-361"></a><span class="w">      </span><span class="n">actualFileIdentDS</span>
+</span><span id="__span-3-362"><a id="__codelineno-3-362" name="__codelineno-3-362"></a><span class="w">          </span><span class="p">.</span><span class="na">joinWith</span><span class="p">(</span><span class="n">validFileIdentDS</span><span class="p">,</span><span class="w"> </span><span class="n">joinCond</span><span class="p">,</span><span class="w"> </span><span class="s">"leftouter"</span><span class="p">)</span>
+</span><span id="__span-3-363"><a id="__codelineno-3-363" name="__codelineno-3-363"></a><span class="w">          </span><span class="p">.</span><span class="na">mapPartitions</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FindOrphanFiles</span><span class="p">(</span><span class="n">prefixMismatchMode</span><span class="p">,</span><span class="w"> </span><span class="n">conflicts</span><span class="p">),</span><span class="w"> </span><span class="n">Encoders</span><span class="p">.</span><span class="na">STRING</span><span class="p">());</span>
+</span><span id="__span-3-364"><a id="__codelineno-3-364" name="__codelineno-3-364"></a>
+</span><span id="__span-3-365"><a id="__codelineno-3-365" name="__codelineno-3-365"></a><span class="w">  </span><span class="c1">// Cache and force computation to populate conflicts accumulator</span>
+</span><span id="__span-3-366"><a id="__codelineno-3-366" name="__codelineno-3-366"></a><span class="w">  </span><span class="n">orphanFileDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orphanFileDS</span><span class="p">.</span><span class="na">cache</span><span class="p">();</span>
+</span><span id="__span-3-367"><a id="__codelineno-3-367" name="__codelineno-3-367"></a>
+</span><span id="__span-3-368"><a id="__codelineno-3-368" name="__codelineno-3-368"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-369"><a id="__codelineno-3-369" name="__codelineno-3-369"></a><span class="w">    </span><span class="n">orphanFileDS</span><span class="p">.</span><span class="na">count</span><span class="p">();</span>
+</span><span id="__span-3-370"><a id="__codelineno-3-370" name="__codelineno-3-370"></a>
+</span><span id="__span-3-371"><a id="__codelineno-3-371" name="__codelineno-3-371"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prefixMismatchMode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PrefixMismatchMode</span><span class="p">.</span><span class="na">ERROR</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">conflicts</span><span class="p">.</span><span class="na">value</span><span class="p">().</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-372"><a id="__codelineno-3-372" name="__codelineno-3-372"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ValidationException</span><span class="p">(</span>
+</span><span id="__span-3-373"><a id="__codelineno-3-373" name="__codelineno-3-373"></a><span class="w">          </span><span class="s">"Unable to determine whether certain files are orphan. Metadata references files that"</span>
+</span><span id="__span-3-374"><a id="__codelineno-3-374" name="__codelineno-3-374"></a><span class="w">              </span><span class="o">+</span><span class="w"> </span><span class="s">" match listed/provided files except for authority/scheme. Please, inspect the"</span>
+</span><span id="__span-3-375"><a id="__codelineno-3-375" name="__codelineno-3-375"></a><span class="w">              </span><span class="o">+</span><span class="w"> </span><span class="s">" conflicting authorities/schemes and provide which of them are equal by further"</span>
+</span><span id="__span-3-376"><a id="__codelineno-3-376" name="__codelineno-3-376"></a><span class="w">              </span><span class="o">+</span><span class="w"> </span><span class="s">" configuring the action via equalSchemes() and equalAuthorities() methods. Set the"</span>
+</span><span id="__span-3-377"><a id="__codelineno-3-377" name="__codelineno-3-377"></a><span class="w">              </span><span class="o">+</span><span class="w"> </span><span class="s">" prefix mismatch mode to 'NONE' to ignore remaining locations with conflicting"</span>
+</span><span id="__span-3-378"><a id="__codelineno-3-378" name="__codelineno-3-378"></a><span class="w">              </span><span class="o">+</span><span class="w"> </span><span class="s">" authorities/schemes or to 'DELETE' iff you are ABSOLUTELY confident that"</span>
+</span><span id="__span-3-379"><a id="__codelineno-3-379" name="__codelineno-3-379"></a><span class="w">              </span><span class="o">+</span><span class="w"> </span><span class="s">" remaining conflicting authorities/schemes are different. It will be impossible to"</span>
+</span><span id="__span-3-380"><a id="__codelineno-3-380" name="__codelineno-3-380"></a><span class="w">              </span><span class="o">+</span><span class="w"> </span><span class="s">" recover deleted files. Conflicting authorities/schemes: %s."</span><span class="p">,</span>
+</span><span id="__span-3-381"><a id="__codelineno-3-381" name="__codelineno-3-381"></a><span class="w">          </span><span class="n">conflicts</span><span class="p">.</span><span class="na">value</span><span class="p">());</span>
+</span><span id="__span-3-382"><a id="__codelineno-3-382" name="__codelineno-3-382"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-383"><a id="__codelineno-3-383" name="__codelineno-3-383"></a>
+</span><span id="__span-3-384"><a id="__codelineno-3-384" name="__codelineno-3-384"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">orphanFileDS</span><span class="p">;</span>
+</span><span id="__span-3-385"><a id="__codelineno-3-385" name="__codelineno-3-385"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-386"><a id="__codelineno-3-386" name="__codelineno-3-386"></a><span class="w">    </span><span class="n">orphanFileDS</span><span class="p">.</span><span class="na">unpersist</span><span class="p">();</span>
+</span><span id="__span-3-387"><a id="__codelineno-3-387" name="__codelineno-3-387"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">e</span><span class="p">;</span>
+</span><span id="__span-3-388"><a id="__codelineno-3-388" name="__codelineno-3-388"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-389"><a id="__codelineno-3-389" name="__codelineno-3-389"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L349–L389](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L349-L389) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The join is one line: <code>actualFileIdentDS.joinWith(validFileIdentDS, joinCond, "leftouter")</code>, keyed on normalised path, and everything with no match on the right is an orphan. The interesting code is the refusal underneath it — a <code>SetAccumulator</code> collects <code>(scheme, authority)</code> pairs that matched on path but differed on prefix, and under the default <code>PrefixMismatchMode.ERROR</code> the whole job throws instead of returning a result. Upstream's message ends with the sentence that should govern how you treat the option: <em>"'DELETE' iff you are ABSOLUTELY confident that remaining conflicting authorities/schemes are different. It will be impossible to recover deleted files."</em></p>
+<h2 id="6-exactly-what-protects-you-and-exactly-what-does-not">6. Exactly what protects you, and exactly what does not<a class="headerlink" href="#6-exactly-what-protects-you-and-exactly-what-does-not" title="Permanent link">&para;</a></h2>
+<p>This is the section to read twice. Everything in the left column is a check the code performs; everything in the right column is a check people assume it performs and it does not.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The one precondition: gc.enabled</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-136">136</a></span>
+<span class="normal"><a href="#__codelineno-4-137">137</a></span>
+<span class="normal"><a href="#__codelineno-4-138">138</a></span>
+<span class="normal"><a href="#__codelineno-4-139">139</a></span>
+<span class="normal"><a href="#__codelineno-4-140">140</a></span>
+<span class="normal"><a href="#__codelineno-4-141">141</a></span>
+<span class="normal"><a href="#__codelineno-4-142">142</a></span>
+<span class="normal"><a href="#__codelineno-4-143">143</a></span>
+<span class="normal"><a href="#__codelineno-4-144">144</a></span>
+<span class="normal"><a href="#__codelineno-4-145">145</a></span>
+<span class="normal"><a href="#__codelineno-4-146">146</a></span>
+<span class="normal"><a href="#__codelineno-4-147">147</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-136"><a id="__codelineno-4-136" name="__codelineno-4-136"></a><span class="n">DeleteOrphanFilesSparkAction</span><span class="p">(</span><span class="n">SparkSession</span><span class="w"> </span><span class="n">spark</span><span class="p">,</span><span class="w"> </span><span class="n">Table</span><span class="w"> </span><span class="n">table</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-137"><a id="__codelineno-4-137" name="__codelineno-4-137"></a><span class="w">  </span><span class="kd">super</span><span class="p">(</span><span class="n">spark</span><span class="p">);</span>
+</span><span id="__span-4-138"><a id="__codelineno-4-138" name="__codelineno-4-138"></a>
+</span><span id="__span-4-139"><a id="__codelineno-4-139" name="__codelineno-4-139"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">hadoopConf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SerializableConfiguration</span><span class="p">(</span><span class="n">spark</span><span class="p">.</span><span class="na">sessionState</span><span class="p">().</span><span class="na">newHadoopConf</span><span class="p">());</span>
+</span><span id="__span-4-140"><a id="__codelineno-4-140" name="__codelineno-4-140"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">listingParallelism</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spark</span><span class="p">.</span><span class="na">sessionState</span><span class="p">().</span><span class="na">conf</span><span class="p">().</span><span class="na">parallelPartitionDiscoveryParallelism</span><span class="p">();</span>
+</span><span id="__span-4-141"><a id="__codelineno-4-141" name="__codelineno-4-141"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">;</span>
+</span><span id="__span-4-142"><a id="__codelineno-4-142" name="__codelineno-4-142"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="na">location</span><span class="p">();</span>
+</span><span id="__span-4-143"><a id="__codelineno-4-143" name="__codelineno-4-143"></a>
+</span><span id="__span-4-144"><a id="__codelineno-4-144" name="__codelineno-4-144"></a><span class="w">  </span><span class="n">ValidationException</span><span class="p">.</span><span class="na">check</span><span class="p">(</span>
+</span><span id="__span-4-145"><a id="__codelineno-4-145" name="__codelineno-4-145"></a><span class="w">      </span><span class="n">PropertyUtil</span><span class="p">.</span><span class="na">propertyAsBoolean</span><span class="p">(</span><span class="n">table</span><span class="p">.</span><span class="na">properties</span><span class="p">(),</span><span class="w"> </span><span class="n">GC_ENABLED</span><span class="p">,</span><span class="w"> </span><span class="n">GC_ENABLED_DEFAULT</span><span class="p">),</span>
+</span><span id="__span-4-146"><a id="__codelineno-4-146" name="__codelineno-4-146"></a><span class="w">      </span><span class="s">"Cannot delete orphan files: GC is disabled (deleting files may corrupt other tables)"</span><span class="p">);</span>
+</span><span id="__span-4-147"><a id="__codelineno-4-147" name="__codelineno-4-147"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L136–L147](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L136-L147) <span>@ apache-iceberg-1.11.0</span></p>
+
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The timestamp cutoff is applied during listing, in both listing modes</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-419">419</a></span>
+<span class="normal"><a href="#__codelineno-5-420">420</a></span>
+<span class="normal"><a href="#__codelineno-5-421">421</a></span>
+<span class="normal"><a href="#__codelineno-5-422">422</a></span>
+<span class="normal"><a href="#__codelineno-5-423">423</a></span>
+<span class="normal"><a href="#__codelineno-5-424">424</a></span>
+<span class="normal"><a href="#__codelineno-5-425">425</a></span>
+<span class="normal"><a href="#__codelineno-5-426">426</a></span>
+<span class="normal"><a href="#__codelineno-5-427">427</a></span>
+<span class="normal"><a href="#__codelineno-5-428">428</a></span>
+<span class="normal"><a href="#__codelineno-5-429">429</a></span>
+<span class="normal"><a href="#__codelineno-5-430">430</a></span>
+<span class="normal"><a href="#__codelineno-5-431">431</a></span>
+<span class="normal"><a href="#__codelineno-5-432">432</a></span>
+<span class="normal"><a href="#__codelineno-5-433">433</a></span>
+<span class="normal"><a href="#__codelineno-5-434">434</a></span>
+<span class="normal"><a href="#__codelineno-5-435">435</a></span>
+<span class="normal"><a href="#__codelineno-5-436">436</a></span>
+<span class="normal"><a href="#__codelineno-5-437">437</a></span>
+<span class="normal"><a href="#__codelineno-5-438">438</a></span>
+<span class="normal"><a href="#__codelineno-5-439">439</a></span>
+<span class="normal"><a href="#__codelineno-5-440">440</a></span>
+<span class="normal"><a href="#__codelineno-5-441">441</a></span>
+<span class="normal"><a href="#__codelineno-5-442">442</a></span>
+<span class="normal"><a href="#__codelineno-5-443">443</a></span>
+<span class="normal"><a href="#__codelineno-5-444">444</a></span>
+<span class="normal"><a href="#__codelineno-5-445">445</a></span>
+<span class="normal"><a href="#__codelineno-5-446">446</a></span>
+<span class="normal"><a href="#__codelineno-5-447">447</a></span>
+<span class="normal"><a href="#__codelineno-5-448">448</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-419"><a id="__codelineno-5-419" name="__codelineno-5-419"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">usePrefixListing</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-420"><a id="__codelineno-5-420" name="__codelineno-5-420"></a><span class="w">  </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-5-421"><a id="__codelineno-5-421" name="__codelineno-5-421"></a><span class="w">      </span><span class="n">table</span><span class="p">.</span><span class="na">io</span><span class="p">()</span><span class="w"> </span><span class="k">instanceof</span><span class="w"> </span><span class="n">SupportsPrefixOperations</span><span class="p">,</span>
+</span><span id="__span-5-422"><a id="__codelineno-5-422" name="__codelineno-5-422"></a><span class="w">      </span><span class="s">"Cannot use prefix listing with FileIO {} which does not support prefix operations."</span><span class="p">,</span>
+</span><span id="__span-5-423"><a id="__codelineno-5-423" name="__codelineno-5-423"></a><span class="w">      </span><span class="n">table</span><span class="p">.</span><span class="na">io</span><span class="p">());</span>
+</span><span id="__span-5-424"><a id="__codelineno-5-424" name="__codelineno-5-424"></a>
+</span><span id="__span-5-425"><a id="__codelineno-5-425" name="__codelineno-5-425"></a><span class="w">  </span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">org</span><span class="p">.</span><span class="na">apache</span><span class="p">.</span><span class="na">iceberg</span><span class="p">.</span><span class="na">io</span><span class="p">.</span><span class="na">FileInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">predicate</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-426"><a id="__codelineno-5-426" name="__codelineno-5-426"></a><span class="w">      </span><span class="n">fileInfo</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">fileInfo</span><span class="p">.</span><span class="na">createdAtMillis</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">olderThanTimestamp</span><span class="p">;</span>
+</span><span id="__span-5-427"><a id="__codelineno-5-427" name="__codelineno-5-427"></a><span class="w">  </span><span class="n">FileSystemWalker</span><span class="p">.</span><span class="na">listDirRecursivelyWithFileIO</span><span class="p">(</span>
+</span><span id="__span-5-428"><a id="__codelineno-5-428" name="__codelineno-5-428"></a><span class="w">      </span><span class="p">(</span><span class="n">SupportsPrefixOperations</span><span class="p">)</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="na">io</span><span class="p">(),</span>
+</span><span id="__span-5-429"><a id="__codelineno-5-429" name="__codelineno-5-429"></a><span class="w">      </span><span class="n">location</span><span class="p">,</span>
+</span><span id="__span-5-430"><a id="__codelineno-5-430" name="__codelineno-5-430"></a><span class="w">      </span><span class="n">table</span><span class="p">.</span><span class="na">specs</span><span class="p">(),</span>
+</span><span id="__span-5-431"><a id="__codelineno-5-431" name="__codelineno-5-431"></a><span class="w">      </span><span class="n">predicate</span><span class="p">,</span>
+</span><span id="__span-5-432"><a id="__codelineno-5-432" name="__codelineno-5-432"></a><span class="w">      </span><span class="n">matchingFiles</span><span class="p">::</span><span class="n">add</span><span class="p">);</span>
+</span><span id="__span-5-433"><a id="__codelineno-5-433" name="__codelineno-5-433"></a>
+</span><span id="__span-5-434"><a id="__codelineno-5-434" name="__codelineno-5-434"></a><span class="w">  </span><span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">matchingFileRDD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sparkContext</span><span class="p">().</span><span class="na">parallelize</span><span class="p">(</span><span class="n">matchingFiles</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</span><span id="__span-5-435"><a id="__codelineno-5-435" name="__codelineno-5-435"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">spark</span><span class="p">().</span><span class="na">createDataset</span><span class="p">(</span><span class="n">matchingFileRDD</span><span class="p">.</span><span class="na">rdd</span><span class="p">(),</span><span class="w"> </span><span class="n">Encoders</span><span class="p">.</span><span class="na">STRING</span><span class="p">());</span>
+</span><span id="__span-5-436"><a id="__codelineno-5-436" name="__codelineno-5-436"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-437"><a id="__codelineno-5-437" name="__codelineno-5-437"></a><span class="w">  </span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">FileStatus</span><span class="o">&gt;</span><span class="w"> </span><span class="n">predicate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">file</span><span class="p">.</span><span class="na">getModificationTime</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">olderThanTimestamp</span><span class="p">;</span>
+</span><span id="__span-5-438"><a id="__codelineno-5-438" name="__codelineno-5-438"></a><span class="w">  </span><span class="c1">// list at most MAX_DRIVER_LISTING_DEPTH levels and only dirs that have</span>
+</span><span id="__span-5-439"><a id="__codelineno-5-439" name="__codelineno-5-439"></a><span class="w">  </span><span class="c1">// less than MAX_DRIVER_LISTING_DIRECT_SUB_DIRS direct sub dirs on the driver</span>
+</span><span id="__span-5-440"><a id="__codelineno-5-440" name="__codelineno-5-440"></a><span class="w">  </span><span class="n">FileSystemWalker</span><span class="p">.</span><span class="na">listDirRecursivelyWithHadoop</span><span class="p">(</span>
+</span><span id="__span-5-441"><a id="__codelineno-5-441" name="__codelineno-5-441"></a><span class="w">      </span><span class="n">location</span><span class="p">,</span>
+</span><span id="__span-5-442"><a id="__codelineno-5-442" name="__codelineno-5-442"></a><span class="w">      </span><span class="n">table</span><span class="p">.</span><span class="na">specs</span><span class="p">(),</span>
+</span><span id="__span-5-443"><a id="__codelineno-5-443" name="__codelineno-5-443"></a><span class="w">      </span><span class="n">predicate</span><span class="p">,</span>
+</span><span id="__span-5-444"><a id="__codelineno-5-444" name="__codelineno-5-444"></a><span class="w">      </span><span class="n">hadoopConf</span><span class="p">.</span><span class="na">value</span><span class="p">(),</span>
+</span><span id="__span-5-445"><a id="__codelineno-5-445" name="__codelineno-5-445"></a><span class="w">      </span><span class="n">MAX_DRIVER_LISTING_DEPTH</span><span class="p">,</span>
+</span><span id="__span-5-446"><a id="__codelineno-5-446" name="__codelineno-5-446"></a><span class="w">      </span><span class="n">MAX_DRIVER_LISTING_DIRECT_SUB_DIRS</span><span class="p">,</span>
+</span><span id="__span-5-447"><a id="__codelineno-5-447" name="__codelineno-5-447"></a><span class="w">      </span><span class="n">subDirs</span><span class="p">::</span><span class="n">add</span><span class="p">,</span>
+</span><span id="__span-5-448"><a id="__codelineno-5-448" name="__codelineno-5-448"></a><span class="w">      </span><span class="n">matchingFiles</span><span class="p">::</span><span class="n">add</span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L419–L448](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L419-L448) <span>@ apache-iceberg-1.11.0</span></p>
+
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RemoveOrphanFilesProcedure.validateInterval()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-220">220</a></span>
+<span class="normal"><a href="#__codelineno-6-221">221</a></span>
+<span class="normal"><a href="#__codelineno-6-222">222</a></span>
+<span class="normal"><a href="#__codelineno-6-223">223</a></span>
+<span class="normal"><a href="#__codelineno-6-224">224</a></span>
+<span class="normal"><a href="#__codelineno-6-225">225</a></span>
+<span class="normal"><a href="#__codelineno-6-226">226</a></span>
+<span class="normal"><a href="#__codelineno-6-227">227</a></span>
+<span class="normal"><a href="#__codelineno-6-228">228</a></span>
+<span class="normal"><a href="#__codelineno-6-229">229</a></span>
+<span class="normal"><a href="#__codelineno-6-230">230</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-220"><a id="__codelineno-6-220" name="__codelineno-6-220"></a><span class="kd">private</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">validateInterval</span><span class="p">(</span><span class="kt">long</span><span class="w"> </span><span class="n">olderThanMillis</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-221"><a id="__codelineno-6-221" name="__codelineno-6-221"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">intervalMillis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">olderThanMillis</span><span class="p">;</span>
+</span><span id="__span-6-222"><a id="__codelineno-6-222" name="__codelineno-6-222"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">intervalMillis</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">TimeUnit</span><span class="p">.</span><span class="na">DAYS</span><span class="p">.</span><span class="na">toMillis</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-223"><a id="__codelineno-6-223" name="__codelineno-6-223"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span>
+</span><span id="__span-6-224"><a id="__codelineno-6-224" name="__codelineno-6-224"></a><span class="w">        </span><span class="s">"Cannot remove orphan files with an interval less than 24 hours. Executing this "</span>
+</span><span id="__span-6-225"><a id="__codelineno-6-225" name="__codelineno-6-225"></a><span class="w">            </span><span class="o">+</span><span class="w"> </span><span class="s">"procedure with a short interval may corrupt the table if other operations are happening "</span>
+</span><span id="__span-6-226"><a id="__codelineno-6-226" name="__codelineno-6-226"></a><span class="w">            </span><span class="o">+</span><span class="w"> </span><span class="s">"at the same time. If you are absolutely confident that no concurrent operations will be "</span>
+</span><span id="__span-6-227"><a id="__codelineno-6-227" name="__codelineno-6-227"></a><span class="w">            </span><span class="o">+</span><span class="w"> </span><span class="s">"affected by removing orphan files with such a short interval, you can use the Action API "</span>
+</span><span id="__span-6-228"><a id="__codelineno-6-228" name="__codelineno-6-228"></a><span class="w">            </span><span class="o">+</span><span class="w"> </span><span class="s">"to remove orphan files with an arbitrary interval."</span><span class="p">);</span>
+</span><span id="__span-6-229"><a id="__codelineno-6-229" name="__codelineno-6-229"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-230"><a id="__codelineno-6-230" name="__codelineno-6-230"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/procedures/RemoveOrphanFilesProcedure.java` L220–L230](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/procedures/RemoveOrphanFilesProcedure.java#L220-L230) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><strong>The guarantees the code actually gives:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Guarantee</th>
+<th>Where it is enforced</th>
+<th>Exact reach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Refuses to run when <code>gc.enabled=false</code></td>
+<td><code>ValidationException.check</code> in the action constructor: <em>"Cannot delete orphan files: GC is disabled (deleting files may corrupt other tables)"</em></td>
+<td>The argument table only. Default is <code>true</code>, so this fires only on a table someone marked — e.g. one created by <code>snapshot</code> (Chapter 11.2).</td>
+</tr>
+<tr>
+<td>Never considers a file newer than the cutoff</td>
+<td>listing predicates: <code>file.getModificationTime() &lt; olderThanTimestamp</code> (Hadoop) and <code>fileInfo.createdAtMillis() &lt; olderThanTimestamp</code> (prefix listing)</td>
+<td>Filters candidates at listing time, before the join. Default cutoff is <code>now − 3 days</code>, a field initialiser on the action.</td>
+</tr>
+<tr>
+<td>Aborts on scheme/authority mismatch rather than guessing</td>
+<td><code>PrefixMismatchMode.ERROR</code> default plus the <code>SetAccumulator</code> in <code>findOrphanFiles</code></td>
+<td>Only detects paths that match on the path component. <code>s3://b/x</code> vs <code>s3a://b/x</code> is caught; two genuinely unrelated prefixes are not "caught", they are simply both listed.</td>
+</tr>
+<tr>
+<td>Normalises <code>s3n</code> and <code>s3a</code> to <code>s3</code></td>
+<td><code>EQUAL_SCHEMES_DEFAULT = ImmutableMap.of("s3n,s3a", "s3")</code></td>
+<td>Those three schemes only. Every other equivalence must be declared via <code>equal_schemes</code> / <code>equal_authorities</code>.</td>
+</tr>
+<tr>
+<td>Never deletes <code>_</code>- or <code>.</code>-prefixed paths</td>
+<td><code>PartitionAwareHiddenPathFilter.forSpecs(table.specs())</code> wrapping <code>HiddenPathFilter</code> in <code>FileSystemWalker</code></td>
+<td>Applied to every path component from the base directory down. Partition directories named after a field starting with <code>_</code> or <code>.</code> are exempted from the filter so their contents are still listed.</td>
+</tr>
+<tr>
+<td>Protects files reachable from <em>any</em> retained snapshot</td>
+<td><code>validFileIdentDS()</code> unions unfiltered <code>contentFileDS</code> / <code>manifestDS</code> / <code>manifestListDS</code> / <code>otherMetadataFileDS</code></td>
+<td>Every snapshot in current table metadata, including branches and tags — which is why expiry must run first if you want anything reclaimed.</td>
+</tr>
+<tr>
+<td>Refuses an interval under 24 hours</td>
+<td><code>RemoveOrphanFilesProcedure.validateInterval</code></td>
+<td><strong>The procedure only</strong>, <strong>only when <code>older_than</code> is explicitly passed</strong>, and <strong>skipped entirely when <code>spark.testing=true</code></strong>.</td>
+</tr>
+<tr>
+<td>Lets you rehearse</td>
+<td><code>dry_run =&gt; true</code> sets <code>action.deleteWith(file -&gt; {})</code></td>
+<td>The listing and the join still run; only the delete becomes a no-op. The returned rows are the files it <em>would</em> have deleted — <strong>unless <code>stream_results</code> is on</strong>; see the gotcha in section 8.</td>
+</tr>
+<tr>
+<td>Lets you supply the candidate set yourself</td>
+<td><code>file_list_view =&gt; 'v'</code> calls <code>compareToFileList(spark().table(v))</code></td>
+<td>Replaces the <em>listing</em>, not the filters. The view must carry a <code>file_path</code> string column and a <code>last_modified</code> timestamp column, and both the location prefix and the age cutoff are still applied to it — see below.</td>
+</tr>
+</tbody>
+</table>
+<p><code>file_list_view</code> is the guard this chapter tells you to reach for, so it is worth reading rather than trusting:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DeleteOrphanFilesSparkAction.filteredCompareToFileList()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-225">225</a></span>
+<span class="normal"><a href="#__codelineno-7-226">226</a></span>
+<span class="normal"><a href="#__codelineno-7-227">227</a></span>
+<span class="normal"><a href="#__codelineno-7-228">228</a></span>
+<span class="normal"><a href="#__codelineno-7-229">229</a></span>
+<span class="normal"><a href="#__codelineno-7-230">230</a></span>
+<span class="normal"><a href="#__codelineno-7-231">231</a></span>
+<span class="normal"><a href="#__codelineno-7-232">232</a></span>
+<span class="normal"><a href="#__codelineno-7-233">233</a></span>
+<span class="normal"><a href="#__codelineno-7-234">234</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-225"><a id="__codelineno-7-225" name="__codelineno-7-225"></a><span class="kd">private</span><span class="w"> </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">filteredCompareToFileList</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-226"><a id="__codelineno-7-226" name="__codelineno-7-226"></a><span class="w">  </span><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span><span class="w"> </span><span class="n">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compareToFileList</span><span class="p">;</span>
+</span><span id="__span-7-227"><a id="__codelineno-7-227" name="__codelineno-7-227"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">location</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-228"><a id="__codelineno-7-228" name="__codelineno-7-228"></a><span class="w">    </span><span class="n">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">files</span><span class="p">.</span><span class="na">filter</span><span class="p">(</span><span class="n">files</span><span class="p">.</span><span class="na">col</span><span class="p">(</span><span class="n">FILE_PATH</span><span class="p">).</span><span class="na">startsWith</span><span class="p">(</span><span class="n">location</span><span class="p">));</span>
+</span><span id="__span-7-229"><a id="__codelineno-7-229" name="__codelineno-7-229"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-230"><a id="__codelineno-7-230" name="__codelineno-7-230"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">files</span>
+</span><span id="__span-7-231"><a id="__codelineno-7-231" name="__codelineno-7-231"></a><span class="w">      </span><span class="p">.</span><span class="na">filter</span><span class="p">(</span><span class="n">files</span><span class="p">.</span><span class="na">col</span><span class="p">(</span><span class="n">LAST_MODIFIED</span><span class="p">).</span><span class="na">lt</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Timestamp</span><span class="p">(</span><span class="n">olderThanTimestamp</span><span class="p">)))</span>
+</span><span id="__span-7-232"><a id="__codelineno-7-232" name="__codelineno-7-232"></a><span class="w">      </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">files</span><span class="p">.</span><span class="na">col</span><span class="p">(</span><span class="n">FILE_PATH</span><span class="p">))</span>
+</span><span id="__span-7-233"><a id="__codelineno-7-233" name="__codelineno-7-233"></a><span class="w">      </span><span class="p">.</span><span class="na">as</span><span class="p">(</span><span class="n">Encoders</span><span class="p">.</span><span class="na">STRING</span><span class="p">());</span>
+</span><span id="__span-7-234"><a id="__codelineno-7-234" name="__codelineno-7-234"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L225–L234](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L225-L234) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>It replaces the listing and nothing else. The location prefix is still applied — and this is the <strong>only</strong> place in the whole action where <code>location</code> acts as a bound rather than as a starting point — and so is the age cutoff, against a <code>last_modified</code> column the view is required to carry. <code>compareToFileList</code> rejects a dataset whose <code>file_path</code> is not a string or whose <code>last_modified</code> is not a timestamp, so a bare list of paths will not do. The class javadoc says the same in one line: <em>"This skips the directory listing … using the same <code>Table#location()</code> and <code>olderThan(long)</code> filtering as above."</em> That makes it a stronger guard than a raw candidate list would be, and it means a view built from a stale inventory quietly loses rows to the cutoff rather than deleting something it should not.</p>
+<p><strong>The checks that do not exist:</strong></p>
+<ul>
+<li><strong>No check that <code>location</code> belongs to the table.</strong> <code>this.location = table.location()</code> in the constructor, and <code>location(String)</code> overwrites it with whatever you pass. There is no validation, no prefix comparison, no warning.</li>
+<li><strong>No check that another table has files under that location.</strong> The valid set is built from one <code>Table</code>. A second Iceberg table under the same warehouse directory, a Hive table sharing the prefix, or an <code>add_files</code> source directory that happens to sit under the target's location (Chapter 11.2) all present as orphans.</li>
+<li><strong>No minimum interval on the Action API.</strong> <code>olderThan(0)</code> is accepted. The procedure's own error message tells you how to bypass its floor: <em>"you can use the Action API to remove orphan files with an arbitrary interval."</em></li>
+<li><strong>No consistency between the listing and the valid set.</strong> The action does not refresh the table inside <code>doExecute</code>, and the listing runs against live storage. The timestamp cutoff is the <em>only</em> thing standing in for a consistent snapshot, and it is a wall-clock heuristic rather than a proof.</li>
+<li><strong>No protection for a <code>metadata.json</code> that has fallen out of the metadata log.</strong> <code>otherMetadataFileDS(table)</code> calls <code>metadataFileLocations(table, /* recursive */ false)</code>, which is the current metadata file plus <code>metadata.previousFiles()</code>. Older metadata files trimmed by <code>write.metadata.previous-versions-max</code> are not in the valid set. That is correct for a normal table and wrong for one whose <code>metadata.json</code> someone pinned externally.</li>
+</ul>
+<p><strong>What the source leaves genuinely ambiguous.</strong> The cutoff compares against <code>FileStatus.getModificationTime()</code> or <code>FileInfo.createdAtMillis()</code>, and Iceberg takes whichever number the filesystem implementation reports at face value. Whether that number means "when the writer finished this file" is a property of your object store and its Hadoop connector, not of this code — a copy, a restore from a lifecycle tier, or a re-upload can reset it. If your storage does not preserve original write times through whatever operations your platform performs, the cutoff is weaker than it looks and this code cannot tell.</p>
+<h2 id="7-the-runbook">7. The runbook<a class="headerlink" href="#7-the-runbook" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Procedure</th>
+<th>What drives the frequency</th>
+<th>The trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>rewrite_data_files</code></td>
+<td>file count per partition (Chapter 11.3)</td>
+<td>conflicts with in-flight merge-on-read merges via <code>validateDataFilesExist</code> (Chapter 11.4); schedule outside write windows</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>expire_snapshots</code></td>
+<td><code>history.expire.max-snapshot-age-ms</code> (5 days), <code>history.expire.min-snapshots-to-keep</code> (1)</td>
+<td>commits before deleting; a crash between the two leaks, and re-running will not find the leak</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>remove_orphan_files</code></td>
+<td>leak rate from failed jobs and unknown-state commits</td>
+<td><code>location</code> scoping, the <code>older_than</code> window, <code>gc.enabled</code>, prefix mismatch — section 6</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>rewrite_manifests</code></td>
+<td>manifest count and planning latency</td>
+<td><strong>no position in the order.</strong> It only regroups references between manifests and never removes a content-file entry, so it creates no garbage for expiry to find and changes nothing orphan removal can reach. Run it whenever. It is still a commit that can lose a race (Chapter 5.5 §7)</td>
+</tr>
+</tbody>
+</table>
+<p>Two of those procedures are called <code>rewrite_*</code> and they are not the same kind of thing, which is worth stating outright because the shared prefix implies otherwise. <strong>"Rewrite" carries three senses in this book.</strong> Chapter 11.4's is copy-on-write <em>rewriting data files that contain a matched row</em> — a consequence of a <code>MERGE</code>, not a maintenance job at all. <code>rewrite_data_files</code> is compaction: it replaces data files with different data files, and it is the only one of the three that creates garbage. <code>rewrite_manifests</code> replaces <em>manifests</em> and touches no data file, so it creates none. So the first two rewrite the same <em>thing</em> — data files — for unrelated reasons, and the third rewrites something else entirely. Only the middle one is what this chapter has been calling compaction, and only the middle one belongs in the ordering below.</p>
+<p>The last row is unnumbered deliberately. Three of these are a pipeline and one is a chore, and it would be easy to read a four-row table as a four-step sequence — but nothing in section 2's derivation applies to <code>rewrite_manifests</code>, because nothing it does changes what the other three are able to prove.</p>
+<p>Steps 1 and 2 both take table-level commits, so both compete with your writers. Step 3 takes no commit at all — it only deletes — which is why it is the one job that can do damage without any evidence appearing in the table's history.</p>
+<h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition danger">
+<p class="admonition-title"><code>remove_orphan_files</code> will delete another table's data if they share a prefix</p>
+<p><code>validFileIdentDS()</code> is four unions over the single argument table; <code>actualFileIdentDS()</code> is a recursive listing of <code>location</code>, which defaults to <code>table.location()</code> and is overridden without validation by the <code>location</code> argument. There is no ownership check in either direction. Two Iceberg tables under one warehouse directory, a Hive table sharing the prefix, an <code>add_files</code> source directory beneath the target's location — every one is a data-loss scenario and none of them raises a warning. Before pointing this at a shared prefix, use <code>file_list_view</code> to supply a candidate set you control, or run with <code>dry_run =&gt; true</code> and read every row — with <code>stream_results</code> off, for the reason below.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">The 24-hour floor is on the procedure, not on the action</p>
+<p><code>validateInterval</code> throws below 24 hours with the reason spelled out — <em>"Executing this procedure with a short interval may corrupt the table if other operations are happening at the same time"</em> — and then names the bypass in the same message. <code>DeleteOrphanFilesSparkAction</code> enforces no minimum at all; its default is a field initialiser of <code>now − 3 days</code>. The floor is also skipped when <code>spark.testing</code> is true, and skipped when <code>older_than</code> is omitted — though that second case is not a hole: omitting the argument leaves the action's own three-day default in force, which is seventy-two times wider than the floor it skipped. The hole is the first sentence. Any tooling that calls the action directly has silently opted out of the guardrail. The window must be wide because <code>SnapshotProducer</code> writes data files, manifests and the manifest list <em>before</em> the commit that references them (Chapter 3.3): an in-flight write always has valid files that no snapshot can reach yet.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title"><code>stream_results</code> silently truncates the row set you were told to read</p>
+<p>The rehearsal this chapter recommends — <code>dry_run =&gt; true</code>, then read every returned row — rests on the result listing every file. <code>stream_results =&gt; true</code> breaks that. <code>deleteFiles</code> sizes its output list to <code>MAX_ORPHAN_FILE_SAMPLE_SIZE</code>, default <code>20000</code>, and <code>collectPathsForOutput</code> fills it only up to that cap when streaming; <code>RemoveOrphanFilesProcedure.toOutputRows</code> then builds its rows from <code>result.orphanFileLocations()</code> and nothing else, so the procedure's only output column stops at 20 000 paths. Upstream says it in the class javadoc — <em>"When enabled, the result will contain only a sample of file paths (up to 20000). The total count of deleted files is logged but not included in the result."</em> The action carries the real number in <code>orphanFilesCount</code>, and the procedure's output type has no column for it, so from SQL there is no signal at all that you are looking at a sample. The parameter defaults to <code>false</code>, which is what keeps the advice safe out of the box; the failure mode is a large run where someone turned it on for driver memory and kept treating the rows as exhaustive. If you need both — a set too large for the driver and a reviewable list — use <code>file_list_view</code> to bound the candidates instead.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">A crashed <code>expire_snapshots</code> has already committed</p>
+<p><code>cleanupLevel(CleanupLevel.NONE).commit()</code> runs before a single file is deleted. Kill the job between the commit and the delete phase and the snapshots are gone from metadata while their files remain. Re-running expiry will not find them — they are no longer in <code>originalMetadata</code>. Only orphan removal can, which is the operational reason the pipeline order is not negotiable.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">A <code>snapshot</code>-created table cannot run either cleanup job — on purpose</p>
+<p>The <code>gc.enabled</code> <code>ValidationException.check</code> in <code>DeleteOrphanFilesSparkAction</code>'s constructor is duplicated in <code>ExpireSnapshotsSparkAction</code> and in <code>RemoveSnapshots</code> (Chapter 5.5 §5). Chapter 11.2 showed <code>SnapshotTableSparkAction.destTableProps</code> setting <code>gc.enabled=false</code>, because a snapshot table indexes the <em>source</em> table's data files. Setting it to <code>true</code> to make the error go away deletes the production source table's data. If a snapshot table has served its purpose, drop it.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Prefix mismatch defaults to failing the job, and <code>DELETE</code> mode is irreversible</p>
+<p>When metadata says <code>s3://bucket/…</code> and the listing says <code>s3a://bucket/…</code>, every file looks orphaned. The accumulator fills and the job aborts rather than guess. Resolve it with <code>equal_schemes</code> / <code>equal_authorities</code> — declaring the two prefixes equivalent — not with <code>prefix_mismatch_mode =&gt; 'DELETE'</code>, which upstream qualifies with <em>"iff you are ABSOLUTELY confident"</em> and <em>"It will be impossible to recover deleted files."</em></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Hidden paths are out of scope in both directions</p>
+<p>The filter is applied by two different mechanisms. Under the default Hadoop listing, <code>FileSystemWalker</code> hands it straight to <code>fs.listStatus(path, pathFilter)</code> at every level, so a hidden directory is never descended into. Under prefix listing — <code>prefix_listing =&gt; true</code>, which lists flat — there are no levels to filter, so <code>isHiddenPath</code> walks each candidate back up to the base directory instead and rejects it if any component fails <code>HiddenPathFilter</code>, which is <code>!name.startsWith("_") &amp;&amp; !name.startsWith(".")</code>. That is a safety property: <code>_SUCCESS</code>-style markers and anything under a <code>_</code>-prefixed directory are never deleted. It is also a limitation: garbage that happens to live under such a name is never reported as an orphan either, so a storage-usage figure and this job's output can disagree indefinitely. The one exception is a partition directory named after a field starting with <code>_</code> or <code>.</code>, which <code>PartitionAwareHiddenPathFilter</code> exempts so that real partition data below it is still listed.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Delete failures are logged, not raised</p>
+<p><code>deleteNonBulk</code> runs with <code>.noRetry().suppressFailureWhenFinished().onFailure((file, exc) -&gt; LOG.warn(...))</code>, and <code>deleteBulk</code> catches <code>BulkDeletionFailureException</code> and logs <em>"Deleted only {} of {} files using bulk deletes"</em>. The result rows report the files the job <em>identified</em>, not the files it succeeded in removing — and under <code>stream_results</code> not even all of those, per the cap above. A run that reports 40 000 orphans and silently failed on half of them looks identical to a clean run in the procedure's output.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The three jobs form a pipeline — compact, expire, remove orphans — and the direction comes from what each can prove. Nothing in the code enforces the order.</li>
+<li>Compaction's defaults are conservative enough to do nothing: a group is rewritten only if one of five predicates holds, and <code>min-input-files</code> defaults to 5.</li>
+<li><code>expire_snapshots</code> commits the metadata change with <code>CleanupLevel.NONE</code> and deletes afterwards. A crash in between leaks files that expiry can never find again.</li>
+<li><code>remove_orphan_files</code> is the only job that reasons from storage rather than metadata, and its valid set covers exactly one table while its candidate set covers an entire location.</li>
+<li>Its real safety checks are: <code>gc.enabled</code>, the timestamp cutoff applied during listing, <code>PrefixMismatchMode.ERROR</code>, the <code>s3n</code>/<code>s3a</code> → <code>s3</code> normalisation, and the hidden-path filter. Its 24-hour floor exists only in the procedure, only when <code>older_than</code> is passed, and not when <code>spark.testing</code> is set.</li>
+<li>It performs no ownership check on <code>location</code> whatsoever. <code>dry_run</code> and <code>file_list_view</code> are the two mechanisms the code gives you for bounding that — and <code>dry_run</code>'s row set is exhaustive only while <code>stream_results</code> is off, which is the default.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>expire_snapshots</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/ExpireSnapshotsSparkAction.java"><code>.../actions/ExpireSnapshotsSparkAction.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/procedures/ExpireSnapshotsProcedure.java"><code>.../procedures/ExpireSnapshotsProcedure.java</code></a></td>
+</tr>
+<tr>
+<td><code>remove_orphan_files</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java"><code>.../actions/DeleteOrphanFilesSparkAction.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/procedures/RemoveOrphanFilesProcedure.java"><code>.../procedures/RemoveOrphanFilesProcedure.java</code></a></td>
+</tr>
+<tr>
+<td>Reachable-file sets shared by both</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/BaseSparkAction.java"><code>.../actions/BaseSparkAction.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ReachableFileUtil.java"><code>core/.../ReachableFileUtil.java</code></a></td>
+</tr>
+<tr>
+<td>Listing and the hidden-path filter</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/util/FileSystemWalker.java"><code>core/.../util/FileSystemWalker.java</code></a></td>
+</tr>
+<tr>
+<td><code>rewrite_data_files</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/RewriteDataFilesSparkAction.java"><code>.../actions/RewriteDataFilesSparkAction.java</code></a></td>
+</tr>
+<tr>
+<td>Compaction thresholds and options</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/actions/SizeBasedFileRewritePlanner.java"><code>core/.../actions/SizeBasedFileRewritePlanner.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/actions/BinPackRewriteFilePlanner.java"><code>core/.../actions/BinPackRewriteFilePlanner.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/actions/RewriteDataFiles.java"><code>api/.../actions/RewriteDataFiles.java</code></a></td>
+</tr>
+<tr>
+<td>Expiry and GC defaults</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableProperties.java"><code>core/.../TableProperties.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Spark 4 differences</p>
+<p>The actions are effectively unchanged across v3.5, v4.0 and v4.1. The procedure classes in v4.x implement Spark 4's <code>BoundProcedure</code> API — <code>bind(StructType)</code> and <code>Iterator&lt;Scan&gt; call(…)</code> instead of <code>parameters()</code> / <code>outputType()</code> / <code>InternalRow[] call(…)</code> — and each declares a <code>static final String NAME</code>. Argument names, defaults, and every safety check quoted in this chapter are identical.</p>
+</div>
+<p><strong>Next:</strong> nothing — this is the last chapter. Every job here exists to protect one invariant from Chapter 3.4: the table is whatever its single catalog entry says it is, and a file is safe exactly as long as some retained snapshot can reach it. Compaction, expiry and orphan removal are three different ways of being careful about that, and the only one that can violate it is the one that never reads the catalog at all.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_11.4_merge_and_conflicts/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 11.4 `MERGE INTO`, row-level operations, and commit conflicts">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                11.4 `MERGE INTO`, row-level operations, and commit conflicts
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3939 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part02_table_spec/chapter_2.2_metadata_json/">
+      
+      
+        <link rel="prev" href="../chapter_2.1_table_directory_anatomy/">
+      
+      
+        <link rel="next" href="../chapter_2.3_manifest_list/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>2.2 `metadata.json`, field by field - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-22-metadatajson-field-by-field" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              2.2 `metadata.json`, field by field
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-shape-of-the-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The shape of the document
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-field-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The field set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tojson-order-is-statement-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. toJson: order is statement order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-current-snapshot-id-changes-representation-at-v3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. current-snapshot-id changes representation at v3
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-fromjson-where-the-reader-is-stricter-and-where-it-is-not" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. fromJson: where the reader is stricter, and where it is not
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-two-real-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Two real files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-shape-of-the-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The shape of the document
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-field-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The field set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tojson-order-is-statement-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. toJson: order is statement order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-current-snapshot-id-changes-representation-at-v3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. current-snapshot-id changes representation at v3
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-fromjson-where-the-reader-is-stricter-and-where-it-is-not" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. fromJson: where the reader is stricter, and where it is not
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-two-real-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Two real files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 2 · Table Spec
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-22-metadatajson-field-by-field">Chapter 2.2 — <code>metadata.json</code>, field by field<a class="headerlink" href="#chapter-22-metadatajson-field-by-field" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> what is the complete, authoritative field set of <code>metadata.json</code> at this version, and which fields exist only because of the format version the table was written at?</p>
+<p><strong>Prerequisites:</strong> Chapter 2.1 (where this file lives and how it is named)</p>
+<p><strong>Source covered:</strong> <code>core/.../TableMetadataParser.java</code>, <code>core/.../TableMetadata.java</code>, <code>core/.../SnapshotParser.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>There is no schema file for <code>metadata.json</code>. No JSON Schema, no <code>.avsc</code>, no generated model class. The Iceberg specification describes the document in prose, and the prose is normative — but the <em>implementation's</em> definition of the field set is a single Java file, and where the two ever diverge, the file is what your reader actually parsed.</p>
+<p>That makes <code>TableMetadataParser</code> unusually good evidence. A pasted example document shows you one table's fields; the parser shows you the whole possible field set, in the order it is written, with every version branch made explicit. It also shows something an example never can: the places where the reader is deliberately <strong>more permissive</strong> than the writer, which is where all the interesting compatibility history is buried.</p>
+<p>This chapter reads the writer and the reader side by side, then checks both against real metadata files committed upstream as test fixtures.</p>
+<h2 id="2-the-shape-of-the-document">2. The shape of the document<a class="headerlink" href="#2-the-shape-of-the-document" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>classDiagram
+    class TableMetadata {
+        int format-version
+        string table-uuid
+        string location
+        long last-sequence-number
+        long last-updated-ms
+        int last-column-id
+        int current-schema-id
+        int default-spec-id
+        int last-partition-id
+        int default-sort-order-id
+        long current-snapshot-id
+        long next-row-id
+        map properties
+    }
+    class Schema
+    class PartitionSpec
+    class SortOrder
+    class Snapshot {
+        long snapshot-id
+        long parent-snapshot-id
+        long sequence-number
+        long timestamp-ms
+        map summary
+        string manifest-list
+        int schema-id
+        long first-row-id
+        long added-rows
+    }
+    class SnapshotRef
+    class HistoryEntry
+    class MetadataLogEntry
+    class StatisticsFile
+    class PartitionStatisticsFile
+    class EncryptedKey
+    class ManifestListFile
+
+    TableMetadata "1" *-- "1..*" Schema : schemas
+    TableMetadata "1" *-- "1..*" PartitionSpec : partition-specs
+    TableMetadata "1" *-- "1..*" SortOrder : sort-orders
+    TableMetadata "1" *-- "0..*" Snapshot : snapshots
+    TableMetadata "1" *-- "0..*" SnapshotRef : refs
+    TableMetadata "1" *-- "0..*" HistoryEntry : snapshot-log
+    TableMetadata "1" *-- "0..*" MetadataLogEntry : metadata-log
+    TableMetadata "1" *-- "0..*" StatisticsFile : statistics
+    TableMetadata "1" *-- "0..*" PartitionStatisticsFile : partition-statistics
+    TableMetadata "1" *-- "0..*" EncryptedKey : encryption-keys
+    Snapshot ..&gt; ManifestListFile : manifest-list</code></pre>
+<p><code>last-sequence-number</code> exists only from v2; <code>next-row-id</code> and the snapshot's <code>first-row-id</code> / <code>added-rows</code> only from v3. Everything else has been there since v1 in some form.</p>
+<p>Note what is missing. There is no file list, no row count, no column statistic. <strong>Every array in this document is bounded by schema evolutions, spec evolutions or commits — never by data volume.</strong> That is the property that keeps a commit cheap: rewriting <code>metadata.json</code> on every write is only tolerable because its size is independent of how much data the table holds. The moment you want file-level information, you follow <code>snapshots[].manifest-list</code> out of this document, which is Chapter 2.3.</p>
+<h2 id="3-the-field-set">3. The field set<a class="headerlink" href="#3-the-field-set" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the complete key set, and one constant that is not a key</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-88"> 88</a></span>
+<span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
+<span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
+<span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
+<span class="normal"><a href="#__codelineno-0-92"> 92</a></span>
+<span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-0-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-0-100">100</a></span>
+<span class="normal"><a href="#__codelineno-0-101">101</a></span>
+<span class="normal"><a href="#__codelineno-0-102">102</a></span>
+<span class="normal"><a href="#__codelineno-0-103">103</a></span>
+<span class="normal"><a href="#__codelineno-0-104">104</a></span>
+<span class="normal"><a href="#__codelineno-0-105">105</a></span>
+<span class="normal"><a href="#__codelineno-0-106">106</a></span>
+<span class="normal"><a href="#__codelineno-0-107">107</a></span>
+<span class="normal"><a href="#__codelineno-0-108">108</a></span>
+<span class="normal"><a href="#__codelineno-0-109">109</a></span>
+<span class="normal"><a href="#__codelineno-0-110">110</a></span>
+<span class="normal"><a href="#__codelineno-0-111">111</a></span>
+<span class="normal"><a href="#__codelineno-0-112">112</a></span>
+<span class="normal"><a href="#__codelineno-0-113">113</a></span>
+<span class="normal"><a href="#__codelineno-0-114">114</a></span>
+<span class="normal"><a href="#__codelineno-0-115">115</a></span>
+<span class="normal"><a href="#__codelineno-0-116">116</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">FORMAT_VERSION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"format-version"</span><span class="p">;</span>
+</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">TABLE_UUID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"table-uuid"</span><span class="p">;</span>
+</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">LOCATION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"location"</span><span class="p">;</span>
+</span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">LAST_SEQUENCE_NUMBER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"last-sequence-number"</span><span class="p">;</span>
+</span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">LAST_UPDATED_MILLIS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"last-updated-ms"</span><span class="p">;</span>
+</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">LAST_COLUMN_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"last-column-id"</span><span class="p">;</span>
+</span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">SCHEMA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"schema"</span><span class="p">;</span>
+</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">SCHEMAS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"schemas"</span><span class="p">;</span>
+</span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">CURRENT_SCHEMA_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"current-schema-id"</span><span class="p">;</span>
+</span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">PARTITION_SPEC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"partition-spec"</span><span class="p">;</span>
+</span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">PARTITION_SPECS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"partition-specs"</span><span class="p">;</span>
+</span><span id="__span-0-99"><a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">DEFAULT_SPEC_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"default-spec-id"</span><span class="p">;</span>
+</span><span id="__span-0-100"><a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">LAST_PARTITION_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"last-partition-id"</span><span class="p">;</span>
+</span><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">DEFAULT_SORT_ORDER_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"default-sort-order-id"</span><span class="p">;</span>
+</span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">SORT_ORDERS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"sort-orders"</span><span class="p">;</span>
+</span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">PROPERTIES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"properties"</span><span class="p">;</span>
+</span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">CURRENT_SNAPSHOT_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"current-snapshot-id"</span><span class="p">;</span>
+</span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">REFS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"refs"</span><span class="p">;</span>
+</span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">SNAPSHOTS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"snapshots"</span><span class="p">;</span>
+</span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">SNAPSHOT_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"snapshot-id"</span><span class="p">;</span>
+</span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">TIMESTAMP_MS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"timestamp-ms"</span><span class="p">;</span>
+</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">SNAPSHOT_LOG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"snapshot-log"</span><span class="p">;</span>
+</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">METADATA_FILE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"metadata-file"</span><span class="p">;</span>
+</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">METADATA_LOG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"metadata-log"</span><span class="p">;</span>
+</span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">STATISTICS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"statistics"</span><span class="p">;</span>
+</span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">PARTITION_STATISTICS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"partition-statistics"</span><span class="p">;</span>
+</span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ENCRYPTION_KEYS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"encryption-keys"</span><span class="p">;</span>
+</span><span id="__span-0-115"><a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">NEXT_ROW_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"next-row-id"</span><span class="p">;</span>
+</span><span id="__span-0-116"><a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">MIN_NULL_CURRENT_SNAPSHOT_VERSION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadataParser.java` L88–L116](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadataParser.java#L88-L116) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Twenty-nine lines: twenty-eight <code>static final String</code>s that are the entire vocabulary, and one <code>static final int</code> that is not a key at all. Every key that can appear in a <code>metadata.json</code> written by this version is one of those strings, and the comment above them — <code>// visible for testing</code> — is a fair description of the situation: these are package-private constants, not a published model.</p>
+<p>Two of the keys are worth flagging now. <code>NEXT_ROW_ID = "next-row-id"</code> is the newest field in the document and belongs entirely to v3 row lineage (Chapter 2.5). <code>ENCRYPTION_KEYS</code> is the other recent arrival. The odd constant on the last line, <code>MIN_NULL_CURRENT_SNAPSHOT_VERSION</code>, is filed here because it governs how one of these keys is <em>encoded</em> rather than whether it appears — section 5.</p>
+<h2 id="4-tojson-order-is-statement-order">4. <code>toJson</code>: order is statement order<a class="headerlink" href="#4-tojson-order-is-statement-order" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">toJson: field order and version branches</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-166">166</a></span>
+<span class="normal"><a href="#__codelineno-1-167">167</a></span>
+<span class="normal"><a href="#__codelineno-1-168">168</a></span>
+<span class="normal"><a href="#__codelineno-1-169">169</a></span>
+<span class="normal"><a href="#__codelineno-1-170">170</a></span>
+<span class="normal"><a href="#__codelineno-1-171">171</a></span>
+<span class="normal"><a href="#__codelineno-1-172">172</a></span>
+<span class="normal"><a href="#__codelineno-1-173">173</a></span>
+<span class="normal"><a href="#__codelineno-1-174">174</a></span>
+<span class="normal"><a href="#__codelineno-1-175">175</a></span>
+<span class="normal"><a href="#__codelineno-1-176">176</a></span>
+<span class="normal"><a href="#__codelineno-1-177">177</a></span>
+<span class="normal"><a href="#__codelineno-1-178">178</a></span>
+<span class="normal"><a href="#__codelineno-1-179">179</a></span>
+<span class="normal"><a href="#__codelineno-1-180">180</a></span>
+<span class="normal"><a href="#__codelineno-1-181">181</a></span>
+<span class="normal"><a href="#__codelineno-1-182">182</a></span>
+<span class="normal"><a href="#__codelineno-1-183">183</a></span>
+<span class="normal"><a href="#__codelineno-1-184">184</a></span>
+<span class="normal"><a href="#__codelineno-1-185">185</a></span>
+<span class="normal"><a href="#__codelineno-1-186">186</a></span>
+<span class="normal"><a href="#__codelineno-1-187">187</a></span>
+<span class="normal"><a href="#__codelineno-1-188">188</a></span>
+<span class="normal"><a href="#__codelineno-1-189">189</a></span>
+<span class="normal"><a href="#__codelineno-1-190">190</a></span>
+<span class="normal"><a href="#__codelineno-1-191">191</a></span>
+<span class="normal"><a href="#__codelineno-1-192">192</a></span>
+<span class="normal"><a href="#__codelineno-1-193">193</a></span>
+<span class="normal"><a href="#__codelineno-1-194">194</a></span>
+<span class="normal"><a href="#__codelineno-1-195">195</a></span>
+<span class="normal"><a href="#__codelineno-1-196">196</a></span>
+<span class="normal"><a href="#__codelineno-1-197">197</a></span>
+<span class="normal"><a href="#__codelineno-1-198">198</a></span>
+<span class="normal"><a href="#__codelineno-1-199">199</a></span>
+<span class="normal"><a href="#__codelineno-1-200">200</a></span>
+<span class="normal"><a href="#__codelineno-1-201">201</a></span>
+<span class="normal"><a href="#__codelineno-1-202">202</a></span>
+<span class="normal"><a href="#__codelineno-1-203">203</a></span>
+<span class="normal"><a href="#__codelineno-1-204">204</a></span>
+<span class="normal"><a href="#__codelineno-1-205">205</a></span>
+<span class="normal"><a href="#__codelineno-1-206">206</a></span>
+<span class="normal"><a href="#__codelineno-1-207">207</a></span>
+<span class="normal"><a href="#__codelineno-1-208">208</a></span>
+<span class="normal"><a href="#__codelineno-1-209">209</a></span>
+<span class="normal"><a href="#__codelineno-1-210">210</a></span>
+<span class="normal"><a href="#__codelineno-1-211">211</a></span>
+<span class="normal"><a href="#__codelineno-1-212">212</a></span>
+<span class="normal"><a href="#__codelineno-1-213">213</a></span>
+<span class="normal"><a href="#__codelineno-1-214">214</a></span>
+<span class="normal"><a href="#__codelineno-1-215">215</a></span>
+<span class="normal"><a href="#__codelineno-1-216">216</a></span>
+<span class="normal"><a href="#__codelineno-1-217">217</a></span>
+<span class="normal"><a href="#__codelineno-1-218">218</a></span>
+<span class="normal"><a href="#__codelineno-1-219">219</a></span>
+<span class="normal"><a href="#__codelineno-1-220">220</a></span>
+<span class="normal"><a href="#__codelineno-1-221">221</a></span>
+<span class="normal"><a href="#__codelineno-1-222">222</a></span>
+<span class="normal"><a href="#__codelineno-1-223">223</a></span>
+<span class="normal"><a href="#__codelineno-1-224">224</a></span>
+<span class="normal"><a href="#__codelineno-1-225">225</a></span>
+<span class="normal"><a href="#__codelineno-1-226">226</a></span>
+<span class="normal"><a href="#__codelineno-1-227">227</a></span>
+<span class="normal"><a href="#__codelineno-1-228">228</a></span>
+<span class="normal"><a href="#__codelineno-1-229">229</a></span>
+<span class="normal"><a href="#__codelineno-1-230">230</a></span>
+<span class="normal"><a href="#__codelineno-1-231">231</a></span>
+<span class="normal"><a href="#__codelineno-1-232">232</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-166"><a id="__codelineno-1-166" name="__codelineno-1-166"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeStartObject</span><span class="p">();</span>
+</span><span id="__span-1-167"><a id="__codelineno-1-167" name="__codelineno-1-167"></a>
+</span><span id="__span-1-168"><a id="__codelineno-1-168" name="__codelineno-1-168"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">FORMAT_VERSION</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">());</span>
+</span><span id="__span-1-169"><a id="__codelineno-1-169" name="__codelineno-1-169"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeStringField</span><span class="p">(</span><span class="n">TABLE_UUID</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">uuid</span><span class="p">());</span>
+</span><span id="__span-1-170"><a id="__codelineno-1-170" name="__codelineno-1-170"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeStringField</span><span class="p">(</span><span class="n">LOCATION</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">location</span><span class="p">());</span>
+</span><span id="__span-1-171"><a id="__codelineno-1-171" name="__codelineno-1-171"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-172"><a id="__codelineno-1-172" name="__codelineno-1-172"></a><span class="w">  </span><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">LAST_SEQUENCE_NUMBER</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">lastSequenceNumber</span><span class="p">());</span>
+</span><span id="__span-1-173"><a id="__codelineno-1-173" name="__codelineno-1-173"></a><span class="p">}</span>
+</span><span id="__span-1-174"><a id="__codelineno-1-174" name="__codelineno-1-174"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">LAST_UPDATED_MILLIS</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">lastUpdatedMillis</span><span class="p">());</span>
+</span><span id="__span-1-175"><a id="__codelineno-1-175" name="__codelineno-1-175"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">LAST_COLUMN_ID</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">lastColumnId</span><span class="p">());</span>
+</span><span id="__span-1-176"><a id="__codelineno-1-176" name="__codelineno-1-176"></a>
+</span><span id="__span-1-177"><a id="__codelineno-1-177" name="__codelineno-1-177"></a><span class="c1">// for older readers, continue writing the current schema as "schema".</span>
+</span><span id="__span-1-178"><a id="__codelineno-1-178" name="__codelineno-1-178"></a><span class="c1">// this is only needed for v1 because support for schemas and current-schema-id is required in</span>
+</span><span id="__span-1-179"><a id="__codelineno-1-179" name="__codelineno-1-179"></a><span class="c1">// v2 and later.</span>
+</span><span id="__span-1-180"><a id="__codelineno-1-180" name="__codelineno-1-180"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-181"><a id="__codelineno-1-181" name="__codelineno-1-181"></a><span class="w">  </span><span class="n">generator</span><span class="p">.</span><span class="na">writeFieldName</span><span class="p">(</span><span class="n">SCHEMA</span><span class="p">);</span>
+</span><span id="__span-1-182"><a id="__codelineno-1-182" name="__codelineno-1-182"></a><span class="w">  </span><span class="n">SchemaParser</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">schema</span><span class="p">(),</span><span class="w"> </span><span class="n">generator</span><span class="p">);</span>
+</span><span id="__span-1-183"><a id="__codelineno-1-183" name="__codelineno-1-183"></a><span class="p">}</span>
+</span><span id="__span-1-184"><a id="__codelineno-1-184" name="__codelineno-1-184"></a>
+</span><span id="__span-1-185"><a id="__codelineno-1-185" name="__codelineno-1-185"></a><span class="c1">// write the current schema ID and schema list</span>
+</span><span id="__span-1-186"><a id="__codelineno-1-186" name="__codelineno-1-186"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">CURRENT_SCHEMA_ID</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">currentSchemaId</span><span class="p">());</span>
+</span><span id="__span-1-187"><a id="__codelineno-1-187" name="__codelineno-1-187"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeArrayFieldStart</span><span class="p">(</span><span class="n">SCHEMAS</span><span class="p">);</span>
+</span><span id="__span-1-188"><a id="__codelineno-1-188" name="__codelineno-1-188"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Schema</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">schemas</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-189"><a id="__codelineno-1-189" name="__codelineno-1-189"></a><span class="w">  </span><span class="n">SchemaParser</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span><span class="w"> </span><span class="n">generator</span><span class="p">);</span>
+</span><span id="__span-1-190"><a id="__codelineno-1-190" name="__codelineno-1-190"></a><span class="p">}</span>
+</span><span id="__span-1-191"><a id="__codelineno-1-191" name="__codelineno-1-191"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeEndArray</span><span class="p">();</span>
+</span><span id="__span-1-192"><a id="__codelineno-1-192" name="__codelineno-1-192"></a>
+</span><span id="__span-1-193"><a id="__codelineno-1-193" name="__codelineno-1-193"></a><span class="c1">// for older readers, continue writing the default spec as "partition-spec"</span>
+</span><span id="__span-1-194"><a id="__codelineno-1-194" name="__codelineno-1-194"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-195"><a id="__codelineno-1-195" name="__codelineno-1-195"></a><span class="w">  </span><span class="n">generator</span><span class="p">.</span><span class="na">writeFieldName</span><span class="p">(</span><span class="n">PARTITION_SPEC</span><span class="p">);</span>
+</span><span id="__span-1-196"><a id="__codelineno-1-196" name="__codelineno-1-196"></a><span class="w">  </span><span class="n">PartitionSpecParser</span><span class="p">.</span><span class="na">toJsonFields</span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">spec</span><span class="p">(),</span><span class="w"> </span><span class="n">generator</span><span class="p">);</span>
+</span><span id="__span-1-197"><a id="__codelineno-1-197" name="__codelineno-1-197"></a><span class="p">}</span>
+</span><span id="__span-1-198"><a id="__codelineno-1-198" name="__codelineno-1-198"></a>
+</span><span id="__span-1-199"><a id="__codelineno-1-199" name="__codelineno-1-199"></a><span class="c1">// write the default spec ID and spec list</span>
+</span><span id="__span-1-200"><a id="__codelineno-1-200" name="__codelineno-1-200"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">DEFAULT_SPEC_ID</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">defaultSpecId</span><span class="p">());</span>
+</span><span id="__span-1-201"><a id="__codelineno-1-201" name="__codelineno-1-201"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeArrayFieldStart</span><span class="p">(</span><span class="n">PARTITION_SPECS</span><span class="p">);</span>
+</span><span id="__span-1-202"><a id="__codelineno-1-202" name="__codelineno-1-202"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">PartitionSpec</span><span class="w"> </span><span class="n">spec</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">specs</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-203"><a id="__codelineno-1-203" name="__codelineno-1-203"></a><span class="w">  </span><span class="n">PartitionSpecParser</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">generator</span><span class="p">);</span>
+</span><span id="__span-1-204"><a id="__codelineno-1-204" name="__codelineno-1-204"></a><span class="p">}</span>
+</span><span id="__span-1-205"><a id="__codelineno-1-205" name="__codelineno-1-205"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeEndArray</span><span class="p">();</span>
+</span><span id="__span-1-206"><a id="__codelineno-1-206" name="__codelineno-1-206"></a>
+</span><span id="__span-1-207"><a id="__codelineno-1-207" name="__codelineno-1-207"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">LAST_PARTITION_ID</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">lastAssignedPartitionId</span><span class="p">());</span>
+</span><span id="__span-1-208"><a id="__codelineno-1-208" name="__codelineno-1-208"></a>
+</span><span id="__span-1-209"><a id="__codelineno-1-209" name="__codelineno-1-209"></a><span class="c1">// write the default order ID and sort order list</span>
+</span><span id="__span-1-210"><a id="__codelineno-1-210" name="__codelineno-1-210"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">DEFAULT_SORT_ORDER_ID</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">defaultSortOrderId</span><span class="p">());</span>
+</span><span id="__span-1-211"><a id="__codelineno-1-211" name="__codelineno-1-211"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeArrayFieldStart</span><span class="p">(</span><span class="n">SORT_ORDERS</span><span class="p">);</span>
+</span><span id="__span-1-212"><a id="__codelineno-1-212" name="__codelineno-1-212"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">SortOrder</span><span class="w"> </span><span class="n">sortOrder</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">sortOrders</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-213"><a id="__codelineno-1-213" name="__codelineno-1-213"></a><span class="w">  </span><span class="n">SortOrderParser</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">sortOrder</span><span class="p">,</span><span class="w"> </span><span class="n">generator</span><span class="p">);</span>
+</span><span id="__span-1-214"><a id="__codelineno-1-214" name="__codelineno-1-214"></a><span class="p">}</span>
+</span><span id="__span-1-215"><a id="__codelineno-1-215" name="__codelineno-1-215"></a><span class="n">generator</span><span class="p">.</span><span class="na">writeEndArray</span><span class="p">();</span>
+</span><span id="__span-1-216"><a id="__codelineno-1-216" name="__codelineno-1-216"></a>
+</span><span id="__span-1-217"><a id="__codelineno-1-217" name="__codelineno-1-217"></a><span class="c1">// write properties map</span>
+</span><span id="__span-1-218"><a id="__codelineno-1-218" name="__codelineno-1-218"></a><span class="n">JsonUtil</span><span class="p">.</span><span class="na">writeStringMap</span><span class="p">(</span><span class="n">PROPERTIES</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">properties</span><span class="p">(),</span><span class="w"> </span><span class="n">generator</span><span class="p">);</span>
+</span><span id="__span-1-219"><a id="__codelineno-1-219" name="__codelineno-1-219"></a>
+</span><span id="__span-1-220"><a id="__codelineno-1-220" name="__codelineno-1-220"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">currentSnapshot</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-221"><a id="__codelineno-1-221" name="__codelineno-1-221"></a><span class="w">  </span><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">CURRENT_SNAPSHOT_ID</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">currentSnapshot</span><span class="p">().</span><span class="na">snapshotId</span><span class="p">());</span>
+</span><span id="__span-1-222"><a id="__codelineno-1-222" name="__codelineno-1-222"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-223"><a id="__codelineno-1-223" name="__codelineno-1-223"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MIN_NULL_CURRENT_SNAPSHOT_VERSION</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-224"><a id="__codelineno-1-224" name="__codelineno-1-224"></a><span class="w">    </span><span class="n">generator</span><span class="p">.</span><span class="na">writeNullField</span><span class="p">(</span><span class="n">CURRENT_SNAPSHOT_ID</span><span class="p">);</span>
+</span><span id="__span-1-225"><a id="__codelineno-1-225" name="__codelineno-1-225"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-226"><a id="__codelineno-1-226" name="__codelineno-1-226"></a><span class="w">    </span><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">CURRENT_SNAPSHOT_ID</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1L</span><span class="p">);</span>
+</span><span id="__span-1-227"><a id="__codelineno-1-227" name="__codelineno-1-227"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-228"><a id="__codelineno-1-228" name="__codelineno-1-228"></a><span class="p">}</span>
+</span><span id="__span-1-229"><a id="__codelineno-1-229" name="__codelineno-1-229"></a>
+</span><span id="__span-1-230"><a id="__codelineno-1-230" name="__codelineno-1-230"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-231"><a id="__codelineno-1-231" name="__codelineno-1-231"></a><span class="w">  </span><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">NEXT_ROW_ID</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">nextRowId</span><span class="p">());</span>
+</span><span id="__span-1-232"><a id="__codelineno-1-232" name="__codelineno-1-232"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadataParser.java` L166–L232](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadataParser.java#L166-L232) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Two structural facts fall out immediately.</p>
+<p><strong>The field order of a real <code>metadata.json</code> is the statement order of this method.</strong> Jackson writes keys as they are generated. So <code>format-version</code> first, <code>table-uuid</code>, <code>location</code>, then the version-conditional <code>last-sequence-number</code>, and so on. If you have ever wondered why every Iceberg metadata file you have opened has the same field order regardless of who wrote it — this is why.</p>
+<p><strong>There are five version branches in these sixty-seven lines, and they point in three different directions.</strong></p>
+<p>The <em>forward</em> pair is the easy one: <code>if (metadata.formatVersion() &gt; 1)</code> writes <code>last-sequence-number</code>, and <code>if (metadata.formatVersion() &gt;= 3)</code> writes <code>next-row-id</code>. New version, new field.</p>
+<p>The <em>backward</em> pair is more interesting, and both carry a comment:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// for older readers, continue writing the current schema as "schema".</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1">// this is only needed for v1 because support for schemas and current-schema-id is required in</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1">// v2 and later.</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="n">generator</span><span class="p">.</span><span class="na">writeFieldName</span><span class="p">(</span><span class="n">SCHEMA</span><span class="p">);</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="n">SchemaParser</span><span class="p">.</span><span class="na">toJson</span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">schema</span><span class="p">(),</span><span class="w"> </span><span class="n">generator</span><span class="p">);</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>A v1 table gets its current schema written <strong>twice</strong> — once as <code>schema</code>, once inside the <code>schemas</code> array — and its default spec written twice, as <code>partition-spec</code> and inside <code>partition-specs</code>. This is not redundancy for its own sake; it is a deliberate concession to readers that predate multi-schema support. The cost is that a v1 metadata file has two sources of truth for the same information, and a tool that edits one without the other produces a file two readers disagree about.</p>
+<p>The fifth branch is neither forward nor backward. It does not decide whether a field appears — it decides how an unchanged field is <em>spelled</em>, and it is the next section.</p>
+<h2 id="5-current-snapshot-id-changes-representation-at-v3">5. <code>current-snapshot-id</code> changes representation at v3<a class="headerlink" href="#5-current-snapshot-id-changes-representation-at-v3" title="Permanent link">&para;</a></h2>
+<p>The block just before <code>next-row-id</code> is the sharpest illustration of the whole compatibility problem:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">currentSnapshot</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">CURRENT_SNAPSHOT_ID</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">currentSnapshot</span><span class="p">().</span><span class="na">snapshotId</span><span class="p">());</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MIN_NULL_CURRENT_SNAPSHOT_VERSION</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">generator</span><span class="p">.</span><span class="na">writeNullField</span><span class="p">(</span><span class="n">CURRENT_SNAPSHOT_ID</span><span class="p">);</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="n">generator</span><span class="p">.</span><span class="na">writeNumberField</span><span class="p">(</span><span class="n">CURRENT_SNAPSHOT_ID</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1L</span><span class="p">);</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>An empty table — no snapshots yet, or all of them expired — has to encode "there is no current snapshot". Before v3 that encoding was the sentinel <code>-1</code>, because the field was typed as a number and older readers cannot parse <code>null</code> into a <code>long</code>. From v3 it is a proper <code>null</code>.</p>
+<p>Both encodings mean exactly the same thing, both are in the wild, and each one breaks code written against the other. <code>currentSnapshotId == -1</code> silently stops detecting empty tables at v3; <code>currentSnapshotId == null</code> never fires at v2. This is the single most common way a third-party <code>metadata.json</code> reader is subtly wrong.</p>
+<h2 id="6-fromjson-where-the-reader-is-stricter-and-where-it-is-not">6. <code>fromJson</code>: where the reader is stricter, and where it is not<a class="headerlink" href="#6-fromjson-where-the-reader-is-stricter-and-where-it-is-not" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">fromJson: the version ceiling and the v1 fallbacks</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-339">339</a></span>
+<span class="normal"><a href="#__codelineno-4-340">340</a></span>
+<span class="normal"><a href="#__codelineno-4-341">341</a></span>
+<span class="normal"><a href="#__codelineno-4-342">342</a></span>
+<span class="normal"><a href="#__codelineno-4-343">343</a></span>
+<span class="normal"><a href="#__codelineno-4-344">344</a></span>
+<span class="normal"><a href="#__codelineno-4-345">345</a></span>
+<span class="normal"><a href="#__codelineno-4-346">346</a></span>
+<span class="normal"><a href="#__codelineno-4-347">347</a></span>
+<span class="normal"><a href="#__codelineno-4-348">348</a></span>
+<span class="normal"><a href="#__codelineno-4-349">349</a></span>
+<span class="normal"><a href="#__codelineno-4-350">350</a></span>
+<span class="normal"><a href="#__codelineno-4-351">351</a></span>
+<span class="normal"><a href="#__codelineno-4-352">352</a></span>
+<span class="normal"><a href="#__codelineno-4-353">353</a></span>
+<span class="normal"><a href="#__codelineno-4-354">354</a></span>
+<span class="normal"><a href="#__codelineno-4-355">355</a></span>
+<span class="normal"><a href="#__codelineno-4-356">356</a></span>
+<span class="normal"><a href="#__codelineno-4-357">357</a></span>
+<span class="normal"><a href="#__codelineno-4-358">358</a></span>
+<span class="normal"><a href="#__codelineno-4-359">359</a></span>
+<span class="normal"><a href="#__codelineno-4-360">360</a></span>
+<span class="normal"><a href="#__codelineno-4-361">361</a></span>
+<span class="normal"><a href="#__codelineno-4-362">362</a></span>
+<span class="normal"><a href="#__codelineno-4-363">363</a></span>
+<span class="normal"><a href="#__codelineno-4-364">364</a></span>
+<span class="normal"><a href="#__codelineno-4-365">365</a></span>
+<span class="normal"><a href="#__codelineno-4-366">366</a></span>
+<span class="normal"><a href="#__codelineno-4-367">367</a></span>
+<span class="normal"><a href="#__codelineno-4-368">368</a></span>
+<span class="normal"><a href="#__codelineno-4-369">369</a></span>
+<span class="normal"><a href="#__codelineno-4-370">370</a></span>
+<span class="normal"><a href="#__codelineno-4-371">371</a></span>
+<span class="normal"><a href="#__codelineno-4-372">372</a></span>
+<span class="normal"><a href="#__codelineno-4-373">373</a></span>
+<span class="normal"><a href="#__codelineno-4-374">374</a></span>
+<span class="normal"><a href="#__codelineno-4-375">375</a></span>
+<span class="normal"><a href="#__codelineno-4-376">376</a></span>
+<span class="normal"><a href="#__codelineno-4-377">377</a></span>
+<span class="normal"><a href="#__codelineno-4-378">378</a></span>
+<span class="normal"><a href="#__codelineno-4-379">379</a></span>
+<span class="normal"><a href="#__codelineno-4-380">380</a></span>
+<span class="normal"><a href="#__codelineno-4-381">381</a></span>
+<span class="normal"><a href="#__codelineno-4-382">382</a></span>
+<span class="normal"><a href="#__codelineno-4-383">383</a></span>
+<span class="normal"><a href="#__codelineno-4-384">384</a></span>
+<span class="normal"><a href="#__codelineno-4-385">385</a></span>
+<span class="normal"><a href="#__codelineno-4-386">386</a></span>
+<span class="normal"><a href="#__codelineno-4-387">387</a></span>
+<span class="normal"><a href="#__codelineno-4-388">388</a></span>
+<span class="normal"><a href="#__codelineno-4-389">389</a></span>
+<span class="normal"><a href="#__codelineno-4-390">390</a></span>
+<span class="normal"><a href="#__codelineno-4-391">391</a></span>
+<span class="normal"><a href="#__codelineno-4-392">392</a></span>
+<span class="normal"><a href="#__codelineno-4-393">393</a></span>
+<span class="normal"><a href="#__codelineno-4-394">394</a></span>
+<span class="normal"><a href="#__codelineno-4-395">395</a></span>
+<span class="normal"><a href="#__codelineno-4-396">396</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-339"><a id="__codelineno-4-339" name="__codelineno-4-339"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">TableMetadata</span><span class="w"> </span><span class="nf">fromJson</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">metadataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">JsonNode</span><span class="w"> </span><span class="n">node</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-340"><a id="__codelineno-4-340" name="__codelineno-4-340"></a><span class="w">  </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-4-341"><a id="__codelineno-4-341" name="__codelineno-4-341"></a><span class="w">      </span><span class="n">node</span><span class="p">.</span><span class="na">isObject</span><span class="p">(),</span><span class="w"> </span><span class="s">"Cannot parse metadata from a non-object: %s"</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">);</span>
+</span><span id="__span-4-342"><a id="__codelineno-4-342" name="__codelineno-4-342"></a>
+</span><span id="__span-4-343"><a id="__codelineno-4-343" name="__codelineno-4-343"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">formatVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonUtil</span><span class="p">.</span><span class="na">getInt</span><span class="p">(</span><span class="n">FORMAT_VERSION</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">);</span>
+</span><span id="__span-4-344"><a id="__codelineno-4-344" name="__codelineno-4-344"></a><span class="w">  </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-4-345"><a id="__codelineno-4-345" name="__codelineno-4-345"></a><span class="w">      </span><span class="n">formatVersion</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">TableMetadata</span><span class="p">.</span><span class="na">SUPPORTED_TABLE_FORMAT_VERSION</span><span class="p">,</span>
+</span><span id="__span-4-346"><a id="__codelineno-4-346" name="__codelineno-4-346"></a><span class="w">      </span><span class="s">"Cannot read unsupported version %s"</span><span class="p">,</span>
+</span><span id="__span-4-347"><a id="__codelineno-4-347" name="__codelineno-4-347"></a><span class="w">      </span><span class="n">formatVersion</span><span class="p">);</span>
+</span><span id="__span-4-348"><a id="__codelineno-4-348" name="__codelineno-4-348"></a>
+</span><span id="__span-4-349"><a id="__codelineno-4-349" name="__codelineno-4-349"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">uuid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonUtil</span><span class="p">.</span><span class="na">getStringOrNull</span><span class="p">(</span><span class="n">TABLE_UUID</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">);</span>
+</span><span id="__span-4-350"><a id="__codelineno-4-350" name="__codelineno-4-350"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonUtil</span><span class="p">.</span><span class="na">getString</span><span class="p">(</span><span class="n">LOCATION</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">);</span>
+</span><span id="__span-4-351"><a id="__codelineno-4-351" name="__codelineno-4-351"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">lastSequenceNumber</span><span class="p">;</span>
+</span><span id="__span-4-352"><a id="__codelineno-4-352" name="__codelineno-4-352"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">formatVersion</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-353"><a id="__codelineno-4-353" name="__codelineno-4-353"></a><span class="w">    </span><span class="n">lastSequenceNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonUtil</span><span class="p">.</span><span class="na">getLong</span><span class="p">(</span><span class="n">LAST_SEQUENCE_NUMBER</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">);</span>
+</span><span id="__span-4-354"><a id="__codelineno-4-354" name="__codelineno-4-354"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-355"><a id="__codelineno-4-355" name="__codelineno-4-355"></a><span class="w">    </span><span class="n">lastSequenceNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TableMetadata</span><span class="p">.</span><span class="na">INITIAL_SEQUENCE_NUMBER</span><span class="p">;</span>
+</span><span id="__span-4-356"><a id="__codelineno-4-356" name="__codelineno-4-356"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-357"><a id="__codelineno-4-357" name="__codelineno-4-357"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">lastAssignedColumnId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonUtil</span><span class="p">.</span><span class="na">getInt</span><span class="p">(</span><span class="n">LAST_COLUMN_ID</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">);</span>
+</span><span id="__span-4-358"><a id="__codelineno-4-358" name="__codelineno-4-358"></a>
+</span><span id="__span-4-359"><a id="__codelineno-4-359" name="__codelineno-4-359"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Schema</span><span class="o">&gt;</span><span class="w"> </span><span class="n">schemas</span><span class="p">;</span>
+</span><span id="__span-4-360"><a id="__codelineno-4-360" name="__codelineno-4-360"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">currentSchemaId</span><span class="p">;</span>
+</span><span id="__span-4-361"><a id="__codelineno-4-361" name="__codelineno-4-361"></a><span class="w">  </span><span class="n">Schema</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-4-362"><a id="__codelineno-4-362" name="__codelineno-4-362"></a>
+</span><span id="__span-4-363"><a id="__codelineno-4-363" name="__codelineno-4-363"></a><span class="w">  </span><span class="n">JsonNode</span><span class="w"> </span><span class="n">schemaArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">node</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">SCHEMAS</span><span class="p">);</span>
+</span><span id="__span-4-364"><a id="__codelineno-4-364" name="__codelineno-4-364"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">schemaArray</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-365"><a id="__codelineno-4-365" name="__codelineno-4-365"></a><span class="w">    </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-4-366"><a id="__codelineno-4-366" name="__codelineno-4-366"></a><span class="w">        </span><span class="n">schemaArray</span><span class="p">.</span><span class="na">isArray</span><span class="p">(),</span><span class="w"> </span><span class="s">"Cannot parse schemas from non-array: %s"</span><span class="p">,</span><span class="w"> </span><span class="n">schemaArray</span><span class="p">);</span>
+</span><span id="__span-4-367"><a id="__codelineno-4-367" name="__codelineno-4-367"></a><span class="w">    </span><span class="c1">// current schema ID is required when the schema array is present</span>
+</span><span id="__span-4-368"><a id="__codelineno-4-368" name="__codelineno-4-368"></a><span class="w">    </span><span class="n">currentSchemaId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonUtil</span><span class="p">.</span><span class="na">getInt</span><span class="p">(</span><span class="n">CURRENT_SCHEMA_ID</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">);</span>
+</span><span id="__span-4-369"><a id="__codelineno-4-369" name="__codelineno-4-369"></a>
+</span><span id="__span-4-370"><a id="__codelineno-4-370" name="__codelineno-4-370"></a><span class="w">    </span><span class="c1">// parse the schema array</span>
+</span><span id="__span-4-371"><a id="__codelineno-4-371" name="__codelineno-4-371"></a><span class="w">    </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">Builder</span><span class="o">&lt;</span><span class="n">Schema</span><span class="o">&gt;</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">builder</span><span class="p">();</span>
+</span><span id="__span-4-372"><a id="__codelineno-4-372" name="__codelineno-4-372"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">JsonNode</span><span class="w"> </span><span class="n">schemaNode</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">schemaArray</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-373"><a id="__codelineno-4-373" name="__codelineno-4-373"></a><span class="w">      </span><span class="n">Schema</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SchemaParser</span><span class="p">.</span><span class="na">fromJson</span><span class="p">(</span><span class="n">schemaNode</span><span class="p">);</span>
+</span><span id="__span-4-374"><a id="__codelineno-4-374" name="__codelineno-4-374"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current</span><span class="p">.</span><span class="na">schemaId</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">currentSchemaId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-375"><a id="__codelineno-4-375" name="__codelineno-4-375"></a><span class="w">        </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current</span><span class="p">;</span>
+</span><span id="__span-4-376"><a id="__codelineno-4-376" name="__codelineno-4-376"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-4-377"><a id="__codelineno-4-377" name="__codelineno-4-377"></a><span class="w">      </span><span class="n">builder</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">current</span><span class="p">);</span>
+</span><span id="__span-4-378"><a id="__codelineno-4-378" name="__codelineno-4-378"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-379"><a id="__codelineno-4-379" name="__codelineno-4-379"></a>
+</span><span id="__span-4-380"><a id="__codelineno-4-380" name="__codelineno-4-380"></a><span class="w">    </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-4-381"><a id="__codelineno-4-381" name="__codelineno-4-381"></a><span class="w">        </span><span class="n">schema</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-4-382"><a id="__codelineno-4-382" name="__codelineno-4-382"></a><span class="w">        </span><span class="s">"Cannot find schema with %s=%s from %s"</span><span class="p">,</span>
+</span><span id="__span-4-383"><a id="__codelineno-4-383" name="__codelineno-4-383"></a><span class="w">        </span><span class="n">CURRENT_SCHEMA_ID</span><span class="p">,</span>
+</span><span id="__span-4-384"><a id="__codelineno-4-384" name="__codelineno-4-384"></a><span class="w">        </span><span class="n">currentSchemaId</span><span class="p">,</span>
+</span><span id="__span-4-385"><a id="__codelineno-4-385" name="__codelineno-4-385"></a><span class="w">        </span><span class="n">SCHEMAS</span><span class="p">);</span>
+</span><span id="__span-4-386"><a id="__codelineno-4-386" name="__codelineno-4-386"></a>
+</span><span id="__span-4-387"><a id="__codelineno-4-387" name="__codelineno-4-387"></a><span class="w">    </span><span class="n">schemas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</span><span id="__span-4-388"><a id="__codelineno-4-388" name="__codelineno-4-388"></a>
+</span><span id="__span-4-389"><a id="__codelineno-4-389" name="__codelineno-4-389"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-390"><a id="__codelineno-4-390" name="__codelineno-4-390"></a><span class="w">    </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-4-391"><a id="__codelineno-4-391" name="__codelineno-4-391"></a><span class="w">        </span><span class="n">formatVersion</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"%s must exist in format v%s"</span><span class="p">,</span><span class="w"> </span><span class="n">SCHEMAS</span><span class="p">,</span><span class="w"> </span><span class="n">formatVersion</span><span class="p">);</span>
+</span><span id="__span-4-392"><a id="__codelineno-4-392" name="__codelineno-4-392"></a>
+</span><span id="__span-4-393"><a id="__codelineno-4-393" name="__codelineno-4-393"></a><span class="w">    </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SchemaParser</span><span class="p">.</span><span class="na">fromJson</span><span class="p">(</span><span class="n">JsonUtil</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">));</span>
+</span><span id="__span-4-394"><a id="__codelineno-4-394" name="__codelineno-4-394"></a><span class="w">    </span><span class="n">currentSchemaId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">schema</span><span class="p">.</span><span class="na">schemaId</span><span class="p">();</span>
+</span><span id="__span-4-395"><a id="__codelineno-4-395" name="__codelineno-4-395"></a><span class="w">    </span><span class="n">schemas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">schema</span><span class="p">);</span>
+</span><span id="__span-4-396"><a id="__codelineno-4-396" name="__codelineno-4-396"></a><span class="w">  </span><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadataParser.java` L339–L396](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadataParser.java#L339-L396) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Immediately after the object check it reads <code>format-version</code>, and the statement after that is the version ceiling:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">formatVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonUtil</span><span class="p">.</span><span class="na">getInt</span><span class="p">(</span><span class="n">FORMAT_VERSION</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">);</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">formatVersion</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">TableMetadata</span><span class="p">.</span><span class="na">SUPPORTED_TABLE_FORMAT_VERSION</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="s">"Cannot read unsupported version %s"</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">formatVersion</span><span class="p">);</span>
+</span></code></pre></div>
+<p>At this tag <code>SUPPORTED_TABLE_FORMAT_VERSION</code> is <strong>4</strong>, while <code>DEFAULT_TABLE_FORMAT_VERSION</code> — the version a new table gets when nothing asks otherwise — is <strong>2</strong>. The parser will happily read a v4 file it would never have chosen to write. That gap is normal in Iceberg: version support lands in the reader well before it becomes a default, and well before the feature set is finished (Chapter 2.5 checks how finished v4 actually is).</p>
+<p>Then the reader inverts the writer's backward-compatibility branches into <em>requirements</em>:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">      </span><span class="n">formatVersion</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"%s must exist in format v%s"</span><span class="p">,</span><span class="w"> </span><span class="n">SCHEMAS</span><span class="p">,</span><span class="w"> </span><span class="n">formatVersion</span><span class="p">);</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SchemaParser</span><span class="p">.</span><span class="na">fromJson</span><span class="p">(</span><span class="n">JsonUtil</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">));</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="n">currentSchemaId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">schema</span><span class="p">.</span><span class="na">schemaId</span><span class="p">();</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="n">schemas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">schema</span><span class="p">);</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><code>schemas</code> missing is legal in v1 and rejected in v2 and above. The same pattern repeats for <code>partition-specs</code>, <code>last-partition-id</code> and <code>sort-orders</code>, each with the identical error message. Note also the asymmetry with <code>last-sequence-number</code>: the reader does not require it in v1, it <em>defaults</em> it to <code>TableMetadata.INITIAL_SEQUENCE_NUMBER</code>. Absent-and-defaulted, absent-and-fatal, and present-but-duplicated all coexist in one parser, and which you get depends only on <code>format-version</code>.</p>
+<p>One more detail, easy to read past: when the <code>schemas</code> array is present, the reader requires that some element in it has <code>schema-id == current-schema-id</code>, and fails with <code>"Cannot find schema with %s=%s from %s"</code> if not. The pointer is validated on read, not assumed.</p>
+<h2 id="7-two-real-files">7. Two real files<a class="headerlink" href="#7-two-real-files" title="Permanent link">&para;</a></h2>
+<p>Definitions are stronger evidence than examples, but examples are how you check that you read the definitions right. Iceberg commits several <code>metadata.json</code> fixtures to <code>core/src/test/resources</code>; they are real files this exact parser accepts.</p>
+<p>Here is the head of the minimal v3 fixture:</p>
+<div class="language-json highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">a real v3 metadata header</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span>
+<span class="normal"><a href="#__codelineno-7-6">6</a></span>
+<span class="normal"><a href="#__codelineno-7-7">7</a></span>
+<span class="normal"><a href="#__codelineno-7-8">8</a></span>
+<span class="normal"><a href="#__codelineno-7-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="nt">"format-version"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="nt">"table-uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9c12d441-03fe-4693-9a96-a0705ddf69c1"</span><span class="p">,</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">  </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"s3://bucket/test/location"</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">  </span><span class="nt">"last-sequence-number"</span><span class="p">:</span><span class="w"> </span><span class="mi">34</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="w">  </span><span class="nt">"last-updated-ms"</span><span class="p">:</span><span class="w"> </span><span class="mi">1602638573590</span><span class="p">,</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="w">  </span><span class="nt">"last-column-id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="w">  </span><span class="nt">"next-row-id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="w">  </span><span class="nt">"current-schema-id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/test/resources/TableMetadataV3ValidMinimal.json` L1–L9](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/test/resources/TableMetadataV3ValidMinimal.json#L1-L9) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Nine lines: an opening brace and eight fields, every one of which maps to a <code>writeNumberField</code> or <code>writeStringField</code> from section 4. <code>next-row-id</code> is there because <code>format-version</code> is <code>3</code>.</p>
+<p>But read the <em>order</em> and the fixture turns out to be evidence for a different claim than the obvious one. Here <code>next-row-id</code> sits on line 8, ahead of <code>current-schema-id</code>; the writer emits it from <code>if (metadata.formatVersion() &gt;= 3)</code>, some forty statements later, after <code>properties</code> and <code>current-snapshot-id</code> — you can see both positions inside the section 4 snippet. This document was hand-written for a test, not produced by <code>toJson</code>. What it proves is that the <em>reader</em> does not care about order at all (it is a Jackson object, looked up by name), while the writer's order is fixed by statement order. Section 4's claim is about files this code writes, and the fixture leaves it standing.</p>
+<p>Compare it to <code>TableMetadataV2ValidMinimal.json</code>, which is nearly the same document. <code>diff</code> shows three changes, not one: <code>format-version</code> 2 → 3, <code>next-row-id</code> added — and <code>"initial-default": 1</code> with <code>"write-default": 1</code> added to field <code>x</code>. That third change matters, because a non-null <code>initial-default</code> is itself a v3 requirement (Chapter 2.5). The fixture exercises two v3 features, and the interesting one is the one that is easy to miss.</p>
+<p>And the snapshot block of the fuller v2 fixture:</p>
+<div class="language-json highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">snapshots, as actually written</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-88"> 88</a></span>
+<span class="normal"><a href="#__codelineno-8-89"> 89</a></span>
+<span class="normal"><a href="#__codelineno-8-90"> 90</a></span>
+<span class="normal"><a href="#__codelineno-8-91"> 91</a></span>
+<span class="normal"><a href="#__codelineno-8-92"> 92</a></span>
+<span class="normal"><a href="#__codelineno-8-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-8-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-8-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-8-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-8-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-8-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-8-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-8-100">100</a></span>
+<span class="normal"><a href="#__codelineno-8-101">101</a></span>
+<span class="normal"><a href="#__codelineno-8-102">102</a></span>
+<span class="normal"><a href="#__codelineno-8-103">103</a></span>
+<span class="normal"><a href="#__codelineno-8-104">104</a></span>
+<span class="normal"><a href="#__codelineno-8-105">105</a></span>
+<span class="normal"><a href="#__codelineno-8-106">106</a></span>
+<span class="normal"><a href="#__codelineno-8-107">107</a></span>
+<span class="normal"><a href="#__codelineno-8-108">108</a></span>
+<span class="normal"><a href="#__codelineno-8-109">109</a></span>
+<span class="normal"><a href="#__codelineno-8-110">110</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-88"><a id="__codelineno-8-88" name="__codelineno-8-88"></a><span class="nt">"current-snapshot-id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3055729675574597004</span><span class="p">,</span>
+</span><span id="__span-8-89"><a id="__codelineno-8-89" name="__codelineno-8-89"></a><span class="nt">"snapshots"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-8-90"><a id="__codelineno-8-90" name="__codelineno-8-90"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-8-91"><a id="__codelineno-8-91" name="__codelineno-8-91"></a><span class="w">    </span><span class="nt">"snapshot-id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3051729675574597004</span><span class="p">,</span>
+</span><span id="__span-8-92"><a id="__codelineno-8-92" name="__codelineno-8-92"></a><span class="w">    </span><span class="nt">"timestamp-ms"</span><span class="p">:</span><span class="w"> </span><span class="mi">1515100955770</span><span class="p">,</span>
+</span><span id="__span-8-93"><a id="__codelineno-8-93" name="__codelineno-8-93"></a><span class="w">    </span><span class="nt">"sequence-number"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-8-94"><a id="__codelineno-8-94" name="__codelineno-8-94"></a><span class="w">    </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-95"><a id="__codelineno-8-95" name="__codelineno-8-95"></a><span class="w">      </span><span class="nt">"operation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"append"</span>
+</span><span id="__span-8-96"><a id="__codelineno-8-96" name="__codelineno-8-96"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-8-97"><a id="__codelineno-8-97" name="__codelineno-8-97"></a><span class="w">    </span><span class="nt">"manifest-list"</span><span class="p">:</span><span class="w"> </span><span class="s2">"s3://a/b/1.avro"</span>
+</span><span id="__span-8-98"><a id="__codelineno-8-98" name="__codelineno-8-98"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-8-99"><a id="__codelineno-8-99" name="__codelineno-8-99"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-8-100"><a id="__codelineno-8-100" name="__codelineno-8-100"></a><span class="w">    </span><span class="nt">"snapshot-id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3055729675574597004</span><span class="p">,</span>
+</span><span id="__span-8-101"><a id="__codelineno-8-101" name="__codelineno-8-101"></a><span class="w">    </span><span class="nt">"parent-snapshot-id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3051729675574597004</span><span class="p">,</span>
+</span><span id="__span-8-102"><a id="__codelineno-8-102" name="__codelineno-8-102"></a><span class="w">    </span><span class="nt">"timestamp-ms"</span><span class="p">:</span><span class="w"> </span><span class="mi">1555100955770</span><span class="p">,</span>
+</span><span id="__span-8-103"><a id="__codelineno-8-103" name="__codelineno-8-103"></a><span class="w">    </span><span class="nt">"sequence-number"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-8-104"><a id="__codelineno-8-104" name="__codelineno-8-104"></a><span class="w">    </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-105"><a id="__codelineno-8-105" name="__codelineno-8-105"></a><span class="w">      </span><span class="nt">"operation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"append"</span>
+</span><span id="__span-8-106"><a id="__codelineno-8-106" name="__codelineno-8-106"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-8-107"><a id="__codelineno-8-107" name="__codelineno-8-107"></a><span class="w">    </span><span class="nt">"manifest-list"</span><span class="p">:</span><span class="w"> </span><span class="s2">"s3://a/b/2.avro"</span><span class="p">,</span>
+</span><span id="__span-8-108"><a id="__codelineno-8-108" name="__codelineno-8-108"></a><span class="w">    </span><span class="nt">"schema-id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-8-109"><a id="__codelineno-8-109" name="__codelineno-8-109"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-110"><a id="__codelineno-8-110" name="__codelineno-8-110"></a><span class="p">],</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/test/resources/TableMetadataV2Valid.json` L88–L110](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/test/resources/TableMetadataV2Valid.json#L88-L110) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The excerpt starts one line early: line 88 is <code>current-snapshot-id</code>, which belongs to <code>TableMetadataParser.toJson</code>. Everything from <code>snapshots</code> on is <code>SnapshotParser</code>'s, and the omissions there are informative. The first snapshot has no <code>parent-snapshot-id</code> (it is the root) and no <code>schema-id</code> (it predates schema tracking on snapshots); the second has both. <code>sequence-number</code> is <code>0</code> on the first and <code>1</code> on the second — this is the counter that Chapter 2.5 shows arriving in v2 and becoming the ordering key for delete files.</p>
+<p><code>manifest-list</code> is the pointer out of this document. Everything from Chapter 2.3 onward hangs off that one string.</p>
+<h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">A v1 table's <code>schema</code> and <code>partition-spec</code> are duplicates, and both are written</p>
+<p>The writer emits <code>schema</code> <em>and</em> <code>schemas</code>, <code>partition-spec</code> <em>and</em> <code>partition-specs</code>, for v1 only, with the comment: <em>"for older readers, continue writing the current schema as <code>schema</code>. this is only needed for v1 because support for schemas and current-schema-id is required in v2 and later."</em> Hand-editing one and not the other produces a valid-looking file that two readers disagree about.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>current-snapshot-id</code> means "empty" two different ways</p>
+<p><code>-1</code> below v3, <code>null</code> from v3. <code>MIN_NULL_CURRENT_SNAPSHOT_VERSION = 3</code> is the constant. Any check for an empty table must handle both, and the failure mode is silence, not an exception.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">The parser accepts a higher format version than it defaults to writing</p>
+<p><code>SUPPORTED_TABLE_FORMAT_VERSION</code> is 4; <code>DEFAULT_TABLE_FORMAT_VERSION</code> is 2. "This version can read v4" and "v4 is ready" are different claims, and only the first is made by the code here.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title"><code>.gz</code> goes before <code>.metadata.json</code>, not after</p>
+<p><code>getFileExtension</code> returns <code>codec.extension + ".metadata.json"</code>, so compressed metadata is <code>00003-&lt;uuid&gt;.gz.metadata.json</code>. <code>getOldFileExtension</code> still produces the historical <code>.metadata.json.gz</code> ordering and <code>Codec.fromFileName</code> accepts both, so detection by suffix must handle both shapes.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>metadata.json</code> has no schema file; <code>TableMetadataParser</code>'s constants are the field set and <code>toJson</code>'s statement order is the field order.</li>
+<li>Version branching runs in two directions: forward for new fields (<code>last-sequence-number</code>, <code>next-row-id</code>), backward for duplicated fields written only so older readers can still parse v1.</li>
+<li>The reader is deliberately asymmetric — absent <code>last-sequence-number</code> is defaulted in v1, absent <code>schemas</code> is fatal in v2+ — and every asymmetry is a compatibility decision, not an oversight.</li>
+<li><code>current-snapshot-id</code> encodes "no snapshot" as <code>-1</code> before v3 and <code>null</code> from v3; both are live and each breaks code written for the other.</li>
+<li>No array in this document scales with data volume, which is the entire reason a commit can afford to rewrite the whole file.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The field set, writer and reader</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadataParser.java"><code>core/.../TableMetadataParser.java</code></a></td>
+</tr>
+<tr>
+<td>Version constants, in-memory model</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java"><code>core/.../TableMetadata.java</code></a></td>
+</tr>
+<tr>
+<td>Snapshot serialization</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotParser.java"><code>core/.../SnapshotParser.java</code></a></td>
+</tr>
+<tr>
+<td>Ref serialization</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotRefParser.java"><code>core/.../SnapshotRefParser.java</code></a></td>
+</tr>
+<tr>
+<td>Schema and spec serialization</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SchemaParser.java"><code>core/.../SchemaParser.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/PartitionSpecParser.java"><code>PartitionSpecParser.java</code></a></td>
+</tr>
+<tr>
+<td>Committed fixtures</td>
+<td><a href="https://github.com/apache/iceberg/tree/apache-iceberg-1.11.0/core/src/test/resources"><code>core/src/test/resources/</code></a> — <code>TableMetadataV1Valid.json</code>, <code>TableMetadataV2Valid.json</code>, <code>TableMetadataV2ValidMinimal.json</code>, <code>TableMetadataV3ValidMinimal.json</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Chapter 2.3 follows <code>snapshots[].manifest-list</code> into the <code>snap-*.avro</code> file, where the fields stop describing the table and start describing how to avoid reading it.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_2.1_table_directory_anatomy/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 2.1 Anatomy of a table directory after a real write">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                2.1 Anatomy of a table directory after a real write
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../chapter_2.3_manifest_list/" class="md-footer__link md-footer__link--next" aria-label="Next: 2.3 The manifest list: snapshot-level pruning data">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                2.3 The manifest list: snapshot-level pruning data
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

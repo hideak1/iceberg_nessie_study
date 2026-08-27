@@ -1,0 +1,3741 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part11_spark_practice/chapter_11.3_write_distribution/">
+      
+      
+        <link rel="prev" href="../chapter_11.2_importing_existing_tables/">
+      
+      
+        <link rel="next" href="../chapter_11.4_merge_and_conflicts/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>11.3 The write path in Spark: distribution mode and the small-file problem - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-113-the-write-path-in-spark-distribution-mode-and-the-small-file-problem" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              11.3 The write path in Spark: distribution mode and the small-file problem
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part05_write_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part05_write_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.2_append_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part05_write_path/chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-from-write-options-down-to-a-writer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. From write options down to a writer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-bottom-of-the-stack-only-rolls-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The bottom of the stack only rolls up
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-factor-one-how-many-tasks-see-a-partition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Factor one: how many tasks see a partition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-factor-two-what-one-task-does-with-its-partitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Factor two: what one task does with its partitions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-diagnosis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Diagnosis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-from-write-options-down-to-a-writer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. From write options down to a writer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-bottom-of-the-stack-only-rolls-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The bottom of the stack only rolls up
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-factor-one-how-many-tasks-see-a-partition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Factor one: how many tasks see a partition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-factor-two-what-one-task-does-with-its-partitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Factor two: what one task does with its partitions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-diagnosis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Diagnosis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 11 · Spark in Practice
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-113-the-write-path-in-spark-distribution-mode-and-the-small-file-problem">Chapter 11.3 — The write path in Spark: distribution mode and the small-file problem<a class="headerlink" href="#chapter-113-the-write-path-in-spark-distribution-mode-and-the-small-file-problem" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> a single <code>INSERT</code> produced forty thousand files — which line of Iceberg's Spark integration decided that, and which knob addresses that particular cause rather than a different one?</p>
+<p><strong>Prerequisites:</strong> Chapter 5.1 (the writer family), Chapter 2.4 (why a small file costs a manifest entry and a metrics blob), Chapter 11.1 (which catalog you are writing through)</p>
+<p><strong>Source covered:</strong> <code>spark/v3.5/.../spark/SparkWriteConf.java</code>, <code>.../spark/SparkWriteUtil.java</code>, <code>.../spark/source/SparkWrite.java</code>, <code>core/.../io/RollingFileWriter.java</code>, <code>core/.../io/ClusteredWriter.java</code>, <code>core/.../io/FanoutWriter.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>Start with arithmetic instead of configuration, because the arithmetic is what the code implements.</p>
+<p>A Spark write is N tasks running in parallel. Each task receives some rows, and for every distinct partition value in those rows it must open a file in that partition — a file cannot span two partitions. So the number of data files a write produces is at least the number of distinct <strong>(task, partition)</strong> pairs that the physical plan hands to the writers.</p>
+<p>That number is fixed before a single byte is written. Nothing downstream of it can shrink it, because Iceberg's writers have no mechanism for producing <em>fewer</em> files than they are asked for. They can only split.</p>
+<p>So there are exactly two factors to attack, and they live in different places:</p>
+<ol>
+<li><strong>How many tasks see rows for a given partition.</strong> Decided by the shuffle, which <code>write.distribution-mode</code> requests.</li>
+<li><strong>What one task does with the partitions it sees.</strong> Decided by clustered versus fanout writers, which changes whether that work costs a local sort or heap.</li>
+</ol>
+<p>Reaching for the second when the problem is the first — or reaching for <code>write.target-file-size-bytes</code>, which on this path addresses neither — is the most common Iceberg write-tuning mistake. The code says exactly which is which. (That property is not inert everywhere: off this path it is the compaction target, which §7 comes back to.)</p>
+<h2 id="2-from-write-options-down-to-a-writer">2. From write options down to a writer<a class="headerlink" href="#2-from-write-options-down-to-a-writer" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    OPT["write option 'distribution-mode'"] --&gt; P
+    SES["spark.sql.iceberg.distribution-mode"] --&gt; P
+    TBL["table property 'write.distribution-mode'"] --&gt; P
+    P{"SparkConfParser&lt;br/&gt;first non-null wins"} --&gt;|"none set"| DEF["defaultWriteDistributionMode()&lt;br/&gt;sorted → RANGE&lt;br/&gt;partitioned → HASH&lt;br/&gt;else NONE"]
+    P --&gt;|"set"| ADJ["adjustWriteDistributionMode()&lt;br/&gt;HASH + unpartitioned → NONE&lt;br/&gt;RANGE + unpartitioned + unsorted → NONE"]
+
+    DEF --&gt; D{{"DistributionMode"}}
+    ADJ --&gt; D
+    D --&gt;|NONE| SH0["Distributions.unspecified()&lt;br/&gt;no shuffle — task count = upstream"]
+    D --&gt;|HASH| SH1["Distributions.clustered(spec transforms)&lt;br/&gt;one task per partition group"]
+    D --&gt;|RANGE| SH2["Distributions.ordered(sort order)&lt;br/&gt;range-partitioned, globally ordered"]
+
+    SRT["table.sortOrder()&lt;br/&gt;+ fanout-enabled"] --&gt; WO["writeOrdering(table, fanoutEnabled)&lt;br/&gt;&lt;i&gt;the mode is not an input — a sibling&lt;br/&gt;call inside writeRequirements()&lt;/i&gt;"]
+    WO --&gt;|"fanout &amp;&amp; unsorted"| NOORD["EMPTY_ORDERING"]
+    WO --&gt;|otherwise| ORD["local sort by spec + sort order"]
+
+    NOORD --&gt; FW["useFanoutWriter → true&lt;br/&gt;FanoutDataWriter&lt;br/&gt;one open file per partition seen"]
+    ORD --&gt; CW["useFanoutWriter → false&lt;br/&gt;ClusteredDataWriter&lt;br/&gt;one open file, throws if unclustered"]
+
+    FW --&gt; RW["RollingDataWriter per partition&lt;br/&gt;splits at target size, never merges"]
+    CW --&gt; RW</code></pre>
+<p>One edge in that diagram is counter-intuitive and worth naming now: the <strong>ordering</strong> decision is made first, and the <strong>writer</strong> choice is read back off it. <code>SparkWriteConf.writeRequirements()</code> calls <code>SparkWriteUtil.writeRequirements(table, distributionMode(), fanoutWriterEnabled(), …)</code> with a provisional fanout default of <code>true</code>; the resulting <code>SparkWriteRequirements</code> is then handed to <code>useFanoutWriter</code>. Sorted table ⇒ an ordering is requested ⇒ clustered writer. Unsorted table ⇒ no ordering ⇒ fanout writer.</p>
+<h2 id="3-the-bottom-of-the-stack-only-rolls-up">3. The bottom of the stack only rolls up<a class="headerlink" href="#3-the-bottom-of-the-stack-only-rolls-up" title="Permanent link">&para;</a></h2>
+<p>Before any knob, establish what the writer at the very bottom can and cannot do.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RollingFileWriter.shouldRollToNewFile()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-103">103</a></span>
+<span class="normal"><a href="#__codelineno-0-104">104</a></span>
+<span class="normal"><a href="#__codelineno-0-105">105</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="kd">private</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">shouldRollToNewFile</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">currentFileRows</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">ROWS_DIVISOR</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">currentWriter</span><span class="p">.</span><span class="na">length</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">targetFileSizeInBytes</span><span class="p">;</span>
+</span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java` L103–L105](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java#L103-L105) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Three lines, and they are the whole ceiling story. <code>RollingFileWriter.write</code> calls this after every row and, when it returns true, closes the current file and opens a new one. There is no inverse: no method combines two undersized files, and no code path defers closing a file in the hope of more rows. Note what the comparison is against: <code>targetFileSizeInBytes</code>, a field the writer was constructed with. This method reads no property. The value reached it from <code>SparkWriteConf.targetDataFileSize()</code>, which is where <code>write.target-file-size-bytes</code> (default <code>WRITE_TARGET_FILE_SIZE_BYTES_DEFAULT</code>, 512 MB) enters the write path — and all it can do once here is end a file <em>early</em>.</p>
+<p>Every writer ends its files at end-of-task regardless of size. So if a task holds 12 KB of rows for a partition, it writes a 12 KB file, and raising the target file size changes nothing about that.</p>
+<p>Note also <code>currentFileRows % ROWS_DIVISOR == 0</code>, with <code>ROWS_DIVISOR = 1000</code>. Length is sampled once per thousand rows, because <code>currentWriter.length()</code> is not free. Files routinely overshoot the target by whatever the last thousand rows weighed.</p>
+<h2 id="4-factor-one-how-many-tasks-see-a-partition">4. Factor one: how many tasks see a partition<a class="headerlink" href="#4-factor-one-how-many-tasks-see-a-partition" title="Permanent link">&para;</a></h2>
+<p>This is the factor that matters, and Iceberg picks it for you when you have not.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWriteConf.defaultWriteDistributionMode()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-331">331</a></span>
+<span class="normal"><a href="#__codelineno-1-332">332</a></span>
+<span class="normal"><a href="#__codelineno-1-333">333</a></span>
+<span class="normal"><a href="#__codelineno-1-334">334</a></span>
+<span class="normal"><a href="#__codelineno-1-335">335</a></span>
+<span class="normal"><a href="#__codelineno-1-336">336</a></span>
+<span class="normal"><a href="#__codelineno-1-337">337</a></span>
+<span class="normal"><a href="#__codelineno-1-338">338</a></span>
+<span class="normal"><a href="#__codelineno-1-339">339</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-331"><a id="__codelineno-1-331" name="__codelineno-1-331"></a><span class="kd">private</span><span class="w"> </span><span class="n">DistributionMode</span><span class="w"> </span><span class="nf">defaultWriteDistributionMode</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-332"><a id="__codelineno-1-332" name="__codelineno-1-332"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">table</span><span class="p">.</span><span class="na">sortOrder</span><span class="p">().</span><span class="na">isSorted</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-333"><a id="__codelineno-1-333" name="__codelineno-1-333"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">RANGE</span><span class="p">;</span>
+</span><span id="__span-1-334"><a id="__codelineno-1-334" name="__codelineno-1-334"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">table</span><span class="p">.</span><span class="na">spec</span><span class="p">().</span><span class="na">isPartitioned</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-335"><a id="__codelineno-1-335" name="__codelineno-1-335"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">HASH</span><span class="p">;</span>
+</span><span id="__span-1-336"><a id="__codelineno-1-336" name="__codelineno-1-336"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-337"><a id="__codelineno-1-337" name="__codelineno-1-337"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">NONE</span><span class="p">;</span>
+</span><span id="__span-1-338"><a id="__codelineno-1-338" name="__codelineno-1-338"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-339"><a id="__codelineno-1-339" name="__codelineno-1-339"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java` L331–L339](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L331-L339) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Read what this is derived from: <code>table.sortOrder()</code> and <code>table.spec()</code>. Table state, not configuration. A partitioned table gets <code>HASH</code> — a shuffle that clusters rows by the spec's transforms, so that all rows for one partition arrive at one task and the (task, partition) count collapses to roughly the partition count.</p>
+<p>That shuffle is why a plain <code>INSERT</code> into a partitioned table is slower than the same <code>INSERT</code> into an unpartitioned one, and it is exactly what <code>write.distribution-mode=none</code> turns off. Turn it off and every upstream task contributes a file to every partition it happens to hold rows for; the multiplication is the file explosion.</p>
+<p>The reverse direction has a trap in it:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWriteConf.adjustWriteDistributionMode()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-321">321</a></span>
+<span class="normal"><a href="#__codelineno-2-322">322</a></span>
+<span class="normal"><a href="#__codelineno-2-323">323</a></span>
+<span class="normal"><a href="#__codelineno-2-324">324</a></span>
+<span class="normal"><a href="#__codelineno-2-325">325</a></span>
+<span class="normal"><a href="#__codelineno-2-326">326</a></span>
+<span class="normal"><a href="#__codelineno-2-327">327</a></span>
+<span class="normal"><a href="#__codelineno-2-328">328</a></span>
+<span class="normal"><a href="#__codelineno-2-329">329</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-321"><a id="__codelineno-2-321" name="__codelineno-2-321"></a><span class="kd">private</span><span class="w"> </span><span class="n">DistributionMode</span><span class="w"> </span><span class="nf">adjustWriteDistributionMode</span><span class="p">(</span><span class="n">DistributionMode</span><span class="w"> </span><span class="n">mode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-322"><a id="__codelineno-2-322" name="__codelineno-2-322"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">RANGE</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="na">spec</span><span class="p">().</span><span class="na">isUnpartitioned</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="na">sortOrder</span><span class="p">().</span><span class="na">isUnsorted</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-323"><a id="__codelineno-2-323" name="__codelineno-2-323"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">NONE</span><span class="p">;</span>
+</span><span id="__span-2-324"><a id="__codelineno-2-324" name="__codelineno-2-324"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HASH</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="na">spec</span><span class="p">().</span><span class="na">isUnpartitioned</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-325"><a id="__codelineno-2-325" name="__codelineno-2-325"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">NONE</span><span class="p">;</span>
+</span><span id="__span-2-326"><a id="__codelineno-2-326" name="__codelineno-2-326"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-327"><a id="__codelineno-2-327" name="__codelineno-2-327"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">mode</span><span class="p">;</span>
+</span><span id="__span-2-328"><a id="__codelineno-2-328" name="__codelineno-2-328"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-329"><a id="__codelineno-2-329" name="__codelineno-2-329"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java` L321–L329](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L321-L329) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>An explicitly requested mode goes through this before it is used. <code>HASH</code> on an unpartitioned table becomes <code>NONE</code>; <code>RANGE</code> on a table that is both unpartitioned and unsorted becomes <code>NONE</code>. No warning is logged and no exception is raised, because there is genuinely nothing to cluster on. But a job sized around a shuffle that never happened is a real diagnosis, and this method is where that possibility lives.</p>
+<p>The precedence is fixed by <code>SparkWriteConf</code>'s class javadoc: write options, then session configuration, then table metadata. Note the asymmetry — <code>distributionMode()</code> consults all three, while <code>fanoutWriterEnabled()</code> consults only the write option and the table property. There is no <code>spark.sql.iceberg.fanout-enabled</code>.</p>
+<p>What each mode becomes is one switch:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWriteUtil.writeDistribution()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-76">76</a></span>
+<span class="normal"><a href="#__codelineno-3-77">77</a></span>
+<span class="normal"><a href="#__codelineno-3-78">78</a></span>
+<span class="normal"><a href="#__codelineno-3-79">79</a></span>
+<span class="normal"><a href="#__codelineno-3-80">80</a></span>
+<span class="normal"><a href="#__codelineno-3-81">81</a></span>
+<span class="normal"><a href="#__codelineno-3-82">82</a></span>
+<span class="normal"><a href="#__codelineno-3-83">83</a></span>
+<span class="normal"><a href="#__codelineno-3-84">84</a></span>
+<span class="normal"><a href="#__codelineno-3-85">85</a></span>
+<span class="normal"><a href="#__codelineno-3-86">86</a></span>
+<span class="normal"><a href="#__codelineno-3-87">87</a></span>
+<span class="normal"><a href="#__codelineno-3-88">88</a></span>
+<span class="normal"><a href="#__codelineno-3-89">89</a></span>
+<span class="normal"><a href="#__codelineno-3-90">90</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-76"><a id="__codelineno-3-76" name="__codelineno-3-76"></a><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">Distribution</span><span class="w"> </span><span class="nf">writeDistribution</span><span class="p">(</span><span class="n">Table</span><span class="w"> </span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="n">DistributionMode</span><span class="w"> </span><span class="n">mode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-77"><a id="__codelineno-3-77" name="__codelineno-3-77"></a><span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-78"><a id="__codelineno-3-78" name="__codelineno-3-78"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="n">NONE</span><span class="p">:</span>
+</span><span id="__span-3-79"><a id="__codelineno-3-79" name="__codelineno-3-79"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">Distributions</span><span class="p">.</span><span class="na">unspecified</span><span class="p">();</span>
+</span><span id="__span-3-80"><a id="__codelineno-3-80" name="__codelineno-3-80"></a>
+</span><span id="__span-3-81"><a id="__codelineno-3-81" name="__codelineno-3-81"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="n">HASH</span><span class="p">:</span>
+</span><span id="__span-3-82"><a id="__codelineno-3-82" name="__codelineno-3-82"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">Distributions</span><span class="p">.</span><span class="na">clustered</span><span class="p">(</span><span class="n">clustering</span><span class="p">(</span><span class="n">table</span><span class="p">));</span>
+</span><span id="__span-3-83"><a id="__codelineno-3-83" name="__codelineno-3-83"></a>
+</span><span id="__span-3-84"><a id="__codelineno-3-84" name="__codelineno-3-84"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="n">RANGE</span><span class="p">:</span>
+</span><span id="__span-3-85"><a id="__codelineno-3-85" name="__codelineno-3-85"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">Distributions</span><span class="p">.</span><span class="na">ordered</span><span class="p">(</span><span class="n">ordering</span><span class="p">(</span><span class="n">table</span><span class="p">));</span>
+</span><span id="__span-3-86"><a id="__codelineno-3-86" name="__codelineno-3-86"></a>
+</span><span id="__span-3-87"><a id="__codelineno-3-87" name="__codelineno-3-87"></a><span class="w">    </span><span class="k">default</span><span class="p">:</span>
+</span><span id="__span-3-88"><a id="__codelineno-3-88" name="__codelineno-3-88"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">"Unsupported distribution mode: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span>
+</span><span id="__span-3-89"><a id="__codelineno-3-89" name="__codelineno-3-89"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-90"><a id="__codelineno-3-90" name="__codelineno-3-90"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java` L76–L90](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java#L76-L90) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>clustering(table)</code> is <code>Spark3Util.toTransforms(table.spec())</code> — the partition transforms and nothing else. <code>ordering(table)</code> is <code>Spark3Util.toOrdering(SortOrderUtil.buildSortOrder(table))</code>, which prepends the spec's fields to the declared sort order. So <code>HASH</code> asks for a hash shuffle on the partition values, while <code>RANGE</code> asks for a range shuffle that also orders rows within each task. <code>RANGE</code> therefore costs a sampling pass and a global sort, and buys sorted output that makes the read-side pruning of Chapter 4.3 effective. <code>HASH</code> costs one shuffle and buys only the file-count collapse. A table with no declared sort order gets no benefit from the extra cost, which is why <code>defaultWriteDistributionMode</code> reaches for <code>RANGE</code> only when <code>table.sortOrder().isSorted()</code>.</p>
+<h2 id="5-factor-two-what-one-task-does-with-its-partitions">5. Factor two: what one task does with its partitions<a class="headerlink" href="#5-factor-two-what-one-task-does-with-its-partitions" title="Permanent link">&para;</a></h2>
+<p>Once the shuffle has decided which partitions land in a task, the task must write them. Two writers exist for it, and upstream states the choice in a comment above the method that makes it:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWriteUtil.writeOrdering(), with the comment that explains it</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-212">212</a></span>
+<span class="normal"><a href="#__codelineno-4-213">213</a></span>
+<span class="normal"><a href="#__codelineno-4-214">214</a></span>
+<span class="normal"><a href="#__codelineno-4-215">215</a></span>
+<span class="normal"><a href="#__codelineno-4-216">216</a></span>
+<span class="normal"><a href="#__codelineno-4-217">217</a></span>
+<span class="normal"><a href="#__codelineno-4-218">218</a></span>
+<span class="normal"><a href="#__codelineno-4-219">219</a></span>
+<span class="normal"><a href="#__codelineno-4-220">220</a></span>
+<span class="normal"><a href="#__codelineno-4-221">221</a></span>
+<span class="normal"><a href="#__codelineno-4-222">222</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-212"><a id="__codelineno-4-212" name="__codelineno-4-212"></a><span class="c1">// a local ordering within a task is beneficial in two cases:</span>
+</span><span id="__span-4-213"><a id="__codelineno-4-213" name="__codelineno-4-213"></a><span class="c1">// - there is a defined table sort order, so it is clear how the data should be ordered</span>
+</span><span id="__span-4-214"><a id="__codelineno-4-214" name="__codelineno-4-214"></a><span class="c1">// - the table is partitioned and fanout writers are disabled,</span>
+</span><span id="__span-4-215"><a id="__codelineno-4-215" name="__codelineno-4-215"></a><span class="c1">//   so records for one partition must be co-located within a task</span>
+</span><span id="__span-4-216"><a id="__codelineno-4-216" name="__codelineno-4-216"></a><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">SortOrder</span><span class="o">[]</span><span class="w"> </span><span class="nf">writeOrdering</span><span class="p">(</span><span class="n">Table</span><span class="w"> </span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">fanoutEnabled</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-217"><a id="__codelineno-4-217" name="__codelineno-4-217"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fanoutEnabled</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="na">sortOrder</span><span class="p">().</span><span class="na">isUnsorted</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-218"><a id="__codelineno-4-218" name="__codelineno-4-218"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EMPTY_ORDERING</span><span class="p">;</span>
+</span><span id="__span-4-219"><a id="__codelineno-4-219" name="__codelineno-4-219"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-220"><a id="__codelineno-4-220" name="__codelineno-4-220"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ordering</span><span class="p">(</span><span class="n">table</span><span class="p">);</span>
+</span><span id="__span-4-221"><a id="__codelineno-4-221" name="__codelineno-4-221"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-222"><a id="__codelineno-4-222" name="__codelineno-4-222"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java` L212–L222](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java#L212-L222) <span>@ apache-iceberg-1.11.0</span></p>
+
+<blockquote>
+<p><em>a local ordering within a task is beneficial in two cases: there is a defined table sort order, so it is clear how the data should be ordered; the table is partitioned and fanout writers are disabled, so records for one partition must be co-located within a task.</em></p>
+</blockquote>
+<p>That is the guideline, in upstream's own words, and it is a statement about <em>requirement</em>, not preference. A clustered writer does not work on unclustered input, so if you want one, the plan has to sort.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWriteConf.useFanoutWriter()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-218">218</a></span>
+<span class="normal"><a href="#__codelineno-5-219">219</a></span>
+<span class="normal"><a href="#__codelineno-5-220">220</a></span>
+<span class="normal"><a href="#__codelineno-5-221">221</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-218"><a id="__codelineno-5-218" name="__codelineno-5-218"></a><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">useFanoutWriter</span><span class="p">(</span><span class="n">SparkWriteRequirements</span><span class="w"> </span><span class="n">writeRequirements</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-219"><a id="__codelineno-5-219" name="__codelineno-5-219"></a><span class="w">  </span><span class="kt">boolean</span><span class="w"> </span><span class="n">defaultValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">writeRequirements</span><span class="p">.</span><span class="na">hasOrdering</span><span class="p">();</span>
+</span><span id="__span-5-220"><a id="__codelineno-5-220" name="__codelineno-5-220"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">fanoutWriterEnabled</span><span class="p">(</span><span class="n">defaultValue</span><span class="p">);</span>
+</span><span id="__span-5-221"><a id="__codelineno-5-221" name="__codelineno-5-221"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java` L218–L221](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L218-L221) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>boolean defaultValue = !writeRequirements.hasOrdering();</code> — the writer default is derived from whether an ordering was requested. <code>TableProperties.SPARK_WRITE_PARTITIONED_FANOUT_ENABLED_DEFAULT</code> is <code>false</code>, but that constant is never consulted on this path; it is only the fallback when nothing supplies a default. On an unsorted partitioned table, <code>writeOrdering</code> returns <code>EMPTY_ORDERING</code>, so <code>hasOrdering()</code> is false and <strong>fanout writers are on</strong>.</p>
+<p>What each writer costs is visible in its own class. <code>FanoutWriter</code> holds a <code>Map&lt;Integer, StructLikeMap&lt;FileWriter&lt;T, R&gt;&gt;&gt;</code> and closes nothing until <code>close()</code>; its javadoc says the consequence plainly — it <em>"may potentially consume substantially more memory compared to <code>ClusteredWriter</code>. Use this writer only when clustering by spec/partition is not possible (e.g. streaming)."</em> A task touching 500 partitions holds 500 open Parquet writers, each with a row-group buffer.</p>
+<p><code>ClusteredWriter</code> is the other trade, and it enforces its assumption rather than trusting it:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ClusteredWriter.write() — the assumption and its enforcement</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-65"> 65</a></span>
+<span class="normal"><a href="#__codelineno-6-66"> 66</a></span>
+<span class="normal"><a href="#__codelineno-6-67"> 67</a></span>
+<span class="normal"><a href="#__codelineno-6-68"> 68</a></span>
+<span class="normal"><a href="#__codelineno-6-69"> 69</a></span>
+<span class="normal"><a href="#__codelineno-6-70"> 70</a></span>
+<span class="normal"><a href="#__codelineno-6-71"> 71</a></span>
+<span class="normal"><a href="#__codelineno-6-72"> 72</a></span>
+<span class="normal"><a href="#__codelineno-6-73"> 73</a></span>
+<span class="normal"><a href="#__codelineno-6-74"> 74</a></span>
+<span class="normal"><a href="#__codelineno-6-75"> 75</a></span>
+<span class="normal"><a href="#__codelineno-6-76"> 76</a></span>
+<span class="normal"><a href="#__codelineno-6-77"> 77</a></span>
+<span class="normal"><a href="#__codelineno-6-78"> 78</a></span>
+<span class="normal"><a href="#__codelineno-6-79"> 79</a></span>
+<span class="normal"><a href="#__codelineno-6-80"> 80</a></span>
+<span class="normal"><a href="#__codelineno-6-81"> 81</a></span>
+<span class="normal"><a href="#__codelineno-6-82"> 82</a></span>
+<span class="normal"><a href="#__codelineno-6-83"> 83</a></span>
+<span class="normal"><a href="#__codelineno-6-84"> 84</a></span>
+<span class="normal"><a href="#__codelineno-6-85"> 85</a></span>
+<span class="normal"><a href="#__codelineno-6-86"> 86</a></span>
+<span class="normal"><a href="#__codelineno-6-87"> 87</a></span>
+<span class="normal"><a href="#__codelineno-6-88"> 88</a></span>
+<span class="normal"><a href="#__codelineno-6-89"> 89</a></span>
+<span class="normal"><a href="#__codelineno-6-90"> 90</a></span>
+<span class="normal"><a href="#__codelineno-6-91"> 91</a></span>
+<span class="normal"><a href="#__codelineno-6-92"> 92</a></span>
+<span class="normal"><a href="#__codelineno-6-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-6-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-6-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-6-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-6-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-6-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-6-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-6-100">100</a></span>
+<span class="normal"><a href="#__codelineno-6-101">101</a></span>
+<span class="normal"><a href="#__codelineno-6-102">102</a></span>
+<span class="normal"><a href="#__codelineno-6-103">103</a></span>
+<span class="normal"><a href="#__codelineno-6-104">104</a></span>
+<span class="normal"><a href="#__codelineno-6-105">105</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-65"><a id="__codelineno-6-65" name="__codelineno-6-65"></a><span class="nd">@Override</span>
+</span><span id="__span-6-66"><a id="__codelineno-6-66" name="__codelineno-6-66"></a><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">PartitionSpec</span><span class="w"> </span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">StructLike</span><span class="w"> </span><span class="n">partition</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-67"><a id="__codelineno-6-67" name="__codelineno-6-67"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">spec</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">currentSpec</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-68"><a id="__codelineno-6-68" name="__codelineno-6-68"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">currentSpec</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-69"><a id="__codelineno-6-69" name="__codelineno-6-69"></a><span class="w">      </span><span class="n">closeCurrentWriter</span><span class="p">();</span>
+</span><span id="__span-6-70"><a id="__codelineno-6-70" name="__codelineno-6-70"></a><span class="w">      </span><span class="n">completedSpecIds</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">currentSpec</span><span class="p">.</span><span class="na">specId</span><span class="p">());</span>
+</span><span id="__span-6-71"><a id="__codelineno-6-71" name="__codelineno-6-71"></a><span class="w">      </span><span class="n">completedPartitions</span><span class="p">.</span><span class="na">clear</span><span class="p">();</span>
+</span><span id="__span-6-72"><a id="__codelineno-6-72" name="__codelineno-6-72"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-73"><a id="__codelineno-6-73" name="__codelineno-6-73"></a>
+</span><span id="__span-6-74"><a id="__codelineno-6-74" name="__codelineno-6-74"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">completedSpecIds</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">spec</span><span class="p">.</span><span class="na">specId</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-75"><a id="__codelineno-6-75" name="__codelineno-6-75"></a><span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">errorCtx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"spec %s"</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">);</span>
+</span><span id="__span-6-76"><a id="__codelineno-6-76" name="__codelineno-6-76"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalStateException</span><span class="p">(</span><span class="n">NOT_CLUSTERED_ROWS_ERROR_MSG_TEMPLATE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">errorCtx</span><span class="p">);</span>
+</span><span id="__span-6-77"><a id="__codelineno-6-77" name="__codelineno-6-77"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-78"><a id="__codelineno-6-78" name="__codelineno-6-78"></a>
+</span><span id="__span-6-79"><a id="__codelineno-6-79" name="__codelineno-6-79"></a><span class="w">    </span><span class="n">StructType</span><span class="w"> </span><span class="n">partitionType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spec</span><span class="p">.</span><span class="na">partitionType</span><span class="p">();</span>
+</span><span id="__span-6-80"><a id="__codelineno-6-80" name="__codelineno-6-80"></a>
+</span><span id="__span-6-81"><a id="__codelineno-6-81" name="__codelineno-6-81"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentSpec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spec</span><span class="p">;</span>
+</span><span id="__span-6-82"><a id="__codelineno-6-82" name="__codelineno-6-82"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">partitionComparator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Comparators</span><span class="p">.</span><span class="na">forType</span><span class="p">(</span><span class="n">partitionType</span><span class="p">);</span>
+</span><span id="__span-6-83"><a id="__codelineno-6-83" name="__codelineno-6-83"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">completedPartitions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StructLikeSet</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">partitionType</span><span class="p">);</span>
+</span><span id="__span-6-84"><a id="__codelineno-6-84" name="__codelineno-6-84"></a><span class="w">    </span><span class="c1">// copy the partition key as the key object may be reused</span>
+</span><span id="__span-6-85"><a id="__codelineno-6-85" name="__codelineno-6-85"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentPartition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StructLikeUtil</span><span class="p">.</span><span class="na">copy</span><span class="p">(</span><span class="n">partition</span><span class="p">);</span>
+</span><span id="__span-6-86"><a id="__codelineno-6-86" name="__codelineno-6-86"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentWriter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newWriter</span><span class="p">(</span><span class="n">currentSpec</span><span class="p">,</span><span class="w"> </span><span class="n">currentPartition</span><span class="p">);</span>
+</span><span id="__span-6-87"><a id="__codelineno-6-87" name="__codelineno-6-87"></a>
+</span><span id="__span-6-88"><a id="__codelineno-6-88" name="__codelineno-6-88"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">currentPartition</span>
+</span><span id="__span-6-89"><a id="__codelineno-6-89" name="__codelineno-6-89"></a><span class="w">      </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">partitionComparator</span><span class="p">.</span><span class="na">compare</span><span class="p">(</span><span class="n">partition</span><span class="p">,</span><span class="w"> </span><span class="n">currentPartition</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-90"><a id="__codelineno-6-90" name="__codelineno-6-90"></a><span class="w">    </span><span class="n">closeCurrentWriter</span><span class="p">();</span>
+</span><span id="__span-6-91"><a id="__codelineno-6-91" name="__codelineno-6-91"></a><span class="w">    </span><span class="n">completedPartitions</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">currentPartition</span><span class="p">);</span>
+</span><span id="__span-6-92"><a id="__codelineno-6-92" name="__codelineno-6-92"></a>
+</span><span id="__span-6-93"><a id="__codelineno-6-93" name="__codelineno-6-93"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">completedPartitions</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">partition</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-94"><a id="__codelineno-6-94" name="__codelineno-6-94"></a><span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">errorCtx</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-6-95"><a id="__codelineno-6-95" name="__codelineno-6-95"></a><span class="w">          </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"partition '%s' in spec %s"</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">.</span><span class="na">partitionToPath</span><span class="p">(</span><span class="n">partition</span><span class="p">),</span><span class="w"> </span><span class="n">spec</span><span class="p">);</span>
+</span><span id="__span-6-96"><a id="__codelineno-6-96" name="__codelineno-6-96"></a><span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalStateException</span><span class="p">(</span><span class="n">NOT_CLUSTERED_ROWS_ERROR_MSG_TEMPLATE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">errorCtx</span><span class="p">);</span>
+</span><span id="__span-6-97"><a id="__codelineno-6-97" name="__codelineno-6-97"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-98"><a id="__codelineno-6-98" name="__codelineno-6-98"></a>
+</span><span id="__span-6-99"><a id="__codelineno-6-99" name="__codelineno-6-99"></a><span class="w">    </span><span class="c1">// copy the partition key as the key object may be reused</span>
+</span><span id="__span-6-100"><a id="__codelineno-6-100" name="__codelineno-6-100"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentPartition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StructLikeUtil</span><span class="p">.</span><span class="na">copy</span><span class="p">(</span><span class="n">partition</span><span class="p">);</span>
+</span><span id="__span-6-101"><a id="__codelineno-6-101" name="__codelineno-6-101"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">currentWriter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newWriter</span><span class="p">(</span><span class="n">currentSpec</span><span class="p">,</span><span class="w"> </span><span class="n">currentPartition</span><span class="p">);</span>
+</span><span id="__span-6-102"><a id="__codelineno-6-102" name="__codelineno-6-102"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-103"><a id="__codelineno-6-103" name="__codelineno-6-103"></a>
+</span><span id="__span-6-104"><a id="__codelineno-6-104" name="__codelineno-6-104"></a><span class="w">  </span><span class="n">currentWriter</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
+</span><span id="__span-6-105"><a id="__codelineno-6-105" name="__codelineno-6-105"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java` L65–L105](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java#L65-L105) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Forty-one lines, but the argument is in six of them. On a partition change the writer calls <code>closeCurrentWriter()</code> and adds the old partition to <code>completedPartitions</code>; then:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">completedPartitions</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">partition</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">errorCtx</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">      </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"partition '%s' in spec %s"</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">.</span><span class="na">partitionToPath</span><span class="p">(</span><span class="n">partition</span><span class="p">),</span><span class="w"> </span><span class="n">spec</span><span class="p">);</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalStateException</span><span class="p">(</span><span class="n">NOT_CLUSTERED_ROWS_ERROR_MSG_TEMPLATE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">errorCtx</span><span class="p">);</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>A partition that reappears after its file was closed is a hard failure — <em>"Incoming records violate the writer assumption that records are clustered by spec and by partition within each spec. Either cluster the incoming records or switch to fanout writers."</em> Iceberg refuses to silently reopen the partition and write a second file for it, which is the behaviour that would quietly reintroduce the small-file problem the clustered writer exists to avoid.</p>
+<p>So the two writers do not change the file count. They change what the file count costs you: fanout pays in executor heap, clustered pays in a local sort and fails loudly if it does not get one.</p>
+<h2 id="6-diagnosis">6. Diagnosis<a class="headerlink" href="#6-diagnosis" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Which factor</th>
+<th>Knob, and what it costs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Many small files, partitioned table, <code>distribution-mode=none</code></td>
+<td>tasks × partitions</td>
+<td>set <code>write.distribution-mode=hash</code>; costs one shuffle</td>
+</tr>
+<tr>
+<td>Many small files, <code>hash</code> already set</td>
+<td>Spark split the clustered shuffle wider than the partition count</td>
+<td><code>write.spark.advisory-partition-size-bytes</code> — Iceberg's only lever here, and it is inert under <code>none</code>; see the note below</td>
+</tr>
+<tr>
+<td>Executor OOM on a wide-partition write</td>
+<td>fanout writer holding N files open</td>
+<td><code>fanout-enabled=false</code> plus a sort order, or narrow the partition spec</td>
+</tr>
+<tr>
+<td><code>IllegalStateException: … records are clustered by spec</code></td>
+<td>clustered writer, unsorted input</td>
+<td>re-enable fanout, or add the distribution and ordering back</td>
+</tr>
+<tr>
+<td>Files noticeably larger than the target</td>
+<td>1000-row sampling in <code>shouldRollToNewFile</code></td>
+<td>expected behaviour, not a bug</td>
+</tr>
+<tr>
+<td>Files already small on disk</td>
+<td>neither — the write is over</td>
+<td><code>rewrite_data_files</code> (Chapter 11.5)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-gotchas">7. Gotchas<a class="headerlink" href="#7-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Target file size cannot make files bigger — but it does move the compaction target</p>
+<p>On the write path the property reaches exactly one comparison. <code>SparkWriteConf.targetDataFileSize()</code> reads it, hands the value to the writers, and <code>shouldRollToNewFile</code> only ever uses it to end a file <em>early</em>. Raising it to fix small files does nothing, because every writer already stops at end-of-task well below the target. The knob that changes file <em>count</em> is <code>write.distribution-mode</code>; the knob that fixes files already written is <code>rewrite_data_files</code>.</p>
+<p>It has two other readers, and neither is on the write path: <code>BinPackRewriteFilePlanner.defaultTargetFileSize()</code> and <code>BaseRewriteDataFilesAction</code>. There it is the <strong>compaction</strong> target, and everything derived from it moves with it — the selection window and the group thresholds of Chapter 11.5 §3. So this property is not the no-op it looks like from here. It changes nothing about the files this write produces, and it changes which files compaction later selects and how large it rebuilds them. Raise it for the second reason, not the first.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>distribution-mode=hash</code> on an unpartitioned table is silently ignored</p>
+<p><code>adjustWriteDistributionMode</code> returns <code>NONE</code> for <code>HASH</code> on an unpartitioned spec, and for <code>RANGE</code> on a spec that is both unpartitioned and unsorted. No warning, no exception. Confirm the table is actually partitioned before concluding the mode had no effect for some other reason.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Fanout writers trade files for heap, and the heap is per task</p>
+<p><code>FanoutWriter</code> keeps one open file per (spec, partition) pair it has ever seen and closes them all in <code>close()</code>. This is the executor OOM that follows from turning the distribution mode off "for speed": no shuffle means every task sees every partition, and fanout is the default writer for an unsorted table, so every task opens a file in every partition and holds it.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Fanout is the default for unsorted partitioned tables in this release</p>
+<p><code>useFanoutWriter</code> supplies <code>!writeRequirements.hasOrdering()</code> as the default, and <code>writeOrdering</code> returns an empty ordering when the table has no sort order. The <code>SPARK_WRITE_PARTITIONED_FANOUT_ENABLED_DEFAULT = false</code> constant does not apply here. Advice written against older releases claiming fanout is off by default should be re-checked against this method.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>use-table-distribution-and-ordering=false</code> also selects the fanout writer</p>
+<p><code>writeRequirements()</code> short-circuits to <code>SparkWriteRequirements.EMPTY</code> when that option is set, logging only <em>"Skipping distribution/ordering: disabled per job configuration"</em>. <code>EMPTY</code> has no ordering, so unless <code>fanout-enabled</code> is set explicitly, <code>useFanoutWriter</code> returns <code>true</code>. Disabling Iceberg's distribution therefore removes the shuffle <em>and</em> switches the writer, which is two changes from one option.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">The advisory partition size is derived from 128 MB, not from the target file size</p>
+<p><code>SparkWriteConf.dataAdvisoryPartitionSize()</code> starts from the private constant <code>DATA_FILE_SIZE = 128 * 1024 * 1024</code>, scales it by an estimated shuffle-compression ratio, and takes the max against Spark's own <code>spark.sql.adaptive.advisoryPartitionSizeInBytes</code>. Raising <code>write.target-file-size-bytes</code> does <strong>not</strong> move the AQE coalescing target; <code>write.spark.advisory-partition-size-bytes</code>, <code>spark.sql.iceberg.advisory-partition-size</code> or the <code>advisory-partition-size</code> write option does. This is the second-order reason the target-file-size knob so often appears to do nothing.</p>
+<p>It is also the <em>only</em> lever Iceberg has on how wide the shuffle gets. Iceberg does not choose the number of shuffle partitions and reads no Spark property that sets one; it reports a <code>SparkWriteRequirements</code> — a distribution, an ordering, an advisory partition size — and Spark's AQE decides the rest. That object has a trap in its constructor: it replaces the advisory size with <code>NO_ADVISORY_PARTITION_SIZE</code> whenever the distribution is an <code>UnspecifiedDistribution</code>, commented <em>"Spark prohibits requesting a particular advisory partition size without distribution"</em>. So <code>distribution-mode=none</code> does not just remove the shuffle. It silently disables the one sizing knob you would reach for next.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Where the writer is finally chosen</p>
+<p><code>SparkWrite.WriterFactory.createWriter</code> returns an <code>UnpartitionedDataWriter</code> for an unpartitioned spec and a <code>PartitionedDataWriter</code> otherwise, and the latter's constructor is a single branch on the <code>useFanoutWriter</code> boolean computed back in <code>SparkWrite</code>'s constructor. Both delegate to <code>RollingDataWriter</code> per partition. If you need to confirm which writer a job actually used, that constructor is the place the decision becomes visible.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The file count is decided by <em>tasks × partitions-per-task</em>, before any byte is written. <code>RollingFileWriter</code> only splits files; nothing in the write path merges them.</li>
+<li><code>write.target-file-size-bytes</code> is a ceiling on the write path, sampled every 1000 rows. It cannot make small files bigger and it does not move the AQE advisory partition size. Its other two readers are compaction planners, where the same value is the <em>output</em> size — so raising it is a change to what <code>rewrite_data_files</code> builds and selects (Chapter 11.5 §3), not to this write.</li>
+<li><code>write.distribution-mode</code> is the only knob that changes the first factor. Iceberg picks it from table state when you do not: sorted ⇒ <code>RANGE</code>, partitioned ⇒ <code>HASH</code>, otherwise <code>NONE</code>.</li>
+<li>An explicitly set <code>HASH</code> or <code>RANGE</code> can be silently downgraded to <code>NONE</code> by <code>adjustWriteDistributionMode</code> when there is nothing to cluster on.</li>
+<li>Fanout versus clustered does not change the file count; it changes whether a task pays in heap or in a local sort. On an unsorted partitioned table, fanout is the default in this release.</li>
+<li><code>ClusteredWriter</code> throws rather than reopening a closed partition, which is why disabling fanout without supplying an ordering fails the job instead of quietly writing more files.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Config precedence and every write knob</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java"><code>spark/v3.5/.../spark/SparkWriteConf.java</code></a></td>
+</tr>
+<tr>
+<td>Distribution and ordering construction</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java"><code>spark/v3.5/.../spark/SparkWriteUtil.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteRequirements.java"><code>.../SparkWriteRequirements.java</code></a></td>
+</tr>
+<tr>
+<td>Option and session-property names</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteOptions.java"><code>spark/v3.5/.../spark/SparkWriteOptions.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkSQLProperties.java"><code>.../SparkSQLProperties.java</code></a></td>
+</tr>
+<tr>
+<td>Writer selection per task</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java"><code>spark/v3.5/.../spark/source/SparkWrite.java</code></a></td>
+</tr>
+<tr>
+<td>The two partitioning writers</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java"><code>core/.../io/ClusteredWriter.java</code></a>, <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/FanoutWriter.java"><code>core/.../io/FanoutWriter.java</code></a></td>
+</tr>
+<tr>
+<td>Rolling by target size</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java"><code>core/.../io/RollingFileWriter.java</code></a></td>
+</tr>
+<tr>
+<td>Defaults</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableProperties.java"><code>core/.../TableProperties.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Chapter 11.4 takes the same <code>SparkWriteUtil</code> machinery into row-level operations, where <code>MERGE INTO</code> adds <code>_spec_id</code>, <code>_partition</code> and <code>_file</code> to the clustering — and where losing a commit race costs the entire job rather than a retry.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_11.2_importing_existing_tables/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../chapter_11.4_merge_and_conflicts/" class="md-footer__link md-footer__link--next" aria-label="Next: 11.4 `MERGE INTO`, row-level operations, and commit conflicts">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                11.4 `MERGE INTO`, row-level operations, and commit conflicts
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

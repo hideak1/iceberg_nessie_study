@@ -1,0 +1,4022 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Apache Iceberg and Project Nessie, read at the source level">
+      
+      
+        <meta name="author" content="Iceberg & Nessie Study">
+      
+      
+        <link rel="canonical" href="https://hideak1.github.io/iceberg_nessie_study/part05_write_path/chapter_5.2_append_strategies/">
+      
+      
+        <link rel="prev" href="../chapter_5.1_writers/">
+      
+      
+        <link rel="next" href="../chapter_5.3_deletes/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>5.2 `FastAppend` vs `MergeAppend` - Iceberg & Nessie Internals</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-52-fastappend-vs-mergeappend" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-header__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Iceberg & Nessie Internals
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              5.2 `FastAppend` vs `MergeAppend`
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part01_foundations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 1 · Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part02_table_spec/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 2 · Table Spec
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part03_iceberg_core/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 3 · Iceberg Core
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part04_read_path/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 4 · Read Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 5 · Write Path
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part06_catalogs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 6 · Catalogs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part07_nessie_architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 7 · Nessie Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part08_version_store/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 8 · Version Store
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part09_branching/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 9 · Branching
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part10_ecosystem/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 10 · Ecosystem
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part11_spark_practice/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part 11 · Spark in Practice
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Iceberg &amp; Nessie Internals" class="md-nav__button md-logo" aria-label="Iceberg & Nessie Internals" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+
+    </a>
+    Iceberg & Nessie Internals
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hideak1/iceberg_nessie_study" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hideak1/iceberg_nessie_study
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part01_foundations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 · Foundations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 · Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.1_why_table_formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Why table formats exist: the Hive table's failure modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Iceberg's core idea: an immutable metadata tree and one atomic pointer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 Nessie's core idea: Git semantics for the catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Reading these codebases: module maps and navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part02_table_spec/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 · Table Spec
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 · Table Spec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Anatomy of a table directory after a real write
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.2_metadata_json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 `metadata.json`, field by field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.3_manifest_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 The manifest list: snapshot-level pruning data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.4_manifest_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 The manifest file: data files, column metrics, field IDs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part02_table_spec/chapter_2.5_format_versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 V1 → V2 → V3: row-level deletes, deletion vectors, row lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part03_iceberg_core/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 · Iceberg Core
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 · Iceberg Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.1_module_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Module map and the core abstractions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 `TableMetadata` and `MetadataUpdate`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 `SnapshotProducer`: the life of a commit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 The commit protocol: CAS, retries, and where atomicity comes from
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Conflict detection and isolation levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part04_read_path/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 · Read Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 · Read Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.1_table_scan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 `TableScan` and `planFiles`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.2_manifest_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Manifest pruning with `ManifestEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.3_file_pruning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 File pruning with `InclusiveMetricsEvaluator`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.4_residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Residual expressions and implicit partition filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part04_read_path/chapter_4.5_split_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Split planning, parallel planning, and metadata tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 · Write Path
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 · Write Path
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_5.1_writers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.1 The writer family and metrics collection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 `FastAppend` vs `MergeAppend`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-two-answers-to-one-abstract-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Two answers to one abstract method
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-fastappendapply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. FastAppend.apply()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-mergingsnapshotproducerapply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. MergingSnapshotProducer.apply()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-merge-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The merge policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-what-merging-actually-rewrites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. What merging actually rewrites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-choosing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Choosing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_5.3_deletes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 Position deletes, equality deletes, and `RowDelta`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_5.4_cow_mor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4 Copy-on-write, merge-on-read, and V3 deletion vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter_5.5_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Maintenance: compaction, snapshot expiry, orphan files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part06_catalogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 · Catalogs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 · Catalogs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.1_catalog_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.1 The `Catalog` SPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.2_hadoop_hive_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.3_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 The REST Catalog spec and `RESTSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part06_catalogs/chapter_6.4_server_side_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.4 Server-side commits and the multi-table gap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part07_nessie_architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 7 · Nessie Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 7 · Nessie Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.1_project_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Project map: Quarkus layers and Gradle modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.2_data_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 The data model: `Reference`, `Content`, `Operation`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.3_rest_api_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.4_request_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 From HTTP to the `VersionStore`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Nessie as an Iceberg REST Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part08_version_store/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 8 · Version Store
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 8 · Version Store
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.1_persist_spi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.1 The `Persist` SPI and the storage abstraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.2_commit_log_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 `CommitObj` and the commit log DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.3_key_indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 Key indexes and index stripes: how large catalogs stay fast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.4_references_cas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 References and CAS: where atomicity actually lands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part08_version_store/chapter_8.5_backends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Backends: RocksDB, JDBC, DynamoDB, Cassandra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part09_branching/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 9 · Branching
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 9 · Branching
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.1_commit_path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.1 Commit: from `Operation` to `CommitObj`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.2_merge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Merge: merge base, three-way merge, conflict detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.3_transplant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.3 Transplant (cherry-pick) and conflict resolution policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part09_branching/chapter_9.4_gc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 Nessie GC and its interaction with Iceberg file cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part10_ecosystem/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 10 · Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 10 · Ecosystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.1 `NessieCatalog` and `NessieTableOperations`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 Multi-table atomic commits: how they are implemented
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 Nessie, Polaris, and Lakekeeper compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part10_ecosystem/chapter_10.4_v3_and_contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 V3 adoption and contributing upstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part11_spark_practice/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 11 · Spark in Practice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_12" id="__nav_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 11 · Spark in Practice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.2_importing_existing_tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.3_write_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 The write path in Spark: distribution mode and the small-file problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.4_merge_and_conflicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part11_spark_practice/chapter_11.5_production_maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 Running it in production: maintenance procedures and their traps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-two-answers-to-one-abstract-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Two answers to one abstract method
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-fastappendapply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. FastAppend.apply()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-mergingsnapshotproducerapply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. MergingSnapshotProducer.apply()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-merge-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The merge policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-what-merging-actually-rewrites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. What merging actually rewrites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-choosing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Choosing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Gotchas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source map
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part 5 · Write Path
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="chapter-52-fastappend-vs-mergeappend">Chapter 5.2 — <code>FastAppend</code> vs <code>MergeAppend</code><a class="headerlink" href="#chapter-52-fastappend-vs-mergeappend" title="Permanent link">&para;</a></h1>
+<div class="chapter-meta">
+<p><strong>The question this chapter answers:</strong> <code>table.newAppend()</code> and <code>table.newFastAppend()</code> both add data files and both produce an append snapshot — so what does the extra work in <code>MergeAppend</code> buy, and when does it cost more than it buys?</p>
+<p><strong>Prerequisites:</strong> Chapter 3.3 (<code>SnapshotProducer</code> — the commit loop and the abstract-<code>apply</code> contract), Chapters 2.3 and 2.4 (the manifest list, and the manifests it points at), Chapter 5.1 (the <code>DataFile</code> objects being appended)</p>
+<p><strong>Source covered:</strong> <code>core/.../FastAppend.java</code>, <code>core/.../MergeAppend.java</code>, <code>core/.../MergingSnapshotProducer.java</code>, <code>core/.../ManifestMergeManager.java</code></p>
+</div>
+<h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
+<p>Chapter 3.3 established the contract: <code>SnapshotProducer</code> handles refresh, validation, sequence numbers, the manifest list, the retry loop and cleanup, and subclasses fill in one method — <em>given the current metadata and parent snapshot, produce the list of manifests this snapshot should point at.</em></p>
+<p>For an append that sounds trivial. You have new data files. Write them into a manifest. Return that manifest plus everything the parent snapshot already pointed at. Done.</p>
+<p>That is exactly what <code>FastAppend</code> does, and it has a defect that only shows up on the hundredth commit: the manifest count grows by at least one every time, forever. A thousand small appends produce a thousand manifests, every one of which every subsequent scan must open during planning. The table still works; planning gets slower and slower.</p>
+<p>The alternative is to pay a little on each commit to keep that number down — read some existing manifests, merge them into fewer, larger ones. That is <code>MergeAppend</code>. It amortises manifest compaction into every write instead of deferring it to a maintenance job.</p>
+<p>Which one you get is decided by which method you call, and the default is not the one most people assume:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseTable.newAppend()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-189">189</a></span>
+<span class="normal"><a href="#__codelineno-0-190">190</a></span>
+<span class="normal"><a href="#__codelineno-0-191">191</a></span>
+<span class="normal"><a href="#__codelineno-0-192">192</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="nd">@Override</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="kd">public</span><span class="w"> </span><span class="n">AppendFiles</span><span class="w"> </span><span class="nf">newAppend</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MergeAppend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">ops</span><span class="p">).</span><span class="na">reportWith</span><span class="p">(</span><span class="n">reporter</span><span class="p">);</span>
+</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseTable.java` L189–L192](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTable.java#L189-L192) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p><code>newAppend()</code> returns <code>MergeAppend</code>. <code>newFastAppend()</code> returns <code>FastAppend</code>. The merging one is the default.</p>
+<div class="admonition note">
+<p class="admonition-title">There is no <code>BaseAppendFiles</code></p>
+<p>The merging implementation is <code>MergeAppend</code>, a package-private class in <code>org.apache.iceberg</code> that extends <code>MergingSnapshotProducer&lt;AppendFiles&gt;</code> and adds nothing but <code>appendFile</code> and <code>appendManifest</code>. <code>MergingSnapshotProducer</code> is the shared base for <code>MergeAppend</code>, <code>BaseOverwriteFiles</code>, <code>BaseRowDelta</code>, <code>BaseRewriteFiles</code> and <code>BaseReplacePartitions</code> — everything that has to reconcile new files against existing manifests.</p>
+</div>
+<h2 id="2-two-answers-to-one-abstract-method">2. Two answers to one abstract method<a class="headerlink" href="#2-two-answers-to-one-abstract-method" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    START([buffered DataFiles + parent snapshot]) --&gt; FORK{which appender?}
+
+    FORK --&gt;|newFastAppend| FA1["writeNewManifests()&lt;br/&gt;one or more manifests per spec"]
+    FA1 --&gt; FA2[stamp appended manifests&lt;br/&gt;with this snapshotId]
+    FA2 --&gt; FA3["+ snapshot.allManifests(io)&lt;br/&gt;carried by reference, never read"]
+    FA3 --&gt; OUT
+
+    FORK --&gt;|newAppend| MA1["filterManager.filterManifests()&lt;br/&gt;rewrite manifests holding deleted files"]
+    MA1 --&gt; MA2[dropDeleteFilesOlderThan&lt;br/&gt;minDataSequenceNumber]
+    MA2 --&gt; MA3[keep manifests with live files&lt;br/&gt;or written by this commit]
+    MA3 --&gt; MA4["groupBySpec → ListPacker.packEnd&lt;br/&gt;target-size-bytes, lookback 1"]
+    MA4 --&gt; MA5{bin.size == 1?}
+    MA5 --&gt;|yes| MA7[pass through unmerged]
+    MA5 --&gt;|no| MA6{bin holds the new manifest&lt;br/&gt;AND size &amp;lt; min-count-to-merge?}
+    MA6 --&gt;|yes| MA7
+    MA6 --&gt;|no| MA8["createManifest():&lt;br/&gt;read every entry, rewrite status,&lt;br/&gt;write one manifest"]
+    MA7 --&gt; OUT
+    MA8 --&gt; OUT
+
+    OUT([List of ManifestFile → SnapshotProducer writes the manifest list])</code></pre>
+<p>The left lane never opens an existing manifest. The right lane may open and rewrite many of them — and, because <code>apply()</code> runs inside the retry loop (Chapter 3.3 §5), may do so several times for one logical commit.</p>
+<h2 id="3-fastappendapply">3. <code>FastAppend.apply()</code><a class="headerlink" href="#3-fastappendapply" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">FastAppend.apply()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-146">146</a></span>
+<span class="normal"><a href="#__codelineno-1-147">147</a></span>
+<span class="normal"><a href="#__codelineno-1-148">148</a></span>
+<span class="normal"><a href="#__codelineno-1-149">149</a></span>
+<span class="normal"><a href="#__codelineno-1-150">150</a></span>
+<span class="normal"><a href="#__codelineno-1-151">151</a></span>
+<span class="normal"><a href="#__codelineno-1-152">152</a></span>
+<span class="normal"><a href="#__codelineno-1-153">153</a></span>
+<span class="normal"><a href="#__codelineno-1-154">154</a></span>
+<span class="normal"><a href="#__codelineno-1-155">155</a></span>
+<span class="normal"><a href="#__codelineno-1-156">156</a></span>
+<span class="normal"><a href="#__codelineno-1-157">157</a></span>
+<span class="normal"><a href="#__codelineno-1-158">158</a></span>
+<span class="normal"><a href="#__codelineno-1-159">159</a></span>
+<span class="normal"><a href="#__codelineno-1-160">160</a></span>
+<span class="normal"><a href="#__codelineno-1-161">161</a></span>
+<span class="normal"><a href="#__codelineno-1-162">162</a></span>
+<span class="normal"><a href="#__codelineno-1-163">163</a></span>
+<span class="normal"><a href="#__codelineno-1-164">164</a></span>
+<span class="normal"><a href="#__codelineno-1-165">165</a></span>
+<span class="normal"><a href="#__codelineno-1-166">166</a></span>
+<span class="normal"><a href="#__codelineno-1-167">167</a></span>
+<span class="normal"><a href="#__codelineno-1-168">168</a></span>
+<span class="normal"><a href="#__codelineno-1-169">169</a></span>
+<span class="normal"><a href="#__codelineno-1-170">170</a></span>
+<span class="normal"><a href="#__codelineno-1-171">171</a></span>
+<span class="normal"><a href="#__codelineno-1-172">172</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-146"><a id="__codelineno-1-146" name="__codelineno-1-146"></a><span class="nd">@Override</span>
+</span><span id="__span-1-147"><a id="__codelineno-1-147" name="__codelineno-1-147"></a><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">Snapshot</span><span class="w"> </span><span class="n">snapshot</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-148"><a id="__codelineno-1-148" name="__codelineno-1-148"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">manifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">();</span>
+</span><span id="__span-1-149"><a id="__codelineno-1-149" name="__codelineno-1-149"></a>
+</span><span id="__span-1-150"><a id="__codelineno-1-150" name="__codelineno-1-150"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newWrittenManifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writeNewManifests</span><span class="p">();</span>
+</span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">newWrittenManifests</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-153"><a id="__codelineno-1-153" name="__codelineno-1-153"></a><span class="w">      </span><span class="n">manifests</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span><span class="n">newWrittenManifests</span><span class="p">);</span>
+</span><span id="__span-1-154"><a id="__codelineno-1-154" name="__codelineno-1-154"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-155"><a id="__codelineno-1-155" name="__codelineno-1-155"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">IOException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-156"><a id="__codelineno-1-156" name="__codelineno-1-156"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RuntimeIOException</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="s">"Failed to write manifest"</span><span class="p">);</span>
+</span><span id="__span-1-157"><a id="__codelineno-1-157" name="__codelineno-1-157"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-158"><a id="__codelineno-1-158" name="__codelineno-1-158"></a>
+</span><span id="__span-1-159"><a id="__codelineno-1-159" name="__codelineno-1-159"></a><span class="w">  </span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">appendManifestsWithMetadata</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-1-160"><a id="__codelineno-1-160" name="__codelineno-1-160"></a><span class="w">      </span><span class="n">Iterables</span><span class="p">.</span><span class="na">transform</span><span class="p">(</span>
+</span><span id="__span-1-161"><a id="__codelineno-1-161" name="__codelineno-1-161"></a><span class="w">          </span><span class="n">Iterables</span><span class="p">.</span><span class="na">concat</span><span class="p">(</span><span class="n">appendManifests</span><span class="p">,</span><span class="w"> </span><span class="n">rewrittenAppendManifests</span><span class="p">),</span>
+</span><span id="__span-1-162"><a id="__codelineno-1-162" name="__codelineno-1-162"></a><span class="w">          </span><span class="n">manifest</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">GenericManifestFile</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">manifest</span><span class="p">).</span><span class="na">withSnapshotId</span><span class="p">(</span><span class="n">snapshotId</span><span class="p">()).</span><span class="na">build</span><span class="p">());</span>
+</span><span id="__span-1-163"><a id="__codelineno-1-163" name="__codelineno-1-163"></a><span class="w">  </span><span class="n">Iterables</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span><span class="n">manifests</span><span class="p">,</span><span class="w"> </span><span class="n">appendManifestsWithMetadata</span><span class="p">);</span>
+</span><span id="__span-1-164"><a id="__codelineno-1-164" name="__codelineno-1-164"></a>
+</span><span id="__span-1-165"><a id="__codelineno-1-165" name="__codelineno-1-165"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">snapshot</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-166"><a id="__codelineno-1-166" name="__codelineno-1-166"></a><span class="w">    </span><span class="n">manifests</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span><span class="n">snapshot</span><span class="p">.</span><span class="na">allManifests</span><span class="p">(</span><span class="n">ops</span><span class="p">().</span><span class="na">io</span><span class="p">()));</span>
+</span><span id="__span-1-167"><a id="__codelineno-1-167" name="__codelineno-1-167"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-168"><a id="__codelineno-1-168" name="__codelineno-1-168"></a>
+</span><span id="__span-1-169"><a id="__codelineno-1-169" name="__codelineno-1-169"></a><span class="w">  </span><span class="n">summaryBuilder</span><span class="p">.</span><span class="na">merge</span><span class="p">(</span><span class="n">buildManifestCountSummary</span><span class="p">(</span><span class="n">manifests</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
+</span><span id="__span-1-170"><a id="__codelineno-1-170" name="__codelineno-1-170"></a>
+</span><span id="__span-1-171"><a id="__codelineno-1-171" name="__codelineno-1-171"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">manifests</span><span class="p">;</span>
+</span><span id="__span-1-172"><a id="__codelineno-1-172" name="__codelineno-1-172"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/FastAppend.java` L146–L172](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java#L146-L172) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Three moves and a summary.</p>
+<p>New data files become new manifests. Manifests handed in via <code>appendManifest</code> get a copy stamped with this snapshot's id. Then:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">snapshot</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">manifests</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span><span class="n">snapshot</span><span class="p">.</span><span class="na">allManifests</span><span class="p">(</span><span class="n">ops</span><span class="p">().</span><span class="na">io</span><span class="p">()));</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Every manifest of the parent snapshot is appended <em>by reference</em>. Not read, not filtered, not rewritten. This single line is the entire performance argument for <code>FastAppend</code>: commit cost is proportional to the data you are adding, not to the size of the table.</p>
+<p>It is also the entire correctness argument. <code>FastAppend</code> can only carry manifests forward untouched because an append never invalidates anything already in them. Nothing is deleted, so nothing needs rewriting. The moment an operation removes a file, this strategy stops being available — which is why <code>FastAppend</code> extends <code>SnapshotProducer</code> directly and everything else extends <code>MergingSnapshotProducer</code>.</p>
+<p>The per-attempt discipline is worth a look, because retries make it necessary:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">FastAppend.writeNewManifests()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-204">204</a></span>
+<span class="normal"><a href="#__codelineno-3-205">205</a></span>
+<span class="normal"><a href="#__codelineno-3-206">206</a></span>
+<span class="normal"><a href="#__codelineno-3-207">207</a></span>
+<span class="normal"><a href="#__codelineno-3-208">208</a></span>
+<span class="normal"><a href="#__codelineno-3-209">209</a></span>
+<span class="normal"><a href="#__codelineno-3-210">210</a></span>
+<span class="normal"><a href="#__codelineno-3-211">211</a></span>
+<span class="normal"><a href="#__codelineno-3-212">212</a></span>
+<span class="normal"><a href="#__codelineno-3-213">213</a></span>
+<span class="normal"><a href="#__codelineno-3-214">214</a></span>
+<span class="normal"><a href="#__codelineno-3-215">215</a></span>
+<span class="normal"><a href="#__codelineno-3-216">216</a></span>
+<span class="normal"><a href="#__codelineno-3-217">217</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-204"><a id="__codelineno-3-204" name="__codelineno-3-204"></a><span class="kd">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">writeNewManifests</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">IOException</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-205"><a id="__codelineno-3-205" name="__codelineno-3-205"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasNewFiles</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">newManifests</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-206"><a id="__codelineno-3-206" name="__codelineno-3-206"></a><span class="w">    </span><span class="n">newManifests</span><span class="p">.</span><span class="na">forEach</span><span class="p">(</span><span class="n">file</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">deleteFile</span><span class="p">(</span><span class="n">file</span><span class="p">.</span><span class="na">path</span><span class="p">()));</span>
+</span><span id="__span-3-207"><a id="__codelineno-3-207" name="__codelineno-3-207"></a><span class="w">    </span><span class="n">newManifests</span><span class="p">.</span><span class="na">clear</span><span class="p">();</span>
+</span><span id="__span-3-208"><a id="__codelineno-3-208" name="__codelineno-3-208"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-209"><a id="__codelineno-3-209" name="__codelineno-3-209"></a>
+</span><span id="__span-3-210"><a id="__codelineno-3-210" name="__codelineno-3-210"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">newManifests</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">newDataFilesBySpec</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-211"><a id="__codelineno-3-211" name="__codelineno-3-211"></a><span class="w">    </span><span class="n">newDataFilesBySpec</span><span class="p">.</span><span class="na">forEach</span><span class="p">(</span>
+</span><span id="__span-3-212"><a id="__codelineno-3-212" name="__codelineno-3-212"></a><span class="w">        </span><span class="p">(</span><span class="n">specId</span><span class="p">,</span><span class="w"> </span><span class="n">dataFiles</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">newManifests</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span><span class="n">writeDataManifests</span><span class="p">(</span><span class="n">dataFiles</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">(</span><span class="n">specId</span><span class="p">))));</span>
+</span><span id="__span-3-213"><a id="__codelineno-3-213" name="__codelineno-3-213"></a><span class="w">    </span><span class="n">hasNewFiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+</span><span id="__span-3-214"><a id="__codelineno-3-214" name="__codelineno-3-214"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-215"><a id="__codelineno-3-215" name="__codelineno-3-215"></a>
+</span><span id="__span-3-216"><a id="__codelineno-3-216" name="__codelineno-3-216"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">newManifests</span><span class="p">;</span>
+</span><span id="__span-3-217"><a id="__codelineno-3-217" name="__codelineno-3-217"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/FastAppend.java` L204–L217](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java#L204-L217) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Note the plural in <code>writeNewManifests</code>, because "one manifest per spec" is the natural guess and it is wrong twice over. <code>SnapshotProducer.writeManifests</code> splits the file list across <code>manifestWriterCount(WORKER_THREAD_POOL_SIZE, fileCount)</code> writers — <code>max(1, min(workerPoolSize, round(fileCount / 10_000)))</code> — so a commit adding tens of thousands of files writes several manifests per spec in parallel. And each of those writers is a <code>RollingManifestWriter</code> that cuts a new file at <code>commit.manifest.target-size-bytes</code>, 8 MB by default. One manifest per spec is the small-commit case, not the rule.</p>
+<p>If new files were added since the last attempt wrote manifests, those manifests are deleted and rewritten. If not, the previously written ones are reused. So a retry caused purely by losing a commit race does <em>not</em> rewrite the data manifests — only the manifest list, which <code>SnapshotProducer</code> handles. That is a meaningful difference from the merging path, where the newest bin always changes identity.</p>
+<p>This is also why <code>FastAppend</code> opts out of post-commit cleanup entirely:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">FastAppend.cleanupAfterCommit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-194">194</a></span>
+<span class="normal"><a href="#__codelineno-4-195">195</a></span>
+<span class="normal"><a href="#__codelineno-4-196">196</a></span>
+<span class="normal"><a href="#__codelineno-4-197">197</a></span>
+<span class="normal"><a href="#__codelineno-4-198">198</a></span>
+<span class="normal"><a href="#__codelineno-4-199">199</a></span>
+<span class="normal"><a href="#__codelineno-4-200">200</a></span>
+<span class="normal"><a href="#__codelineno-4-201">201</a></span>
+<span class="normal"><a href="#__codelineno-4-202">202</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-194"><a id="__codelineno-4-194" name="__codelineno-4-194"></a><span class="cm">/**</span>
+</span><span id="__span-4-195"><a id="__codelineno-4-195" name="__codelineno-4-195"></a><span class="cm"> * Cleanup after committing is disabled for FastAppend unless there are rewrittenAppendManifests</span>
+</span><span id="__span-4-196"><a id="__codelineno-4-196" name="__codelineno-4-196"></a><span class="cm"> * because: 1.) Appended manifests are never rewritten 2.) Manifests which are written out as part</span>
+</span><span id="__span-4-197"><a id="__codelineno-4-197" name="__codelineno-4-197"></a><span class="cm"> * of appendFile are already cleaned up between commit attempts in writeNewManifests</span>
+</span><span id="__span-4-198"><a id="__codelineno-4-198" name="__codelineno-4-198"></a><span class="cm"> */</span>
+</span><span id="__span-4-199"><a id="__codelineno-4-199" name="__codelineno-4-199"></a><span class="nd">@Override</span>
+</span><span id="__span-4-200"><a id="__codelineno-4-200" name="__codelineno-4-200"></a><span class="kd">protected</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">cleanupAfterCommit</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-201"><a id="__codelineno-4-201" name="__codelineno-4-201"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">!</span><span class="n">rewrittenAppendManifests</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">();</span>
+</span><span id="__span-4-202"><a id="__codelineno-4-202" name="__codelineno-4-202"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/FastAppend.java` L194–L202](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java#L194-L202) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>The comment is the explanation: appended manifests are never rewritten, and manifests written by <code>appendFile</code> are already cleaned between attempts. The only case that needs the generic cleanup is a manifest that had to be <em>copied</em> because it could not inherit the snapshot id.</p>
+<h2 id="4-mergingsnapshotproducerapply">4. <code>MergingSnapshotProducer.apply()</code><a class="headerlink" href="#4-mergingsnapshotproducerapply" title="Permanent link">&para;</a></h2>
+<p>The merging path has a different shape, and it is doing more than merging:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">MergingSnapshotProducer.apply()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-973"> 973</a></span>
+<span class="normal"><a href="#__codelineno-5-974"> 974</a></span>
+<span class="normal"><a href="#__codelineno-5-975"> 975</a></span>
+<span class="normal"><a href="#__codelineno-5-976"> 976</a></span>
+<span class="normal"><a href="#__codelineno-5-977"> 977</a></span>
+<span class="normal"><a href="#__codelineno-5-978"> 978</a></span>
+<span class="normal"><a href="#__codelineno-5-979"> 979</a></span>
+<span class="normal"><a href="#__codelineno-5-980"> 980</a></span>
+<span class="normal"><a href="#__codelineno-5-981"> 981</a></span>
+<span class="normal"><a href="#__codelineno-5-982"> 982</a></span>
+<span class="normal"><a href="#__codelineno-5-983"> 983</a></span>
+<span class="normal"><a href="#__codelineno-5-984"> 984</a></span>
+<span class="normal"><a href="#__codelineno-5-985"> 985</a></span>
+<span class="normal"><a href="#__codelineno-5-986"> 986</a></span>
+<span class="normal"><a href="#__codelineno-5-987"> 987</a></span>
+<span class="normal"><a href="#__codelineno-5-988"> 988</a></span>
+<span class="normal"><a href="#__codelineno-5-989"> 989</a></span>
+<span class="normal"><a href="#__codelineno-5-990"> 990</a></span>
+<span class="normal"><a href="#__codelineno-5-991"> 991</a></span>
+<span class="normal"><a href="#__codelineno-5-992"> 992</a></span>
+<span class="normal"><a href="#__codelineno-5-993"> 993</a></span>
+<span class="normal"><a href="#__codelineno-5-994"> 994</a></span>
+<span class="normal"><a href="#__codelineno-5-995"> 995</a></span>
+<span class="normal"><a href="#__codelineno-5-996"> 996</a></span>
+<span class="normal"><a href="#__codelineno-5-997"> 997</a></span>
+<span class="normal"><a href="#__codelineno-5-998"> 998</a></span>
+<span class="normal"><a href="#__codelineno-5-999"> 999</a></span>
+<span class="normal"><a href="#__codelineno-5-1000">1000</a></span>
+<span class="normal"><a href="#__codelineno-5-1001">1001</a></span>
+<span class="normal"><a href="#__codelineno-5-1002">1002</a></span>
+<span class="normal"><a href="#__codelineno-5-1003">1003</a></span>
+<span class="normal"><a href="#__codelineno-5-1004">1004</a></span>
+<span class="normal"><a href="#__codelineno-5-1005">1005</a></span>
+<span class="normal"><a href="#__codelineno-5-1006">1006</a></span>
+<span class="normal"><a href="#__codelineno-5-1007">1007</a></span>
+<span class="normal"><a href="#__codelineno-5-1008">1008</a></span>
+<span class="normal"><a href="#__codelineno-5-1009">1009</a></span>
+<span class="normal"><a href="#__codelineno-5-1010">1010</a></span>
+<span class="normal"><a href="#__codelineno-5-1011">1011</a></span>
+<span class="normal"><a href="#__codelineno-5-1012">1012</a></span>
+<span class="normal"><a href="#__codelineno-5-1013">1013</a></span>
+<span class="normal"><a href="#__codelineno-5-1014">1014</a></span>
+<span class="normal"><a href="#__codelineno-5-1015">1015</a></span>
+<span class="normal"><a href="#__codelineno-5-1016">1016</a></span>
+<span class="normal"><a href="#__codelineno-5-1017">1017</a></span>
+<span class="normal"><a href="#__codelineno-5-1018">1018</a></span>
+<span class="normal"><a href="#__codelineno-5-1019">1019</a></span>
+<span class="normal"><a href="#__codelineno-5-1020">1020</a></span>
+<span class="normal"><a href="#__codelineno-5-1021">1021</a></span>
+<span class="normal"><a href="#__codelineno-5-1022">1022</a></span>
+<span class="normal"><a href="#__codelineno-5-1023">1023</a></span>
+<span class="normal"><a href="#__codelineno-5-1024">1024</a></span>
+<span class="normal"><a href="#__codelineno-5-1025">1025</a></span>
+<span class="normal"><a href="#__codelineno-5-1026">1026</a></span>
+<span class="normal"><a href="#__codelineno-5-1027">1027</a></span>
+<span class="normal"><a href="#__codelineno-5-1028">1028</a></span>
+<span class="normal"><a href="#__codelineno-5-1029">1029</a></span>
+<span class="normal"><a href="#__codelineno-5-1030">1030</a></span>
+<span class="normal"><a href="#__codelineno-5-1031">1031</a></span>
+<span class="normal"><a href="#__codelineno-5-1032">1032</a></span>
+<span class="normal"><a href="#__codelineno-5-1033">1033</a></span>
+<span class="normal"><a href="#__codelineno-5-1034">1034</a></span>
+<span class="normal"><a href="#__codelineno-5-1035">1035</a></span>
+<span class="normal"><a href="#__codelineno-5-1036">1036</a></span>
+<span class="normal"><a href="#__codelineno-5-1037">1037</a></span>
+<span class="normal"><a href="#__codelineno-5-1038">1038</a></span>
+<span class="normal"><a href="#__codelineno-5-1039">1039</a></span>
+<span class="normal"><a href="#__codelineno-5-1040">1040</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-973"><a id="__codelineno-5-973" name="__codelineno-5-973"></a><span class="nd">@Override</span>
+</span><span id="__span-5-974"><a id="__codelineno-5-974" name="__codelineno-5-974"></a><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="n">TableMetadata</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">Snapshot</span><span class="w"> </span><span class="n">snapshot</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-975"><a id="__codelineno-5-975" name="__codelineno-5-975"></a><span class="w">  </span><span class="n">validateDeleteFilesForVersion</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">formatVersion</span><span class="p">());</span>
+</span><span id="__span-5-976"><a id="__codelineno-5-976" name="__codelineno-5-976"></a><span class="w">  </span><span class="c1">// filter any existing manifests</span>
+</span><span id="__span-5-977"><a id="__codelineno-5-977" name="__codelineno-5-977"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">filtered</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-978"><a id="__codelineno-5-978" name="__codelineno-5-978"></a><span class="w">      </span><span class="n">filterManager</span><span class="p">.</span><span class="na">filterManifests</span><span class="p">(</span>
+</span><span id="__span-5-979"><a id="__codelineno-5-979" name="__codelineno-5-979"></a><span class="w">          </span><span class="n">SnapshotUtil</span><span class="p">.</span><span class="na">schemaFor</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">targetBranch</span><span class="p">()),</span>
+</span><span id="__span-5-980"><a id="__codelineno-5-980" name="__codelineno-5-980"></a><span class="w">          </span><span class="n">snapshot</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">snapshot</span><span class="p">.</span><span class="na">dataManifests</span><span class="p">(</span><span class="n">ops</span><span class="p">().</span><span class="na">io</span><span class="p">())</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
+</span><span id="__span-5-981"><a id="__codelineno-5-981" name="__codelineno-5-981"></a><span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">minDataSequenceNumber</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-982"><a id="__codelineno-5-982" name="__codelineno-5-982"></a><span class="w">      </span><span class="n">filtered</span><span class="p">.</span><span class="na">stream</span><span class="p">()</span>
+</span><span id="__span-5-983"><a id="__codelineno-5-983" name="__codelineno-5-983"></a><span class="w">          </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">ManifestFile</span><span class="p">::</span><span class="n">minSequenceNumber</span><span class="p">)</span>
+</span><span id="__span-5-984"><a id="__codelineno-5-984" name="__codelineno-5-984"></a><span class="w">          </span><span class="p">.</span><span class="na">filter</span><span class="p">(</span>
+</span><span id="__span-5-985"><a id="__codelineno-5-985" name="__codelineno-5-985"></a><span class="w">              </span><span class="n">seq</span><span class="w"> </span><span class="o">-&gt;</span>
+</span><span id="__span-5-986"><a id="__codelineno-5-986" name="__codelineno-5-986"></a><span class="w">                  </span><span class="n">seq</span>
+</span><span id="__span-5-987"><a id="__codelineno-5-987" name="__codelineno-5-987"></a><span class="w">                      </span><span class="o">!=</span><span class="w"> </span><span class="n">ManifestWriter</span>
+</span><span id="__span-5-988"><a id="__codelineno-5-988" name="__codelineno-5-988"></a><span class="w">                          </span><span class="p">.</span><span class="na">UNASSIGNED_SEQ</span><span class="p">)</span><span class="w"> </span><span class="c1">// filter out unassigned in rewritten manifests</span>
+</span><span id="__span-5-989"><a id="__codelineno-5-989" name="__codelineno-5-989"></a><span class="w">          </span><span class="p">.</span><span class="na">reduce</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">lastSequenceNumber</span><span class="p">(),</span><span class="w"> </span><span class="n">Math</span><span class="p">::</span><span class="n">min</span><span class="p">);</span>
+</span><span id="__span-5-990"><a id="__codelineno-5-990" name="__codelineno-5-990"></a><span class="w">  </span><span class="n">deleteFilterManager</span><span class="p">.</span><span class="na">dropDeleteFilesOlderThan</span><span class="p">(</span><span class="n">minDataSequenceNumber</span><span class="p">);</span>
+</span><span id="__span-5-991"><a id="__codelineno-5-991" name="__codelineno-5-991"></a>
+</span><span id="__span-5-992"><a id="__codelineno-5-992" name="__codelineno-5-992"></a><span class="w">  </span><span class="c1">// retrieve the data files to be deleted from the DataFileFilterManager and pass it to the</span>
+</span><span id="__span-5-993"><a id="__codelineno-5-993" name="__codelineno-5-993"></a><span class="w">  </span><span class="c1">// DeleteFileFilterManager so that it can potentially remove orphaned DVs</span>
+</span><span id="__span-5-994"><a id="__codelineno-5-994" name="__codelineno-5-994"></a><span class="w">  </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">DataFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">filesToBeDeleted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filterManager</span><span class="p">.</span><span class="na">filesToBeDeleted</span><span class="p">();</span>
+</span><span id="__span-5-995"><a id="__codelineno-5-995" name="__codelineno-5-995"></a><span class="w">  </span><span class="n">deleteFilterManager</span><span class="p">.</span><span class="na">removeDanglingDeletesFor</span><span class="p">(</span><span class="n">filesToBeDeleted</span><span class="p">);</span>
+</span><span id="__span-5-996"><a id="__codelineno-5-996" name="__codelineno-5-996"></a>
+</span><span id="__span-5-997"><a id="__codelineno-5-997" name="__codelineno-5-997"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">filteredDeletes</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-998"><a id="__codelineno-5-998" name="__codelineno-5-998"></a><span class="w">      </span><span class="n">deleteFilterManager</span><span class="p">.</span><span class="na">filterManifests</span><span class="p">(</span>
+</span><span id="__span-5-999"><a id="__codelineno-5-999" name="__codelineno-5-999"></a><span class="w">          </span><span class="n">SnapshotUtil</span><span class="p">.</span><span class="na">schemaFor</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">targetBranch</span><span class="p">()),</span>
+</span><span id="__span-5-1000"><a id="__codelineno-5-1000" name="__codelineno-5-1000"></a><span class="w">          </span><span class="n">snapshot</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">snapshot</span><span class="p">.</span><span class="na">deleteManifests</span><span class="p">(</span><span class="n">ops</span><span class="p">().</span><span class="na">io</span><span class="p">())</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
+</span><span id="__span-5-1001"><a id="__codelineno-5-1001" name="__codelineno-5-1001"></a>
+</span><span id="__span-5-1002"><a id="__codelineno-5-1002" name="__codelineno-5-1002"></a><span class="w">  </span><span class="c1">// only keep manifests that have live data files or that were written by this commit</span>
+</span><span id="__span-5-1003"><a id="__codelineno-5-1003" name="__codelineno-5-1003"></a><span class="w">  </span><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">shouldKeep</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-1004"><a id="__codelineno-5-1004" name="__codelineno-5-1004"></a><span class="w">      </span><span class="n">manifest</span><span class="w"> </span><span class="o">-&gt;</span>
+</span><span id="__span-5-1005"><a id="__codelineno-5-1005" name="__codelineno-5-1005"></a><span class="w">          </span><span class="n">manifest</span><span class="p">.</span><span class="na">hasAddedFiles</span><span class="p">()</span>
+</span><span id="__span-5-1006"><a id="__codelineno-5-1006" name="__codelineno-5-1006"></a><span class="w">              </span><span class="o">||</span><span class="w"> </span><span class="n">manifest</span><span class="p">.</span><span class="na">hasExistingFiles</span><span class="p">()</span>
+</span><span id="__span-5-1007"><a id="__codelineno-5-1007" name="__codelineno-5-1007"></a><span class="w">              </span><span class="o">||</span><span class="w"> </span><span class="n">manifest</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">snapshotId</span><span class="p">();</span>
+</span><span id="__span-5-1008"><a id="__codelineno-5-1008" name="__codelineno-5-1008"></a><span class="w">  </span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">unmergedManifests</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-1009"><a id="__codelineno-5-1009" name="__codelineno-5-1009"></a><span class="w">      </span><span class="n">Iterables</span><span class="p">.</span><span class="na">filter</span><span class="p">(</span><span class="n">Iterables</span><span class="p">.</span><span class="na">concat</span><span class="p">(</span><span class="n">prepareNewDataManifests</span><span class="p">(),</span><span class="w"> </span><span class="n">filtered</span><span class="p">),</span><span class="w"> </span><span class="n">shouldKeep</span><span class="p">);</span>
+</span><span id="__span-5-1010"><a id="__codelineno-5-1010" name="__codelineno-5-1010"></a><span class="w">  </span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">unmergedDeleteManifests</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-1011"><a id="__codelineno-5-1011" name="__codelineno-5-1011"></a><span class="w">      </span><span class="n">Iterables</span><span class="p">.</span><span class="na">filter</span><span class="p">(</span><span class="n">Iterables</span><span class="p">.</span><span class="na">concat</span><span class="p">(</span><span class="n">prepareDeleteManifests</span><span class="p">(),</span><span class="w"> </span><span class="n">filteredDeletes</span><span class="p">),</span><span class="w"> </span><span class="n">shouldKeep</span><span class="p">);</span>
+</span><span id="__span-5-1012"><a id="__codelineno-5-1012" name="__codelineno-5-1012"></a>
+</span><span id="__span-5-1013"><a id="__codelineno-5-1013" name="__codelineno-5-1013"></a><span class="w">  </span><span class="c1">// update the snapshot summary</span>
+</span><span id="__span-5-1014"><a id="__codelineno-5-1014" name="__codelineno-5-1014"></a><span class="w">  </span><span class="n">summaryBuilder</span><span class="p">.</span><span class="na">clear</span><span class="p">();</span>
+</span><span id="__span-5-1015"><a id="__codelineno-5-1015" name="__codelineno-5-1015"></a><span class="w">  </span><span class="n">summaryBuilder</span><span class="p">.</span><span class="na">merge</span><span class="p">(</span><span class="n">addedDataFilesSummary</span><span class="p">);</span>
+</span><span id="__span-5-1016"><a id="__codelineno-5-1016" name="__codelineno-5-1016"></a><span class="w">  </span><span class="n">summaryBuilder</span><span class="p">.</span><span class="na">merge</span><span class="p">(</span><span class="n">addedDeleteFilesSummary</span><span class="p">);</span>
+</span><span id="__span-5-1017"><a id="__codelineno-5-1017" name="__codelineno-5-1017"></a><span class="w">  </span><span class="n">summaryBuilder</span><span class="p">.</span><span class="na">merge</span><span class="p">(</span><span class="n">appendedManifestsSummary</span><span class="p">);</span>
+</span><span id="__span-5-1018"><a id="__codelineno-5-1018" name="__codelineno-5-1018"></a><span class="w">  </span><span class="n">summaryBuilder</span><span class="p">.</span><span class="na">merge</span><span class="p">(</span><span class="n">filterManager</span><span class="p">.</span><span class="na">buildSummary</span><span class="p">(</span><span class="n">filtered</span><span class="p">));</span>
+</span><span id="__span-5-1019"><a id="__codelineno-5-1019" name="__codelineno-5-1019"></a><span class="w">  </span><span class="n">summaryBuilder</span><span class="p">.</span><span class="na">merge</span><span class="p">(</span><span class="n">deleteFilterManager</span><span class="p">.</span><span class="na">buildSummary</span><span class="p">(</span><span class="n">filteredDeletes</span><span class="p">));</span>
+</span><span id="__span-5-1020"><a id="__codelineno-5-1020" name="__codelineno-5-1020"></a>
+</span><span id="__span-5-1021"><a id="__codelineno-5-1021" name="__codelineno-5-1021"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">manifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">();</span>
+</span><span id="__span-5-1022"><a id="__codelineno-5-1022" name="__codelineno-5-1022"></a><span class="w">  </span><span class="n">Iterables</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span><span class="n">manifests</span><span class="p">,</span><span class="w"> </span><span class="n">mergeManager</span><span class="p">.</span><span class="na">mergeManifests</span><span class="p">(</span><span class="n">unmergedManifests</span><span class="p">));</span>
+</span><span id="__span-5-1023"><a id="__codelineno-5-1023" name="__codelineno-5-1023"></a><span class="w">  </span><span class="n">Iterables</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span><span class="n">manifests</span><span class="p">,</span><span class="w"> </span><span class="n">deleteMergeManager</span><span class="p">.</span><span class="na">mergeManifests</span><span class="p">(</span><span class="n">unmergedDeleteManifests</span><span class="p">));</span>
+</span><span id="__span-5-1024"><a id="__codelineno-5-1024" name="__codelineno-5-1024"></a>
+</span><span id="__span-5-1025"><a id="__codelineno-5-1025" name="__codelineno-5-1025"></a><span class="w">  </span><span class="c1">// update created/kept/replaced manifest count</span>
+</span><span id="__span-5-1026"><a id="__codelineno-5-1026" name="__codelineno-5-1026"></a><span class="w">  </span><span class="c1">// replaced manifests come from:</span>
+</span><span id="__span-5-1027"><a id="__codelineno-5-1027" name="__codelineno-5-1027"></a><span class="w">  </span><span class="c1">// 1. filterManager - manifests rewritten to remove deleted files</span>
+</span><span id="__span-5-1028"><a id="__codelineno-5-1028" name="__codelineno-5-1028"></a><span class="w">  </span><span class="c1">// 2. deleteFilterManager - delete manifests rewritten to remove deleted files</span>
+</span><span id="__span-5-1029"><a id="__codelineno-5-1029" name="__codelineno-5-1029"></a><span class="w">  </span><span class="c1">// 3. mergeManager - data manifests merged via bin-packing</span>
+</span><span id="__span-5-1030"><a id="__codelineno-5-1030" name="__codelineno-5-1030"></a><span class="w">  </span><span class="c1">// 4. deleteMergeManager - delete manifests merged via bin-packing</span>
+</span><span id="__span-5-1031"><a id="__codelineno-5-1031" name="__codelineno-5-1031"></a><span class="w">  </span><span class="c1">// Note: rewrittenAppendManifests are NEW manifests (copies), not replaced ones</span>
+</span><span id="__span-5-1032"><a id="__codelineno-5-1032" name="__codelineno-5-1032"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">replacedManifestsCount</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-1033"><a id="__codelineno-5-1033" name="__codelineno-5-1033"></a><span class="w">      </span><span class="n">filterManager</span><span class="p">.</span><span class="na">replacedManifestsCount</span><span class="p">()</span>
+</span><span id="__span-5-1034"><a id="__codelineno-5-1034" name="__codelineno-5-1034"></a><span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="n">deleteFilterManager</span><span class="p">.</span><span class="na">replacedManifestsCount</span><span class="p">()</span>
+</span><span id="__span-5-1035"><a id="__codelineno-5-1035" name="__codelineno-5-1035"></a><span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="n">mergeManager</span><span class="p">.</span><span class="na">replacedManifestsCount</span><span class="p">()</span>
+</span><span id="__span-5-1036"><a id="__codelineno-5-1036" name="__codelineno-5-1036"></a><span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="n">deleteMergeManager</span><span class="p">.</span><span class="na">replacedManifestsCount</span><span class="p">();</span>
+</span><span id="__span-5-1037"><a id="__codelineno-5-1037" name="__codelineno-5-1037"></a><span class="w">  </span><span class="n">summaryBuilder</span><span class="p">.</span><span class="na">merge</span><span class="p">(</span><span class="n">buildManifestCountSummary</span><span class="p">(</span><span class="n">manifests</span><span class="p">,</span><span class="w"> </span><span class="n">replacedManifestsCount</span><span class="p">));</span>
+</span><span id="__span-5-1038"><a id="__codelineno-5-1038" name="__codelineno-5-1038"></a>
+</span><span id="__span-5-1039"><a id="__codelineno-5-1039" name="__codelineno-5-1039"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">manifests</span><span class="p">;</span>
+</span><span id="__span-5-1040"><a id="__codelineno-5-1040" name="__codelineno-5-1040"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java` L973–L1040](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L973-L1040) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Read it in four stages.</p>
+<p><strong>Filter.</strong> <code>filterManager.filterManifests(...)</code> walks the parent snapshot's data manifests and rewrites any that contain files this operation deletes. For a pure append there is nothing to delete and this is close to a no-op — but the code path is shared with <code>OverwriteFiles</code> and <code>RowDelta</code>, which is why <code>MergeAppend</code> inherits it.</p>
+<p><strong>Age out deletes.</strong> <code>minDataSequenceNumber</code> is the smallest sequence number among surviving data manifests. Any delete file older than that cannot apply to any live data file, so <code>dropDeleteFilesOlderThan</code> discards it. This is how equality delete files eventually leave a table (Chapter 5.3) — not by explicit removal, but by every data file they could have applied to being gone.</p>
+<p><strong>Keep only what is alive.</strong> The <code>shouldKeep</code> predicate drops manifests with no added and no existing files that were not written by this commit. A manifest whose every entry has been deleted is dead weight in the manifest list.</p>
+<p><strong>Merge.</strong> Two independent merge managers — one for data manifests, one for delete manifests. They never mix, because a manifest holds one content type.</p>
+<p>The summary bookkeeping at the end is worth noticing: <code>replacedManifestsCount</code> sums four sources, and the comment enumerates them. Manifests rewritten by filtering are <em>replaced</em>; manifests copied on append are <em>new</em>. That distinction shows up in the snapshot summary and, from there, in anything monitoring commit cost.</p>
+<h2 id="5-the-merge-policy">5. The merge policy<a class="headerlink" href="#5-the-merge-policy" title="Permanent link">&para;</a></h2>
+<p><code>ManifestMergeManager</code> groups by spec id and then bin-packs each group. The policy is small enough to read in full:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ManifestMergeManager.mergeGroup()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-139">139</a></span>
+<span class="normal"><a href="#__codelineno-6-140">140</a></span>
+<span class="normal"><a href="#__codelineno-6-141">141</a></span>
+<span class="normal"><a href="#__codelineno-6-142">142</a></span>
+<span class="normal"><a href="#__codelineno-6-143">143</a></span>
+<span class="normal"><a href="#__codelineno-6-144">144</a></span>
+<span class="normal"><a href="#__codelineno-6-145">145</a></span>
+<span class="normal"><a href="#__codelineno-6-146">146</a></span>
+<span class="normal"><a href="#__codelineno-6-147">147</a></span>
+<span class="normal"><a href="#__codelineno-6-148">148</a></span>
+<span class="normal"><a href="#__codelineno-6-149">149</a></span>
+<span class="normal"><a href="#__codelineno-6-150">150</a></span>
+<span class="normal"><a href="#__codelineno-6-151">151</a></span>
+<span class="normal"><a href="#__codelineno-6-152">152</a></span>
+<span class="normal"><a href="#__codelineno-6-153">153</a></span>
+<span class="normal"><a href="#__codelineno-6-154">154</a></span>
+<span class="normal"><a href="#__codelineno-6-155">155</a></span>
+<span class="normal"><a href="#__codelineno-6-156">156</a></span>
+<span class="normal"><a href="#__codelineno-6-157">157</a></span>
+<span class="normal"><a href="#__codelineno-6-158">158</a></span>
+<span class="normal"><a href="#__codelineno-6-159">159</a></span>
+<span class="normal"><a href="#__codelineno-6-160">160</a></span>
+<span class="normal"><a href="#__codelineno-6-161">161</a></span>
+<span class="normal"><a href="#__codelineno-6-162">162</a></span>
+<span class="normal"><a href="#__codelineno-6-163">163</a></span>
+<span class="normal"><a href="#__codelineno-6-164">164</a></span>
+<span class="normal"><a href="#__codelineno-6-165">165</a></span>
+<span class="normal"><a href="#__codelineno-6-166">166</a></span>
+<span class="normal"><a href="#__codelineno-6-167">167</a></span>
+<span class="normal"><a href="#__codelineno-6-168">168</a></span>
+<span class="normal"><a href="#__codelineno-6-169">169</a></span>
+<span class="normal"><a href="#__codelineno-6-170">170</a></span>
+<span class="normal"><a href="#__codelineno-6-171">171</a></span>
+<span class="normal"><a href="#__codelineno-6-172">172</a></span>
+<span class="normal"><a href="#__codelineno-6-173">173</a></span>
+<span class="normal"><a href="#__codelineno-6-174">174</a></span>
+<span class="normal"><a href="#__codelineno-6-175">175</a></span>
+<span class="normal"><a href="#__codelineno-6-176">176</a></span>
+<span class="normal"><a href="#__codelineno-6-177">177</a></span>
+<span class="normal"><a href="#__codelineno-6-178">178</a></span>
+<span class="normal"><a href="#__codelineno-6-179">179</a></span>
+<span class="normal"><a href="#__codelineno-6-180">180</a></span>
+<span class="normal"><a href="#__codelineno-6-181">181</a></span>
+<span class="normal"><a href="#__codelineno-6-182">182</a></span>
+<span class="normal"><a href="#__codelineno-6-183">183</a></span>
+<span class="normal"><a href="#__codelineno-6-184">184</a></span>
+<span class="normal"><a href="#__codelineno-6-185">185</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-139"><a id="__codelineno-6-139" name="__codelineno-6-139"></a><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">"unchecked"</span><span class="p">)</span>
+</span><span id="__span-6-140"><a id="__codelineno-6-140" name="__codelineno-6-140"></a><span class="kd">private</span><span class="w"> </span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">mergeGroup</span><span class="p">(</span>
+</span><span id="__span-6-141"><a id="__codelineno-6-141" name="__codelineno-6-141"></a><span class="w">    </span><span class="n">ManifestFile</span><span class="w"> </span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">specId</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">group</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-142"><a id="__codelineno-6-142" name="__codelineno-6-142"></a><span class="w">  </span><span class="c1">// use a lookback of 1 to avoid reordering the manifests. using 1 also means this should pack</span>
+</span><span id="__span-6-143"><a id="__codelineno-6-143" name="__codelineno-6-143"></a><span class="w">  </span><span class="c1">// from the end so that the manifest that gets under-filled is the first one, which will be</span>
+</span><span id="__span-6-144"><a id="__codelineno-6-144" name="__codelineno-6-144"></a><span class="w">  </span><span class="c1">// merged the next time.</span>
+</span><span id="__span-6-145"><a id="__codelineno-6-145" name="__codelineno-6-145"></a><span class="w">  </span><span class="n">ListPacker</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">packer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ListPacker</span><span class="o">&lt;&gt;</span><span class="p">(</span><span class="n">targetSizeBytes</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+</span><span id="__span-6-146"><a id="__codelineno-6-146" name="__codelineno-6-146"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">bins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">packer</span><span class="p">.</span><span class="na">packEnd</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="n">ManifestFile</span><span class="p">::</span><span class="n">length</span><span class="p">);</span>
+</span><span id="__span-6-147"><a id="__codelineno-6-147" name="__codelineno-6-147"></a>
+</span><span id="__span-6-148"><a id="__codelineno-6-148" name="__codelineno-6-148"></a><span class="w">  </span><span class="c1">// process bins in parallel, but put results in the order of the bins into an array to preserve</span>
+</span><span id="__span-6-149"><a id="__codelineno-6-149" name="__codelineno-6-149"></a><span class="w">  </span><span class="c1">// the order of manifests and contents. preserving the order helps avoid random deletes when</span>
+</span><span id="__span-6-150"><a id="__codelineno-6-150" name="__codelineno-6-150"></a><span class="w">  </span><span class="c1">// data files are eventually aged off.</span>
+</span><span id="__span-6-151"><a id="__codelineno-6-151" name="__codelineno-6-151"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;[]</span><span class="w"> </span><span class="n">binResults</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-6-152"><a id="__codelineno-6-152" name="__codelineno-6-152"></a><span class="w">      </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;[]</span><span class="p">)</span><span class="w"> </span><span class="n">Array</span><span class="p">.</span><span class="na">newInstance</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">bins</span><span class="p">.</span><span class="na">size</span><span class="p">());</span>
+</span><span id="__span-6-153"><a id="__codelineno-6-153" name="__codelineno-6-153"></a>
+</span><span id="__span-6-154"><a id="__codelineno-6-154" name="__codelineno-6-154"></a><span class="w">  </span><span class="n">Tasks</span><span class="p">.</span><span class="na">range</span><span class="p">(</span><span class="n">bins</span><span class="p">.</span><span class="na">size</span><span class="p">())</span>
+</span><span id="__span-6-155"><a id="__codelineno-6-155" name="__codelineno-6-155"></a><span class="w">      </span><span class="p">.</span><span class="na">stopOnFailure</span><span class="p">()</span>
+</span><span id="__span-6-156"><a id="__codelineno-6-156" name="__codelineno-6-156"></a><span class="w">      </span><span class="p">.</span><span class="na">throwFailureWhenFinished</span><span class="p">()</span>
+</span><span id="__span-6-157"><a id="__codelineno-6-157" name="__codelineno-6-157"></a><span class="w">      </span><span class="p">.</span><span class="na">executeWith</span><span class="p">(</span><span class="n">workerPoolSupplier</span><span class="p">.</span><span class="na">get</span><span class="p">())</span>
+</span><span id="__span-6-158"><a id="__codelineno-6-158" name="__codelineno-6-158"></a><span class="w">      </span><span class="p">.</span><span class="na">run</span><span class="p">(</span>
+</span><span id="__span-6-159"><a id="__codelineno-6-159" name="__codelineno-6-159"></a><span class="w">          </span><span class="n">index</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-160"><a id="__codelineno-6-160" name="__codelineno-6-160"></a><span class="w">            </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bins</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">index</span><span class="p">);</span>
+</span><span id="__span-6-161"><a id="__codelineno-6-161" name="__codelineno-6-161"></a><span class="w">            </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">outputManifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">();</span>
+</span><span id="__span-6-162"><a id="__codelineno-6-162" name="__codelineno-6-162"></a><span class="w">            </span><span class="n">binResults</span><span class="o">[</span><span class="n">index</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">outputManifests</span><span class="p">;</span>
+</span><span id="__span-6-163"><a id="__codelineno-6-163" name="__codelineno-6-163"></a>
+</span><span id="__span-6-164"><a id="__codelineno-6-164" name="__codelineno-6-164"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="p">.</span><span class="na">size</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-165"><a id="__codelineno-6-165" name="__codelineno-6-165"></a><span class="w">              </span><span class="c1">// no need to rewrite</span>
+</span><span id="__span-6-166"><a id="__codelineno-6-166" name="__codelineno-6-166"></a><span class="w">              </span><span class="n">outputManifests</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">bin</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+</span><span id="__span-6-167"><a id="__codelineno-6-167" name="__codelineno-6-167"></a><span class="w">              </span><span class="k">return</span><span class="p">;</span>
+</span><span id="__span-6-168"><a id="__codelineno-6-168" name="__codelineno-6-168"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-6-169"><a id="__codelineno-6-169" name="__codelineno-6-169"></a>
+</span><span id="__span-6-170"><a id="__codelineno-6-170" name="__codelineno-6-170"></a><span class="w">            </span><span class="c1">// if the bin has the first manifest (the new data files or an appended manifest file)</span>
+</span><span id="__span-6-171"><a id="__codelineno-6-171" name="__codelineno-6-171"></a><span class="w">            </span><span class="c1">// then only merge it</span>
+</span><span id="__span-6-172"><a id="__codelineno-6-172" name="__codelineno-6-172"></a><span class="w">            </span><span class="c1">// if the number of manifests is above the minimum count. this is applied only to bins</span>
+</span><span id="__span-6-173"><a id="__codelineno-6-173" name="__codelineno-6-173"></a><span class="w">            </span><span class="c1">// with an in-memory</span>
+</span><span id="__span-6-174"><a id="__codelineno-6-174" name="__codelineno-6-174"></a><span class="w">            </span><span class="c1">// manifest so that large manifests don't prevent merging older groups.</span>
+</span><span id="__span-6-175"><a id="__codelineno-6-175" name="__codelineno-6-175"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bin</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">first</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">bin</span><span class="p">.</span><span class="na">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">minCountToMerge</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-176"><a id="__codelineno-6-176" name="__codelineno-6-176"></a><span class="w">              </span><span class="c1">// not enough to merge, add all manifest files to the output list</span>
+</span><span id="__span-6-177"><a id="__codelineno-6-177" name="__codelineno-6-177"></a><span class="w">              </span><span class="n">outputManifests</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span><span class="n">bin</span><span class="p">);</span>
+</span><span id="__span-6-178"><a id="__codelineno-6-178" name="__codelineno-6-178"></a><span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-179"><a id="__codelineno-6-179" name="__codelineno-6-179"></a><span class="w">              </span><span class="c1">// merge the bin into a single manifest</span>
+</span><span id="__span-6-180"><a id="__codelineno-6-180" name="__codelineno-6-180"></a><span class="w">              </span><span class="n">outputManifests</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">createManifest</span><span class="p">(</span><span class="n">specId</span><span class="p">,</span><span class="w"> </span><span class="n">bin</span><span class="p">));</span>
+</span><span id="__span-6-181"><a id="__codelineno-6-181" name="__codelineno-6-181"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-6-182"><a id="__codelineno-6-182" name="__codelineno-6-182"></a><span class="w">          </span><span class="p">});</span>
+</span><span id="__span-6-183"><a id="__codelineno-6-183" name="__codelineno-6-183"></a>
+</span><span id="__span-6-184"><a id="__codelineno-6-184" name="__codelineno-6-184"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">Iterables</span><span class="p">.</span><span class="na">concat</span><span class="p">(</span><span class="n">binResults</span><span class="p">);</span>
+</span><span id="__span-6-185"><a id="__codelineno-6-185" name="__codelineno-6-185"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestMergeManager.java` L139–L185](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestMergeManager.java#L139-L185) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Two decisions here are counter-intuitive, and both are explained by the comments.</p>
+<p><strong><code>new ListPacker&lt;&gt;(targetSizeBytes, 1, false)</code> with <code>packEnd</code>.</strong> A lookback of 1 is the weakest possible bin-packer — it can only consider the current bin. A better packer would produce fuller bins. The comment says why it is not used:</p>
+<blockquote>
+<p><em>use a lookback of 1 to avoid reordering the manifests. using 1 also means this should pack from the end so that the manifest that gets under-filled is the first one, which will be merged the next time.</em></p>
+</blockquote>
+<p>Reordering manifests reorders the data files inside them, and the second comment in the method spells out the consequence: preserving order "helps avoid random deletes when data files are eventually aged off". Manifest order is a weak but real proxy for insertion order, and insertion order is a weak but real proxy for locality. Better packing would buy a few bytes and cost that.</p>
+<p>Packing from the end also means the under-filled bin is the <em>newest</em> one — the one that will grow on the next commit anyway.</p>
+<p><strong><code>bin.contains(first) &amp;&amp; bin.size() &lt; minCountToMerge</code>.</strong> <code>first</code> is the manifest holding this commit's new data files. Only the bin containing it is subject to <code>commit.manifest.min-count-to-merge</code>. Bins made entirely of older manifests are merged regardless of how few they contain. The comment: the guard is <em>"applied only to bins with an in-memory manifest so that large manifests don't prevent merging older groups."</em></p>
+<p>Reading <code>commit.manifest.min-count-to-merge = 100</code> as "never merge fewer than 100 manifests" is therefore wrong, and it explains the common surprise that a table with that setting still rewrites manifests on a small append.</p>
+<p>The three properties, with their defaults:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>commit.manifest.target-size-bytes</code></td>
+<td>8 MB</td>
+<td>Bin size for packing</td>
+</tr>
+<tr>
+<td><code>commit.manifest.min-count-to-merge</code></td>
+<td>100</td>
+<td>Minimum bin size <em>for the bin holding new files</em></td>
+</tr>
+<tr>
+<td><code>commit.manifest-merge.enabled</code></td>
+<td><code>true</code></td>
+<td><code>false</code> makes <code>MergeAppend</code> behave like <code>FastAppend</code> for merging, while keeping filtering</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-what-merging-actually-rewrites">6. What merging actually rewrites<a class="headerlink" href="#6-what-merging-actually-rewrites" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ManifestMergeManager.createManifest()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-187">187</a></span>
+<span class="normal"><a href="#__codelineno-7-188">188</a></span>
+<span class="normal"><a href="#__codelineno-7-189">189</a></span>
+<span class="normal"><a href="#__codelineno-7-190">190</a></span>
+<span class="normal"><a href="#__codelineno-7-191">191</a></span>
+<span class="normal"><a href="#__codelineno-7-192">192</a></span>
+<span class="normal"><a href="#__codelineno-7-193">193</a></span>
+<span class="normal"><a href="#__codelineno-7-194">194</a></span>
+<span class="normal"><a href="#__codelineno-7-195">195</a></span>
+<span class="normal"><a href="#__codelineno-7-196">196</a></span>
+<span class="normal"><a href="#__codelineno-7-197">197</a></span>
+<span class="normal"><a href="#__codelineno-7-198">198</a></span>
+<span class="normal"><a href="#__codelineno-7-199">199</a></span>
+<span class="normal"><a href="#__codelineno-7-200">200</a></span>
+<span class="normal"><a href="#__codelineno-7-201">201</a></span>
+<span class="normal"><a href="#__codelineno-7-202">202</a></span>
+<span class="normal"><a href="#__codelineno-7-203">203</a></span>
+<span class="normal"><a href="#__codelineno-7-204">204</a></span>
+<span class="normal"><a href="#__codelineno-7-205">205</a></span>
+<span class="normal"><a href="#__codelineno-7-206">206</a></span>
+<span class="normal"><a href="#__codelineno-7-207">207</a></span>
+<span class="normal"><a href="#__codelineno-7-208">208</a></span>
+<span class="normal"><a href="#__codelineno-7-209">209</a></span>
+<span class="normal"><a href="#__codelineno-7-210">210</a></span>
+<span class="normal"><a href="#__codelineno-7-211">211</a></span>
+<span class="normal"><a href="#__codelineno-7-212">212</a></span>
+<span class="normal"><a href="#__codelineno-7-213">213</a></span>
+<span class="normal"><a href="#__codelineno-7-214">214</a></span>
+<span class="normal"><a href="#__codelineno-7-215">215</a></span>
+<span class="normal"><a href="#__codelineno-7-216">216</a></span>
+<span class="normal"><a href="#__codelineno-7-217">217</a></span>
+<span class="normal"><a href="#__codelineno-7-218">218</a></span>
+<span class="normal"><a href="#__codelineno-7-219">219</a></span>
+<span class="normal"><a href="#__codelineno-7-220">220</a></span>
+<span class="normal"><a href="#__codelineno-7-221">221</a></span>
+<span class="normal"><a href="#__codelineno-7-222">222</a></span>
+<span class="normal"><a href="#__codelineno-7-223">223</a></span>
+<span class="normal"><a href="#__codelineno-7-224">224</a></span>
+<span class="normal"><a href="#__codelineno-7-225">225</a></span>
+<span class="normal"><a href="#__codelineno-7-226">226</a></span>
+<span class="normal"><a href="#__codelineno-7-227">227</a></span>
+<span class="normal"><a href="#__codelineno-7-228">228</a></span>
+<span class="normal"><a href="#__codelineno-7-229">229</a></span>
+<span class="normal"><a href="#__codelineno-7-230">230</a></span>
+<span class="normal"><a href="#__codelineno-7-231">231</a></span>
+<span class="normal"><a href="#__codelineno-7-232">232</a></span>
+<span class="normal"><a href="#__codelineno-7-233">233</a></span>
+<span class="normal"><a href="#__codelineno-7-234">234</a></span>
+<span class="normal"><a href="#__codelineno-7-235">235</a></span>
+<span class="normal"><a href="#__codelineno-7-236">236</a></span>
+<span class="normal"><a href="#__codelineno-7-237">237</a></span>
+<span class="normal"><a href="#__codelineno-7-238">238</a></span>
+<span class="normal"><a href="#__codelineno-7-239">239</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-187"><a id="__codelineno-7-187" name="__codelineno-7-187"></a><span class="kd">private</span><span class="w"> </span><span class="n">ManifestFile</span><span class="w"> </span><span class="nf">createManifest</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">specId</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ManifestFile</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bin</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-188"><a id="__codelineno-7-188" name="__codelineno-7-188"></a><span class="w">  </span><span class="c1">// if this merge was already rewritten, use the existing file.</span>
+</span><span id="__span-7-189"><a id="__codelineno-7-189" name="__codelineno-7-189"></a><span class="w">  </span><span class="c1">// if the new files are in this merge, then the ManifestFile for the new files has changed and</span>
+</span><span id="__span-7-190"><a id="__codelineno-7-190" name="__codelineno-7-190"></a><span class="w">  </span><span class="c1">// will be a cache miss.</span>
+</span><span id="__span-7-191"><a id="__codelineno-7-191" name="__codelineno-7-191"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mergedManifests</span><span class="p">.</span><span class="na">containsKey</span><span class="p">(</span><span class="n">bin</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-192"><a id="__codelineno-7-192" name="__codelineno-7-192"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">mergedManifests</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">bin</span><span class="p">);</span>
+</span><span id="__span-7-193"><a id="__codelineno-7-193" name="__codelineno-7-193"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-194"><a id="__codelineno-7-194" name="__codelineno-7-194"></a>
+</span><span id="__span-7-195"><a id="__codelineno-7-195" name="__codelineno-7-195"></a><span class="w">  </span><span class="n">ManifestWriter</span><span class="o">&lt;</span><span class="n">F</span><span class="o">&gt;</span><span class="w"> </span><span class="n">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newManifestWriter</span><span class="p">(</span><span class="n">spec</span><span class="p">(</span><span class="n">specId</span><span class="p">));</span>
+</span><span id="__span-7-196"><a id="__codelineno-7-196" name="__codelineno-7-196"></a><span class="w">  </span><span class="kt">boolean</span><span class="w"> </span><span class="n">threw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+</span><span id="__span-7-197"><a id="__codelineno-7-197" name="__codelineno-7-197"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-198"><a id="__codelineno-7-198" name="__codelineno-7-198"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">ManifestFile</span><span class="w"> </span><span class="n">manifest</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">bin</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-199"><a id="__codelineno-7-199" name="__codelineno-7-199"></a><span class="w">      </span><span class="kt">boolean</span><span class="w"> </span><span class="n">isCommitted</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-7-200"><a id="__codelineno-7-200" name="__codelineno-7-200"></a><span class="w">          </span><span class="n">manifest</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">snapshotId</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">manifest</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">();</span>
+</span><span id="__span-7-201"><a id="__codelineno-7-201" name="__codelineno-7-201"></a><span class="w">      </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">ManifestReader</span><span class="o">&lt;</span><span class="n">F</span><span class="o">&gt;</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newManifestReader</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span><span class="w"> </span><span class="n">isCommitted</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-202"><a id="__codelineno-7-202" name="__codelineno-7-202"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">ManifestEntry</span><span class="o">&lt;</span><span class="n">F</span><span class="o">&gt;</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="na">entries</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-203"><a id="__codelineno-7-203" name="__codelineno-7-203"></a><span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="na">status</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Status</span><span class="p">.</span><span class="na">DELETED</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-204"><a id="__codelineno-7-204" name="__codelineno-7-204"></a><span class="w">            </span><span class="c1">// suppress deletes from previous snapshots. only files deleted by this snapshot</span>
+</span><span id="__span-7-205"><a id="__codelineno-7-205" name="__codelineno-7-205"></a><span class="w">            </span><span class="c1">// should be added to the new manifest</span>
+</span><span id="__span-7-206"><a id="__codelineno-7-206" name="__codelineno-7-206"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">snapshotId</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-207"><a id="__codelineno-7-207" name="__codelineno-7-207"></a><span class="w">              </span><span class="n">writer</span><span class="p">.</span><span class="na">delete</span><span class="p">(</span><span class="n">entry</span><span class="p">);</span>
+</span><span id="__span-7-208"><a id="__codelineno-7-208" name="__codelineno-7-208"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-7-209"><a id="__codelineno-7-209" name="__codelineno-7-209"></a><span class="w">          </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="na">status</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Status</span><span class="p">.</span><span class="na">ADDED</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">entry</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">snapshotId</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-210"><a id="__codelineno-7-210" name="__codelineno-7-210"></a><span class="w">            </span><span class="c1">// adds from this snapshot are still adds, otherwise they should be existing</span>
+</span><span id="__span-7-211"><a id="__codelineno-7-211" name="__codelineno-7-211"></a><span class="w">            </span><span class="n">writer</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">entry</span><span class="p">);</span>
+</span><span id="__span-7-212"><a id="__codelineno-7-212" name="__codelineno-7-212"></a><span class="w">          </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-213"><a id="__codelineno-7-213" name="__codelineno-7-213"></a><span class="w">            </span><span class="c1">// add all files from the old manifest as existing files</span>
+</span><span id="__span-7-214"><a id="__codelineno-7-214" name="__codelineno-7-214"></a><span class="w">            </span><span class="n">writer</span><span class="p">.</span><span class="na">existing</span><span class="p">(</span><span class="n">entry</span><span class="p">);</span>
+</span><span id="__span-7-215"><a id="__codelineno-7-215" name="__codelineno-7-215"></a><span class="w">          </span><span class="p">}</span>
+</span><span id="__span-7-216"><a id="__codelineno-7-216" name="__codelineno-7-216"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-7-217"><a id="__codelineno-7-217" name="__codelineno-7-217"></a><span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">IOException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-218"><a id="__codelineno-7-218" name="__codelineno-7-218"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RuntimeIOException</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="s">"Failed to close manifest reader"</span><span class="p">);</span>
+</span><span id="__span-7-219"><a id="__codelineno-7-219" name="__codelineno-7-219"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-7-220"><a id="__codelineno-7-220" name="__codelineno-7-220"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-221"><a id="__codelineno-7-221" name="__codelineno-7-221"></a><span class="w">    </span><span class="n">threw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+</span><span id="__span-7-222"><a id="__codelineno-7-222" name="__codelineno-7-222"></a>
+</span><span id="__span-7-223"><a id="__codelineno-7-223" name="__codelineno-7-223"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-224"><a id="__codelineno-7-224" name="__codelineno-7-224"></a><span class="w">    </span><span class="n">Exceptions</span><span class="p">.</span><span class="na">close</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span><span class="w"> </span><span class="n">threw</span><span class="p">);</span>
+</span><span id="__span-7-225"><a id="__codelineno-7-225" name="__codelineno-7-225"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-226"><a id="__codelineno-7-226" name="__codelineno-7-226"></a>
+</span><span id="__span-7-227"><a id="__codelineno-7-227" name="__codelineno-7-227"></a><span class="w">  </span><span class="n">ManifestFile</span><span class="w"> </span><span class="n">manifest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="na">toManifestFile</span><span class="p">();</span>
+</span><span id="__span-7-228"><a id="__codelineno-7-228" name="__codelineno-7-228"></a>
+</span><span id="__span-7-229"><a id="__codelineno-7-229" name="__codelineno-7-229"></a><span class="w">  </span><span class="c1">// cache the merged manifest to reuse when retrying and track replaced manifests</span>
+</span><span id="__span-7-230"><a id="__codelineno-7-230" name="__codelineno-7-230"></a><span class="w">  </span><span class="n">mergedManifests</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">bin</span><span class="p">,</span><span class="w"> </span><span class="n">manifest</span><span class="p">);</span>
+</span><span id="__span-7-231"><a id="__codelineno-7-231" name="__codelineno-7-231"></a><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">ManifestFile</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">bin</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-232"><a id="__codelineno-7-232" name="__codelineno-7-232"></a><span class="w">    </span><span class="c1">// only count manifests from previous snapshots; in-memory manifests are not replaced</span>
+</span><span id="__span-7-233"><a id="__codelineno-7-233" name="__codelineno-7-233"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">snapshotId</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="na">snapshotId</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-234"><a id="__codelineno-7-234" name="__codelineno-7-234"></a><span class="w">      </span><span class="n">replacedManifestsCount</span><span class="p">.</span><span class="na">incrementAndGet</span><span class="p">();</span>
+</span><span id="__span-7-235"><a id="__codelineno-7-235" name="__codelineno-7-235"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-236"><a id="__codelineno-7-236" name="__codelineno-7-236"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-237"><a id="__codelineno-7-237" name="__codelineno-7-237"></a>
+</span><span id="__span-7-238"><a id="__codelineno-7-238" name="__codelineno-7-238"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">manifest</span><span class="p">;</span>
+</span><span id="__span-7-239"><a id="__codelineno-7-239" name="__codelineno-7-239"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestMergeManager.java` L187–L239](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestMergeManager.java#L187-L239) <span>@ apache-iceberg-1.11.0</span></p>
+
+<p>Every entry of every manifest in the bin is read and re-written, with a three-way status decision:</p>
+<ul>
+<li><code>DELETED</code> from a <em>previous</em> snapshot is dropped. The comment: "suppress deletes from previous snapshots. only files deleted by this snapshot should be added to the new manifest." A tombstone that has already been superseded carries no information.</li>
+<li><code>ADDED</code> by <em>this</em> snapshot stays <code>ADDED</code>.</li>
+<li>Everything else becomes <code>EXISTING</code>.</li>
+</ul>
+<p>That last rule is the one that surprises people. A data file added in snapshot 40 shows <code>status = 1</code> in snapshot 40's manifest. If snapshot 41 is a <code>MergeAppend</code> whose bin-packing happens to include that manifest, the same file shows <code>status = 0</code> in snapshot 41's manifest, with no data change whatsoever. Anything diffing manifests across snapshots to detect writes has to key on <code>snapshot_id</code>, not on status.</p>
+<p>The cache at the top — <code>mergedManifests</code>, keyed by the input bin — is a retry optimisation. On a second attempt, bins of purely existing manifests hash the same and their merged output is reused. The bin containing the new files does not: its <code>ManifestFile</code> object changed, so that bin is always a cache miss. The comment says exactly this.</p>
+<h2 id="7-choosing">7. Choosing<a class="headerlink" href="#7-choosing" title="Permanent link">&para;</a></h2>
+<div class="grid cards">
+<ul>
+<li>
+<p><strong><code>newFastAppend()</code></strong></p>
+<p>Commit cost independent of table size. Manifest count grows monotonically. Requires <code>RewriteManifests</code> (Chapter 5.5) as a separate maintenance job. Right for high-frequency ingestion where commit latency matters and a maintenance schedule exists.</p>
+</li>
+<li>
+<p><strong><code>newAppend()</code></strong></p>
+<p>Manifest count stays bounded without external help. Commit cost includes reading and rewriting merged bins — repeated on every retry. Right for tables written at moderate frequency, and the default for a reason.</p>
+</li>
+</ul>
+</div>
+<p>The failure mode of the first is a table that plans slowly. The failure mode of the second is a write job that spends more time on manifest I/O than on data, especially under contention, where each lost race throws away the merge work and redoes it.</p>
+<h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Merge work is repeated on every commit retry</p>
+<p><code>apply()</code> is the first statement inside the retried lambda (Chapter 3.3 §5), and it must be, for the reasons given there. For <code>MergeAppend</code> that means N attempts do N rounds of manifest merging. The bin cache absorbs part of the cost for untouched bins, but never for the bin holding the new files. Under heavy concurrency this shows up as write amplification with no corresponding data volume.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>commit.manifest.min-count-to-merge</code> does not mean what it looks like</p>
+<p>It gates only the bin containing the newly written manifest. Older manifests are bin-packed and merged with no count floor at all. Raising the property to suppress merging entirely does not work; <code>commit.manifest-merge.enabled = false</code> does.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title"><code>appendManifest</code> on a manifest you did not write is a copy, not a reference</p>
+<p><code>FastAppend.appendManifest</code> takes the cheap path only when <code>canInheritSnapshotId()</code> and the manifest has no snapshot id. Otherwise it calls <code>ManifestFiles.copyAppendManifest</code> and rewrites the whole file with this commit's snapshot id. The copies are tracked separately in <code>rewrittenAppendManifests</code> precisely because they are owned by the table and must be cleaned up if the commit fails, whereas inherited manifests must not be.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Entry status changes without a data change</p>
+<p>After a merge, a file's manifest entry status flips from <code>ADDED</code> to <code>EXISTING</code>. The <code>entries</code> metadata table will show this. It is not a rewrite of the data file and not a sign of anything going wrong.</p>
+</div>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>FastAppend</code> and <code>MergeAppend</code> fill the same abstract <code>apply(TableMetadata, Snapshot)</code> hole; everything about retries, manifest lists and cleanup is inherited from <code>SnapshotProducer</code> unchanged.</li>
+<li><code>FastAppend</code> carries the parent snapshot's manifests forward by reference and never reads them, which is only sound because an append invalidates nothing.</li>
+<li><code>MergeAppend</code> runs the full <code>MergingSnapshotProducer</code> pipeline — filter, age out deletes, drop dead manifests, bin-pack and merge — and therefore pays I/O proportional to what it merges.</li>
+<li>The bin-packer uses a lookback of 1 and packs from the end deliberately, trading packing efficiency for manifest order, which is a proxy for data locality.</li>
+<li><code>commit.manifest.min-count-to-merge</code> guards only the bin holding the new manifest; older bins merge unconditionally.</li>
+<li>Merging rewrites entry statuses: previous snapshots' <code>ADDED</code> becomes <code>EXISTING</code> and their <code>DELETED</code> entries disappear.</li>
+</ul>
+<h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FastAppend</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java"><code>core/.../FastAppend.java</code></a></td>
+</tr>
+<tr>
+<td><code>MergeAppend</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergeAppend.java"><code>core/.../MergeAppend.java</code></a></td>
+</tr>
+<tr>
+<td><code>MergingSnapshotProducer</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java"><code>core/.../MergingSnapshotProducer.java</code></a></td>
+</tr>
+<tr>
+<td><code>ManifestMergeManager</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestMergeManager.java"><code>core/.../ManifestMergeManager.java</code></a></td>
+</tr>
+<tr>
+<td><code>ManifestFilterManager</code></td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestFilterManager.java"><code>core/.../ManifestFilterManager.java</code></a></td>
+</tr>
+<tr>
+<td>Bin packing</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/util/BinPacking.java"><code>api/.../util/BinPacking.java</code></a></td>
+</tr>
+<tr>
+<td><code>commit.manifest.*</code> defaults</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableProperties.java"><code>core/.../TableProperties.java</code></a></td>
+</tr>
+<tr>
+<td>Which appender you get</td>
+<td><a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTable.java"><code>core/.../BaseTable.java</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next:</strong> Chapter 5.3 keeps the same <code>MergingSnapshotProducer</code> base but adds delete files — and with them, the validation that decides whether a delete still means what its writer thought it meant.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../chapter_5.1_writers/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5.1 The writer family and metrics collection">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                5.1 The writer family and metrics collection
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../chapter_5.3_deletes/" class="md-footer__link md-footer__link--next" aria-label="Next: 5.3 Position deletes, equality deletes, and `RowDelta`">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                5.3 Position deletes, equality deletes, and `RowDelta`
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
