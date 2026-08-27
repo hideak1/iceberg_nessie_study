@@ -56,7 +56,11 @@ flowchart TD
 
 Two levels, and a lookup descends at most both of them. The **incremental index** lives inside the commit row and holds this commit's own operations plus whatever accumulated changes still fit. When it stops fitting, those accumulated changes are **spilled** into a **reference index**: a sorted list of `IndexStripe` records, each naming a first key, a last key, and the `ObjId` of an `IndexObj` row holding that key range.
 
-The defaults that set the scale, all from `StoreConfig`: `max-incremental-index-size` 50 KiB, `max-serialized-index-size` 200 KiB, `max-reference-stripes-per-commit` 50. At ~60 bytes per entry that is about 850 keys before the first spill. Past it the arithmetic is a range rather than a number, because a stripe is *created* at half the segment limit and only split once it exceeds the whole limit (§6): a settled stripe holds roughly 1,700 to 3,400 keys, so the fiftieth stripe arrives somewhere between about 85,000 and 170,000 keys. Those two moments — first spill, and the stripe list outgrowing the commit row — are the only scale transitions in the whole design.
+The defaults that set the scale are three constants, each declared beside the config key it backs:
+
+{% snip nes:versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/config/StoreConfig.java#L48-L59 | the three constants the arithmetic below runs on %}
+
+`max-incremental-index-size` is 50 KiB, `max-serialized-index-size` 200 KiB, `max-reference-stripes-per-commit` 50. At ~60 bytes per entry that is about 850 keys before the first spill. Past it the arithmetic is a range rather than a number, because a stripe is *created* at half the segment limit and only split once it exceeds the whole limit (§6): a settled stripe holds roughly 1,700 to 3,400 keys, so the fiftieth stripe arrives somewhere between about 85,000 and 170,000 keys. Those two moments — first spill, and the stripe list outgrowing the commit row — are the only scale transitions in the whole design.
 
 ## 3. The four fields 8.2 skipped
 

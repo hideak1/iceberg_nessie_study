@@ -47,13 +47,19 @@ Fifteen fields, and two observations carry the whole v1-to-v2 story.
 
 What is missing matters more. There is no `content` field, so every row in a v1 manifest is a data file by definition. There is no `equality_ids`. There is no `referenced_data_file`. A v1 manifest has no vocabulary for a file that describes deletions, which is why section 2's `writeDeleteManifest` throws rather than validates.
 
-Now the same method two versions later:
+One version later:
+
+{% snip ice:core/src/main/java/org/apache/iceberg/V2Metadata.java#method:fileType | the v2 data_file struct %}
+
+`BLOCK_SIZE` is gone, and three fields have arrived: `CONTENT` (134) at the front, `EQUALITY_IDS` (135), and `REFERENCED_DATA_FILE` (143) at the end. Those three are the entire vocabulary a v2 manifest needs to describe a file that describes deletions, which is why §2's `writeDeleteManifest` throws only for v1.
+
+And two versions later:
 
 {% snip ice:core/src/main/java/org/apache/iceberg/V3Metadata.java#method:fileType | the v3 data_file struct %}
 
 `DataFile.CONTENT.asRequired()` is now the *first* field — field 134, documented as "Contents of the file: 0=data, 1=position deletes, 2=equality deletes". `BLOCK_SIZE` is gone. The rest of the difference is two deltas, not one, and they are easy to merge by mistake because only the v1 and v3 schemas are on this page:
 
-**V1 → V2** added `content` (134), `equality_ids` (135) and `referenced_data_file` (143). That last one is not a v3 field: `V2Metadata.fileType` already ends with `DataFile.REFERENCED_DATA_FILE`, and a v2 position-delete file uses it to name the data file its positions belong to. The §2 diagram files it under v2 for that reason.
+**V1 → V2** added `content` (134), `equality_ids` (135) and `referenced_data_file` (143). That last one is not a v3 field, and the v2 schema above shows it: `V2Metadata.fileType` already ends with `DataFile.REFERENCED_DATA_FILE`, and a v2 position-delete file uses it to name the data file its positions belong to. The §2 diagram files it under v2 for that reason.
 
 **V2 → V3** added three fields — `first_row_id` (142), `content_offset` (144) and `content_size_in_bytes` (145) — and moved `referenced_data_file` from the end of the struct to sit between 142 and 144, so that the v3 list reads in id order. Sections 5 and 6 are about the three that are genuinely new.
 
@@ -144,7 +150,11 @@ Problems accumulate into a `TreeMap` keyed by field ID rather than throwing on t
 
 ## 8. And v4
 
-`TableMetadata.SUPPORTED_TABLE_FORMAT_VERSION` is `4`, and `V4Metadata` exists alongside its three siblings. Diffing it against `V3Metadata` is instructive: `MANIFEST_LIST_SCHEMA` is identical line for line, and so is `fileType`. The only real difference is that `V3Metadata`'s wrappers call a `checkContentType` precondition — rejecting manifest and file content types outside the known set — which `V4Metadata` does not carry.
+`TableMetadata.SUPPORTED_TABLE_FORMAT_VERSION` is `4`, and `V4Metadata` exists alongside its three siblings. Diffing it against `V3Metadata` is instructive, and "identical line for line" is a claim worth putting a snippet behind rather than asserting:
+
+{% snip ice:core/src/main/java/org/apache/iceberg/V4Metadata.java#L31-L48 | the v4 manifest list row %}
+
+Set that beside `V3Metadata.MANIFEST_LIST_SCHEMA`, which Chapter 2.3 §8 injects at the same line range — same eighteen lines, same `asRequired()` on the same six counts, `FIRST_ROW_ID` (520) in the same place. `fileType` matches just as exactly. The only real difference is that `V3Metadata`'s wrappers call a `checkContentType` precondition — rejecting manifest and file content types outside the known set — which `V4Metadata` does not carry.
 
 The genuinely new v4 shape is in the tree but not wired up. `TrackedFile` declares `deletion_vector` at field 148 as a *nested struct* (`DeletionVector.schema()`) rather than the three flat fields v3 uses, and `ManifestInfo` sits beside it. Outside their own tests and their `*Struct` companions, nothing references them.
 

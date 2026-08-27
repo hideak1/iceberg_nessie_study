@@ -14,7 +14,7 @@ There is no schema file for `metadata.json`. No JSON Schema, no `.avsc`, no gene
 
 That makes `TableMetadataParser` unusually good evidence. A pasted example document shows you one table's fields; the parser shows you the whole possible field set, in the order it is written, with every version branch made explicit. It also shows something an example never can: the places where the reader is deliberately **more permissive** than the writer, which is where all the interesting compatibility history is buried.
 
-This chapter reads the writer and the reader side by side, then checks both against real metadata files committed upstream as test fixtures.
+This chapter reads the writer and the reader side by side, and checks both against one real metadata file committed upstream as a test fixture — the same file, in three passes, from its opening brace to its last array.
 
 ## 2. The shape of the document
 
@@ -35,9 +35,6 @@ classDiagram
         long next-row-id
         map properties
     }
-    class Schema
-    class PartitionSpec
-    class SortOrder
     class Snapshot {
         long snapshot-id
         long parent-snapshot-id
@@ -49,13 +46,6 @@ classDiagram
         long first-row-id
         long added-rows
     }
-    class SnapshotRef
-    class HistoryEntry
-    class MetadataLogEntry
-    class StatisticsFile
-    class PartitionStatisticsFile
-    class EncryptedKey
-    class ManifestListFile
 
     TableMetadata "1" *-- "1..*" Schema : schemas
     TableMetadata "1" *-- "1..*" PartitionSpec : partition-specs
@@ -74,15 +64,27 @@ classDiagram
 
 Note what is missing. There is no file list, no row count, no column statistic. **Every array in this document is bounded by schema evolutions, spec evolutions or commits — never by data volume.** That is the property that keeps a commit cheap: rewriting `metadata.json` on every write is only tolerable because its size is independent of how much data the table holds. The moment you want file-level information, you follow `snapshots[].manifest-list` out of this document, which is Chapter 2.3.
 
-## 3. The field set
+## 3. One file, from the top
+
+Definitions are stronger evidence than examples, for the reason section 1 gave. But a definition has to be checkable against something, and Iceberg commits real `metadata.json` documents to `core/src/test/resources` as parser fixtures. One of them, `TableMetadataV2Valid.json`, carries every top-level field the diagram above names. This chapter walks that one file, in three passes, beside the code that writes it and the code that reads it.
+
+{% snip ice:core/src/test/resources/TableMetadataV2Valid.json#L1-L51 | TableMetadataV2Valid.json — the header fields and both schemas %}
+
+Seven scalar fields, then an array. `format-version` is `2`, so `last-sequence-number` is present and `next-row-id` is absent — the first exists from v2, the second from v3, and section 5 has the two branches that decide it. `current-schema-id` is `1` while the `schemas` array holds entries with `schema-id` `0` and `1`: this table has evolved its schema once, and the pointer names the second one. Section 7 shows the reader validating that pointer rather than trusting it.
+
+The second schema carries `identifier-field-ids` and the first does not. Fields arrive; they do not have to arrive everywhere.
+
+One caveat holds for the whole walk. These fixtures are hand-written for tests, so what they demonstrate is what the *reader* accepts, not what `toJson` emits. A sibling file makes the gap visible: `TableMetadataV3ValidMinimal.json` puts `next-row-id` on line 8, ahead of `current-schema-id`, where the writer emits it some forty statements later, after `properties` and `current-snapshot-id`. Both parse, because the reader is a Jackson object lookup and does not care about order at all. Section 5's claim is about files this code *writes*, and the fixtures leave it standing.
+
+## 4. The field set
 
 {% snip ice:core/src/main/java/org/apache/iceberg/TableMetadataParser.java#L88-L116 | the complete key set, and one constant that is not a key %}
 
 Twenty-nine lines: twenty-eight `static final String`s that are the entire vocabulary, and one `static final int` that is not a key at all. Every key that can appear in a `metadata.json` written by this version is one of those strings, and the comment above them — `// visible for testing` — is a fair description of the situation: these are package-private constants, not a published model.
 
-Two of the keys are worth flagging now. `NEXT_ROW_ID = "next-row-id"` is the newest field in the document and belongs entirely to v3 row lineage (Chapter 2.5). `ENCRYPTION_KEYS` is the other recent arrival. The odd constant on the last line, `MIN_NULL_CURRENT_SNAPSHOT_VERSION`, is filed here because it governs how one of these keys is *encoded* rather than whether it appears — section 5.
+Two of the keys are worth flagging now. `NEXT_ROW_ID = "next-row-id"` is the newest field in the document and belongs entirely to v3 row lineage (Chapter 2.5). `ENCRYPTION_KEYS` is the other recent arrival. The odd constant on the last line, `MIN_NULL_CURRENT_SNAPSHOT_VERSION`, is filed here because it governs how one of these keys is *encoded* rather than whether it appears — section 6.
 
-## 4. `toJson`: order is statement order
+## 5. `toJson`: order is statement order
 
 {% snip ice:core/src/main/java/org/apache/iceberg/TableMetadataParser.java#L166-L232 | toJson: field order and version branches %}
 
@@ -108,9 +110,15 @@ if (metadata.formatVersion() == 1) {
 
 A v1 table gets its current schema written **twice** — once as `schema`, once inside the `schemas` array — and its default spec written twice, as `partition-spec` and inside `partition-specs`. This is not redundancy for its own sake; it is a deliberate concession to readers that predate multi-schema support. The cost is that a v1 metadata file has two sources of truth for the same information, and a tool that edits one without the other produces a file two readers disagree about.
 
+The middle of the document is where that order is easiest to check. Continuing the file from section 3:
+
+{% snip ice:core/src/test/resources/TableMetadataV2Valid.json#L52-L87 | the same file, continued: specs, sort orders, properties %}
+
+`default-spec-id`, `partition-specs`, `last-partition-id`, `default-sort-order-id`, `sort-orders`, `properties` — six keys in the order the statements above emit them. Note what is *absent*: no `partition-spec` and no `schema` beside the plural forms, because this is a v2 file and the duplication is written only at v1. `properties` is `{}`, which is the only field in the document a user populates directly and the common case for a new table.
+
 The fifth branch is neither forward nor backward. It does not decide whether a field appears — it decides how an unchanged field is *spelled*, and it is the next section.
 
-## 5. `current-snapshot-id` changes representation at v3
+## 6. `current-snapshot-id` changes representation at v3
 
 The block just before `next-row-id` is the sharpest illustration of the whole compatibility problem:
 
@@ -130,7 +138,7 @@ An empty table — no snapshots yet, or all of them expired — has to encode "t
 
 Both encodings mean exactly the same thing, both are in the wild, and each one breaks code written against the other. `currentSnapshotId == -1` silently stops detecting empty tables at v3; `currentSnapshotId == null` never fires at v2. This is the single most common way a third-party `metadata.json` reader is subtly wrong.
 
-## 6. `fromJson`: where the reader is stricter, and where it is not
+## 7. `fromJson`: where the reader is stricter, and where it is not
 
 {% snip ice:core/src/main/java/org/apache/iceberg/TableMetadataParser.java#L339-L396 | fromJson: the version ceiling and the v1 fallbacks %}
 
@@ -163,29 +171,21 @@ Then the reader inverts the writer's backward-compatibility branches into *requi
 
 One more detail, easy to read past: when the `schemas` array is present, the reader requires that some element in it has `schema-id == current-schema-id`, and fails with `"Cannot find schema with %s=%s from %s"` if not. The pointer is validated on read, not assumed.
 
-## 7. Two real files
+## 8. The rest of the document
 
-Definitions are stronger evidence than examples, but examples are how you check that you read the definitions right. Iceberg commits several `metadata.json` fixtures to `core/src/test/resources`; they are real files this exact parser accepts.
+Thirty-five lines close the file, and everything in them after the first key belongs to `SnapshotParser` rather than to `TableMetadataParser`:
 
-Here is the head of the minimal v3 fixture:
+{% snip ice:core/src/test/resources/TableMetadataV2Valid.json#L88-L122 | the same file, finished: snapshots and the two logs %}
 
-{% snip ice:core/src/test/resources/TableMetadataV3ValidMinimal.json#L1-L9 | a real v3 metadata header %}
+Line 88 is `current-snapshot-id`, written by the branch in section 6 — here carrying a real snapshot ID rather than either of the two "empty" encodings, because this table has snapshots.
 
-Nine lines: an opening brace and eight fields, every one of which maps to a `writeNumberField` or `writeStringField` from section 4. `next-row-id` is there because `format-version` is `3`.
+The omissions in the `snapshots` array are the informative part. The first snapshot has no `parent-snapshot-id` (it is the root) and no `schema-id` (it predates schema tracking on snapshots); the second has both, and its `schema-id` is `1` — the second of the two schemas from section 3. `sequence-number` is `0` on the first and `1` on the second: this is the counter Chapter 2.5 shows arriving in v2 and becoming the ordering key for delete files.
 
-But read the *order* and the fixture turns out to be evidence for a different claim than the obvious one. Here `next-row-id` sits on line 8, ahead of `current-schema-id`; the writer emits it from `if (metadata.formatVersion() >= 3)`, some forty statements later, after `properties` and `current-snapshot-id` — you can see both positions inside the section 4 snippet. This document was hand-written for a test, not produced by `toJson`. What it proves is that the *reader* does not care about order at all (it is a Jackson object, looked up by name), while the writer's order is fixed by statement order. Section 4's claim is about files this code writes, and the fixture leaves it standing.
-
-Compare it to `TableMetadataV2ValidMinimal.json`, which is nearly the same document. `diff` shows three changes, not one: `format-version` 2 → 3, `next-row-id` added — and `"initial-default": 1` with `"write-default": 1` added to field `x`. That third change matters, because a non-null `initial-default` is itself a v3 requirement (Chapter 2.5). The fixture exercises two v3 features, and the interesting one is the one that is easy to miss.
-
-And the snapshot block of the fuller v2 fixture:
-
-{% snip ice:core/src/test/resources/TableMetadataV2Valid.json#L88-L110 | snapshots, as actually written %}
-
-The excerpt starts one line early: line 88 is `current-snapshot-id`, which belongs to `TableMetadataParser.toJson`. Everything from `snapshots` on is `SnapshotParser`'s, and the omissions there are informative. The first snapshot has no `parent-snapshot-id` (it is the root) and no `schema-id` (it predates schema tracking on snapshots); the second has both. `sequence-number` is `0` on the first and `1` on the second — this is the counter that Chapter 2.5 shows arriving in v2 and becoming the ordering key for delete files.
+`snapshot-log` repeats both snapshot IDs with their timestamps, in the order they became current. `metadata-log` is empty, because no commit ever wrote this file — Chapter 2.1 covers what fills that array and what trims it.
 
 `manifest-list` is the pointer out of this document. Everything from Chapter 2.3 onward hangs off that one string.
 
-## 8. Gotchas
+## 9. Gotchas
 
 !!! warning "A v1 table's `schema` and `partition-spec` are duplicates, and both are written"
     The writer emits `schema` *and* `schemas`, `partition-spec` *and* `partition-specs`, for v1 only, with the comment: *"for older readers, continue writing the current schema as `schema`. this is only needed for v1 because support for schemas and current-schema-id is required in v2 and later."* Hand-editing one and not the other produces a valid-looking file that two readers disagree about.
@@ -202,6 +202,7 @@ The excerpt starts one line early: line 88 is `current-snapshot-id`, which belon
 ## Key takeaways
 
 - `metadata.json` has no schema file; `TableMetadataParser`'s constants are the field set and `toJson`'s statement order is the field order.
+- One committed fixture, `TableMetadataV2Valid.json`, carries all eighteen top-level fields — two schemas, a spec, sort orders, two snapshots and a snapshot log — and sections 3, 5 and 8 walk it end to end. What a fixture proves is what the *reader* accepts; the writer's order is a separate claim, made by `toJson` alone.
 - Version branching runs in two directions: forward for new fields (`last-sequence-number`, `next-row-id`), backward for duplicated fields written only so older readers can still parse v1.
 - The reader is deliberately asymmetric — absent `last-sequence-number` is defaulted in v1, absent `schemas` is fatal in v2+ — and every asymmetry is a compatibility decision, not an oversight.
 - `current-snapshot-id` encodes "no snapshot" as `-1` before v3 and `null` from v3; both are live and each breaks code written for the other.
@@ -216,6 +217,7 @@ The excerpt starts one line early: line 88 is `current-snapshot-id`, which belon
 | Snapshot serialization | [`core/.../SnapshotParser.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotParser.java) |
 | Ref serialization | [`core/.../SnapshotRefParser.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotRefParser.java) |
 | Schema and spec serialization | [`core/.../SchemaParser.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SchemaParser.java), [`PartitionSpecParser.java`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/PartitionSpecParser.java) |
-| Committed fixtures | [`core/src/test/resources/`](https://github.com/apache/iceberg/tree/apache-iceberg-1.11.0/core/src/test/resources) — `TableMetadataV1Valid.json`, `TableMetadataV2Valid.json`, `TableMetadataV2ValidMinimal.json`, `TableMetadataV3ValidMinimal.json` |
+| The fixture walked in sections 3, 5 and 8 | [`core/src/test/resources/TableMetadataV2Valid.json`](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/test/resources/TableMetadataV2Valid.json) — 122 lines, all eighteen top-level fields |
+| Other committed fixtures | [`core/src/test/resources/`](https://github.com/apache/iceberg/tree/apache-iceberg-1.11.0/core/src/test/resources) — `TableMetadataV1Valid.json`, `TableMetadataV2Valid.json`, `TableMetadataV2ValidMinimal.json`, `TableMetadataV3ValidMinimal.json` |
 
 **Next:** Chapter 2.3 follows `snapshots[].manifest-list` into the `snap-*.avro` file, where the fields stop describing the table and start describing how to avoid reading it.

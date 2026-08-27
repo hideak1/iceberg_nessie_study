@@ -298,9 +298,16 @@ def _render(alias: str, path: str, locator: str, title: str | None) -> str:
         f'```{lang} title="{label}" linenums="{first}"\n'
         f"{code}\n"
         "```\n"
-        f'<p class="snip-src">:material-source-branch: '
+        # `markdown="1"` is not optional: without it the link and the emoji
+        # shortcode inside this block render as literal text. md_in_html is
+        # enabled, but it only descends into elements that ask for it.
+        f'<p class="snip-src" markdown="1">:material-source-branch: '
         f"[`{gh}` · `{path}` L{first}–L{last}]({url}) "
-        f"<span>@ {tag}</span></p>"
+        f"<span>@ {tag}</span></p>\n"
+        # A blank line after the block-level <p>. Without it, a snippet placed
+        # directly after another one leaves the closing tag adjacent to the next
+        # fence, and markdown never re-enters parsing -- the following snippet's
+        # provenance line renders inside the code block instead of under it.
     )
 
 

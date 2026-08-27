@@ -47,8 +47,11 @@ def title_of(path: Path) -> str:
             m = re.match(r"Chapter\s+([\d.]+)\s*[—:-]\s*(.+)", h1)
             if m:
                 title = m.group(2).strip().rstrip(".")
+                # nav labels are plain text -- markdown in them renders literally,
+                # so `metadata.json` reaches the sidebar with its backticks showing
+                title = title.replace("`", "")
                 return f"{m.group(1)} {title}"
-            return h1
+            return h1.replace("`", "")
     return path.stem
 
 

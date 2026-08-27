@@ -133,15 +133,13 @@ Not all of them, and the default cutoff surprises people:
 
 {% snip ice:core/src/main/java/org/apache/iceberg/MetricsConfig.java#method:from+doc | which columns get metrics %}
 
-Three rules, in the order the method applies them.
+Four decisions, in the order the method applies them — and the order is the whole content, so **Chapter 5.1 §7 walks all four**, where the write path they belong to is being read. Two of them matter here, because they decide what a manifest ends up holding.
 
-**The default mode is `truncate(16)`** — bounds are stored, truncated to sixteen units. Enough to prune string prefixes and any fixed-width type, cheap enough to store per column per file.
+**The built-in default is `truncate(16)`** — bounds are stored, truncated to sixteen units. Enough to prune string prefixes and any fixed-width type, cheap enough to store per column per file. It is a *default*, not a floor: `write.metadata.metrics.default` replaces it, and that is the method's first branch.
 
-**Above 100 columns, the default becomes `None`.** `TypeUtil.getProjectedIds(schema).size()` is compared against `write.metadata.metrics.max-inferred-column-defaults` (default `100`); above it, only the first hundred projected IDs get `truncate(16)` and *"all other columns don't use metrics"*. Nested struct fields count toward that limit, so a schema with a few wide structs reaches it faster than its top-level column count suggests.
+**Above 100 columns, the inferred default becomes `None`.** `TypeUtil.getProjectedIds(schema).size()` is compared against `write.metadata.metrics.max-inferred-column-defaults` (default `100`); above it, only the first hundred projected IDs get the default mode and *"all other columns don't use metrics"*. Nested struct fields count toward that limit, so a schema with a few wide structs reaches it faster than its top-level column count suggests. Both numbers in this section are `static final` constants — `METRICS_MAX_INFERRED_COLUMN_DEFAULTS_DEFAULT` and `DEFAULT_WRITE_METRICS_MODE_DEFAULT` — injected in Chapter 2.1 §3.
 
-**Sorted columns are promoted back.** `sortedColumnDefaultMode` forces `truncate(16)` for any order-preserving sorted column even when the default is `None` or `Counts`, with the reasoning in its javadoc. Sorting a column is a statement that you intend to filter on it; metrics for it are worth more than for anything else in the file.
-
-Only after all three does the loop over `write.metadata.metrics.column.*` apply explicit user overrides. Which means: an override is the only way to get metrics on the 101st column of a wide table.
+That second rule is reached **only when `write.metadata.metrics.default` is unset** — a configured default short-circuits the width inference entirely and applies to every column. So there are two ways to get metrics on the 101st column of a wide table: name it in `write.metadata.metrics.column.*`, or set a default mode for the whole table.
 
 ## 7. Which metrics get read
 
@@ -181,8 +179,8 @@ That fourth one is load-bearing v3 behaviour rather than plumbing. `first_row_id
 !!! warning "Metric maps are keyed by field ID, so `DROP` + `ADD` of the same name orphans the statistics"
     Every metric map is `map<int, X>` over schema field IDs. Renaming preserves statistics; dropping and re-adding a column with the same name allocates a new field ID and starts from nothing. Predicates on it stop pruning against existing files, silently, until those files are rewritten.
 
-!!! warning "The 101st column silently gets no metrics"
-    `MetricsConfig.from` compares the schema's projected ID count against `write.metadata.metrics.max-inferred-column-defaults` (default `100`) and sets `defaultMode` to `None` above it. Nested fields count. The symptom is a filter that used to prune and stopped after a schema grew, with nothing logged.
+!!! warning "The 101st column silently gets no metrics — unless a default mode is set"
+    With `write.metadata.metrics.default` unset, `MetricsConfig.from` compares the schema's projected ID count against `write.metadata.metrics.max-inferred-column-defaults` (default `100`) and sets `defaultMode` to `None` above it. Nested fields count. The symptom is a filter that used to prune and stopped after a schema grew, with nothing logged. Setting a table-wide default mode skips the inference and this never fires.
 
 !!! warning "A null `sequence_number` does not mean zero"
     Null means *inherit from the committing snapshot*, and the writer enforces that it may only appear on `ADDED` entries whose snapshot ID is null or matches the current commit — `"Only entries with status ADDED can have null sequence number"`. Reading a manifest outside `ManifestReader`, which applies the inheritance, yields entries whose sequence numbers are literally absent.

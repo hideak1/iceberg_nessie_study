@@ -54,7 +54,7 @@ The last five fields on the page are the exception, and they are worth understan
 
 The tempting reading is that they are a cache sitting outside the value. That is not what they are. `snapshots` and `refs` are both persisted `metadata.json` fields — `TableMetadataParser` has a constant, a writer and a parser branch for each — and both arrive through the constructor like any other stored field. `snapshotsById` is a derived index over `snapshots`. What is genuinely not part of the value is the pair that records *how much of it has arrived yet*: `snapshotsSupplier` and `snapshotsLoaded`.
 
-So the mutability here is about **when** the value shows up, not whether it can change. A REST catalog may return metadata whose snapshot list has not been fetched, because a table with fifty thousand snapshots should not force all of them into memory to answer a question about the current one; the catalog hands over a supplier instead. `ensureSnapshotsLoaded()` calls it once, under `synchronized`, then rebuilds `snapshotsById`, re-validates `refs` against the new index, sets `snapshotsLoaded` and drops the supplier to `null`. After that the object never changes again. The `volatile` markers exist because that one-time fill can happen on any thread.
+So the mutability here is about **when** the value shows up, not whether it can change. A REST catalog may return metadata whose snapshot list has not been fetched, because a table with fifty thousand snapshots should not force all of them into memory to answer a question about the current one; the catalog hands over a supplier instead. `ensureSnapshotsLoaded()` calls it once, under `synchronized`, then rebuilds `snapshotsById` through `indexAndValidateSnapshots`, checks the current snapshot is present via `validateCurrentSnapshot()`, re-validates `refs` against the new index, sets `snapshotsLoaded` and drops the supplier to `null`. After that the object never changes again. The `volatile` markers exist because that one-time fill can happen on any thread.
 
 ## 4. Every edge in the tree is a location string
 
@@ -72,7 +72,9 @@ With that in place, following `currentSnapshotId` is almost nothing:
 
 {% snip ice:core/src/main/java/org/apache/iceberg/TableMetadata.java#L516-L556 | Dereferencing the pointer, and loading snapshots lazily %}
 
-`currentSnapshot()` is a single map lookup. `snapshot(long)` is the same lookup, guarded by `ensureSnapshotsLoaded()` — and the asymmetry is deliberate. The *current* snapshot is expected to be in whatever partial set the catalog handed back, because a catalog that cannot describe the current state of the table has not done its job. An *arbitrary historical* snapshot may require going back to the source.
+Three accessors sit side by side in the excerpt and each treats the supplier differently. `currentSnapshot()` is a bare map lookup and never forces a load. `snapshot(long)` tries the map first and calls `ensureSnapshotsLoaded()` only on a miss — `if (!snapshotsById.containsKey(snapshotId))`. `snapshots()` calls it unconditionally, because a caller asking for the list is asking for all of them.
+
+The asymmetry is deliberate. The *current* snapshot is expected to be in whatever partial set the catalog handed back, because a catalog that cannot describe the current state of the table has not done its job. An *arbitrary historical* snapshot may require going back to the source. And the list accessor is not the cheap one it looks like: on metadata that arrived with a supplier, `snapshots()` is the call that fetches fifty thousand snapshots.
 
 The defensive line inside `ensureSnapshotsLoaded` is the one to stop on:
 

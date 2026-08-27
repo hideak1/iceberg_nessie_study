@@ -30,7 +30,17 @@ DOCS = ROOT / "docs"
 # Languages that mean "this is source from the vendored repos".
 SOURCE_LANGS = {"java", "kotlin", "scala"}
 
-FENCE = re.compile(r"^```(\w+)[^\n]*\n(.*?)^```", re.MULTILINE | re.DOTALL)
+# A fence with no language is neither source nor prose: it is data, output or a
+# listing. It cannot be matched against the page's snippets the way code can, so
+# it is reported for a human to source or justify. An audit found one such block
+# in this book presenting a directory listing with invented UUIDs -- data typed
+# by hand, in a book whose whole claim is that it does not do that. It was
+# invisible here because the check only looked at java, kotlin and scala.
+UNSOURCED_LANGS = {""}
+
+# `\w*` not `\w+`: a fence with no language was never matched at all, which
+# is why an unsourced data block sat in this book undetected.
+FENCE = re.compile(r"^```(\w*)[^\n]*\n(.*?)^```", re.MULTILINE | re.DOTALL)
 
 
 def normalise(code: str) -> list[str]:
@@ -103,6 +113,7 @@ def best_contiguous_match(lines: list[str], blocks: list[list[str]]) -> float:
 def main() -> int:
     snippets._load_pins()
     violations: list[tuple[str, int, str, int, float]] = []
+    unsourced: list[tuple[str, int, str]] = []
     requotes = 0
     checked = 0
 
@@ -114,6 +125,13 @@ def main() -> int:
 
         for m in FENCE.finditer(text):
             lang, body = m.group(1), m.group(2)
+            if lang in UNSOURCED_LANGS and body.strip():
+                unsourced.append(
+                    (str(md.relative_to(ROOT)),
+                     text[: m.start()].count("\n") + 1,
+                     next((l.strip() for l in body.splitlines() if l.strip()), "")[:58])
+                )
+                continue
             if lang not in SOURCE_LANGS:
                 continue
             checked += 1
@@ -132,12 +150,20 @@ def main() -> int:
         print(f"HAND-TYPED  {rel}:{line_no}  ({lang}, {n} lines, "
               f"longest contiguous run found in this page's snippets: {ratio:.0%})")
 
+    for rel, line_no, first in unsourced:
+        print(f"UNSOURCED   {rel}:{line_no}  (fence with no language)")
+        print(f"              {first}")
+
     print()
     print(f"{checked} source fences: {requotes} are re-quotes of injected code, "
           f"{len(violations)} are hand-typed.")
+    if unsourced:
+        print(f"{len(unsourced)} unsourced data blocks: neither injected nor prose. "
+              f"Each needs a source or a stated reason.")
     if violations:
         print("Fix by widening an existing locator or adding a new one.")
-        return 1 if "--strict" in sys.argv else 0
+    if (violations or unsourced) and "--strict" in sys.argv:
+        return 1
     return 0
 
 

@@ -66,9 +66,11 @@ Size is one of three. `outsideDesiredFileSizeRange` fires when a file falls outs
 
 That is the rule to carry into Chapter 11.4's tables. On a merge-on-read table with a 512 MB target, a 500 MB data file is never selected on size and can be selected constantly on delete ratio; "compaction is about file size" predicts neither. It also inherits 5.5 §8's blind spot: only file-scoped delete files contribute a countable number, so the ratio predicate goes quiet on a table using partition-scoped deletes.
 
-The surviving files are bin-packed into groups, and `filterFileGroups` keeps a group only if at least one of five predicates holds: `enoughInputFiles`, `enoughContent`, `tooMuchContent`, `tooManyDeletes`, `tooHighDeleteRatio`.
+The surviving files are then bin-packed — `new BinPacking.ListPacker<>(maxGroupSize, 1, false, maxGroupCount)`, packed on `ContentScanTask::length` — and the resulting groups face a second filter. `filterFileGroups` keeps a group only if at least one of five predicates holds, and the five are not five new rules: `enoughInputFiles` (`size() > 1 && size() >= min-input-files`), `enoughContent` (`size() > 1 && inputSize > target`), `tooMuchContent` (`inputSize > maxFileSize`), and then **the same two delete predicates from the per-file gate**, re-applied over the group with `anyMatch`.
 
-With a 512 MB target and no delete files, a partition holding four 1 MB files satisfies none of them — `enoughInputFiles` needs `min-input-files`, default `5`. A default `rewrite_data_files` reports zero rewritten files and leaves the partition exactly as it was. `rewrite-all=true` bypasses both the size selection and the group filter.
+Note the `size() > 1` conjunct on the first two. A group of exactly one file can only survive on `tooMuchContent` or on deletes — so a single oversized-but-not-huge file, selected by `outsideDesiredFileSizeRange` at the first gate, is dropped at the second. Both gates read `rewriteAll` first: `planFileGroups` is `rewriteAll ? tasks : filterFiles(tasks)` followed by `rewriteAll ? groups : filterFileGroups(groups)`.
+
+With a 512 MB target and no delete files, a partition holding four 1 MB files satisfies none of them — `enoughInputFiles` needs `min-input-files`, default `5`. A default `rewrite_data_files` reports zero rewritten files and leaves the partition exactly as it was.
 
 Two other defaults are worth knowing before you schedule this:
 

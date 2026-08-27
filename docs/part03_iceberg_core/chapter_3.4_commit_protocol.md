@@ -101,7 +101,20 @@ Four structural features are worth naming, because every correct `doCommit` has 
 
 **The conditional failure is the CAS.** `persistTable` issues an `UpdateItem` carrying `conditionExpression(COL_VERSION + " = :v")`, with `:v` bound to the value of the item's `v` attribute read a few lines earlier — and the same update rewrites `v` to a fresh `UUID.randomUUID()`. So the condition is not on the metadata location at all; it is on an opaque per-row version token, which is *stricter*: any concurrent write to this catalog entry invalidates it, not only one that moved the metadata pointer. (Creating a table conditions on `attribute_not_exists(v)` instead — the same idea with no prior value to name.) `ConditionalCheckFailedException` means the condition did not hold — a genuine, provable conflict.
 
-**Everything else triggers reconciliation.** Any other `RuntimeException` — and, crucially, a `ConditionalCheckFailedException` that arrives when `retryDetector.retried()` is true — leads to `checkCommitStatus`, then the three-way `switch`.
+**Everything else is caught once, and sorted by a boolean.** There is no second `catch` clause for `ConditionalCheckFailedException`. After the `CommitFailedException` rethrow there is exactly one `catch (RuntimeException persistFailure)`, whose first line is `boolean conditionCheckFailed = persistFailure instanceof ConditionalCheckFailedException`. That flag then does two separate jobs, and the second is easy to read past.
+
+Its first job gates reconciliation — `if (!conditionCheckFailed || retryDetector.retried())` calls `checkCommitStatus`. So an ordinary lost race, a conditional failure with no SDK retry behind it, **skips the status check entirely** and carries the seeded `FAILURE` forward. Iceberg does not investigate a conflict it can already prove.
+
+Its second job is a guard standing in front of the three-way `switch`:
+
+```java
+if (commitStatus != CommitStatus.SUCCESS && conditionCheckFailed) {
+  throw new CommitFailedException(
+      persistFailure, "Cannot commit %s: concurrent update detected", tableName());
+}
+```
+
+Section 7 reads what that guard does to the `switch` underneath it.
 
 The `finally` block deletes the metadata file it wrote, but only when `commitStatus == FAILURE`. On `SUCCESS` the file is live. On `UNKNOWN` it may be live. Chapter 3.3 made the same call one layer up: when unsure, delete nothing.
 
@@ -133,6 +146,10 @@ The two wrappers differ in exactly one respect, and it is a policy decision rath
 
 The middle row is ordinary optimistic concurrency. The top row is the subtle one: an exception was raised, the commit succeeded anyway, and the correct response is to return normally as though nothing happened. The bottom row is the one that reaches a human, and Chapter 3.3 explained the reasoning — leaked storage is recoverable, a corrupted table is not.
 
+That table is the `switch`, and the `switch` is not the last word. Section 5's guard stands in front of it, so **a conditional failure never reaches the `UNKNOWN` arm**: once `conditionCheckFailed` is true, any status other than `SUCCESS` — including an `UNKNOWN` that `checkCommitStatus` returned because it could not read the table at all — is thrown as `CommitFailedException`, which is retryable and a `CleanableFailure`. The bottom row is reached only when the failure was *not* a conditional one. `GlueTableOperations` has the identical shape with `isAwsServiceException` in place of `conditionCheckFailed`, routing through `handleAWSExceptions` rather than throwing inline, so this is the pattern rather than one catalog's quirk.
+
+Read that as a deliberate ordering. A failed condition is proof the write did not land, and proof outranks a probe — but the proof is only as good as the assumption that the SDK did not already succeed on an earlier attempt, which is exactly what `retryDetector` exists to detect.
+
 Every row of that table is reachable from a single `doCommit`, which is why `checkCommitStatus` returns an enum instead of throwing. The caller has to make the decision, and the decision depends on catalog-specific knowledge the shared code does not have.
 
 This is the protocol every catalog is expected to implement. Whether a given catalog *can* — whether its swap genuinely is atomic, or quietly is not — comes down to whether the store underneath offers a real conditional write. A catalog with one gets the protocol almost for free. A catalog without one has to borrow atomicity from somewhere else — a metastore lock, or a filesystem rename that fails when the destination already exists — and each substitute fails differently. (`version-hint.text` is not one of the substitutes, whatever its name suggests: `HadoopTableOperations` writes it *after* the rename that already committed, under the comment "update the best-effort version pointer", and swallows any `IOException` with a warning.) Chapter 6.2 audits `HadoopCatalog` and `HiveCatalog` on exactly that question.
@@ -155,7 +172,7 @@ This is the protocol every catalog is expected to implement. Whether a given cat
     `RESTTableOperations` and `HadoopTableOperations` both implement `TableOperations` directly and override `commit` rather than extending `BaseMetastoreTableOperations`. Their reasons differ: for a REST catalog the conditional check runs on the server (Chapters 6.3 and 6.4), while `HadoopTableOperations` has no catalog entry to swap — its commit is a `FileSystem.rename` onto `v<N>.metadata.json`, with the version taken from the directory rather than from a stored pointer (Chapter 6.2). Neither gets the retry, cleanup and status-check scaffolding read above; each rebuilds what it needs.
 
 !!! note "Old metadata files are kept by default"
-    `commit()` calls `CatalogUtil.deleteRemovedMetadataFiles` after `doCommit`, but `write.metadata.delete-after-commit.enabled` defaults to **false** while `write.metadata.previous-versions-max` defaults to 100. The metadata log inside the file is trimmed to 100 entries; the files that fell off the end stay in storage forever. When deletion *is* enabled it runs after the swap has already succeeded, which looks like a violation of the `TableOperations` javadoc — "implementations must not perform any operations that may fail" once the commit lands. It is not, because `CatalogUtil.deleteFiles` runs under `Tasks...suppressFailureWhenFinished()` and logs rather than throws.
+    `commit()` calls `CatalogUtil.deleteRemovedMetadataFiles` after `doCommit`, but `write.metadata.delete-after-commit.enabled` defaults to **false** while `write.metadata.previous-versions-max` defaults to 100 (both constants are injected in Chapter 2.1 §3). The metadata log inside the file is trimmed to 100 entries; the files that fell off the end stay in storage forever. When deletion *is* enabled it runs after the swap has already succeeded, which looks like a violation of the `TableOperations` javadoc — "implementations must not perform any operations that may fail" once the commit lands. It is not, because `CatalogUtil.deleteFiles` runs under `Tasks...suppressFailureWhenFinished()` and logs rather than throws.
 
 ## Key takeaways
 
