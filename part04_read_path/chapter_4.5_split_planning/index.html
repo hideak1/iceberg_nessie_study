@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1292,7 +1292,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1320,7 +1320,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1348,7 +1348,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1701,7 +1701,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1729,7 +1729,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1895,7 +1895,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1923,7 +1923,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1951,7 +1951,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2119,7 +2119,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2147,7 +2147,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2175,7 +2175,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2315,7 +2315,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2343,7 +2343,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2537,7 +2537,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2731,7 +2731,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2927,7 +2927,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3011,7 +3011,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3267,7 +3267,7 @@
 <h1 id="chapter-45-split-planning-parallel-planning-and-metadata-tables">Chapter 4.5 — Split planning, parallel planning, and metadata tables<a class="headerlink" href="#chapter-45-split-planning-parallel-planning-and-metadata-tables" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> <code>planFiles()</code> hands back one task per file, which is the wrong unit of work for any engine — how does Iceberg turn that into evenly sized units, where does the planning itself run, and why do the <code>.files</code> and <code>.manifests</code> tables come out of the same machinery?</p>
-<p><strong>Prerequisites:</strong> Chapter 4.1 (<code>planFiles()</code> and the scan hierarchy), Chapter 4.2 (<code>ManifestEvaluator</code> and per-spec caching), Chapter 4.4 (the residual a task carries)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_4.1_table_scan/">Chapter 4.1</a> (<code>planFiles()</code> and the scan hierarchy), <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> (<code>ManifestEvaluator</code> and per-spec caching), <a href="../chapter_4.4_residuals/">Chapter 4.4</a> (the residual a task carries)</p>
 <p><strong>Source covered:</strong> <code>core/.../BaseTableScan.java</code>, <code>core/.../util/TableScanUtil.java</code>, <code>core/.../BaseContentScanTask.java</code>, <code>core/.../BaseDistributedDataScan.java</code>, <code>core/.../BaseFilesTable.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3296,9 +3296,8 @@
 </span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="w">      </span><span class="n">splitFiles</span><span class="p">,</span><span class="w"> </span><span class="n">targetSplitSize</span><span class="p">(),</span><span class="w"> </span><span class="n">splitLookback</span><span class="p">(),</span><span class="w"> </span><span class="n">splitOpenFileCost</span><span class="p">());</span>
 </span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseTableScan.java` L42–L49](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTableScan.java#L42-L49) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>Eight lines, and everything in the rest of this chapter hangs off them. <code>planFiles()</code> is Chapters 4.1–4.4. <code>TableScanUtil.splitFiles</code> is section 3. <code>TableScanUtil.planTasks</code> is section 4.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTableScan.java#L42-L49"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseTableScan.java</code> L42–L49</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Eight lines, and everything in the rest of this chapter hangs off them. <code>planFiles()</code> is Chapters <a href="../chapter_4.1_table_scan/">4.1</a>–<a href="../chapter_4.4_residuals/">4.4</a>. <code>TableScanUtil.splitFiles</code> is section 3. <code>TableScanUtil.planTasks</code> is section 4.</p>
 <p>The three arguments come from <code>BaseScan</code>, and each is read as a table property first and a scan option second:</p>
 <table>
 <thead>
@@ -3362,8 +3361,7 @@
 </span><span id="__span-1-114"><a id="__codelineno-1-114" name="__codelineno-1-114"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">self</span><span class="p">());</span>
 </span><span id="__span-1-115"><a id="__codelineno-1-115" name="__codelineno-1-115"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseContentScanTask.java` L99–L115](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseContentScanTask.java#L99-L115) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseContentScanTask.java#L99-L115"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseContentScanTask.java</code> L99–L115</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three branches, and the interesting one is the first.</p>
 <p><strong>Not splittable at all.</strong> <code>FileFormat</code> carries a <code>splittable</code> flag: Parquet, ORC and Avro are true; <code>PUFFIN</code> and <code>METADATA</code> are false. A non-splittable file returns <code>ImmutableList.of(self())</code> — one task, whatever its size.</p>
 <p><strong>Split offsets present and strictly ascending.</strong> <code>splitOffsets</code> are row-group offsets for Parquet and stripe offsets for ORC, recorded by the writer into the manifest entry. When they are there, Iceberg cuts exactly on them:</p>
@@ -3387,8 +3385,7 @@
 </span><span id="__span-2-76"><a id="__codelineno-2-76" name="__codelineno-2-76"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">splitTaskCreator</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">parentTask</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">splitSize</span><span class="p">);</span>
 </span><span id="__span-2-77"><a id="__codelineno-2-77" name="__codelineno-2-77"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/OffsetsAwareSplitScanTaskIterator.java` L68–L77](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/OffsetsAwareSplitScanTaskIterator.java#L68-L77) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/OffsetsAwareSplitScanTaskIterator.java#L68-L77"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/OffsetsAwareSplitScanTaskIterator.java</code> L68–L77</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The comment on the increment says it plainly: <em>"create 1 split per offset"</em>. <code>targetSplitSize</code> is not a parameter of this iterator and is never consulted. Split granularity for such a file was fixed by whoever wrote it.</p>
 <p>That is the right tradeoff. A split boundary in the middle of a row group buys nothing, because a reader cannot decode any row of a row group without reading the whole of it; the byte range on a task is a hint that the file reader maps back onto whole row groups. Cutting where the writer already cut is the only cut that translates into less I/O.</p>
 <p><strong>Anything else.</strong> <code>FixedSizeSplitScanTaskIterator</code> walks blind fixed-size byte ranges from zero. Note the guard that routes here: <code>ArrayUtil.isStrictlyAscending(splitOffsets)</code>. A null, empty, duplicated or out-of-order offsets array is not trusted — it would produce overlapping or negative-length splits — and the scan falls back to arithmetic instead of failing.</p>
@@ -3437,8 +3434,7 @@
 </span><span id="__span-3-108"><a id="__codelineno-3-108" name="__codelineno-3-108"></a><span class="w">      </span><span class="n">BaseCombinedScanTask</span><span class="p">::</span><span class="k">new</span><span class="p">);</span>
 </span><span id="__span-3-109"><a id="__codelineno-3-109" name="__codelineno-3-109"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/util/TableScanUtil.java` L92–L109](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/util/TableScanUtil.java#L92-L109) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/util/TableScanUtil.java#L92-L109"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/util/TableScanUtil.java</code> L92–L109</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The weight function is the whole design:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">file</span><span class="w"> </span><span class="o">-&gt;</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">Math</span><span class="p">.</span><span class="na">max</span><span class="p">(</span>
@@ -3469,8 +3465,7 @@
 </span><span id="__span-5-173"><a id="__codelineno-5-173" name="__codelineno-5-173"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-5-174"><a id="__codelineno-5-174" name="__codelineno-5-174"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseFileScanTask.java` L166–L174](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseFileScanTask.java#L166-L174) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseFileScanTask.java#L166-L174"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseFileScanTask.java</code> L166–L174</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Same file, and <code>offset + len == that.start()</code> — strict adjacency, not mere proximity. <code>TableScanUtil.mergeTasks</code> walks the packed list once and folds every such neighbouring pair into a single wider <code>SplitScanTask</code>.</p>
 <p>There is a catch worth knowing, because it decides which behaviour you actually get. <code>mergeTasks</code> is called from <code>planTaskGroups</code>, not from the <code>planTasks</code> shown in section 2 — that one wraps each bin in a <code>BaseCombinedScanTask</code> and merges nothing. Spark takes the newer path: <code>SparkPartitioningAwareScan.taskGroups()</code> calls <code>TableScanUtil.planTaskGroups</code>, optionally with a grouping key type so that each task group holds one partition value, which is what storage-partitioned joins need.</p>
 <h2 id="6-where-planning-runs">6. Where planning runs<a class="headerlink" href="#6-where-planning-runs" title="Permanent link">&para;</a></h2>
@@ -3483,7 +3478,7 @@
     M --&gt;|"DISTRIBUTED, or AUTO and large"| R["planDataRemotely / planDeletesRemotely&lt;br/&gt;&lt;i&gt;two CompletableFutures on a&lt;br/&gt;2-thread monitor pool&lt;/i&gt;"]
     R --&gt; T["toFileTasks(dataFuture, deletesFuture)"]</code></pre>
 <p><strong>Locally.</strong> <code>ManifestGroup.planWith(executor)</code> swaps <code>CloseableIterable.concat</code> for a <code>ParallelIterable</code>, so manifests are read concurrently. Two gates gate it. <code>shouldPlanWithExecutor()</code> is <code>PLAN_SCANS_WITH_WORKER_POOL || context().planWithCustomizedExecutor()</code>, and the system property behind the first (<code>iceberg.scan.plan-in-worker-pool</code>) defaults to <strong>true</strong>. The second gate is at the call site: <code>DataTableScan</code> only calls <code>planWith</code> when <code>dataManifests.size() &gt; 1 || deleteManifests.size() &gt; 1</code>. Parallel planning over one manifest is pure overhead.</p>
-<p>The pool is <code>ThreadPools.getWorkerPool()</code>, sized <code>max(2, availableProcessors)</code> and shared by the whole JVM — the same pool that <code>SnapshotProducer</code> writes manifest lists with in Chapter 3.3. Planning a huge scan and committing at the same time contend for it.</p>
+<p>The pool is <code>ThreadPools.getWorkerPool()</code>, sized <code>max(2, availableProcessors)</code> and shared by the whole JVM — the same pool that <code>SnapshotProducer</code> writes manifest lists with in <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>. Planning a huge scan and committing at the same time contend for it.</p>
 <p><strong>On the cluster.</strong> When metadata is large enough that reading it locally is itself the bottleneck, <code>BaseDistributedDataScan</code> pushes manifest reading to the engine. The decision is a table property — <code>read.data-planning-mode</code> and <code>read.delete-planning-mode</code> — and the interesting thing about it is the default. <code>TableProperties.PLANNING_MODE_DEFAULT</code> is <code>PlanningMode.AUTO</code>, not <code>LOCAL</code>, so a table that has never been configured is already handing the decision to the heuristic below:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseDistributedDataScan.shouldPlanLocally()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-238">238</a></span>
 <span class="normal"><a href="#__codelineno-6-239">239</a></span>
@@ -3527,8 +3522,7 @@
 </span><span id="__span-6-257"><a id="__codelineno-6-257" name="__codelineno-6-257"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-6-258"><a id="__codelineno-6-258" name="__codelineno-6-258"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseDistributedDataScan.java` L238–L258](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseDistributedDataScan.java#L238-L258) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseDistributedDataScan.java#L238-L258"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseDistributedDataScan.java</code> L238–L258</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>LOCAL</code> and <code>DISTRIBUTED</code> are instructions. <code>AUTO</code> is a heuristic with three escape hatches to local, any one of which is enough: the cluster is no wider than the local thread pool, there are at most <code>2 × localParallelism</code> manifests, or the manifests total at most <code>localParallelism × 128 MB</code>. The premise is that distributed planning has a fixed cost — tasks to schedule, results to ship back — that only pays off past a threshold.</p>
 <p>The first line of the method is the strongest rule. A caller who supplied a custom planning executor plans locally, whatever the mode says. Configuration set in code beats configuration set on the table.</p>
 <p>Whether this class is reached at all is a separate, engine-level decision, and it too defaults to on. Spark builds a <code>SparkDistributedDataScan</code> when <code>SparkReadConf.distributedPlanningEnabled()</code> holds — the table implements <code>SupportsDistributedScanPlanning</code> (<code>BaseTable</code> does, and <code>allowDistributedPlanning()</code> defaults to <code>true</code>) and at least one of the two modes is not <code>LOCAL</code>, which with the <code>AUTO</code> default is the case out of the box. One more gate sits above it: both mode accessors return <code>LOCAL</code> outright when <code>spark.driver.maxResultSize</code> is below the minimum for shipping planning results back. So nothing here is opted <em>into</em>; what a table property does is opt a table <em>out</em>, or force the mode past <code>AUTO</code>'s escape hatches.</p>
@@ -3593,10 +3587,9 @@
 </span><span id="__span-7-86"><a id="__codelineno-7-86" name="__codelineno-7-86"></a><span class="w">      </span><span class="n">manifest</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ManifestReadTask</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="n">manifest</span><span class="p">,</span><span class="w"> </span><span class="n">projectedSchema</span><span class="p">,</span><span class="w"> </span><span class="n">filter</span><span class="p">));</span>
 </span><span id="__span-7-87"><a id="__codelineno-7-87" name="__codelineno-7-87"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseFilesTable.java` L59–L87](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseFilesTable.java#L59-L87) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>Read it against Chapter 4.2 and the structure is familiar. A <code>Caffeine</code> cache keyed by partition spec ID. A <code>ManifestEvaluator.forRowFilter(...)</code> per spec. A <code>CloseableIterable.filter</code> that drops manifests the evaluator rejects. The same <code>ignoreResiduals</code> ternary as <code>ManifestGroup.plan()</code>.</p>
-<p>One line does the trick that makes it work: <code>BaseFilesTable.transformSpec(tableSchema, spec)</code>. The user's filter is written against the <em>metadata table's</em> schema — columns like <code>file_path</code> and <code>record_count</code> — while <code>ManifestEvaluator</code> expects a filter over a partition spec. <code>transformSpec</code> rewrites the data table's spec into one whose source columns are the metadata table's, so the evaluator from Chapter 4.2 can be reused verbatim on a table that contains no data at all.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseFilesTable.java#L59-L87"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseFilesTable.java</code> L59–L87</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Read it against <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> and the structure is familiar. A <code>Caffeine</code> cache keyed by partition spec ID. A <code>ManifestEvaluator.forRowFilter(...)</code> per spec. A <code>CloseableIterable.filter</code> that drops manifests the evaluator rejects. The same <code>ignoreResiduals</code> ternary as <code>ManifestGroup.plan()</code>.</p>
+<p>One line does the trick that makes it work: <code>BaseFilesTable.transformSpec(tableSchema, spec)</code>. The user's filter is written against the <em>metadata table's</em> schema — columns like <code>file_path</code> and <code>record_count</code> — while <code>ManifestEvaluator</code> expects a filter over a partition spec. <code>transformSpec</code> rewrites the data table's spec into one whose source columns are the metadata table's, so the evaluator from <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> can be reused verbatim on a table that contains no data at all.</p>
 <p>The task type is <code>ManifestReadTask</code>, one per surviving manifest, and it declines to split: <code>split(long)</code> returns <code>ImmutableList.of(this)</code> under the comment <code>// don't split</code>. So for metadata scans, the target split size influences bin-packing only.</p>
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
@@ -3681,7 +3674,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Part 5 turns the pipeline around. Chapter 5.1 starts with the writers that produce the files, the metrics, and the split offsets this chapter has been consuming.</p>
+<p><strong>Next:</strong> Part 5 turns the pipeline around. <a href="../../part05_write_path/chapter_5.1_writers/">Chapter 5.1</a> starts with the writers that produce the files, the metrics, and the split offsets this chapter has been consuming.</p>
 
 
 

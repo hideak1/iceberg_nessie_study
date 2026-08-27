@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2158,7 +2158,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2186,7 +2186,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2548,7 +2548,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2742,7 +2742,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2938,7 +2938,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2966,7 +2966,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3022,7 +3022,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3289,12 +3289,12 @@
 <h1 id="chapter-85-backends-rocksdb-jdbc-dynamodb-cassandra">Chapter 8.5 — Backends: RocksDB, JDBC, DynamoDB, Cassandra<a class="headerlink" href="#chapter-85-backends-rocksdb-jdbc-dynamodb-cassandra" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> chapter 8.4 reduced every guarantee Nessie makes to one conditional update on one row — which databases can actually perform that, how does each one express it, and what happens when the database cannot say whether it did?</p>
-<p><strong>Prerequisites:</strong> Chapter 8.1 (the <code>Persist</code> operation list), Chapter 8.4 (why the reference CAS is the only operation that has to be perfect)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_8.1_persist_spi/">Chapter 8.1</a> (the <code>Persist</code> operation list), <a href="../chapter_8.4_references_cas/">Chapter 8.4</a> (why the reference CAS is the only operation that has to be perfect)</p>
 <p><strong>Source covered:</strong> <code>versioned/storage/jdbc2/</code>, <code>.../cassandra2/</code>, <code>.../dynamodb2/</code>, <code>.../rocksdb/</code>, <code>.../mongodb2/</code>, <code>.../bigtable/</code>, <code>.../inmemory/</code></p>
 </div>
 <h2 id="1-one-test-eleven-modules">1. One test, eleven modules<a class="headerlink" href="#1-one-test-eleven-modules" title="Permanent link">&para;</a></h2>
 <p>The pinned source ships <strong>eleven</strong> backend modules: <code>inmemory</code>, <code>rocksdb</code>, <code>jdbc</code>, <code>jdbc2</code>, <code>dynamodb</code>, <code>dynamodb2</code>, <code>cassandra</code>, <code>cassandra2</code>, <code>mongodb</code>, <code>mongodb2</code>, <code>bigtable</code>. That is a lot of surface area for an SPI that 8.1 showed fits on one screen, and reading them all as separate systems is the wrong way in.</p>
-<p>Read them against one test instead. Chapter 8.4 established that Nessie needs exactly two things a plain key-value store does not give you:</p>
+<p>Read them against one test instead. <a href="../chapter_8.4_references_cas/">Chapter 8.4</a> established that Nessie needs exactly two things a plain key-value store does not give you:</p>
 <ol>
 <li><strong>insert-if-absent</strong> on the objects table, so that an object ID cannot be silently overwritten;</li>
 <li><strong>compare-and-swap</strong> on a reference row, comparing the whole record.</li>
@@ -3339,8 +3339,7 @@
 </span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="w">  </span><span class="nd">@Nonnull</span>
 </span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="w">  </span><span class="n">StoreConfig</span><span class="w"> </span><span class="nf">config</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java` L38–L57](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java#L38-L57) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java#L38-L57"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java</code> L38–L57</a> <span>@ nessie-0.108.4</span></p>
 <p><code>hardObjectSizeLimit()</code> defaults to <code>Integer.MAX_VALUE</code> and is overridden by exactly the backends that have a real row limit. The two <code>effective…SizeLimit()</code> methods clamp chapter 8.3's spill thresholds to <em>half</em> of it — half, because a commit row must hold its incremental index plus everything else. This is the whole abstraction leak, in three default methods.</p>
 <h2 id="2-jdbc-update-where-checked-by-row-count">2. JDBC: <code>UPDATE … WHERE</code>, checked by row count<a class="headerlink" href="#2-jdbc-update-where-checked-by-row-count" title="Permanent link">&para;</a></h2>
 <p><code>jdbc2</code> covers PostgreSQL, CockroachDB, MariaDB/MySQL and H2. It is the most legible implementation, so start here:</p>
@@ -3428,8 +3427,7 @@
 </span><span id="__span-1-295"><a id="__codelineno-1-295" name="__codelineno-1-295"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-1-296"><a id="__codelineno-1-296" name="__codelineno-1-296"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java` L255–L296](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java#L255-L296) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java#L255-L296"><code>projectnessie/nessie</code> · <code>versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java</code> L255–L296</a> <span>@ nessie-0.108.4</span></p>
 <p>The statement is <code>UPDATE refs2 SET pointer=?, prev_ptr=? WHERE repo=? AND ref_name=? AND pointer=? AND deleted=? AND created_at… AND ext_info…</code> — the <code>2</code> in the table name is the v2 layout of section 8. The first two parameters are the new state — note <code>reference.forNewPointer(newPointer, config)</code> computing the previous-pointer list from 8.4 §6 — and everything after is the expected record. <code>deleted</code> is bound to a literal <code>false</code>: this update asserts the reference is live, exactly as the SPI javadoc promises.</p>
 <p>The failure signal is <code>executeUpdate() != 1</code>. Zero rows updated means the <code>WHERE</code> clause did not match, and the code then re-reads the row to decide <em>which</em> failure it was: absent means <code>RefNotFoundException</code>, present means <code>RefConditionFailedException</code> carrying the reference as it actually is. The database never tells you why the condition failed; you find out by asking a second question.</p>
 <p>Two nullable columns spoil the simple story, and six lines fix it:</p>
@@ -3445,8 +3443,7 @@
 </span><span id="__span-2-302"><a id="__codelineno-2-302" name="__codelineno-2-302"></a><span class="w">      </span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="n">REFS_EXTENDED_INFO_COND</span><span class="p">,</span><span class="w"> </span><span class="n">extendedInfoCond</span><span class="p">);</span>
 </span><span id="__span-2-303"><a id="__codelineno-2-303" name="__codelineno-2-303"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java` L298–L303](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java#L298-L303) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java#L298-L303"><code>projectnessie/nessie</code> · <code>versioned/storage/jdbc2/src/main/java/org/projectnessie/versioned/storage/jdbc2/AbstractJdbc2Persist.java</code> L298–L303</a> <span>@ nessie-0.108.4</span></p>
 <p><code>created_at = ?</code> bound to null is never true in SQL, because <code>NULL = NULL</code> is unknown. So the SQL text itself is rewritten per call: <code>=?</code> when there is a value, <code>IS NULL</code> when there is not, with placeholder tokens substituted before the statement is prepared. A three-valued logic bug that would have shown up as "the CAS never succeeds on references created by an older Nessie", avoided by generating two statement shapes.</p>
 <p>One thing <code>jdbc2</code> deliberately does <em>not</em> use the transaction for: the connection runs with auto-commit off so that multi-statement <em>object</em> writes can be rolled back, but the reference CAS is a single statement and needs no transaction at all. The atomicity is in the <code>WHERE</code> clause.</p>
 <h2 id="3-cassandra-a-lightweight-transaction">3. Cassandra: a lightweight transaction<a class="headerlink" href="#3-cassandra-a-lightweight-transaction" title="Permanent link">&para;</a></h2>
@@ -3510,8 +3507,7 @@
 </span><span id="__span-3-240"><a id="__codelineno-3-240" name="__codelineno-3-240"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">updated</span><span class="p">;</span>
 </span><span id="__span-3-241"><a id="__codelineno-3-241" name="__codelineno-3-241"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Persist.java` L212–L241](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Persist.java#L212-L241) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Persist.java#L212-L241"><code>projectnessie/nessie</code> · <code>versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Persist.java</code> L212–L241</a> <span>@ nessie-0.108.4</span></p>
 <p>The same expected record, bound in the same order, into <code>UPDATE … WHERE repo=? AND ref_name=? IF pointer=? AND deleted=? AND created_at=? AND ext_info=?</code>. The <code>IF</code> clause makes it a Paxos lightweight transaction, executed at <code>LOCAL_QUORUM</code> with <code>LOCAL_SERIAL</code> serial consistency, and the whole detection mechanism is <code>backend.executeCas(stmt)</code>: <code>session.execute(stmt)</code>, then <code>wasApplied()</code> on the result — wrapped in a <code>catch (DriverException)</code> that routes through <code>unhandledException</code>, which is where section 6's third outcome enters from a CAS.</p>
 <p>Two things are worth naming. The statement is built with <code>setIdempotence(false)</code> — the driver must not silently retry an LWT on its own, because a driver-level retry of a conditional update is precisely the "unknown outcome" case that Nessie wants to handle itself, one level up. And an LWT is not cheap: Paxos costs four round trips per conditional write, per branch, per commit. Cassandra's throughput ceiling for a single hot branch is set by that, not by write bandwidth.</p>
 <h2 id="4-dynamodb-a-condition-expression-and-a-hard-limit">4. DynamoDB: a condition expression, and a hard limit<a class="headerlink" href="#4-dynamodb-a-condition-expression-and-a-hard-limit" title="Permanent link">&para;</a></h2>
@@ -3549,8 +3545,7 @@
 </span><span id="__span-4-745"><a id="__codelineno-4-745" name="__codelineno-4-745"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-4-746"><a id="__codelineno-4-746" name="__codelineno-4-746"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java` L730–L746](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java#L730-L746) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java#L730-L746"><code>projectnessie/nessie</code> · <code>versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java</code> L730–L746</a> <span>@ nessie-0.108.4</span></p>
 <p>A <code>PutItem</code> that replaces the <em>whole</em> reference item, guarded by a <code>conditionExpression</code> built from the expected reference. The fixed half lives in <code>DynamoDB2Constants</code> and reads <code>(d = :deleted) AND (p = :pointer)</code>. <code>referenceCondition</code> appends two more clauses and <em>chooses</em> each one as it builds the string: <code>AND (c = :createdAt)</code> when the reference has a creation timestamp, <code>AND attribute_not_exists(c)</code> when it does not, and the same pair for <code>e</code>. No <code>OR</code> survives into the expression — the two forms are mutually exclusive, picked in Java before the request is sent. It is exactly the alternation <code>jdbc2</code> performs on SQL text, for exactly the same reason: an equality against an absent attribute can never be true, so the absence has to be tested for directly. Failure arrives as <code>ConditionalCheckFailedException</code>, which the caller catches and turns into the same re-read-then-classify sequence as everywhere else.</p>
 <p>Notably, the storage layer uses no DynamoDB transactions at all — not even in <code>storeObj</code>, where a comment records the reason: DynamoDB does not support "PUT IF NOT EXISTS" inside a <code>BatchWriteItemRequest</code>, so conditional inserts are issued as single-item writes.</p>
 <p>This is also the backend where chapter 8.3's arithmetic becomes concrete:</p>
@@ -3562,8 +3557,7 @@
 </span><span id="__span-5-123"><a id="__codelineno-5-123" name="__codelineno-5-123"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ITEM_SIZE_LIMIT</span><span class="p">;</span>
 </span><span id="__span-5-124"><a id="__codelineno-5-124" name="__codelineno-5-124"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java` L121–L124](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java#L121-L124) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java#L121-L124"><code>projectnessie/nessie</code> · <code>versioned/storage/dynamodb2/src/main/java/org/projectnessie/versioned/storage/dynamodb2/DynamoDB2Persist.java</code> L121–L124</a> <span>@ nessie-0.108.4</span></p>
 <p><code>ITEM_SIZE_LIMIT</code> is <code>400 * 1024</code>, commented in the source as "the hard item size limit in DynamoDB". Feed that through §1's formula: <code>effectiveIncrementalIndexSizeLimit()</code> becomes <code>min(50 KiB, 200 KiB)</code> — the configured 50 KiB still wins — but <code>effectiveIndexSegmentSizeLimit()</code> becomes <code>min(200 KiB, 200 KiB)</code>, exactly at the ceiling. On DynamoDB, the stripe size limit is the database's limit, and the spill machinery of 8.3 is what keeps commits under it.</p>
 <h2 id="5-rocksdb-and-in-memory-the-cas-that-is-not-a-cas">5. RocksDB and in-memory: the CAS that is not a CAS<a class="headerlink" href="#5-rocksdb-and-in-memory-the-cas-that-is-not-a-cas" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RocksDB — read, compare, write, under a lock</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-235">235</a></span>
@@ -3612,8 +3606,7 @@
 </span><span id="__span-6-256"><a id="__codelineno-6-256" name="__codelineno-6-256"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-6-257"><a id="__codelineno-6-257" name="__codelineno-6-257"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBPersist.java` L235–L257](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBPersist.java#L235-L257) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBPersist.java#L235-L257"><code>projectnessie/nessie</code> · <code>versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBPersist.java</code> L235–L257</a> <span>@ nessie-0.108.4</span></p>
 <p><code>repo.referencesLock(name)</code>, then a hand-written <code>checkReference</code> (a <code>db.get</code>, a deserialize, and <code>ref.deleted() != expectDeleted || !ref.equals(expected)</code>), then a plain <code>db.put</code>, then <code>unlock()</code> in a <code>finally</code>. No conditional write anywhere. The lock is the condition.</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RocksDBRepo — sixteen stripes of lock</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-22">22</a></span>
 <span class="normal"><a href="#__codelineno-7-23">23</a></span>
@@ -3663,8 +3656,7 @@
 </span><span id="__span-7-44"><a id="__codelineno-7-44" name="__codelineno-7-44"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-7-45"><a id="__codelineno-7-45" name="__codelineno-7-45"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBRepo.java` L22–L45](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBRepo.java#L22-L45) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBRepo.java#L22-L45"><code>projectnessie/nessie</code> · <code>versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBRepo.java</code> L22–L45</a> <span>@ nessie-0.108.4</span></p>
 <p>Two Guava <code>Striped&lt;Lock&gt;</code> instances, sixteen stripes each, one keyed by reference name and one by <code>ObjId</code>. Sixteen is not a correctness parameter — striping only bounds contention between unrelated keys; two operations on the same reference name always land on the same lock.</p>
 <p>This is the right answer for an embedded store, and it is also the whole reason RocksDB is a development and single-node backend. The correctness argument in 8.4 depended on the <em>database</em> evaluating the condition. Here it is evaluated by a lock inside one JVM's heap, and a second Nessie process opening the same directory would violate every guarantee in that chapter with nothing in the code to stop it.</p>
 <p>The in-memory backend is in the same family and makes the point more compactly, because <code>ConcurrentHashMap</code> supplies the mutual exclusion for free:</p>
@@ -3726,8 +3718,7 @@
 </span><span id="__span-8-180"><a id="__codelineno-8-180" name="__codelineno-8-180"></a><span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="p">(</span><span class="n">result</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="p">);</span>
 </span><span id="__span-8-181"><a id="__codelineno-8-181" name="__codelineno-8-181"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/inmemory/src/main/java/org/projectnessie/versioned/storage/inmemory/InmemoryPersist.java` L153–L181](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/inmemory/src/main/java/org/projectnessie/versioned/storage/inmemory/InmemoryPersist.java#L153-L181) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/inmemory/src/main/java/org/projectnessie/versioned/storage/inmemory/InmemoryPersist.java#L153-L181"><code>projectnessie/nessie</code> · <code>versioned/storage/inmemory/src/main/java/org/projectnessie/versioned/storage/inmemory/InmemoryPersist.java</code> L153–L181</a> <span>@ nessie-0.108.4</span></p>
 <p><code>computeIfPresent</code> runs its remapping function under the map's per-bin lock, so the <code>!r.deleted() &amp;&amp; r.equals(reference)</code> test and the replacement are one atomic step. The two-element <code>Reference[] result</code> array is the workaround for a lambda that cannot return two different kinds of outcome: index 0 is set on success, index 1 on condition failure, and the caller reads them afterwards to decide which exception to throw. A <code>null</code> return from <code>computeIfPresent</code> means the key was absent — <code>RefNotFoundException</code>. Same three outcomes as PostgreSQL, expressed in a <code>HashMap</code>.</p>
 <pre class="mermaid"><code>flowchart LR
     SPI["Persist.updateReferencePointer&lt;br/&gt;(expected Reference, newPointer)"]
@@ -3743,7 +3734,7 @@
     NATIVE -.-&gt; SAFE(["safe across N Nessie servers"])
     LOCAL -.-&gt; UNSAFE(["one JVM only"])</code></pre>
 <h2 id="6-the-axis-that-only-appears-under-failure">6. The axis that only appears under failure<a class="headerlink" href="#6-the-axis-that-only-appears-under-failure" title="Permanent link">&para;</a></h2>
-<p>Every conditional write can end three ways: applied, not applied, or <em>the connection died and nobody knows</em>. Chapter 8.4 showed <code>bumpReferencePointer</code> handling the third with a single re-read — but that path only runs if the backend raises <code>UnknownOperationResultException</code> rather than a plain <code>RuntimeException</code>. Each backend defines the boundary in its own failure vocabulary:</p>
+<p>Every conditional write can end three ways: applied, not applied, or <em>the connection died and nobody knows</em>. <a href="../chapter_8.4_references_cas/">Chapter 8.4</a> showed <code>bumpReferencePointer</code> handling the third with a single re-read — but that path only runs if the backend raises <code>UnknownOperationResultException</code> rather than a plain <code>RuntimeException</code>. Each backend defines the boundary in its own failure vocabulary:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Cassandra2Backend.unhandledException()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-347">347</a></span>
 <span class="normal"><a href="#__codelineno-9-348">348</a></span>
 <span class="normal"><a href="#__codelineno-9-349">349</a></span>
@@ -3772,8 +3763,7 @@
 </span><span id="__span-9-359"><a id="__codelineno-9-359" name="__codelineno-9-359"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">e</span><span class="p">;</span>
 </span><span id="__span-9-360"><a id="__codelineno-9-360" name="__codelineno-9-360"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Backend.java` L347–L360](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Backend.java#L347-L360) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Backend.java#L347-L360"><code>projectnessie/nessie</code> · <code>versioned/storage/cassandra2/src/main/java/org/projectnessie/versioned/storage/cassandra2/Cassandra2Backend.java</code> L347–L360</a> <span>@ nessie-0.108.4</span></p>
 <p><code>QueryConsistencyException</code> or <code>DriverTimeoutException</code> means unknown. Everything else is rethrown as-is and fails the commit. The <code>AllNodesFailedException</code> branch matters: the driver wraps per-node errors, so a timeout can arrive nested inside an aggregate exception, and the code flattens <code>getAllErrors()</code> to check whether <em>any</em> inner error was one of the two. Miss that unwrapping and a timed-out LWT would be reported as a hard failure.</p>
 <p>The others make the same decision with different vocabulary:</p>
 <table>
@@ -3813,8 +3803,7 @@
 </span><span id="__span-10-203"><a id="__codelineno-10-203" name="__codelineno-10-203"></a><span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RuntimeException</span><span class="p">(</span><span class="s">"Unhandled RocksDB exception"</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
 </span><span id="__span-10-204"><a id="__codelineno-10-204" name="__codelineno-10-204"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBBackend.java` L202–L204](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBBackend.java#L202-L204) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBBackend.java#L202-L204"><code>projectnessie/nessie</code> · <code>versioned/storage/rocksdb/src/main/java/org/projectnessie/versioned/storage/rocksdb/RocksDBBackend.java</code> L202–L204</a> <span>@ nessie-0.108.4</span></p>
 <p>Three lines, no classification, no <code>UnknownOperationResultException</code> anywhere in the module. A local operation either happened or threw; there is no third outcome to model. Every remote backend has one, and misclassifying it in either direction is a real bug — call an unknown result a failure and a landed commit is reported as an error; call a genuine failure unknown and 8.4's re-read runs against a reference that never moved.</p>
 <h2 id="7-the-whole-comparison">7. The whole comparison<a class="headerlink" href="#7-the-whole-comparison" title="Permanent link">&para;</a></h2>
 <table>

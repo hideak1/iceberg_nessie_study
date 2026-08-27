@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1738,7 +1738,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1766,7 +1766,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1794,7 +1794,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2119,7 +2119,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2147,7 +2147,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2175,7 +2175,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2315,7 +2315,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2343,7 +2343,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2537,7 +2537,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2731,7 +2731,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2927,7 +2927,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3011,7 +3011,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3267,11 +3267,11 @@
 <h1 id="chapter-64-server-side-commits-and-the-multi-table-gap">Chapter 6.4 — Server-side commits and the multi-table gap<a class="headerlink" href="#chapter-64-server-side-commits-and-the-multi-table-gap" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> an Iceberg commit is atomic for one table — so what is actually in this codebase to make a change land on two tables at once?</p>
-<p><strong>Prerequisites:</strong> Chapter 3.4 (the commit protocol), Chapter 6.1 (<code>TableOperations.commit</code> as the unit of atomicity), Chapter 6.3 (<code>UpdateTableRequest</code>, <code>UpdateRequirement</code>, the endpoint set)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> (the commit protocol), <a href="../chapter_6.1_catalog_spi/">Chapter 6.1</a> (<code>TableOperations.commit</code> as the unit of atomicity), <a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a> (<code>UpdateTableRequest</code>, <code>UpdateRequirement</code>, the endpoint set)</p>
 <p><strong>Source covered:</strong> <code>api/.../Transaction.java</code>, <code>core/.../BaseTransaction.java</code>, <code>core/.../catalog/TableCommit.java</code>, <code>core/.../rest/RESTSessionCatalog.java</code>, <code>core/.../rest/CatalogHandlers.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p>Three chapters of Part 6 have circled one guarantee. Chapter 6.1 located it in the SPI: <code>TableOperations.commit(base, metadata)</code> either moves a table's pointer or throws. Chapter 6.2 audited what storage-backed catalogs deliver against that contract. Chapter 6.3 moved the arbitration behind an HTTP endpoint. Different mechanisms, one contract: <strong>one table's pointer moves, or it does not.</strong></p>
+<p>Three chapters of Part 6 have circled one guarantee. <a href="../chapter_6.1_catalog_spi/">Chapter 6.1</a> located it in the SPI: <code>TableOperations.commit(base, metadata)</code> either moves a table's pointer or throws. <a href="../chapter_6.2_hadoop_hive_catalog/">Chapter 6.2</a> audited what storage-backed catalogs deliver against that contract. <a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a> moved the arbitration behind an HTTP endpoint. Different mechanisms, one contract: <strong>one table's pointer moves, or it does not.</strong></p>
 <p>Now the ordinary case that breaks it. A pipeline appends to <code>orders</code> and rewrites the matching rows of <code>order_items</code>. Both writes are correct, both commits are atomic, and between them there is a window in which a reader sees new orders with no items. Nothing in the model narrows that window, and nothing closes it.</p>
 <p>There are exactly two candidates in the tree: <code>Transaction</code>, which is not what its name suggests, and a REST endpoint the spec defines and the tree does not implement. This chapter follows both to their end and stops on the gap, because Iceberg stops there too.</p>
 <h2 id="2-what-a-transaction-actually-is">2. What a <code>Transaction</code> actually is<a class="headerlink" href="#2-what-a-transaction-actually-is" title="Permanent link">&para;</a></h2>
@@ -3289,7 +3289,7 @@
         CT --&gt; RL["Tasks.foreach(ops)&lt;br/&gt;onlyRetryOn(CommitFailedException)"]
         RL --&gt; OC["ops.commit(base, current) — one table"]
     end</code></pre>
-<p>The trick is the inner <code>TableOperations</code>. Each <code>PendingUpdate</code> in the chain runs the full Chapter 3.3 lifecycle and calls <code>commit</code> at the end of it — but on a <code>TableOperations</code> that does not touch a catalog:</p>
+<p>The trick is the inner <code>TableOperations</code>. Each <code>PendingUpdate</code> in the chain runs the full <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> lifecycle and calls <code>commit</code> at the end of it — but on a <code>TableOperations</code> that does not touch a catalog:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseTransaction.TransactionTableOperations — commit without a catalog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-483">483</a></span>
 <span class="normal"><a href="#__codelineno-0-484">484</a></span>
 <span class="normal"><a href="#__codelineno-0-485">485</a></span>
@@ -3344,8 +3344,7 @@
 </span><span id="__span-0-508"><a id="__codelineno-0-508" name="__codelineno-0-508"></a><span class="w">    </span><span class="n">BaseTransaction</span><span class="p">.</span><span class="na">this</span><span class="p">.</span><span class="na">hasLastOpCommitted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 </span><span id="__span-0-509"><a id="__codelineno-0-509" name="__codelineno-0-509"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseTransaction.java` L483–L509](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTransaction.java#L483-L509) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTransaction.java#L483-L509"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseTransaction.java</code> L483–L509</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>current()</code> and <code>refresh()</code> both return the same in-memory field, and <code>commit</code> assigns it. Every operation in the transaction believes it committed; what it actually did was advance an in-memory <code>TableMetadata</code> so the next operation can build on it. The identity check <code>underlyingBase != current</code> is there so an operation built against a stale intermediate state fails the way it would against a stale catalog — <code>CommitFailedException</code>, retry. A <code>Transaction</code> is a <em>staging area for one table's metadata</em>, drained by one real commit.</p>
 <h2 id="3-the-proof-is-in-the-fields">3. The proof is in the fields<a class="headerlink" href="#3-the-proof-is-in-the-fields" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseTransaction — one table, and the fields that prove it</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-66"> 66</a></span>
@@ -3420,8 +3419,7 @@
 </span><span id="__span-1-100"><a id="__codelineno-1-100" name="__codelineno-1-100"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">reporter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">;</span>
 </span><span id="__span-1-101"><a id="__codelineno-1-101" name="__codelineno-1-101"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseTransaction.java` L66–L101](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTransaction.java#L66-L101) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTransaction.java#L66-L101"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseTransaction.java</code> L66–L101</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read the declarations, not the constructors. <code>private final String tableName</code> — one name. <code>private final TableOperations ops</code> — one set of operations. <code>private TableMetadata base</code> and <code>private TableMetadata current</code> — one before-and-after pair. No collection of tables anywhere. A class that could commit two tables would need at minimum a map from identifier to <code>ops</code>; the absence is not an oversight to be filled in later, it is the shape of the model.</p>
 <h2 id="4-committransaction-drains-it-into-one-swap">4. <code>commitTransaction()</code> drains it into one swap<a class="headerlink" href="#4-committransaction-drains-it-into-one-swap" title="Permanent link">&para;</a></h2>
 <p><code>BaseTransaction.commitTransaction()</code> switches on the transaction type — <code>CREATE_TABLE</code>, <code>REPLACE_TABLE</code>, <code>CREATE_OR_REPLACE_TABLE</code>, <code>SIMPLE</code>. The ordinary path is the last:</p>
@@ -3561,8 +3559,7 @@
 </span><span id="__span-2-417"><a id="__codelineno-2-417" name="__codelineno-2-417"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-2-418"><a id="__codelineno-2-418" name="__codelineno-2-418"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseTransaction.java` L351–L418](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTransaction.java#L351-L418) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTransaction.java#L351-L418"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseTransaction.java</code> L351–L418</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Sixty-eight lines, and the count that matters is one. This is everything the retry loop retries:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">.</span><span class="na">run</span><span class="p">(</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">underlyingOps</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -3571,8 +3568,8 @@
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="n">underlyingOps</span><span class="p">.</span><span class="na">commit</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">current</span><span class="p">);</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">});</span>
 </span></code></pre></div>
-<p><code>Tasks.foreach(ops)</code> iterates over exactly one thing — <code>ops</code>, the transaction's single <code>TableOperations</code>. Same retry loop as Chapter 3.3, same <code>onlyRetryOn(CommitFailedException)</code> contract, one level higher.</p>
-<p><code>applyUpdates</code> is the transaction's answer to the problem Chapter 3.3 solved with <code>apply()</code>-inside-the-loop: if <code>base != underlyingOps.refresh()</code>, the whole pending chain is re-committed against the refreshed metadata, in order. A <code>CommitFailedException</code> during that replay is wrapped in <code>PendingUpdateFailedException</code> and breaks out of the retry loop — <em>"Cannot pass even with retry due to conflicting metadata changes."</em></p>
+<p><code>Tasks.foreach(ops)</code> iterates over exactly one thing — <code>ops</code>, the transaction's single <code>TableOperations</code>. Same retry loop as <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>, same <code>onlyRetryOn(CommitFailedException)</code> contract, one level higher.</p>
+<p><code>applyUpdates</code> is the transaction's answer to the problem <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> solved with <code>apply()</code>-inside-the-loop: if <code>base != underlyingOps.refresh()</code>, the whole pending chain is re-committed against the refreshed metadata, in order. A <code>CommitFailedException</code> during that replay is wrapped in <code>PendingUpdateFailedException</code> and breaks out of the retry loop — <em>"Cannot pass even with retry due to conflicting metadata changes."</em></p>
 <p>Everything after the loop is one table's bookkeeping: <code>startingSnapshots</code> is one table's snapshot set, <code>committedFiles(ops, newSnapshots)</code> reads through the same single <code>ops</code>. No plural anywhere in the method.</p>
 <h2 id="5-the-rest-spec-does-define-a-multi-table-endpoint">5. The REST spec does define a multi-table endpoint<a class="headerlink" href="#5-the-rest-spec-does-define-a-multi-table-endpoint" title="Permanent link">&para;</a></h2>
 <p>Iceberg has one type built specifically to carry a per-table commit as a value:</p>
@@ -3658,9 +3655,8 @@
 </span><span id="__span-4-67"><a id="__codelineno-4-67" name="__codelineno-4-67"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-4-68"><a id="__codelineno-4-68" name="__codelineno-4-68"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/catalog/TableCommit.java` L28–L69](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/catalog/TableCommit.java#L28-L69) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>The javadoc names the scope itself: <em>"a commit to be applied for a single table"</em>. <code>create()</code> derives the two halves from one table's base and updated metadata — requirements from <code>UpdateRequirements.forUpdateTable(base, updated.changes())</code>, updates from <code>updated.changes()</code> — exactly the payload Chapter 6.3 followed onto the wire, now addressable by identifier instead of implied by the URL. The check that <code>base.uuid().equals(updated.uuid())</code> is the giveaway: a <code>TableCommit</code> is pinned to one table's identity.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/catalog/TableCommit.java#L28-L69"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/catalog/TableCommit.java</code> L28–L69</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>The javadoc names the scope itself: <em>"a commit to be applied for a single table"</em>. <code>create()</code> derives the two halves from one table's base and updated metadata — requirements from <code>UpdateRequirements.forUpdateTable(base, updated.changes())</code>, updates from <code>updated.changes()</code> — exactly the payload <a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a> followed onto the wire, now addressable by identifier instead of implied by the URL. The check that <code>base.uuid().equals(updated.uuid())</code> is the giveaway: a <code>TableCommit</code> is pinned to one table's identity.</p>
 <p><code>CommitTransactionRequest</code> carries a <code>List&lt;TableCommit&gt;</code>. And the client will send one:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RESTSessionCatalog.commitTransaction()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1365">1365</a></span>
 <span class="normal"><a href="#__codelineno-5-1366">1366</a></span>
@@ -3700,9 +3696,8 @@
 </span><span id="__span-5-1382"><a id="__codelineno-5-1382" name="__codelineno-5-1382"></a><span class="w">          </span><span class="n">ErrorHandlers</span><span class="p">.</span><span class="na">tableCommitHandler</span><span class="p">());</span>
 </span><span id="__span-5-1383"><a id="__codelineno-5-1383" name="__codelineno-5-1383"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java` L1365–L1383](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L1365-L1383) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>N <code>TableCommit</code>s become N <code>UpdateTableRequest</code>s — the same request object from Chapter 6.3 — and go out as a single POST to <code>paths.commitTransaction()</code>, which is <code>/v1/{prefix}/transactions/commit</code>. The spec's summary for that path is unambiguous:</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L1365-L1383"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java</code> L1365–L1383</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>N <code>TableCommit</code>s become N <code>UpdateTableRequest</code>s — the same request object from <a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a> — and go out as a single POST to <code>paths.commitTransaction()</code>, which is <code>/v1/{prefix}/transactions/commit</code>. The spec's summary for that path is unambiguous:</p>
 <blockquote>
 <p><em>Commit updates to multiple tables in an atomic operation</em></p>
 </blockquote>
@@ -3719,7 +3714,7 @@
     HAVE -. "not expressible via Catalog" .-&gt; W
     R["POST /v1/{prefix}/transactions/commit"] -. "no CatalogHandlers handler&lt;br/&gt;only a test-fixture implementation" .-&gt; W</code></pre>
 <p><strong>The method is not on any interface.</strong> <code>commitTransaction(List&lt;TableCommit&gt;)</code> appears on <code>RESTSessionCatalog</code> and, forwarding to it, on <code>RESTCatalog</code>. Neither carries <code>@Override</code>, because there is nothing to override: grep <code>api/</code> for <code>commitTransaction</code> and the only hit is <code>Transaction.commitTransaction()</code>, the single-table method. <code>Catalog</code> does not declare it and neither does <code>SessionCatalog</code>, so no engine integration — all of which are written against <code>Catalog</code> — can reach it. <code>TableCommit</code> appears in exactly three main-source files: its own, <code>RESTCatalog</code>, and <code>RESTSessionCatalog</code>. Not one in <code>spark/</code>, <code>flink/</code>, or <code>hive/</code>.</p>
-<p><strong>The reference server has no handler.</strong> Chapter 6.3 introduced <code>CatalogHandlers</code> as the helper set every Iceberg-based REST server is built from. Its table-update entry point is <code>updateTable(Catalog catalog, TableIdentifier ident, UpdateTableRequest request)</code> — one identifier, delegating to a <code>Catalog</code>. The class has no <code>commitTransaction</code> at all, and no seam where a second table could join, because the <code>Catalog</code> it delegates to cannot express the request.</p>
+<p><strong>The reference server has no handler.</strong> <a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a> introduced <code>CatalogHandlers</code> as the helper set every Iceberg-based REST server is built from. Its table-update entry point is <code>updateTable(Catalog catalog, TableIdentifier ident, UpdateTableRequest request)</code> — one identifier, delegating to a <code>Catalog</code>. The class has no <code>commitTransaction</code> at all, and no seam where a second table could join, because the <code>Catalog</code> it delegates to cannot express the request.</p>
 <p><strong>The only implementation in the tree is a test fixture that disclaims the guarantee.</strong></p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The only implementation in the tree — and its disclaimer</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-549">549</a></span>
 <span class="normal"><a href="#__codelineno-6-550">550</a></span>
@@ -3779,8 +3774,7 @@
 </span><span id="__span-6-576"><a id="__codelineno-6-576" name="__codelineno-6-576"></a><span class="w">  </span><span class="n">transactions</span><span class="p">.</span><span class="na">forEach</span><span class="p">(</span><span class="n">Transaction</span><span class="p">::</span><span class="n">commitTransaction</span><span class="p">);</span>
 </span><span id="__span-6-577"><a id="__codelineno-6-577" name="__codelineno-6-577"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/test/java/org/apache/iceberg/rest/RESTCatalogAdapter.java` L549–L577](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/test/java/org/apache/iceberg/rest/RESTCatalogAdapter.java#L549-L577) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/test/java/org/apache/iceberg/rest/RESTCatalogAdapter.java#L549-L577"><code>apache/iceberg</code> · <code>core/src/test/java/org/apache/iceberg/rest/RESTCatalogAdapter.java</code> L549–L577</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Note the path: <code>core/src/test</code>. <code>RESTCatalogAdapter</code> runs REST catalog tests in-process, and its javadoc says what it is:</p>
 <blockquote>
 <p><em>This is a very simplistic approach that only validates the requirements for each table and
@@ -3812,7 +3806,7 @@ in its own javadoc, "a commit to be applied for a single table".</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">The client assumes the endpoint exists</p>
-<p><code>V1_COMMIT_TRANSACTION</code> is in <code>DEFAULT_ENDPOINTS</code>, the frozen set the client falls back to when a server advertises nothing (Chapter 6.3). <code>Endpoint.check</code> therefore passes against a server that has never heard of the endpoint, and the failure arrives as an HTTP status rather than the <code>UnsupportedOperationException</code> the check exists to produce.</p>
+<p><code>V1_COMMIT_TRANSACTION</code> is in <code>DEFAULT_ENDPOINTS</code>, the frozen set the client falls back to when a server advertises nothing (<a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a>). <code>Endpoint.check</code> therefore passes against a server that has never heard of the endpoint, and the failure arrives as an HTTP status rather than the <code>UnsupportedOperationException</code> the check exists to produce.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Atomicity here is a server promise, not a protocol property</p>
@@ -3825,7 +3819,7 @@ in its own javadoc, "a commit to be applied for a single table".</p>
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>Transaction</code> composes operations on one table, not tables: <code>BaseTransaction</code> holds one <code>tableName</code>, one <code>TableOperations</code>, one <code>base</code>/<code>current</code> pair, and no collection of tables.</li>
-<li>Operations inside a transaction commit to <code>TransactionTableOperations</code>, which only assigns <code>BaseTransaction.this.current</code>; nothing reaches a catalog until <code>commitTransaction()</code>, which runs the Chapter 3.3 retry loop over exactly one <code>ops</code> and calls <code>underlyingOps.commit(base, current)</code> once.</li>
+<li>Operations inside a transaction commit to <code>TransactionTableOperations</code>, which only assigns <code>BaseTransaction.this.current</code>; nothing reaches a catalog until <code>commitTransaction()</code>, which runs the <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> retry loop over exactly one <code>ops</code> and calls <code>underlyingOps.commit(base, current)</code> once.</li>
 <li>The REST spec defines an atomic multi-table endpoint and <code>RESTSessionCatalog</code> can send to it — but the method is on no interface, <code>CatalogHandlers</code> has no handler, and the only implementation in the tree is a test fixture that disclaims atomicity in its own javadoc.</li>
 <li>The gap is not that the code is missing but that the <em>model</em> has no place to put it: <code>Transaction</code> is one table by its field list, <code>TableCommit</code> is one table by its javadoc, and the endpoint that would span them is on no interface an engine can reach.</li>
 <li>The unit of commit in Iceberg is one table, and the model has no second unit. Where a multi-table guarantee exists it lives inside a catalog server Iceberg does not define.</li>
@@ -3873,7 +3867,7 @@ in its own javadoc, "a commit to be applied for a single table".</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 7.1 opens Part 7 on a system whose unit of commit is not a table at all; Chapter 10.2 comes back to this gap with the code that closes it — for a client speaking that system's REST API, though not, as 10.2 is careful to say, through the Java catalog Chapter 10.1 covers.</p>
+<p><strong>Next:</strong> <a href="../../part07_nessie_architecture/chapter_7.1_project_map/">Chapter 7.1</a> opens Part 7 on a system whose unit of commit is not a table at all; <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/">Chapter 10.2</a> comes back to this gap with the code that closes it — for a client speaking that system's REST API, though not, as 10.2 is careful to say, through the Java catalog <a href="../../part10_ecosystem/chapter_10.1_nessie_catalog/">Chapter 10.1</a> covers.</p>
 
 
 
@@ -3911,7 +3905,7 @@ in its own javadoc, "a commit to be applied for a single table".</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_6.3_rest_catalog/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 6.3 The REST Catalog spec and `RESTSessionCatalog`">
+          <a href="../chapter_6.3_rest_catalog/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 6.3 The REST Catalog spec and RESTSessionCatalog">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3921,7 +3915,7 @@ in its own javadoc, "a commit to be applied for a single table".</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                6.3 The REST Catalog spec and `RESTSessionCatalog`
+                6.3 The REST Catalog spec and RESTSessionCatalog
               </div>
             </div>
           </a>

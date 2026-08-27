@@ -29,7 +29,7 @@
     
     
       
-        <title>4.1 `TableScan` and `planFiles` - Iceberg & Nessie Internals</title>
+        <title>4.1 TableScan and planFiles - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              4.1 `TableScan` and `planFiles`
+              4.1 TableScan and planFiles
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1301,7 +1301,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1319,7 +1319,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1477,7 +1477,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1505,7 +1505,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1701,7 +1701,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1729,7 +1729,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1895,7 +1895,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1923,7 +1923,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1951,7 +1951,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2119,7 +2119,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2147,7 +2147,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2175,7 +2175,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2315,7 +2315,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2343,7 +2343,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2537,7 +2537,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2731,7 +2731,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2927,7 +2927,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3011,7 +3011,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3267,14 +3267,14 @@
 <h1 id="chapter-41-tablescan-and-planfiles">Chapter 4.1 — <code>TableScan</code> and <code>planFiles</code><a class="headerlink" href="#chapter-41-tablescan-and-planfiles" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> when you call <code>table.newScan().filter(expr).planFiles()</code>, what code runs, in what order, and where does the file list actually come from?</p>
-<p><strong>Prerequisites:</strong> Chapter 2.3 (the manifest list), Chapter 2.4 (the manifest file and its column metrics), Chapter 3.1 (the core abstractions)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part02_table_spec/chapter_2.3_manifest_list/">Chapter 2.3</a> (the manifest list), <a href="../../part02_table_spec/chapter_2.4_manifest_file/">Chapter 2.4</a> (the manifest file and its column metrics), <a href="../../part03_iceberg_core/chapter_3.1_module_map/">Chapter 3.1</a> (the core abstractions)</p>
 <p><strong>Source covered:</strong> <code>core/.../BaseScan.java</code>, <code>core/.../TableScanContext.java</code>, <code>core/.../SnapshotScan.java</code>, <code>core/.../DataTableScan.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
 <p>A query engine arrives with two things: an expression and a list of columns. It wants back a list of files small enough to be worth reading. Nothing about that is trivial.</p>
 <p>The table it is asking about may hold millions of data files across thousands of manifests, written under several partition specs and several schemas, some of them shadowed by delete files. The expression is written against <em>column names in the current schema</em>. The files are described by <em>partition tuples and byte-serialised bounds</em>. Between the question and the answer sit four filtering stages, two projections, a per-spec cache, and an optional thread pool.</p>
 <p>Part 4 is that machinery, read end to end. This chapter is the frame: the classes that hold the request, the method that orchestrates planning, and the abstract hole that almost every scan variant fills differently.</p>
-<p>The thing worth noticing early is how little the scan classes actually do. <code>DataTableScan.doPlanFiles()</code> is thirty lines, and twenty-eight of them are configuration. The algorithm lives in <code>ManifestGroup</code>, which Chapters 4.2 through 4.4 take apart. The scan hierarchy is wiring.</p>
+<p>The thing worth noticing early is how little the scan classes actually do. <code>DataTableScan.doPlanFiles()</code> is thirty lines, and twenty-eight of them are configuration. The algorithm lives in <code>ManifestGroup</code>, which <a href="../chapter_4.2_manifest_pruning/">Chapters 4.2</a> through 4.4 take apart. The scan hierarchy is wiring.</p>
 <h2 id="2-where-the-scan-classes-sit">2. Where the scan classes sit<a class="headerlink" href="#2-where-the-scan-classes-sit" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>classDiagram
     class Scan~ThisT, T, G~ {
@@ -3340,8 +3340,8 @@
     DataTableScan &lt;|-- RESTTableScan
     DataScan &lt;|-- BaseDistributedDataScan</code></pre>
 <p>Read the hierarchy for where <code>planFiles</code> and <code>doPlanFiles</code> land, because that is the whole design.</p>
-<p><code>SnapshotScan.planFiles()</code> is the template: it owns the lifecycle every scan of a <em>single snapshot</em> shares, and the ordinary data scan, the metadata tables and the distributed scan supply only <code>doPlanFiles()</code>. <code>BaseTableScan</code> is a thin package-private class whose only real contribution is <code>planTasks()</code> (Chapter 4.5) and a refusal to do incremental scans.</p>
-<p>That is the same shape as <code>SnapshotProducer</code> in Chapter 3.3: a public template method that owns the lifecycle, and one protected abstract method that subclasses fill. Iceberg uses this pattern in both directions — once for writes, once for reads.</p>
+<p><code>SnapshotScan.planFiles()</code> is the template: it owns the lifecycle every scan of a <em>single snapshot</em> shares, and the ordinary data scan, the metadata tables and the distributed scan supply only <code>doPlanFiles()</code>. <code>BaseTableScan</code> is a thin package-private class whose only real contribution is <code>planTasks()</code> (<a href="../chapter_4.5_split_planning/">Chapter 4.5</a>) and a refusal to do incremental scans.</p>
+<p>That is the same shape as <code>SnapshotProducer</code> in <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>: a public template method that owns the lifecycle, and one protected abstract method that subclasses fill. Iceberg uses this pattern in both directions — once for writes, once for reads.</p>
 <p>It is a template, not a monopoly, and both exceptions matter for reading the rest of Part 4.</p>
 <p><strong>A second template.</strong> <code>BaseIncrementalScan</code> extends <code>BaseScan</code> directly rather than <code>SnapshotScan</code>, and implements its own <code>planFiles()</code> over a two-argument <code>doPlanFiles(fromSnapshotIdExclusive, toSnapshotIdInclusive)</code>. An incremental scan has no single snapshot to resolve — it has a range — so beat 1 of section 4 does not apply to it, and neither does the <code>ScanReport</code> plumbing in beat 5; it notifies an <code>IncrementalScanEvent</code> instead and returns <code>doPlanFiles(...)</code> unwrapped. <code>BaseIncrementalAppendScan</code> and <code>BaseIncrementalChangelogScan</code> are its subclasses.</p>
 <p><strong>Eight overrides.</strong> Eight classes in <code>core</code> re-implement <code>planFiles()</code> rather than fill in <code>doPlanFiles()</code>, and each replaces a specific beat of the template:</p>
@@ -3387,8 +3387,7 @@
 </span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
 </span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableScanContext.java` L36–L52](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableScanContext.java#L36-L52) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableScanContext.java#L36-L52"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableScanContext.java</code> L36–L52</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>@Value.Immutable</code> is the Immutables annotation: this abstract class generates <code>ImmutableTableScanContext</code>, and every "setter" on it returns a new instance. The scan itself holds three fields — a <code>Table</code>, a <code>Schema</code>, and one of these contexts — and every refinement method on <code>BaseScan</code> follows the same shape:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseScan.filter(Expression)</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-209">209</a></span>
 <span class="normal"><a href="#__codelineno-1-210">210</a></span>
@@ -3400,8 +3399,7 @@
 </span><span id="__span-1-212"><a id="__codelineno-1-212" name="__codelineno-1-212"></a><span class="w">      </span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="n">schema</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">.</span><span class="na">filterRows</span><span class="p">(</span><span class="n">Expressions</span><span class="p">.</span><span class="na">and</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="na">rowFilter</span><span class="p">(),</span><span class="w"> </span><span class="n">expr</span><span class="p">)));</span>
 </span><span id="__span-1-213"><a id="__codelineno-1-213" name="__codelineno-1-213"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseScan.java` L209–L213](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseScan.java#L209-L213) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseScan.java#L209-L213"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseScan.java</code> L209–L213</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>newRefinedScan</code> is the abstract factory each concrete scan implements — <code>DataTableScan</code> returns <code>new DataTableScan(table, schema, context)</code>. Note also that filters accumulate: the new context holds <code>and(existing, new)</code>, so two <code>filter()</code> calls conjoin rather than replace.</p>
 <p>Two consequences. The good one: a scan is safe to share, cache, and refine from several places, because no refinement can be observed by anyone holding an earlier reference. The bad one is Gotcha 1 below.</p>
 <p>Note also that <code>rowFilter()</code> defaults to <code>Expressions.alwaysTrue()</code> rather than to <code>null</code>. Every downstream evaluator can therefore be written without a null check, and "no filter" flows through the same code path as "some filter" — it simply never prunes.</p>
@@ -3496,15 +3494,14 @@
 </span><span id="__span-2-181"><a id="__codelineno-2-181" name="__codelineno-2-181"></a><span class="w">      </span><span class="p">});</span>
 </span><span id="__span-2-182"><a id="__codelineno-2-182" name="__codelineno-2-182"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/SnapshotScan.java` L138–L182](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotScan.java#L138-L182) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotScan.java#L138-L182"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/SnapshotScan.java</code> L138–L182</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Five beats, and only one of them plans anything.</p>
 <p><strong>Beat 1 — resolve the snapshot.</strong> <code>snapshot()</code> returns <code>table().snapshot(snapshotId())</code> if the scan was pinned by <code>useSnapshot</code>, <code>useRef</code>, or <code>asOfTime</code>, and <code>table().currentSnapshot()</code> otherwise. A table with no current snapshot short-circuits to <code>CloseableIterable.empty()</code> <em>before</em> anything else — no listener notification, no timer, no scan report.</p>
 <p><strong>Beat 2 — announce.</strong> <code>Listeners.notifyAll(new ScanEvent(...))</code> is the legacy hook; <code>context().metricsReporter()</code> at the bottom is the current one. Note <code>ExpressionUtil.toSanitizedString(filter())</code> in the log line: filter literals are redacted before they reach a log file, because a predicate on a customer ID is customer data.</p>
 <p><strong>Beat 3 — start the clock.</strong> <code>scanMetrics().totalPlanningDuration().start()</code> returns a <code>Timer.Timed</code> held in a local, to be stopped in the completion callback.</p>
 <p><strong>Beat 4 — delegate.</strong> <code>doPlanFiles()</code>. One call. Everything specific to <em>this kind of scan</em> happens behind it.</p>
 <p><strong>Beat 5 — arrange for a report.</strong> <code>CloseableIterable.whenComplete(doPlanFiles(), () -&gt; {...})</code> builds the <code>ScanReport</code>: schema ID, projected field IDs and names, table name, snapshot ID, the sanitized filter, and the accumulated <code>ScanMetrics</code>. The word "whenComplete" is misleading and is Gotcha 2.</p>
-<p><code>planFiles()</code> itself reads nothing — but it is worth being precise about what "lazy" covers, because the common summary of this method is wrong. <code>doPlanFiles()</code> runs to completion before beat 5 wraps its result: the iterable it returns is lazy over <em>data</em> manifests, which are opened on first iteration. Delete manifests are not. <code>ManifestGroup.plan()</code> (Chapter 4.4, section 5) builds a <code>DeleteFileIndex</code> before it returns anything, and building one drains every delete manifest that survived partition pruning, synchronously:</p>
+<p><code>planFiles()</code> itself reads nothing — but it is worth being precise about what "lazy" covers, because the common summary of this method is wrong. <code>doPlanFiles()</code> runs to completion before beat 5 wraps its result: the iterable it returns is lazy over <em>data</em> manifests, which are opened on first iteration. Delete manifests are not. <code>ManifestGroup.plan()</code> (<a href="../chapter_4.4_residuals/">Chapter 4.4</a>, section 5) builds a <code>DeleteFileIndex</code> before it returns anything, and building one drains every delete manifest that survived partition pruning, synchronously:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DeleteFileIndex.Builder.loadDeleteFiles()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-453">453</a></span>
 <span class="normal"><a href="#__codelineno-3-454">454</a></span>
 <span class="normal"><a href="#__codelineno-3-455">455</a></span>
@@ -3563,8 +3560,7 @@
 </span><span id="__span-3-480"><a id="__codelineno-3-480" name="__codelineno-3-480"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">files</span><span class="p">;</span>
 </span><span id="__span-3-481"><a id="__codelineno-3-481" name="__codelineno-3-481"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/DeleteFileIndex.java` L453–L481](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/DeleteFileIndex.java#L453-L481) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/DeleteFileIndex.java#L453-L481"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/DeleteFileIndex.java</code> L453–L481</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>Tasks.foreach(...).run(...)</code> blocks until the last reader is exhausted, accumulating copies of the surviving delete files in a <code>ConcurrentLinkedQueue</code>; <code>build()</code> then indexes that queue by partition, by path, and by sequence number, so a data file can be matched against its deletes in memory. That is a deliberate trade — the index has to be complete before the first <code>FileScanTask</code> can name its deletes — but it means the cost of <code>planFiles()</code> on a table with many delete manifests is paid at the call, not at the first <code>next()</code>.</p>
 <p>Building a scan is still cheap. Calling <code>planFiles()</code> is cheap only in proportion to the delete manifests; consuming the result is where the data manifests are read.</p>
 <h2 id="5-doplanfiles-the-method-that-differs">5. <code>doPlanFiles()</code> — the method that differs<a class="headerlink" href="#5-doplanfiles-the-method-that-differs" title="Permanent link">&para;</a></h2>
@@ -3628,36 +3624,35 @@
 </span><span id="__span-4-91"><a id="__codelineno-4-91" name="__codelineno-4-91"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">manifestGroup</span><span class="p">.</span><span class="na">planFiles</span><span class="p">();</span>
 </span><span id="__span-4-92"><a id="__codelineno-4-92" name="__codelineno-4-92"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/DataTableScan.java` L63–L92](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/DataTableScan.java#L63-L92) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/DataTableScan.java#L63-L92"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/DataTableScan.java</code> L63–L92</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>For the ordinary table scan, planning is: get two lists of manifests out of the snapshot, count them, and configure a <code>ManifestGroup</code>.</p>
-<p><code>snapshot.dataManifests(io)</code> and <code>snapshot.deleteManifests(io)</code> read the manifest list from Chapter 2.3 and partition its entries by <code>ManifestContent</code>. That is the only I/O in the body of this method; the <code>manifestGroup.planFiles()</code> call on its last line does the rest, as section 4 described.</p>
+<p><code>snapshot.dataManifests(io)</code> and <code>snapshot.deleteManifests(io)</code> read the manifest list from <a href="../../part02_table_spec/chapter_2.3_manifest_list/">Chapter 2.3</a> and partition its entries by <code>ManifestContent</code>. That is the only I/O in the body of this method; the <code>manifestGroup.planFiles()</code> call on its last line does the rest, as section 4 described.</p>
 <p>The builder chain is worth reading as a list of decisions handed downstream:</p>
 <ul>
 <li><code>filterData(filter())</code> — the row filter, which will drive all three pruning stages.</li>
 <li><code>specsById(specs())</code> and <code>schemasById(schemas())</code> — every spec and schema the table has ever had, because manifests written years apart may sit in one snapshot.</li>
 <li><code>ignoreDeleted()</code> — skip manifest entries with status <code>DELETED</code>; a read wants live files.</li>
 <li><code>columnsToKeepStats(...)</code> and <code>select(scanColumns())</code> — how much of each manifest entry to materialise.</li>
-<li><code>planWith(planExecutor())</code>, but only if <code>shouldPlanWithExecutor()</code> <strong>and</strong> there is more than one manifest to work on. Chapter 4.5.</li>
-<li><code>ignoreResiduals()</code>, conditionally. Chapter 4.4.</li>
+<li><code>planWith(planExecutor())</code>, but only if <code>shouldPlanWithExecutor()</code> <strong>and</strong> there is more than one manifest to work on. <a href="../chapter_4.5_split_planning/">Chapter 4.5</a>.</li>
+<li><code>ignoreResiduals()</code>, conditionally. <a href="../chapter_4.4_residuals/">Chapter 4.4</a>.</li>
 </ul>
 <p>Then <code>manifestGroup.planFiles()</code>. From here the scan classes are done, and the rest of Part 4 is inside <code>ManifestGroup</code>.</p>
 <h2 id="6-the-funnel">6. The funnel<a class="headerlink" href="#6-the-funnel" title="Permanent link">&para;</a></h2>
 <p>Because the pruning stages are split across the next three chapters, it is worth fixing the pipeline once, here, and referring back to it.</p>
 <pre class="mermaid"><code>flowchart TD
     F["filter(Expression)&lt;br/&gt;&lt;i&gt;ts &amp;gt;= '2024-03-01' AND id = 42&lt;/i&gt;"] --&gt; M0["snapshot.dataManifests(io)"]
-    M0 --&gt; S1{"ManifestEvaluator&lt;br/&gt;partition summaries&lt;br/&gt;&lt;b&gt;Chapter 4.2&lt;/b&gt;"}
+    M0 --&gt; S1{"ManifestEvaluator&lt;br/&gt;partition summaries&lt;br/&gt;&lt;b&gt;[Chapter 4.2](../part04_read_path/chapter_4.2_manifest_pruning.md)&lt;/b&gt;"}
     S1 --&gt;|cannot match| D1["skipped-data-manifests&lt;br/&gt;&lt;i&gt;manifest never opened&lt;/i&gt;"]
-    S1 --&gt;|might match| S2{"Evaluator&lt;br/&gt;the file's partition tuple&lt;br/&gt;&lt;b&gt;Chapter 4.4&lt;/b&gt;"}
+    S1 --&gt;|might match| S2{"Evaluator&lt;br/&gt;the file's partition tuple&lt;br/&gt;&lt;b&gt;[Chapter 4.4](../part04_read_path/chapter_4.4_residuals.md)&lt;/b&gt;"}
     S2 --&gt;|cannot match| D2["skipped-data-files"]
-    S2 --&gt;|might match| S3{"InclusiveMetricsEvaluator&lt;br/&gt;column bounds and null counts&lt;br/&gt;&lt;b&gt;Chapter 4.3&lt;/b&gt;"}
+    S2 --&gt;|might match| S3{"InclusiveMetricsEvaluator&lt;br/&gt;column bounds and null counts&lt;br/&gt;&lt;b&gt;[Chapter 4.3](../part04_read_path/chapter_4.3_file_pruning.md)&lt;/b&gt;"}
     S3 --&gt;|cannot match| D3["skipped-data-files"]
     S3 --&gt;|might match| T["BaseFileScanTask&lt;br/&gt;file + deletes + &lt;b&gt;residual&lt;/b&gt;"]
     F --&gt; M1["snapshot.deleteManifests(io)"]
     M1 --&gt; DI["DeleteFileIndex&lt;br/&gt;&lt;i&gt;same partition pruning, then every&lt;br/&gt;survivor read before planFiles() returns&lt;/i&gt;"]
     DI --&gt; T
-    T --&gt; R["ResidualEvaluator&lt;br/&gt;what the engine still must check per row&lt;br/&gt;&lt;b&gt;Chapter 4.4&lt;/b&gt;"]
-    R --&gt; SP["splits and task groups&lt;br/&gt;&lt;b&gt;Chapter 4.5&lt;/b&gt;"]</code></pre>
+    T --&gt; R["ResidualEvaluator&lt;br/&gt;what the engine still must check per row&lt;br/&gt;&lt;b&gt;[Chapter 4.4](../part04_read_path/chapter_4.4_residuals.md)&lt;/b&gt;"]
+    R --&gt; SP["splits and task groups&lt;br/&gt;&lt;b&gt;[Chapter 4.5](../part04_read_path/chapter_4.5_split_planning.md)&lt;/b&gt;"]</code></pre>
 <p>Four filters, not three, and they discard different things: whole manifests, whole files by partition value, whole files by column statistics, and finally individual rows. Each stage is cheaper than the one after it and runs on less information, which is why they are ordered this way.</p>
 <p>Only the left-hand column is lazy. The delete-manifest branch on the right is drained eagerly, as section 4 described, because a task cannot be constructed until the deletes that shadow its file are known.</p>
 <p>The counters on the left-hand branches are real: <code>skipped-data-manifests</code>, <code>scanned-data-manifests</code>, <code>skipped-data-files</code>, <code>result-data-files</code> all appear in the <code>ScanReport</code> that section 4 assembles. When a scan is slower than it should be, those four numbers say which stage failed to do its job.</p>
@@ -3741,10 +3736,9 @@
 </span><span id="__span-5-302"><a id="__codelineno-5-302" name="__codelineno-5-302"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">schema</span><span class="p">;</span>
 </span><span id="__span-5-303"><a id="__codelineno-5-303" name="__codelineno-5-303"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseScan.java` L265–L303](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseScan.java#L265-L303) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>When the caller used <code>select(...)</code>, the projected schema is <em>not</em> just the selected columns. <code>Binder.boundReferences(schema, [rowFilter], caseSensitive)</code> extracts every field ID the filter touches — binding is what turns a column <em>name</em> in a filter into a resolved field with an ID, and Chapter 4.2 §3 opens it, and those are unioned into <code>requiredFieldIds</code> before <code>TypeUtil.project</code>.</p>
-<p>The reason is Chapter 4.4. Every <code>FileScanTask</code> carries a residual expression that the engine must evaluate against the rows it reads. If the projection dropped a column the residual mentions, that evaluation would be impossible. So filtering on a column you do not select is legal, and Iceberg quietly reads it anyway.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseScan.java#L265-L303"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseScan.java</code> L265–L303</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>When the caller used <code>select(...)</code>, the projected schema is <em>not</em> just the selected columns. <code>Binder.boundReferences(schema, [rowFilter], caseSensitive)</code> extracts every field ID the filter touches — binding is what turns a column <em>name</em> in a filter into a resolved field with an ID, and <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> §3 opens it, and those are unioned into <code>requiredFieldIds</code> before <code>TypeUtil.project</code>.</p>
+<p>The reason is <a href="../chapter_4.4_residuals/">Chapter 4.4</a>. Every <code>FileScanTask</code> carries a residual expression that the engine must evaluate against the rows it reads. If the projection dropped a column the residual mentions, that evaluation would be impossible. So filtering on a column you do not select is legal, and Iceberg quietly reads it anyway.</p>
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Scans are immutable, so an ignored return value silently drops the filter</p>
@@ -3813,7 +3807,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 4.2 opens the <code>ManifestGroup</code> this chapter only configured, and shows how a filter on data columns becomes a decision not to download a manifest at all.</p>
+<p><strong>Next:</strong> <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> opens the <code>ManifestGroup</code> this chapter only configured, and shows how a filter on data columns becomes a decision not to download a manifest at all.</p>
 
 
 
@@ -3868,13 +3862,13 @@
         
         
           
-          <a href="../chapter_4.2_manifest_pruning/" class="md-footer__link md-footer__link--next" aria-label="Next: 4.2 Manifest pruning with `ManifestEvaluator`">
+          <a href="../chapter_4.2_manifest_pruning/" class="md-footer__link md-footer__link--next" aria-label="Next: 4.2 Manifest pruning with ManifestEvaluator">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                4.2 Manifest pruning with `ManifestEvaluator`
+                4.2 Manifest pruning with ManifestEvaluator
               </div>
             </div>
             <div class="md-footer__button md-icon">

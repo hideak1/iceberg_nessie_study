@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2181,7 +2181,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2375,7 +2375,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2574,7 +2574,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2905,7 +2905,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2933,7 +2933,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -2989,7 +2989,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3223,7 +3223,7 @@
 <h1 id="chapter-102-multi-table-atomic-commits-how-they-are-implemented">Chapter 10.2 — Multi-table atomic commits: how they are implemented<a class="headerlink" href="#chapter-102-multi-table-atomic-commits-how-they-are-implemented" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> <code>TableOperations.commit</code> moves one table's pointer. What code makes a change to two tables land together, and which single instruction is the atomic one?</p>
-<p><strong>Prerequisites:</strong> Chapter 6.4 (the multi-table gap), Chapter 6.3 (the requirements-and-updates payload, and how a client learns an endpoint exists), Chapter 8.4 (references and CAS), Chapter 9.1 (<code>Operation</code> to <code>CommitObj</code>, and the head/expected index pair), Chapter 9.2 (the five conflict types), Chapter 10.1 (the single-<code>Put</code> path)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part06_catalogs/chapter_6.4_server_side_commits/">Chapter 6.4</a> (the multi-table gap), <a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a> (the requirements-and-updates payload, and how a client learns an endpoint exists), <a href="../../part08_version_store/chapter_8.4_references_cas/">Chapter 8.4</a> (references and CAS), <a href="../../part09_branching/chapter_9.1_commit_path/">Chapter 9.1</a> (<code>Operation</code> to <code>CommitObj</code>, and the head/expected index pair), <a href="../../part09_branching/chapter_9.2_merge/">Chapter 9.2</a> (the five conflict types), <a href="../chapter_10.1_nessie_catalog/">Chapter 10.1</a> (the single-<code>Put</code> path)</p>
 <p><strong>Source covered:</strong> <code>core/.../BaseTransaction.java</code>, Nessie's <code>catalog/service/rest/</code>, <code>catalog/service/impl/</code>, <code>versioned/storage/</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3387,8 +3387,7 @@
 </span><span id="__span-0-417"><a id="__codelineno-0-417" name="__codelineno-0-417"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-0-418"><a id="__codelineno-0-418" name="__codelineno-0-418"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseTransaction.java` L351–L418](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTransaction.java#L351-L418) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTransaction.java#L351-L418"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseTransaction.java</code> L351–L418</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Sixty-eight lines, and the two that matter are inside the retried lambda:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">applyUpdates</span><span class="p">(</span><span class="n">underlyingOps</span><span class="p">);</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">underlyingOps</span><span class="p">.</span><span class="na">commit</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">current</span><span class="p">);</span>
@@ -3400,8 +3399,7 @@
 <span class="normal"><a href="#__codelineno-2-1366">1366</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1365"><a id="__codelineno-2-1365" name="__codelineno-2-1365"></a><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">commitTransaction</span><span class="p">(</span><span class="n">SessionContext</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">TableCommit</span><span class="o">&gt;</span><span class="w"> </span><span class="n">commits</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-2-1366"><a id="__codelineno-2-1366" name="__codelineno-2-1366"></a><span class="w">  </span><span class="n">Endpoint</span><span class="p">.</span><span class="na">check</span><span class="p">(</span><span class="n">endpoints</span><span class="p">,</span><span class="w"> </span><span class="n">Endpoint</span><span class="p">.</span><span class="na">V1_COMMIT_TRANSACTION</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java` L1365–L1366](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L1365-L1366) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L1365-L1366"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java</code> L1365–L1366</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The client can <em>send</em> a multi-table commit. Whether it is atomic is entirely the server's problem.</p>
 <h2 id="4-fan-in-n-table-changes-become-one-commit">4. Fan-in: N table changes become one commit<a class="headerlink" href="#4-fan-in-n-table-changes-become-one-commit" title="Permanent link">&para;</a></h2>
 <p>Nessie's Iceberg REST server implements the endpoint. Here is the whole of it:</p>
@@ -3483,8 +3481,7 @@
 </span><span id="__span-3-272"><a id="__codelineno-3-272" name="__codelineno-3-272"></a><span class="w">      </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">stream</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">stream</span><span class="p">.</span><span class="na">reduce</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">ident</span><span class="p">,</span><span class="w"> </span><span class="n">snap</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ident</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">i2</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">i1</span><span class="p">));</span>
 </span><span id="__span-3-273"><a id="__codelineno-3-273" name="__codelineno-3-273"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java` L235–L273](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java#L235-L273) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java#L235-L273"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java</code> L235–L273</a> <span>@ nessie-0.108.4</span></p>
 <p>Read the <code>map</code> closely. Each <code>tableChange</code> — an Iceberg identifier plus its <code>requirements</code> and <code>updates</code> — becomes an <code>IcebergCatalogOperation</code> whose <code>key</code> is <code>tableChange.identifier().toNessieContentKey()</code>. Iceberg's table identifiers become Nessie content keys, and the list of them becomes a single <code>CatalogCommit</code>.</p>
 <p>That is the entire translation. There is no coordinator, no lock manager, no transaction ID. The Iceberg request shape — a list of per-table changes with per-table preconditions — happens to be exactly the shape of a Nessie commit, and the resource method is short because there is nothing to reconcile.</p>
 <p><code>CatalogServiceImpl.commit</code> then does the per-table work. It reads every key once (<code>getMultipleContents(allKeys)</code>), checks that the effective reference is a branch — <em>"Can only commit to a branch, but %s %s"</em> — and pins a target <code>Branch</code> at either the client's requested hash or the head it just read. Then, for each operation in turn: verify the Iceberg requirements, apply the metadata updates, write a new <code>metadata.json</code> to object storage, and hand the result to the accumulator:</p>
@@ -3502,8 +3499,7 @@
 </span><span id="__span-4-119"><a id="__codelineno-4-119" name="__codelineno-4-119"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-4-120"><a id="__codelineno-4-120" name="__codelineno-4-120"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/MultiTableUpdate.java` L114–L120](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/MultiTableUpdate.java#L114-L120) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/MultiTableUpdate.java#L114-L120"><code>projectnessie/nessie</code> · <code>catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/MultiTableUpdate.java</code> L114–L120</a> <span>@ nessie-0.108.4</span></p>
 <p>One <code>Operation.Put</code> per content key, appended to a single <code>Operations</code> builder. <code>checkState(!committed, "Already committed")</code> guards the obvious mistake.</p>
 <p>At this point every table's new metadata file exists in storage and nothing is visible to any reader. The commit itself:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">MultiTableUpdate.commit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-60">60</a></span>
@@ -3564,9 +3560,8 @@
 </span><span id="__span-5-87"><a id="__codelineno-5-87" name="__codelineno-5-87"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-5-88"><a id="__codelineno-5-88" name="__codelineno-5-88"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/MultiTableUpdate.java` L60–L88](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/MultiTableUpdate.java#L60-L88) <span>@ nessie-0.108.4</span></p>
-
-<p><code>treeService.commitMultipleOperations(branch, hash, operations, meta)</code>. One call, once, for the whole transaction. That is the multi-table machinery in its entirety — a list and a method call. Recall from Chapter 10.1 that <code>NessieIcebergClient.commitContent</code> calls the same API with a list of length one. The capability was always in the protocol; this path is the one that uses it.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/MultiTableUpdate.java#L60-L88"><code>projectnessie/nessie</code> · <code>catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/MultiTableUpdate.java</code> L60–L88</a> <span>@ nessie-0.108.4</span></p>
+<p><code>treeService.commitMultipleOperations(branch, hash, operations, meta)</code>. One call, once, for the whole transaction. That is the multi-table machinery in its entirety — a list and a method call. Recall from <a href="../chapter_10.1_nessie_catalog/">Chapter 10.1</a> that <code>NessieIcebergClient.commitContent</code> calls the same API with a list of length one. The capability was always in the protocol; this path is the one that uses it.</p>
 <p>The ordering is what makes the whole thing work, and it is worth seeing end to end:</p>
 <pre class="mermaid"><code>sequenceDiagram
     participant E as Engine
@@ -3656,10 +3651,10 @@
 </span><span id="__span-6-788"><a id="__codelineno-6-788" name="__codelineno-6-788"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">conflict</span><span class="p">;</span>
 </span><span id="__span-6-789"><a id="__codelineno-6-789" name="__codelineno-6-789"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L761–L789](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L761-L789) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L761-L789"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java</code> L761–L789</a> <span>@ nessie-0.108.4</span></p>
 <p><code>expectedValue</code> is what the client's tree said this key held; <code>existingContent</code> is what the branch head says it holds now. Five ways for those to disagree, each named: the key was created underneath you (<code>KEY_EXISTS</code>), removed underneath you (<code>KEY_DOES_NOT_EXIST</code>), or changed underneath you (<code>PAYLOAD_DIFFERS</code>, <code>CONTENT_ID_DIFFERS</code>, <code>VALUE_DIFFERS</code>).</p>
-<p>Those two values come from two different trees, and the split is the reason this scheme is precise rather than merely safe. <code>BaseCommitHelper</code>'s constructor keeps both: <code>head</code> is the branch's current head commit, and <code>expected</code> is the commit at the hash the client sent — resolved by <code>commitInChain</code> when they differ, with a comment noting the load doubles as validation that the hash exists. <code>CommitImpl</code> then builds a <code>headIndex</code> and an <code>expectedIndex</code> from them. <code>expectedValue</code> is read out of the expected index; the commit is parented on <code>headId()</code>, so <code>existingContent</code> is read out of the head's index.</p>
+<p>Those two values come from two different trees, and the split is the reason this scheme is precise rather than merely safe. <code>BaseCommitHelper</code>'s constructor keeps both: <code>head</code> is the branch's current head commit, and <code>expected</code> is the commit at the hash the client sent — resolved by <code>commitInChain</code> when they differ, with a comment noting the load doubles as validation that the hash exists. <code>CommitImpl</code> then builds a <code>headIndex</code> and an <code>expectedIndex</code> from them.</p>
+<p>They are not read at the same moment, and by the time <code>checkForConflict</code> runs, one of them is long gone. <code>expectedValue</code> is read <strong>earlier and in a different class</strong>: <code>commitAddPut</code>, <code>commitAddDelete</code> and <code>commitAddUnchanged</code> each take <code>expectedIndex()</code> while <code>CommitImpl</code> is still assembling the <code>CreateCommit</code>, and the value they find travels <em>on the operation</em>. <code>existingContent</code> is read later, here in <code>CommitLogicImpl.buildCommitObj</code>, out of <code>fullIndex</code> — the index built from the parent chain, which is the head, because the commit is parented on <code>headId()</code>. So <code>checkForConflict</code> is not comparing two live lookups; it is comparing a value carried in from the client's tree against a fresh read of the branch's.</p>
 <p>The consequence is that the comparison is per key rather than per branch. Another writer committing to the same branch does not make these two disagree unless it touched one of <em>your</em> keys. A branch is not a lock.</p>
 <p>Crucially, a conflict on one key does not short-circuit. <code>buildCommitObj</code> collects them:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitLogicImpl — all or nothing</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-712">712</a></span>
@@ -3676,8 +3671,7 @@
 </span><span id="__span-7-717"><a id="__codelineno-7-717" name="__codelineno-7-717"></a>
 </span><span id="__span-7-718"><a id="__codelineno-7-718" name="__codelineno-7-718"></a><span class="k">return</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="na">incrementalIndex</span><span class="p">(</span><span class="n">index</span><span class="p">.</span><span class="na">serialize</span><span class="p">()).</span><span class="na">id</span><span class="p">(</span><span class="n">hasher</span><span class="p">.</span><span class="na">generate</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L712–L718](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L712-L718) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L712-L718"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java</code> L712–L718</a> <span>@ nessie-0.108.4</span></p>
 <p>If the list is non-empty the whole commit dies and the client is told about every conflicting key at once. If it is empty, one <code>CommitObj</code> exists describing all N tables. Same accumulate-then-throw shape Iceberg uses in <code>Schema.checkCompatibility</code>, for the same reason: one round trip should tell you everything that is wrong.</p>
 <p>Then, finally, the atomic instruction:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseCommitHelper.bumpReferencePointer()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-611">611</a></span>
@@ -3714,8 +3708,7 @@
 </span><span id="__span-8-626"><a id="__codelineno-8-626" name="__codelineno-8-626"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-8-627"><a id="__codelineno-8-627" name="__codelineno-8-627"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java` L611–L627](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java#L611-L627) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java#L611-L627"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java</code> L611–L627</a> <span>@ nessie-0.108.4</span></p>
 <p><code>persist.updateReferencePointer(reference, newHead)</code>. One conditional update of one pointer. Before it, the new commit object exists but nothing references it; after it, all N tables are visible in their new state. There is no instant at which one has moved and another has not, because there is only one instruction that moves anything.</p>
 <p>That is the whole answer, and its shape is worth stating plainly: <strong>multi-table atomicity is not a feature Nessie adds. It is what you get for free once the unit of commit stops being a table.</strong></p>
 <h2 id="6-gotchas">6. Gotchas<a class="headerlink" href="#6-gotchas" title="Permanent link">&para;</a></h2>
@@ -3725,7 +3718,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title"><code>assert-ref-snapshot-id</code> must name <code>main</code></p>
-<p><code>IcebergUpdateRequirement.AssertRefSnapshotId.checkForTable</code> opens with <code>checkState("main".equals(ref()), ...)</code> and fails with <em>"Requirement failed: ref must be 'main', but is '%s'"</em>. The upstream comment explains: <em>"Cannot really check the reference name, because the ref-name in a table-metadata is something very different from Nessie references."</em> Iceberg branches live inside <code>metadata.json</code>; Nessie branches live in the version store. This is the same namespace collision Chapter 10.1 met when <code>setBranchSnapshot</code> installed every snapshot on Iceberg's <code>main</code> ref regardless of the Nessie reference in play.</p>
+<p><code>IcebergUpdateRequirement.AssertRefSnapshotId.checkForTable</code> opens with <code>checkState("main".equals(ref()), ...)</code> and fails with <em>"Requirement failed: ref must be 'main', but is '%s'"</em>. The upstream comment explains: <em>"Cannot really check the reference name, because the ref-name in a table-metadata is something very different from Nessie references."</em> Iceberg branches live inside <code>metadata.json</code>; Nessie branches live in the version store. This is the same namespace collision <a href="../chapter_10.1_nessie_catalog/">Chapter 10.1</a> met when <code>setBranchSnapshot</code> installed every snapshot on Iceberg's <code>main</code> ref regardless of the Nessie reference in play.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Concurrency cost and failure have different triggers</p>
@@ -3733,7 +3726,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">An unknown outcome does not become an unknown outcome per table</p>
-<p><code>bumpReferencePointer</code> can return without knowing whether its write landed, and Chapter 8.4 §4 covers what it does about that. The point worth making <em>here</em> is that the uncertainty does not multiply: whatever it is, it is one uncertainty about one row, not one per table in the transaction. A five-table commit that ends in an indeterminate state ends in a single indeterminate state, and resolving it resolves all five. Compare <code>CommitStateUnknownException</code> in Chapter 3.3, which is per table by construction — five tables committed in a loop can leave five independent unknowns, and no amount of care at the client can merge them into one question.</p>
+<p><code>bumpReferencePointer</code> can return without knowing whether its write landed, and <a href="../../part08_version_store/chapter_8.4_references_cas/">Chapter 8.4</a> §4 covers what it does about that. The point worth making <em>here</em> is that the uncertainty does not multiply: whatever it is, it is one uncertainty about one row, not one per table in the transaction. A five-table commit that ends in an indeterminate state ends in a single indeterminate state, and resolving it resolves all five. Compare <code>CommitStateUnknownException</code> in <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>, which is per table by construction — five tables committed in a loop can leave five independent unknowns, and no amount of care at the client can merge them into one question.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Two updates to the same table in one transaction are rejected</p>
@@ -3741,7 +3734,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">This path is not reachable through <code>NessieCatalog</code></p>
-<p>The Java catalog from Chapter 10.1 has no <code>commitTransaction</code> and its <code>commitContent</code> sends one <code>Operation.Put</code>. Multi-table commits require talking to Nessie through <code>RESTCatalog</code>. The one place <code>iceberg-nessie</code> does send two operations in a single commit is <code>NessieIcebergClient.renameContent</code>, which pairs a <code>Delete</code> and a <code>Put</code> so that a rename cannot be observed half-done — proof that the mechanism was always available, just never exposed as a transaction API.</p>
+<p>The Java catalog from <a href="../chapter_10.1_nessie_catalog/">Chapter 10.1</a> has no <code>commitTransaction</code> and its <code>commitContent</code> sends one <code>Operation.Put</code>. Multi-table commits require talking to Nessie through <code>RESTCatalog</code>. The one place <code>iceberg-nessie</code> does send two operations in a single commit is <code>NessieIcebergClient.renameContent</code>, which pairs a <code>Delete</code> and a <code>Put</code> so that a rename cannot be observed half-done — proof that the mechanism was always available, just never exposed as a transaction API.</p>
 </div>
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
@@ -3807,7 +3800,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 10.3 asks what else "implements the REST catalog spec" leaves to the server, and how to read any catalog's real capability surface out of its own source.</p>
+<p><strong>Next:</strong> <a href="../chapter_10.3_catalog_landscape/">Chapter 10.3</a> asks what else "implements the REST catalog spec" leaves to the server, and how to read any catalog's real capability surface out of its own source.</p>
 
 
 
@@ -3845,7 +3838,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_10.1_nessie_catalog/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 10.1 `NessieCatalog` and `NessieTableOperations`">
+          <a href="../chapter_10.1_nessie_catalog/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 10.1 NessieCatalog and NessieTableOperations">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3855,7 +3848,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                10.1 `NessieCatalog` and `NessieTableOperations`
+                10.1 NessieCatalog and NessieTableOperations
               </div>
             </div>
           </a>

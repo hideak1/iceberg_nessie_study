@@ -1040,7 +1040,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1264,7 +1264,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1292,7 +1292,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1460,7 +1460,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1488,7 +1488,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1516,7 +1516,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1712,7 +1712,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1740,7 +1740,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1906,7 +1906,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1934,7 +1934,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1962,7 +1962,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2130,7 +2130,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2158,7 +2158,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2186,7 +2186,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2326,7 +2326,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2354,7 +2354,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2548,7 +2548,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2742,7 +2742,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2938,7 +2938,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2966,7 +2966,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3022,7 +3022,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3289,13 +3289,13 @@
 <h1 id="chapter-13-nessies-core-idea-git-semantics-for-the-catalog">Chapter 1.3 — Nessie's core idea: Git semantics for the catalog<a class="headerlink" href="#chapter-13-nessies-core-idea-git-semantics-for-the-catalog" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> what exactly does Nessie version, and in what sense is "it works like Git" a claim about the source rather than a marketing analogy?</p>
-<p><strong>Prerequisites:</strong> Chapter 1.2 (the immutable tree and the one atomic pointer)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> (the immutable tree and the one atomic pointer)</p>
 <p><strong>Source covered:</strong> <code>versioned/storage/common/.../persist/Reference.java</code>, <code>.../objtypes/CommitObj.java</code>, <code>api/model/.../Validation.java</code>, <code>.../CommitMeta.java</code>, <code>.../Operations.java</code>, <code>.../IcebergContent.java</code>, <code>api/model/.../api/v2/TreeApi.java</code></p>
 </div>
 <h2 id="1-the-gap-that-one-pointer-leaves">1. The gap that one pointer leaves<a class="headerlink" href="#1-the-gap-that-one-pointer-leaves" title="Permanent link">&para;</a></h2>
-<p>Chapter 1.2 reduced an Iceberg table to a single compare-and-swapped string. That is a complete answer for one table, and it is silent about two.</p>
+<p><a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> reduced an Iceberg table to a single compare-and-swapped string. That is a complete answer for one table, and it is silent about two.</p>
 <p>An ETL job that rewrites <code>sales.orders</code> and <code>sales.order_items</code> together commits twice. Between those commits the warehouse is in a state neither job intended and no reader wants — orders updated, line items not. Iceberg has no construct that spans them: there is no shared pointer, no shared metadata file, nothing to swap once. The same gap swallows the questions people actually ask of a warehouse. <em>Show me every table as it was before last night's load.</em> <em>Let me validate a whole batch of tables and publish them together, or none of them.</em> <em>Give my team a copy of the warehouse to experiment on that costs nothing to create.</em></p>
-<p>Nessie's answer is to apply Chapter 1.2's move one level up. If one pointer per table gives you atomic single-table commits, then one pointer per <strong>branch</strong> — naming a consistent set of table pointers — gives you all of the above. What that branch points at is a commit; what a commit records is a set of changes to keys; what a key maps to is a small immutable value. If that sounds like Git, it is because the resemblance is not an analogy. This chapter shows where it is written down.</p>
+<p>Nessie's answer is to apply <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a>'s move one level up. If one pointer per table gives you atomic single-table commits, then one pointer per <strong>branch</strong> — naming a consistent set of table pointers — gives you all of the above. What that branch points at is a commit; what a commit records is a set of changes to keys; what a key maps to is a small immutable value. If that sounds like Git, it is because the resemblance is not an analogy. This chapter shows where it is written down.</p>
 <h2 id="2-it-really-is-git">2. It really is Git<a class="headerlink" href="#2-it-really-is-git" title="Permanent link">&para;</a></h2>
 <p>Start at the bottom, in the storage layer, where a reference is defined:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Reference — a named pointer, in Git&#x27;s namespaces</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-29">29</a></span>
@@ -3372,10 +3372,9 @@
 </span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="w">  </span><span class="nd">@Value.Parameter</span><span class="p">(</span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">)</span>
 </span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PreviousPointer</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">previousPointers</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java` L29–L65](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java#L29-L65) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java#L29-L65"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java</code> L29–L65</a> <span>@ nessie-0.108.4</span></p>
 <p><em>"Reference is a generic named pointer."</em> Branches live under <code>refs/heads/</code>; tags live under <code>refs/tags/</code>. Those are not Nessie's names for things — they are Git's on-disk ref namespaces, adopted verbatim. A branch reference points at a <code>COMMIT</code> object; a tag may point at a <code>TAG</code> object or straight at a <code>COMMIT</code>, exactly as an annotated versus lightweight tag does in Git.</p>
-<p>Two of the six attributes below the javadoc are the Git part: a <code>name()</code> and an <code>ObjId pointer()</code>. Everything Chapter 1.2 said about <code>metadata_location</code> applies to that pair word for word — a name, a pointer, and a compare-and-swap.</p>
+<p>Two of the six attributes below the javadoc are the Git part: a <code>name()</code> and an <code>ObjId pointer()</code>. Everything <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> said about <code>metadata_location</code> applies to that pair word for word — a name, a pointer, and a compare-and-swap.</p>
 <p>The other four are storage bookkeeping that no client ever sees. <code>deleted()</code> marks a reference as tombstoned rather than removing the row, so a concurrent reader cannot observe a half-deleted branch. <code>createdAtMicros()</code> and <code>previousPointers()</code> are the reference's own history — the latter is <code>@Value.Auxiliary</code>, deliberately excluded from <code>equals</code>, and is what lets the server answer "where did <code>main</code> point ten minutes ago" without walking the commit log. <code>extendedInfoObj()</code> is a nullable pointer to a side object. Keep the split in mind: this type is the <em>stored</em> reference, and section 9's second gotcha is about the two other types that share its name.</p>
 <p>The Git shape does not stop at the storage layer. It reaches the wire format:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Validation — hashes and relative commit specs</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-31">31</a></span>
@@ -3458,8 +3457,7 @@
 </span><span id="__span-1-69"><a id="__codelineno-1-69" name="__codelineno-1-69"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">HASH_OR_RELATIVE_COMMIT_SPEC_REGEX</span><span class="w"> </span><span class="o">=</span>
 </span><span id="__span-1-70"><a id="__codelineno-1-70" name="__codelineno-1-70"></a><span class="w">    </span><span class="s">"^"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">HASH_OR_RELATIVE_COMMIT_SPEC_RAW_REGEX</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"$"</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `api/model/src/main/java/org/projectnessie/model/Validation.java` L31–L71](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/Validation.java#L31-L71) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/Validation.java#L31-L71"><code>projectnessie/nessie</code> · <code>api/model/src/main/java/org/projectnessie/model/Validation.java</code> L31–L71</a> <span>@ nessie-0.108.4</span></p>
 <p><code>HASH_RAW_REGEX</code> is a hex string of 8 to 64 characters, so a client may abbreviate a hash the way <code>git log abc1234</code> does. Then <code>RELATIVE_COMMIT_SPEC_RAW_REGEX</code>: <code>~</code>, <code>^</code> or <code>*</code>, followed by a count or an ISO-8601 timestamp. The two are composed by the constant underneath them, <code>HASH_OR_RELATIVE_COMMIT_SPEC_RAW_REGEX</code> — an optional hash followed by any number of relative lookups — and it is that constant's javadoc that carries the worked examples, including <em>"the commit in the commit log starting at <code>11223344</code> with a commit-created timestamp of <code>2021-04-07T14:42:25.534748Z</code> or less."</em></p>
 <p><code>~N</code> and <code>^N</code> are Git's own relative-lookup operators, with the same meanings: the javadoc defines <code>~</code> as the n-th predecessor in the commit log and <code>^</code> as the n-th parent, <em>"either 1, referencing the direct parent, or 2, referencing the merge parent."</em> <code>*timestamp</code> is the one addition, and it is the one a warehouse needs: resolve a reference as of a wall-clock time. A client can send <code>main~3</code> or <code>main*2021-04-07T14:42:25Z</code> as a reference string and let the server resolve it, which is why time travel across the whole catalog needs no special API.</p>
 <h2 id="3-what-a-commit-is">3. What a commit is<a class="headerlink" href="#3-what-a-commit-is" title="Permanent link">&para;</a></h2>
@@ -3527,11 +3525,10 @@
 </span><span id="__span-2-176"><a id="__codelineno-2-176" name="__codelineno-2-176"></a><span class="cm">/** The commit message as plain text. */</span>
 </span><span id="__span-2-177"><a id="__codelineno-2-177" name="__codelineno-2-177"></a><span class="n">String</span><span class="w"> </span><span class="nf">message</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java` L146–L177](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java#L146-L177) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java#L146-L177"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java</code> L146–L177</a> <span>@ nessie-0.108.4</span></p>
 <p>A monotonic <code>seq</code>, a list of parents, secondary parents for merges, multi-valued headers, and a plain-text <code>message</code>. The shape is familiar; two details are not.</p>
 <p><code>tail()</code> is documented as <em>"Zero, one or more parent-entry hashes of this commit, the nearest parent first… This is an internal attribute used to more efficiently page through the commit log. Only the first, the nearest parent, shall be exposed to clients."</em> It is not a skip list — nothing is skipped. It is a dense sliding window over the nearest ancestors: <code>CommitLogicImpl</code> seeds a new commit's tail with <code>parentCommitId</code> and then copies the first <code>parentsPerCommit - 1</code> entries of the <em>parent's</em> tail, so with <code>DEFAULT_PARENTS_PER_COMMIT = 20</code> every commit carries the 20 consecutive ancestors immediately behind it. <code>StoreConfig</code> says what for: <em>"Number of parent-commit-hashes stored in each commit. This is used to allow bulk-fetches when accessing the commit log."</em> Twenty commits of log come back per round trip instead of one.</p>
-<p>The §5 diagram below shows the shape at small scale, and the <code>seq</code> in each box is what fixes it: <code>seq</code> starts at <code>1</code> on the root commit and is <code>parent.seq() + 1</code> thereafter, so <code>c5</code> has exactly four ancestors and its tail is <code>[c4, c3, c2, c1, EMPTY]</code> — every one of them, in order, terminated by the sentinel that stands where the root's parent would be. A commit deeper than twenty carries the nearest twenty and stops. Chapter 8.2 draws the same structure with <code>parents-per-commit</code> turned down to five so the boxes fit.</p>
+<p>The §5 diagram below shows the shape at small scale, and the <code>seq</code> in each box is what fixes it: <code>seq</code> starts at <code>1</code> on the root commit and is <code>parent.seq() + 1</code> thereafter, so <code>c5</code> has exactly four ancestors and its tail is <code>[c4, c3, c2, c1, EMPTY]</code> — every one of them, in order, terminated by the sentinel that stands where the root's parent would be. A commit deeper than twenty carries the nearest twenty and stops. <a href="../../part08_version_store/chapter_8.2_commit_log_dag/">Chapter 8.2</a> draws the same structure with <code>parents-per-commit</code> turned down to five so the boxes fit.</p>
 <p><code>directParent()</code> is the accessor that means what a Git user expects, and <code>secondaryParents()</code> — <em>"for example the ID of a merged commit"</em> — is where a merge's second parent goes.</p>
 <p>The rest of <code>CommitObj</code>, elided here, is two indexes; its class javadoc calls them <em>"the mapping of all reachable <code>StoreKey</code> keys to <code>Obj</code> values"</em>, held as a full <code>referenceIndex()</code> and an <code>incrementalIndex()</code> diff against it. Note the key type. <code>StoreKey</code> is the storage-layer key, and its own javadoc warns that it <em>"does not map exactly to a (user facing) Nessie content keys. Keys at the storage level are finer grained"</em> — one <code>ContentKey</code> can produce several. That is the machinery that makes "what is at this key on this branch" a lookup rather than a replay of history, and Part 8 is about it.</p>
 <p>The human-facing half of a commit is a separate type on the wire:</p>
@@ -3599,8 +3596,7 @@
 </span><span id="__span-3-89"><a id="__codelineno-3-89" name="__codelineno-3-89"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">getAllAuthors</span><span class="p">().</span><span class="na">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">getAllAuthors</span><span class="p">().</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
 </span><span id="__span-3-90"><a id="__codelineno-3-90" name="__codelineno-3-90"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `api/model/src/main/java/org/projectnessie/model/CommitMeta.java` L59–L90](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/CommitMeta.java#L59-L90) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/CommitMeta.java#L59-L90"><code>projectnessie/nessie</code> · <code>api/model/src/main/java/org/projectnessie/model/CommitMeta.java</code> L59–L90</a> <span>@ nessie-0.108.4</span></p>
 <p>Note the javadoc on <code>getCommitter</code>: <em>"The committer should follow the git spec for names eg Committer Name &lt;committer.name@example.com&gt; but this is not enforced"</em>, with a link to the <code>git-commit</code> documentation. The trailing clause is the operative half — the convention is Git's, the validation is nobody's, and the same javadoc adds that the field is <em>"populated on the server"</em> and that Nessie returns an error if a client sets it. Nessie also keeps author and committer as separate fields, which only matters if you cherry-pick or replay commits — and Nessie does both, under the names <code>transplant</code> and <code>merge</code>.</p>
 <p><code>getHash()</code> carries a warning worth remembering: <em>"This is not known at creation time and is only valid when reading the log."</em> A commit's identity is derived from its content, so it cannot be part of the content.</p>
 <h2 id="4-what-a-commit-contains">4. What a commit contains<a class="headerlink" href="#4-what-a-commit-contains" title="Permanent link">&para;</a></h2>
@@ -3628,10 +3624,9 @@
 </span><span id="__span-4-43"><a id="__codelineno-4-43" name="__codelineno-4-43"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Operation</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getOperations</span><span class="p">();</span>
 </span><span id="__span-4-44"><a id="__codelineno-4-44" name="__codelineno-4-44"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `api/model/src/main/java/org/projectnessie/model/Operations.java` L33–L44](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/Operations.java#L33-L44) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/Operations.java#L33-L44"><code>projectnessie/nessie</code> · <code>api/model/src/main/java/org/projectnessie/model/Operations.java</code> L33–L44</a> <span>@ nessie-0.108.4</span></p>
 <p>Twelve lines, and the whole commit protocol is in them: some <code>CommitMeta</code>, and one or more <code>Operation</code>s. <code>@Size(min = 1)</code> — an empty commit is rejected at validation, not silently accepted.</p>
-<p>There are exactly three kinds of <code>Operation</code>: <code>Put</code> writes a value at a <code>ContentKey</code>, <code>Delete</code> removes one, and <code>Unchanged</code> asserts that a key the writer <em>read</em> has not moved. That third one has no Git equivalent and is the most important of the three for correctness; the gotchas in section 9 explain why. Chapter 7.2 reads all three types in full.</p>
+<p>There are exactly three kinds of <code>Operation</code>: <code>Put</code> writes a value at a <code>ContentKey</code>, <code>Delete</code> removes one, and <code>Unchanged</code> asserts that a key the writer <em>read</em> has not moved. That third one has no Git equivalent and is the most important of the three for correctness; the gotchas in section 9 explain why. <a href="../../part07_nessie_architecture/chapter_7.2_data_model/">Chapter 7.2</a> reads all three types in full.</p>
 <h2 id="5-what-actually-gets-versioned">5. What actually gets versioned<a class="headerlink" href="#5-what-actually-gets-versioned" title="Permanent link">&para;</a></h2>
 <p>The value stored at a key, for anything in Iceberg format, is this:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">IcebergContent — a location and a version id</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-18">18</a></span>
@@ -3644,10 +3639,9 @@
 </span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kd">abstract</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="nf">getVersionId</span><span class="p">();</span>
 </span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `api/model/src/main/java/org/projectnessie/model/IcebergContent.java` L18–L22](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/IcebergContent.java#L18-L22) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/model/IcebergContent.java#L18-L22"><code>projectnessie/nessie</code> · <code>api/model/src/main/java/org/projectnessie/model/IcebergContent.java</code> L18–L22</a> <span>@ nessie-0.108.4</span></p>
 <p>Five lines. A metadata location and a version id. <code>IcebergTable</code> extends it with <code>snapshotId</code>, <code>schemaId</code>, <code>specId</code> and <code>sortOrderId</code> — each javadoc'd as <em>"Corresponds to Iceberg's …"</em>. <code>IcebergView</code> is the view counterpart but not a mirror of it: it overrides <code>getVersionId()</code> as <em>"Corresponds to Iceberg's <code>currentVersionId</code>"</em>, adds <code>getSchemaId()</code>, and carries two deprecated accessors (<code>getSqlText</code>, <code>getDialect</code>) left over from when Nessie stored view definitions itself. A view's spec and sort order have nowhere to go, because a view has neither.</p>
-<p>That is the entire integration, and it is worth pausing on how little it is. Nessie stores the string Chapter 1.2 called the one mutable cell. It does not store schemas, does not read manifests, and never touches a data file. Creating a branch writes one row. The Parquet in object storage is not copied, not marked, and not aware that branches exist.</p>
+<p>That is the entire integration, and it is worth pausing on how little it is. Nessie stores the string <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> called the one mutable cell. It does not store schemas, does not read manifests, and never touches a data file. Creating a branch writes one row. The Parquet in object storage is not copied, not marked, and not aware that branches exist.</p>
 <pre class="mermaid"><code>flowchart TD
     MAIN["refs/heads/main&lt;br/&gt;-&gt; commit c3"]
     ETL["refs/heads/etl-2026-08&lt;br/&gt;-&gt; commit c5"]
@@ -3685,9 +3679,8 @@
 </span><span id="__span-6-303"><a id="__codelineno-6-303" name="__codelineno-6-303"></a><span class="cm"> */</span>
 </span><span id="__span-6-304"><a id="__codelineno-6-304" name="__codelineno-6-304"></a><span class="n">CommitResponse</span><span class="w"> </span><span class="nf">commitMultipleOperations</span><span class="p">(</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `api/model/src/main/java/org/projectnessie/api/v2/TreeApi.java` L292–L304](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/api/v2/TreeApi.java#L292-L304) <span>@ nessie-0.108.4</span></p>
-
-<p><em>"Commit multiple operations against the given branch expecting that branch to have the given hash as its latest commit."</em> That sentence is Chapter 1.2's <code>base != current()</code>, restated for a catalog. The client sends the hash it read; the server accepts only if the head still matches; otherwise <code>NessieConflictException</code>, documented as <em>"either caused by a conflicting commit or concurrent commits."</em></p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/api/v2/TreeApi.java#L292-L304"><code>projectnessie/nessie</code> · <code>api/model/src/main/java/org/projectnessie/api/v2/TreeApi.java</code> L292–L304</a> <span>@ nessie-0.108.4</span></p>
+<p><em>"Commit multiple operations against the given branch expecting that branch to have the given hash as its latest commit."</em> That sentence is <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a>'s <code>base != current()</code>, restated for a catalog. The client sends the hash it read; the server accepts only if the head still matches; otherwise <code>NessieConflictException</code>, documented as <em>"either caused by a conflicting commit or concurrent commits."</em></p>
 <p>Everything the opening section asked for falls out of that one method. Two tables in one <code>Operations</code> list commit atomically, because one CAS covers both. A branch is created by pointing a new name at an existing commit, which copies nothing. A whole-warehouse rollback is a CAS that moves a branch backwards.</p>
 <pre class="mermaid"><code>sequenceDiagram
     participant W as Writer
@@ -3699,7 +3692,7 @@
     else head moved, or customers changed
         N--&gt;&gt;W: NessieConflictException
     end</code></pre>
-<p>The <code>Unchanged</code> in that request is the piece with no counterpart in Chapter 1.2, and the reason is structural. An Iceberg commit implicitly reads exactly one table — its own — so "what did this writer depend on" needs no declaration. A Nessie commit may depend on keys it does not write, and only the writer knows which. How the server turns these declarations into conflict detection is Chapter 9.1.</p>
+<p>The <code>Unchanged</code> in that request is the piece with no counterpart in <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a>, and the reason is structural. An Iceberg commit implicitly reads exactly one table — its own — so "what did this writer depend on" needs no declaration. A Nessie commit may depend on keys it does not write, and only the writer knows which. How the server turns these declarations into conflict detection is <a href="../../part09_branching/chapter_9.1_commit_path/">Chapter 9.1</a>.</p>
 <h2 id="7-the-rest-of-the-verbs">7. The rest of the verbs<a class="headerlink" href="#7-the-rest-of-the-verbs" title="Permanent link">&para;</a></h2>
 <p>Once a reference is a pointer to a commit, the operations Git users expect are not new machinery — they are compositions of the same CAS. Two of them appear in the same interface, one line apart:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">TreeApi — cherry-pick and merge</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-260">260</a></span>
@@ -3764,16 +3757,15 @@
 </span><span id="__span-7-289"><a id="__codelineno-7-289" name="__codelineno-7-289"></a><span class="w">    </span><span class="nd">@Valid</span><span class="w"> </span><span class="nd">@jakarta.validation.Valid</span><span class="w"> </span><span class="nd">@NotNull</span><span class="w"> </span><span class="nd">@jakarta.validation.constraints.NotNull</span><span class="w"> </span><span class="n">Merge</span><span class="w"> </span><span class="n">merge</span><span class="p">)</span>
 </span><span id="__span-7-290"><a id="__codelineno-7-290" name="__codelineno-7-290"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">NessieNotFoundException</span><span class="p">,</span><span class="w"> </span><span class="n">NessieConflictException</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `api/model/src/main/java/org/projectnessie/api/v2/TreeApi.java` L260–L290](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/api/v2/TreeApi.java#L260-L290) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/src/main/java/org/projectnessie/api/v2/TreeApi.java#L260-L290"><code>projectnessie/nessie</code> · <code>api/model/src/main/java/org/projectnessie/api/v2/TreeApi.java</code> L260–L290</a> <span>@ nessie-0.108.4</span></p>
 <p><em>"Cherry-pick a set of commits into a branch."</em> Nessie calls it <code>transplantCommitsIntoBranch</code>, but the javadoc uses Git's word, because the operation is Git's operation: take commits from somewhere else, replay their effect onto this branch, mint new commit objects. That is why <code>CommitMeta</code> separates author from committer — a transplanted commit keeps its author and gets a new committer.</p>
 <p><code>mergeRefIntoBranch</code> takes a <code>Merge</code> payload rather than a list of hashes, and both return <code>MergeResponse</code> rather than a plain <code>Branch</code>, because either can partially fail: a merge that touches twenty keys may conflict on three. The <code>MergeKeyBehavior</code> and <code>MergeBehavior</code> types beside them in <code>api/model</code> are how a client says what to do per key. Part 9 implements all of it.</p>
-<p>What is <em>not</em> here is as informative. There is no rebase, no history rewriting, no force-push of arbitrary history — <code>assignReference</code> can move a branch, but the commit graph itself is append-only. Immutability is the same bargain Chapter 1.2 struck, kept at a larger scale.</p>
+<p>What is <em>not</em> here is as informative. There is no rebase, no history rewriting, no force-push of arbitrary history — <code>assignReference</code> can move a branch, but the commit graph itself is append-only. Immutability is the same bargain <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> struck, kept at a larger scale.</p>
 <h2 id="8-two-levels-of-the-same-idea">8. Two levels of the same idea<a class="headerlink" href="#8-two-levels-of-the-same-idea" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Iceberg (Chapter 1.2)</th>
+<th>Iceberg (<a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a>)</th>
 <th>Nessie (this chapter)</th>
 </tr>
 </thead>
@@ -3812,7 +3804,7 @@
 </tr>
 </tbody>
 </table>
-<p>Read down the right-hand column and Nessie is Chapter 1.2 with the scope of the compare-and-swap widened from one table to one repository. Read across any row and the same design decision appears twice: make the state immutable, name it, and change exactly one pointer.</p>
+<p>Read down the right-hand column and Nessie is <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> with the scope of the compare-and-swap widened from one table to one repository. Read across any row and the same design decision appears twice: make the state immutable, name it, and change exactly one pointer.</p>
 <h2 id="9-gotchas">9. Gotchas<a class="headerlink" href="#9-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title"><code>Unchanged</code> is the read set, and omitting it fails silently</p>
@@ -3840,7 +3832,7 @@
 <li>The Git resemblance is literal in the source — <code>refs/heads/</code> and <code>refs/tags/</code> namespaces, <code>~N</code> and <code>^N</code> relative commit specs, author/committer fields that cite the <code>git-commit</code> spec.</li>
 <li>A commit is a <code>CommitObj</code>: monotonic <code>seq</code>, parents nearest-first, secondary parents for merges, headers and a message. <code>tail()</code> is a dense 20-commit window of consecutive ancestors, kept for bulk-fetching the log — not the parent chain, and not a skip list.</li>
 <li>A commit request is <code>CommitMeta</code> plus at least one <code>Operation</code>, and <code>Unchanged</code> is how a writer declares the keys it read but did not write.</li>
-<li><code>commitMultipleOperations</code> is Chapter 1.2's compare-and-swap moved up a level: one CAS on a branch head, covering any number of tables at once.</li>
+<li><code>commitMultipleOperations</code> is <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a>'s compare-and-swap moved up a level: one CAS on a branch head, covering any number of tables at once.</li>
 <li>Cheap branching moves the cost to reachability: garbage collection becomes a whole-repository question, which is why Iceberg's own snapshot expiry is unsafe under a Nessie catalog.</li>
 </ul>
 <h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
@@ -3894,7 +3886,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 1.4 turns from what these two systems do to where their code is — the real Gradle module layout of both repositories, and why the search you reach for first returns nothing.</p>
+<p><strong>Next:</strong> <a href="../chapter_1.4_reading_the_codebases/">Chapter 1.4</a> turns from what these two systems do to where their code is — the real Gradle module layout of both repositories, and why the search you reach for first returns nothing.</p>
 
 
 

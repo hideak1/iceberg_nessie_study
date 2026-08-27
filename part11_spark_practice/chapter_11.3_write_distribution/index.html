@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2181,7 +2181,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2375,7 +2375,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2569,7 +2569,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2770,7 +2770,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2798,7 +2798,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3000,7 +3000,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3245,7 +3245,7 @@
 <h1 id="chapter-113-the-write-path-in-spark-distribution-mode-and-the-small-file-problem">Chapter 11.3 — The write path in Spark: distribution mode and the small-file problem<a class="headerlink" href="#chapter-113-the-write-path-in-spark-distribution-mode-and-the-small-file-problem" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> a single <code>INSERT</code> produced forty thousand files — which line of Iceberg's Spark integration decided that, and which knob addresses that particular cause rather than a different one?</p>
-<p><strong>Prerequisites:</strong> Chapter 5.1 (the writer family), Chapter 2.4 (why a small file costs a manifest entry and a metrics blob), Chapter 11.1 (which catalog you are writing through)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part05_write_path/chapter_5.1_writers/">Chapter 5.1</a> (the writer family), <a href="../../part02_table_spec/chapter_2.4_manifest_file/">Chapter 2.4</a> (why a small file costs a manifest entry and a metrics blob), <a href="../chapter_11.1_catalog_wiring/">Chapter 11.1</a> (which catalog you are writing through)</p>
 <p><strong>Source covered:</strong> <code>spark/v3.5/.../spark/SparkWriteConf.java</code>, <code>.../spark/SparkWriteUtil.java</code>, <code>.../spark/source/SparkWrite.java</code>, <code>core/.../io/RollingFileWriter.java</code>, <code>core/.../io/ClusteredWriter.java</code>, <code>core/.../io/FanoutWriter.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3290,8 +3290,7 @@
 </span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">currentFileRows</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">ROWS_DIVISOR</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">currentWriter</span><span class="p">.</span><span class="na">length</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">targetFileSizeInBytes</span><span class="p">;</span>
 </span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java` L103–L105](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java#L103-L105) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java#L103-L105"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java</code> L103–L105</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three lines, and they are the whole ceiling story. <code>RollingFileWriter.write</code> calls this after every row and, when it returns true, closes the current file and opens a new one. There is no inverse: no method combines two undersized files, and no code path defers closing a file in the hope of more rows. Note what the comparison is against: <code>targetFileSizeInBytes</code>, a field the writer was constructed with. This method reads no property. The value reached it from <code>SparkWriteConf.targetDataFileSize()</code>, which is where <code>write.target-file-size-bytes</code> (default <code>WRITE_TARGET_FILE_SIZE_BYTES_DEFAULT</code>, 512 MB) enters the write path — and all it can do once here is end a file <em>early</em>.</p>
 <p>Every writer ends its files at end-of-task regardless of size. So if a task holds 12 KB of rows for a partition, it writes a 12 KB file, and raising the target file size changes nothing about that.</p>
 <p>Note also <code>currentFileRows % ROWS_DIVISOR == 0</code>, with <code>ROWS_DIVISOR = 1000</code>. Length is sampled once per thousand rows, because <code>currentWriter.length()</code> is not free. Files routinely overshoot the target by whatever the last thousand rows weighed.</p>
@@ -3315,8 +3314,7 @@
 </span><span id="__span-1-338"><a id="__codelineno-1-338" name="__codelineno-1-338"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-1-339"><a id="__codelineno-1-339" name="__codelineno-1-339"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java` L331–L339](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L331-L339) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L331-L339"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java</code> L331–L339</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read what this is derived from: <code>table.sortOrder()</code> and <code>table.spec()</code>. Table state, not configuration. A partitioned table gets <code>HASH</code> — a shuffle that clusters rows by the spec's transforms, so that all rows for one partition arrive at one task and the (task, partition) count collapses to roughly the partition count.</p>
 <p>That shuffle is why a plain <code>INSERT</code> into a partitioned table is slower than the same <code>INSERT</code> into an unpartitioned one, and it is exactly what <code>write.distribution-mode=none</code> turns off. Turn it off and every upstream task contributes a file to every partition it happens to hold rows for; the multiplication is the file explosion.</p>
 <p>The reverse direction has a trap in it:</p>
@@ -3338,8 +3336,7 @@
 </span><span id="__span-2-328"><a id="__codelineno-2-328" name="__codelineno-2-328"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-2-329"><a id="__codelineno-2-329" name="__codelineno-2-329"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java` L321–L329](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L321-L329) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L321-L329"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java</code> L321–L329</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>An explicitly requested mode goes through this before it is used. <code>HASH</code> on an unpartitioned table becomes <code>NONE</code>; <code>RANGE</code> on a table that is both unpartitioned and unsorted becomes <code>NONE</code>. No warning is logged and no exception is raised, because there is genuinely nothing to cluster on. But a job sized around a shuffle that never happened is a real diagnosis, and this method is where that possibility lives.</p>
 <p>The precedence is fixed by <code>SparkWriteConf</code>'s class javadoc: write options, then session configuration, then table metadata. Note the asymmetry — <code>distributionMode()</code> consults all three, while <code>fanoutWriterEnabled()</code> consults only the write option and the table property. There is no <code>spark.sql.iceberg.fanout-enabled</code>.</p>
 <p>What each mode becomes is one switch:</p>
@@ -3373,9 +3370,8 @@
 </span><span id="__span-3-89"><a id="__codelineno-3-89" name="__codelineno-3-89"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-90"><a id="__codelineno-3-90" name="__codelineno-3-90"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java` L76–L90](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java#L76-L90) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p><code>clustering(table)</code> is <code>Spark3Util.toTransforms(table.spec())</code> — the partition transforms and nothing else. <code>ordering(table)</code> is <code>Spark3Util.toOrdering(SortOrderUtil.buildSortOrder(table))</code>, which prepends the spec's fields to the declared sort order. So <code>HASH</code> asks for a hash shuffle on the partition values, while <code>RANGE</code> asks for a range shuffle that also orders rows within each task. <code>RANGE</code> therefore costs a sampling pass and a global sort, and buys sorted output that makes the read-side pruning of Chapter 4.3 effective. <code>HASH</code> costs one shuffle and buys only the file-count collapse. A table with no declared sort order gets no benefit from the extra cost, which is why <code>defaultWriteDistributionMode</code> reaches for <code>RANGE</code> only when <code>table.sortOrder().isSorted()</code>.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java#L76-L90"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java</code> L76–L90</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p><code>clustering(table)</code> is <code>Spark3Util.toTransforms(table.spec())</code> — the partition transforms and nothing else. <code>ordering(table)</code> is <code>Spark3Util.toOrdering(SortOrderUtil.buildSortOrder(table))</code>, which prepends the spec's fields to the declared sort order. So <code>HASH</code> asks for a hash shuffle on the partition values, while <code>RANGE</code> asks for a range shuffle that also orders rows within each task. <code>RANGE</code> therefore costs a sampling pass and a global sort, and buys sorted output that makes the read-side pruning of <a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a> effective. <code>HASH</code> costs one shuffle and buys only the file-count collapse. A table with no declared sort order gets no benefit from the extra cost, which is why <code>defaultWriteDistributionMode</code> reaches for <code>RANGE</code> only when <code>table.sortOrder().isSorted()</code>.</p>
 <h2 id="5-factor-two-what-one-task-does-with-its-partitions">5. Factor two: what one task does with its partitions<a class="headerlink" href="#5-factor-two-what-one-task-does-with-its-partitions" title="Permanent link">&para;</a></h2>
 <p>Once the shuffle has decided which partitions land in a task, the task must write them. Two writers exist for it, and upstream states the choice in a comment above the method that makes it:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWriteUtil.writeOrdering(), with the comment that explains it</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-212">212</a></span>
@@ -3400,8 +3396,7 @@
 </span><span id="__span-4-221"><a id="__codelineno-4-221" name="__codelineno-4-221"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-4-222"><a id="__codelineno-4-222" name="__codelineno-4-222"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java` L212–L222](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java#L212-L222) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java#L212-L222"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java</code> L212–L222</a> <span>@ apache-iceberg-1.11.0</span></p>
 <blockquote>
 <p><em>a local ordering within a task is beneficial in two cases: there is a defined table sort order, so it is clear how the data should be ordered; the table is partitioned and fanout writers are disabled, so records for one partition must be co-located within a task.</em></p>
 </blockquote>
@@ -3414,8 +3409,7 @@
 </span><span id="__span-5-220"><a id="__codelineno-5-220" name="__codelineno-5-220"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">fanoutWriterEnabled</span><span class="p">(</span><span class="n">defaultValue</span><span class="p">);</span>
 </span><span id="__span-5-221"><a id="__codelineno-5-221" name="__codelineno-5-221"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java` L218–L221](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L218-L221) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java#L218-L221"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteConf.java</code> L218–L221</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>boolean defaultValue = !writeRequirements.hasOrdering();</code> — the writer default is derived from whether an ordering was requested. <code>TableProperties.SPARK_WRITE_PARTITIONED_FANOUT_ENABLED_DEFAULT</code> is <code>false</code>, but that constant is never consulted on this path; it is only the fallback when nothing supplies a default. On an unsorted partitioned table, <code>writeOrdering</code> returns <code>EMPTY_ORDERING</code>, so <code>hasOrdering()</code> is false and <strong>fanout writers are on</strong>.</p>
 <p>What each writer costs is visible in its own class. <code>FanoutWriter</code> holds a <code>Map&lt;Integer, StructLikeMap&lt;FileWriter&lt;T, R&gt;&gt;&gt;</code> and closes nothing until <code>close()</code>; its javadoc says the consequence plainly — it <em>"may potentially consume substantially more memory compared to <code>ClusteredWriter</code>. Use this writer only when clustering by spec/partition is not possible (e.g. streaming)."</em> A task touching 500 partitions holds 500 open Parquet writers, each with a row-group buffer.</p>
 <p><code>ClusteredWriter</code> is the other trade, and it enforces its assumption rather than trusting it:</p>
@@ -3501,8 +3495,7 @@
 </span><span id="__span-6-104"><a id="__codelineno-6-104" name="__codelineno-6-104"></a><span class="w">  </span><span class="n">currentWriter</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
 </span><span id="__span-6-105"><a id="__codelineno-6-105" name="__codelineno-6-105"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java` L65–L105](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java#L65-L105) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java#L65-L105"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java</code> L65–L105</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Forty-one lines, but the argument is in six of them. On a partition change the writer calls <code>closeCurrentWriter()</code> and adds the old partition to <code>completedPartitions</code>; then:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">completedPartitions</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">partition</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">errorCtx</span><span class="w"> </span><span class="o">=</span>
@@ -3550,7 +3543,7 @@
 <tr>
 <td>Files already small on disk</td>
 <td>neither — the write is over</td>
-<td><code>rewrite_data_files</code> (Chapter 11.5)</td>
+<td><code>rewrite_data_files</code> (<a href="../chapter_11.5_production_maintenance/">Chapter 11.5</a>)</td>
 </tr>
 </tbody>
 </table>
@@ -3558,7 +3551,7 @@
 <div class="admonition warning">
 <p class="admonition-title">Target file size cannot make files bigger — but it does move the compaction target</p>
 <p>On the write path the property reaches exactly one comparison. <code>SparkWriteConf.targetDataFileSize()</code> reads it, hands the value to the writers, and <code>shouldRollToNewFile</code> only ever uses it to end a file <em>early</em>. Raising it to fix small files does nothing, because every writer already stops at end-of-task well below the target. The knob that changes file <em>count</em> is <code>write.distribution-mode</code>; the knob that fixes files already written is <code>rewrite_data_files</code>.</p>
-<p>It has two other readers, and neither is on the write path: <code>BinPackRewriteFilePlanner.defaultTargetFileSize()</code> and <code>BaseRewriteDataFilesAction</code>. There it is the <strong>compaction</strong> target, and everything derived from it moves with it — the selection window and the group thresholds of Chapter 11.5 §3. So this property is not the no-op it looks like from here. It changes nothing about the files this write produces, and it changes which files compaction later selects and how large it rebuilds them. Raise it for the second reason, not the first.</p>
+<p>It has two other readers, and neither is on the write path: <code>BinPackRewriteFilePlanner.defaultTargetFileSize()</code> and <code>BaseRewriteDataFilesAction</code>. There it is the <strong>compaction</strong> target, and everything derived from it moves with it — the selection window and the group thresholds of <a href="../chapter_11.5_production_maintenance/">Chapter 11.5</a> §3. So this property is not the no-op it looks like from here. It changes nothing about the files this write produces, and it changes which files compaction later selects and how large it rebuilds them. Raise it for the second reason, not the first.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title"><code>distribution-mode=hash</code> on an unpartitioned table is silently ignored</p>
@@ -3588,7 +3581,7 @@
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The file count is decided by <em>tasks × partitions-per-task</em>, before any byte is written. <code>RollingFileWriter</code> only splits files; nothing in the write path merges them.</li>
-<li><code>write.target-file-size-bytes</code> is a ceiling on the write path, sampled every 1000 rows. It cannot make small files bigger and it does not move the AQE advisory partition size. Its other two readers are compaction planners, where the same value is the <em>output</em> size — so raising it is a change to what <code>rewrite_data_files</code> builds and selects (Chapter 11.5 §3), not to this write.</li>
+<li><code>write.target-file-size-bytes</code> is a ceiling on the write path, sampled every 1000 rows. It cannot make small files bigger and it does not move the AQE advisory partition size. Its other two readers are compaction planners, where the same value is the <em>output</em> size — so raising it is a change to what <code>rewrite_data_files</code> builds and selects (<a href="../chapter_11.5_production_maintenance/">Chapter 11.5</a> §3), not to this write.</li>
 <li><code>write.distribution-mode</code> is the only knob that changes the first factor. Iceberg picks it from table state when you do not: sorted ⇒ <code>RANGE</code>, partitioned ⇒ <code>HASH</code>, otherwise <code>NONE</code>.</li>
 <li>An explicitly set <code>HASH</code> or <code>RANGE</code> can be silently downgraded to <code>NONE</code> by <code>adjustWriteDistributionMode</code> when there is nothing to cluster on.</li>
 <li>Fanout versus clustered does not change the file count; it changes whether a task pays in heap or in a local sort. On an unsorted partitioned table, fanout is the default in this release.</li>
@@ -3633,7 +3626,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 11.4 takes the same <code>SparkWriteUtil</code> machinery into row-level operations, where <code>MERGE INTO</code> adds <code>_spec_id</code>, <code>_partition</code> and <code>_file</code> to the clustering — and where losing a commit race costs the entire job rather than a retry.</p>
+<p><strong>Next:</strong> <a href="../chapter_11.4_merge_and_conflicts/">Chapter 11.4</a> takes the same <code>SparkWriteUtil</code> machinery into row-level operations, where <code>MERGE INTO</code> adds <code>_spec_id</code>, <code>_partition</code> and <code>_file</code> to the clustering — and where losing a commit race costs the entire job rather than a retry.</p>
 
 
 
@@ -3671,7 +3664,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_11.2_importing_existing_tables/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`">
+          <a href="../chapter_11.2_importing_existing_tables/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3681,20 +3674,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+                11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
               </div>
             </div>
           </a>
         
         
           
-          <a href="../chapter_11.4_merge_and_conflicts/" class="md-footer__link md-footer__link--next" aria-label="Next: 11.4 `MERGE INTO`, row-level operations, and commit conflicts">
+          <a href="../chapter_11.4_merge_and_conflicts/" class="md-footer__link md-footer__link--next" aria-label="Next: 11.4 MERGE INTO, row-level operations, and commit conflicts">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                11.4 `MERGE INTO`, row-level operations, and commit conflicts
+                11.4 MERGE INTO, row-level operations, and commit conflicts
               </div>
             </div>
             <div class="md-footer__button md-icon">

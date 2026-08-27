@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2158,7 +2158,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2186,7 +2186,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2548,7 +2548,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2742,7 +2742,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2938,7 +2938,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2966,7 +2966,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3022,7 +3022,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3289,7 +3289,7 @@
 <h1 id="chapter-84-references-and-cas-where-atomicity-actually-lands">Chapter 8.4 — References and CAS: where atomicity actually lands<a class="headerlink" href="#chapter-84-references-and-cas-where-atomicity-actually-lands" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> Nessie promises that a commit either happens completely or not at all, across an arbitrary number of rows written to a database with no transactions — where is that promise actually kept?</p>
-<p><strong>Prerequisites:</strong> Chapter 8.1 (the four conditional reference operations), Chapter 8.2 (content-addressed commit IDs), Chapter 8.3 (a commit also writes index stripes)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_8.1_persist_spi/">Chapter 8.1</a> (the four conditional reference operations), <a href="../chapter_8.2_commit_log_dag/">Chapter 8.2</a> (content-addressed commit IDs), <a href="../chapter_8.3_key_indexes/">Chapter 8.3</a> (a commit also writes index stripes)</p>
 <p><strong>Source covered:</strong> <code>versioned/storage/common/.../persist/Persist.java</code>, <code>.../persist/Reference.java</code>, <code>.../logic/ReferenceLogicImpl.java</code>, <code>.../logic/CommitRetry.java</code>, <code>versioned/storage/store/.../versionstore/BaseCommitHelper.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3297,7 +3297,7 @@
 <p>The usual answer to this is a transaction. Nessie cannot have one, so it inverts the problem: instead of making N writes atomic, it makes them <strong>irrelevant</strong>.</p>
 <p>Every object is content-addressed and immutable (8.1). Writing one is therefore not a state change — an object that nothing points at is indistinguishable from an object that was never written, because nothing can name it. It is not a partial commit, it is not a corrupt state, it is not even visible. It is garbage that a reader has no path to.</p>
 <p>So all N writes happen first, unobserved. Then the entire observable state of a branch — everything a client can see, every key, every value, the whole history — changes when <strong>one field in one row</strong> changes. That field is <code>Reference.pointer()</code>, and the atomicity of the whole system is the atomicity of that one update.</p>
-<p>That update is a <strong>compare-and-swap</strong> — the same primitive Chapter 1.2 found under an Iceberg commit and Chapter 3.4 found under <code>doCommit</code>, and the CAS this chapter's title names. The word is worth insisting on, because from here down the code and the backends speak of <em>conditional updates</em> instead (Chapter 8.5 reads five dialects of the phrase). They are the same operation, and the difference between Nessie and Iceberg is not the primitive. It is the <strong>scope</strong>: Iceberg swaps a pointer that names one table, Nessie swaps a pointer that names every key in the repository. One instruction, two very different blast radii.</p>
+<p>That update is a <strong>compare-and-swap</strong> — the same primitive <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> found under an Iceberg commit and <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> found under <code>doCommit</code>, and the CAS this chapter's title names. The word is worth insisting on, because from here down the code and the backends speak of <em>conditional updates</em> instead (<a href="../chapter_8.5_backends/">Chapter 8.5</a> reads five dialects of the phrase). They are the same operation, and the difference between Nessie and Iceberg is not the primitive. It is the <strong>scope</strong>: Iceberg swaps a pointer that names one table, Nessie swaps a pointer that names every key in the repository. One instruction, two very different blast radii.</p>
 <h2 id="2-the-condition-is-the-whole-record">2. The condition is the whole record<a class="headerlink" href="#2-the-condition-is-the-whole-record" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Persist.updateReferencePointer()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-102">102</a></span>
 <span class="normal"><a href="#__codelineno-0-103">103</a></span>
@@ -3333,8 +3333,7 @@
 </span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="n">Reference</span><span class="w"> </span><span class="nf">updateReferencePointer</span><span class="p">(</span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">reference</span><span class="p">,</span><span class="w"> </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">ObjId</span><span class="w"> </span><span class="n">newPointer</span><span class="p">)</span>
 </span><span id="__span-0-118"><a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">RefNotFoundException</span><span class="p">,</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java` L102–L118](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java#L102-L118) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java#L102-L118"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java</code> L102–L118</a> <span>@ nessie-0.108.4</span></p>
 <blockquote>
 <p>Low-level, atomically updates the given reference's <code>pointer()</code> to the new value, <strong>if and only if</strong> the current persisted reference is not marked as <code>deleted()</code> and <strong>equal to <code>reference</code></strong>.</p>
 </blockquote>
@@ -3389,9 +3388,8 @@
 </span><span id="__span-1-64"><a id="__codelineno-1-64" name="__codelineno-1-64"></a><span class="w">  </span><span class="nd">@Value.Parameter</span><span class="p">(</span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">)</span>
 </span><span id="__span-1-65"><a id="__codelineno-1-65" name="__codelineno-1-65"></a><span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PreviousPointer</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">previousPointers</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java` L41–L66](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java#L41-L66) <span>@ nessie-0.108.4</span></p>
-
-<p>Name, pointer, deleted flag, creation timestamp, extended-info pointer. Five fields, and the CAS fails if any of them moved. Widening the condition beyond the pointer costs nothing on a single-row conditional update and buys a real guarantee: a concurrent <em>deletion</em> of the branch, or a re-creation of a branch with the same name at a different <code>createdAtMicros</code>, cannot slip past a check that only looked at the pointer. Chapter 8.5 shows what each backend does with that: four of them bind pointer, deleted flag, creation timestamp and extended-info as four separate predicates in their own dialect, and Bigtable sidesteps the question entirely by matching the whole serialized record in a single filter.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java#L41-L66"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java</code> L41–L66</a> <span>@ nessie-0.108.4</span></p>
+<p>Name, pointer, deleted flag, creation timestamp, extended-info pointer. Five fields, and the CAS fails if any of them moved. Widening the condition beyond the pointer costs nothing on a single-row conditional update and buys a real guarantee: a concurrent <em>deletion</em> of the branch, or a re-creation of a branch with the same name at a different <code>createdAtMicros</code>, cannot slip past a check that only looked at the pointer. <a href="../chapter_8.5_backends/">Chapter 8.5</a> shows what each backend does with that: four of them bind pointer, deleted flag, creation timestamp and extended-info as four separate predicates in their own dialect, and Bigtable sidesteps the question entirely by matching the whole serialized record in a single filter.</p>
 <p><code>previousPointers</code> is the one field deliberately left out, and the comment says why in one line: it is <code>@Value.Auxiliary</code> — excluded from <code>equals</code>/<code>hashCode</code> — "to avoid having separate <code>equals()</code> implementation that does not consider this attribute (esp. for in-memory and rocks-db backends)". A list that grows on every commit cannot be part of an equality condition that must hold across attempts.</p>
 <p><code>Persist</code>'s javadoc says not to call this from a service implementation — "use <code>ReferenceLogic</code> instead" — and <code>ReferenceLogic</code>'s version of it is a single delegation:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ReferenceLogicImpl.assignReference()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-678">678</a></span>
@@ -3410,8 +3408,7 @@
 </span><span id="__span-2-684"><a id="__codelineno-2-684" name="__codelineno-2-684"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">persist</span><span class="p">.</span><span class="na">updateReferencePointer</span><span class="p">(</span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="n">newPointer</span><span class="p">);</span>
 </span><span id="__span-2-685"><a id="__codelineno-2-685" name="__codelineno-2-685"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java` L678–L685](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java#L678-L685) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java#L678-L685"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java</code> L678–L685</a> <span>@ nessie-0.108.4</span></p>
 <p>A guard that the caller is not touching an internal reference, then the CAS. Nothing else.</p>
 <p>But the commit path does not go through it. <code>assignReference</code> has exactly one caller — <code>VersionStoreImpl.assign</code> — while commit, merge and transplant all reach <code>BaseCommitHelper.bumpReferencePointer</code>, which calls <code>persist.updateReferencePointer</code> directly, against the javadoc's advice.</p>
 <p>That is not sloppiness, and the distinction is worth holding on to, because it is the shape of the whole chapter. <code>ReferenceLogic</code> exists to keep the reference-name index in <code>int/refs</code> consistent with the references table — a two-row problem, and the subject of section 7. <em>Advancing</em> a reference does not touch that index: upstream states it flatly in the class javadoc, "Updates to a named reference are <strong>not</strong> tracked in <code>REF_REFS</code>". So the commit path has nothing for <code>ReferenceLogic</code> to do, and calling one row's conditional update is the entire operation. <code>assignReference</code>'s one guard is the only thing <code>ReferenceLogic</code> adds, and the commit path enforces the same invariant by construction: it only ever holds a reference it resolved from a user-facing branch name.</p>
@@ -3470,8 +3467,7 @@
 </span><span id="__span-3-626"><a id="__codelineno-3-626" name="__codelineno-3-626"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-627"><a id="__codelineno-3-627" name="__codelineno-3-627"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java` L611–L627](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java#L611-L627) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java#L611-L627"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java</code> L611–L627</a> <span>@ nessie-0.108.4</span></p>
 <p>Seventeen lines, three outcomes, three different meanings:</p>
 <table>
 <thead>
@@ -3504,8 +3500,8 @@
 <p><em>If the above pointer-bump returned an "unknown result", we check once (and only once!) whether the reference-pointer-change succeeded. This mitigation may not always work, especially not in highly concurrent update situations.</em></p>
 </blockquote>
 <p>The check compares the freshly read reference against <code>reference.forNewPointer(newHead, persist.config())</code> — the exact row this attempt was trying to write. Match means the write landed. Anything else means retry.</p>
-<p>Note <em>which</em> fetch it uses. <code>fetchReferenceForUpdate</code> bypasses the reference cache; <code>fetchReference</code> does not. Chapter 8.1 flagged this as a correctness rule and this is the reason: deciding "did my update land?" against a possibly-cached value is deciding against a state that may never have existed in the database.</p>
-<p>The race this cannot cover is stated plainly by the comment. If a third writer advances the branch between the timed-out CAS and the re-read, the pointer differs even though this attempt's write may have succeeded — so Nessie retries, and the retry is safe only because a commit ID is a content hash (8.2). Re-storing the same commit is a no-op, not a duplicate. Chapter 9.1 covers the same method from the commit path's side; here the point is narrower: the indeterminate outcome is a property of the <em>storage layer</em>, and the mitigation is bounded by what a single re-read can prove.</p>
+<p>Note <em>which</em> fetch it uses. <code>fetchReferenceForUpdate</code> bypasses the reference cache; <code>fetchReference</code> does not. <a href="../chapter_8.1_persist_spi/">Chapter 8.1</a> flagged this as a correctness rule and this is the reason: deciding "did my update land?" against a possibly-cached value is deciding against a state that may never have existed in the database.</p>
+<p>The race this cannot cover is stated plainly by the comment. If a third writer advances the branch between the timed-out CAS and the re-read, the pointer differs even though this attempt's write may have succeeded — so Nessie retries, and the retry is safe only because a commit ID is a content hash (8.2). Re-storing the same commit is a no-op, not a duplicate. <a href="../../part09_branching/chapter_9.1_commit_path/">Chapter 9.1</a> covers the same method from the commit path's side; here the point is narrower: the indeterminate outcome is a property of the <em>storage layer</em>, and the mitigation is bounded by what a single re-read can prove.</p>
 <h2 id="5-the-retry-budget-is-time-not-attempts">5. The retry budget is time, not attempts<a class="headerlink" href="#5-the-retry-budget-is-time-not-attempts" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitRetry.commitRetry()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-49">49</a></span>
 <span class="normal"><a href="#__codelineno-4-50">50</a></span>
@@ -3551,8 +3547,7 @@
 </span><span id="__span-4-69"><a id="__codelineno-4-69" name="__codelineno-4-69"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-4-70"><a id="__codelineno-4-70" name="__codelineno-4-70"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitRetry.java` L49–L70](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitRetry.java#L49-L70) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitRetry.java#L49-L70"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitRetry.java</code> L49–L70</a> <span>@ nessie-0.108.4</span></p>
 <p>An unbounded <code>for</code> loop with exactly two <code>catch</code> clauses. <code>RetryException</code> — a lost CAS — and <code>UnknownOperationResultException</code>. Nothing else is retryable: a <code>CommitConflictException</code> from per-key validation propagates out immediately, because retrying a genuine key conflict would just produce the same conflict.</p>
 <p>What stops the loop is <code>tls.retry(t1)</code> returning false, and the defaults in <code>StoreConfig</code> say what that means:</p>
 <table>
@@ -3633,8 +3628,7 @@
 </span><span id="__span-5-89"><a id="__codelineno-5-89" name="__codelineno-5-89"></a><span class="w">      </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </span><span id="__span-5-90"><a id="__codelineno-5-90" name="__codelineno-5-90"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java` L67–L90](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java#L67-L90) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java#L67-L90"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Reference.java</code> L67–L90</a> <span>@ nessie-0.108.4</span></p>
 <p>Something else rides along on the CAS. Each advance prepends the <em>old</em> pointer to <code>previousPointers</code>, then copies forward as many of the existing entries as fit under two bounds: a count (<code>referencePreviousHeadCount</code>) and an age (<code>referencePreviousHeadTimeSpanSeconds</code>) — 20 entries within 5 minutes, by default. The loop <code>break</code>s on the first entry that is too old, which works because the list is maintained newest-first.</p>
 <p>This is not part of the condition — recall <code>previousPointers</code> is excluded from <code>equals</code>. It is written <em>by</em> the winner, and it is a small, bounded, time-windowed audit trail: a client that lost a race, or that held a stale head, can ask where the branch recently was. It is also the value <code>bumpReferencePointer</code> reconstructs to test an unknown outcome, which is why the method has to be deterministic given the same config.</p>
 <p>Note <code>.deleted(false)</code>. Advancing a reference asserts it is live.</p>
@@ -3695,8 +3689,7 @@
 </span><span id="__span-6-143"><a id="__codelineno-6-143" name="__codelineno-6-143"></a><span class="o">*</span><span class="w"> </span><span class="o">&lt;/</span><span class="n">ol</span><span class="o">&gt;</span>
 </span><span id="__span-6-144"><a id="__codelineno-6-144" name="__codelineno-6-144"></a><span class="o">*</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java` L118–L144](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java#L118-L144) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java#L118-L144"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java</code> L118–L144</a> <span>@ nessie-0.108.4</span></p>
 <p>Create: commit the <code>ADD</code> to <code>int/refs</code> first, then <code>addReference</code>. Delete: <code>markReferenceAsDeleted</code> first, then commit the <code>REMOVE</code> to <code>int/refs</code>, then <code>purgeReference</code>. Every step is one conditional operation, and the orderings are chosen so that every intermediate state is <em>distinguishable from every other state by inspection</em>:</p>
 <pre class="mermaid"><code>stateDiagram-v2
     [*] --&gt; InRefsIndexOnly : commit ADD to int/refs
@@ -3746,8 +3739,7 @@
 </span><span id="__span-7-173"><a id="__codelineno-7-173" name="__codelineno-7-173"></a><span class="o">*</span><span class="w"> </span><span class="o">&lt;/</span><span class="n">ul</span><span class="o">&gt;</span>
 </span><span id="__span-7-174"><a id="__codelineno-7-174" name="__codelineno-7-174"></a><span class="o">*</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java` L156–L174](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java#L156-L174) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java#L156-L174"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/ReferenceLogicImpl.java</code> L156–L174</a> <span>@ nessie-0.108.4</span></p>
 <p>A crash in the middle leaves a state that the <em>next reader</em> repairs. Row present and not deleted: done, return it. Row present with <code>deleted() == true</code>: a delete failed midway, so resume the delete. Row absent but the name is in <code>int/refs</code>: a create failed midway, so resume the create. That is the entire purpose of the <code>deleted</code> flag — it turns "crashed halfway through a two-step delete" from a corrupt state into a labelled, resumable one. Note also the requirement stated inside the protocol: implementations "must only commit, if the reference is not present, to allow the resume/recovery process", which is what makes replaying a half-finished create idempotent.</p>
 <h2 id="8-the-consequence-nobody-can-design-around">8. The consequence nobody can design around<a class="headerlink" href="#8-the-consequence-nobody-can-design-around" title="Permanent link">&para;</a></h2>
 <p>A branch is one row. Two commits to the same branch are serialized by that row, no matter how many Nessie servers are running, because the serialization is done by the database and not by the servers. Different branches share nothing and are genuinely concurrent.</p>
@@ -3831,7 +3823,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 8.5 asks the obvious follow-up — which databases can actually perform that conditional single-row update, how each one expresses it, and what each does when it cannot say whether it did.</p>
+<p><strong>Next:</strong> <a href="../chapter_8.5_backends/">Chapter 8.5</a> asks the obvious follow-up — which databases can actually perform that conditional single-row update, how each one expresses it, and what each does when it cannot say whether it did.</p>
 
 
 

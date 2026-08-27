@@ -29,7 +29,7 @@
     
     
       
-        <title>8.2 `CommitObj` and the commit log DAG - Iceberg & Nessie Internals</title>
+        <title>8.2 CommitObj and the commit log DAG - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              8.2 `CommitObj` and the commit log DAG
+              8.2 CommitObj and the commit log DAG
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2158,7 +2158,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2195,7 +2195,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2213,7 +2213,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2526,7 +2526,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2720,7 +2720,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2916,7 +2916,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2944,7 +2944,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3000,7 +3000,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3245,7 +3245,7 @@
 <h1 id="chapter-82-commitobj-and-the-commit-log-dag">Chapter 8.2 — <code>CommitObj</code> and the commit log DAG<a class="headerlink" href="#chapter-82-commitobj-and-the-commit-log-dag" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> a <code>CommitObj</code> stores a <em>list</em> of parent IDs rather than a single parent link — what is in that list, and what problem does it solve that one pointer would not?</p>
-<p><strong>Prerequisites:</strong> Chapter 8.1 (<code>Persist</code>, <code>Obj</code>, content-addressed <code>ObjId</code>), Chapter 1.3 (<code>CommitObj</code> and <code>tail()</code>, stated once already at altitude)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_8.1_persist_spi/">Chapter 8.1</a> (<code>Persist</code>, <code>Obj</code>, content-addressed <code>ObjId</code>), <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/">Chapter 1.3</a> (<code>CommitObj</code> and <code>tail()</code>, stated once already at altitude)</p>
 <p><strong>Source covered:</strong> <code>versioned/storage/common/.../objtypes/CommitObj.java</code>, <code>.../logic/CommitLogicImpl.java</code>, <code>.../config/StoreConfig.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3318,8 +3318,7 @@
 </span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="cm">/** The commit message as plain text. */</span>
 </span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="n">String</span><span class="w"> </span><span class="nf">message</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java` L146–L178](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java#L146-L178) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java#L146-L178"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/CommitObj.java</code> L146–L178</a> <span>@ nessie-0.108.4</span></p>
 <p>Six fields and one derived accessor, and the interesting field is <code>tail()</code>. Read its javadoc twice:</p>
 <blockquote>
 <p>Zero, one or more parent-entry hashes of this commit, the nearest parent first.</p>
@@ -3327,7 +3326,7 @@
 <p><strong>Only the first, the nearest parent, shall be exposed to clients.</strong></p>
 </blockquote>
 <p>So <code>tail</code> is not a semantic field. It is a read cache with a specific shape, and the derived accessor above — <code>directParent()</code>, which returns <code>EMPTY_OBJ_ID</code> for an empty tail and element 0 otherwise — is how the rest of the codebase reads the part of it that carries meaning. Everything that wants "the parent of this commit" calls that; only the log iterator in section 4 touches the rest.</p>
-<p><code>secondaryParents</code> is the semantic one. It holds the merged-from commit of a merge, and it is what makes this a DAG rather than a list. Chapter 9.2 uses it; this chapter is about the other list.</p>
+<p><code>secondaryParents</code> is the semantic one. It holds the merged-from commit of a merge, and it is what makes this a DAG rather than a list. <a href="../../part09_branching/chapter_9.2_merge/">Chapter 9.2</a> uses it; this chapter is about the other list.</p>
 <p>The four index fields — <code>incrementalIndex</code>, <code>referenceIndex</code>, <code>referenceIndexStripes</code>, <code>incompleteIndex</code> — are deliberately omitted here. They are chapter 8.3, and they are the reason that chapter exists.</p>
 <h2 id="3-building-the-tail">3. Building the tail<a class="headerlink" href="#3-building-the-tail" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart LR
@@ -3396,8 +3395,7 @@
 </span><span id="__span-1-577"><a id="__codelineno-1-577" name="__codelineno-1-577"></a><span class="w">    </span><span class="n">c</span><span class="p">.</span><span class="na">addTail</span><span class="p">(</span><span class="n">parentTail</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
 </span><span id="__span-1-578"><a id="__codelineno-1-578" name="__codelineno-1-578"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L554–L578](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L554-L578) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L554-L578"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java</code> L554–L578</a> <span>@ nessie-0.108.4</span></p>
 <p>Two statements do the work. <code>.addTail(parentCommitId)</code> puts the real parent at position 0. Then, if a parent exists, the loop copies the first <code>parentsPerCommit - 1</code> entries of the <em>parent's</em> tail behind it. A sliding window, shifted by one, on every commit. History is never walked to build it.</p>
 <p>The size is a table-level knob, and upstream states the purpose in one sentence:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">StoreConfig.parentsPerCommit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-188">188</a></span>
@@ -3416,8 +3414,7 @@
 </span><span id="__span-2-194"><a id="__codelineno-2-194" name="__codelineno-2-194"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">DEFAULT_PARENTS_PER_COMMIT</span><span class="p">;</span>
 </span><span id="__span-2-195"><a id="__codelineno-2-195" name="__codelineno-2-195"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/config/StoreConfig.java` L188–L195](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/config/StoreConfig.java#L188-L195) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/config/StoreConfig.java#L188-L195"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/config/StoreConfig.java</code> L188–L195</a> <span>@ nessie-0.108.4</span></p>
 <p>Twenty parents at 33 serialized bytes each is 660 bytes of overhead per commit. That is the price, paid on every write, to make reads twenty times cheaper in round trips.</p>
 <h2 id="4-consuming-the-tail">4. Consuming the tail<a class="headerlink" href="#4-consuming-the-tail" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitLogIter.computeNext()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-134">134</a></span>
@@ -3522,10 +3519,9 @@
 </span><span id="__span-3-183"><a id="__codelineno-3-183" name="__codelineno-3-183"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-184"><a id="__codelineno-3-184" name="__codelineno-3-184"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L134–L184](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L134-L184) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L134-L184"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java</code> L134–L184</a> <span>@ nessie-0.108.4</span></p>
 <p>The iterator is a two-level loop, and the shape repays attention:</p>
-<p><strong>The outer level refills a batch.</strong> <code>next</code> holds a list of IDs; <code>persist.fetchObjs(n.toArray(...))</code> fetches all of them in one call. Chapter 8.1's bulk-read method exists for exactly this.</p>
+<p><strong>The outer level refills a batch.</strong> <code>next</code> holds a list of IDs; <code>persist.fetchObjs(n.toArray(...))</code> fetches all of them in one call. <a href="../chapter_8.1_persist_spi/">Chapter 8.1</a>'s bulk-read method exists for exactly this.</p>
 <p><strong><code>EMPTY_OBJ_ID</code> truncates.</strong> <code>int i = n.indexOf(EMPTY_OBJ_ID); if (i != -1) n = n.subList(0, i);</code> — the tail of an early commit is padded to nothing by the sentinel, and the iterator trims the batch there rather than asking the database for an ID that does not exist.</p>
 <p><strong>The refill comes from the <em>last</em> commit of the batch.</strong> <code>else if (!b.hasNext()) { next = c.tail(); }</code> — only when the current batch is exhausted does the iterator take a new tail. Take it from the first commit and the next batch would overlap the current one by nineteen entries; taking it from the last makes the windows abut exactly.</p>
 <p>The cost, drawn against the alternative:</p>
@@ -3591,8 +3587,7 @@
 </span><span id="__span-5-657"><a id="__codelineno-5-657" name="__codelineno-5-657"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-5-658"><a id="__codelineno-5-658" name="__codelineno-5-658"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L641–L658](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L641-L658) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L641-L658"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java</code> L641–L658</a> <span>@ nessie-0.108.4</span></p>
 <p>The loop resolves the key, checks it for conflicts, and never touches the hasher. That is the right call: an <code>Unchanged</code> is an assertion about the <em>parent</em>, not a change to the child, and two commits that differ only in what they asserted really do produce identical state. But it has a consequence. Those two commits are the same object, so if both are attempted the second is absorbed by section 6's collision path rather than stored — and the assertion the second client made is not recorded anywhere. <code>Unchanged</code> is enforced at commit time and forgotten immediately after.</p>
 <p>Those omissions are the honest statement of what the tail is. Entry 0 is part of the commit's identity because it <em>is</em> <code>parentCommitId</code>; entries 1 through 19 are a denormalized cache that nothing verifies and nothing would notice was wrong. Section 7 returns to why that trade was worth making.</p>
 <h2 id="6-storing-a-commit">6. Storing a commit<a class="headerlink" href="#6-storing-a-commit" title="Permanent link">&para;</a></h2>
@@ -3646,11 +3641,10 @@
 </span><span id="__span-6-336"><a id="__codelineno-6-336" name="__codelineno-6-336"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-6-337"><a id="__codelineno-6-337" name="__codelineno-6-337"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L313–L337](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L313-L337) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L313-L337"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java</code> L313–L337</a> <span>@ nessie-0.108.4</span></p>
 <p><code>storeCommit</code> writes the commit and its value objects in one <code>storeObjs</code> call and then passes the commit's boolean to this method. Recall from 8.1 that <code>false</code> means "an object with this ID already exists".</p>
 <p>Because the ID is a hash over parent, message, headers and operations, that is usually not a collision at all — it is <em>the same commit, written twice</em>. A client that retries its own request produces it. Nessie's own retry after an indeterminate backend result produces it. So instead of failing, <code>mitigateHashCollision</code> re-reads the stored object and compares it field by field.</p>
-<p>The javadoc names the failure mode it is defending against: it "mitigates the risk of false-positive hash-collision errors in case the backend database runs into timeout situations with an undefined outcome". Chapter 8.4 shows where those timeouts come from.</p>
+<p>The javadoc names the failure mode it is defending against: it "mitigates the risk of false-positive hash-collision errors in case the backend database runs into timeout situations with an undefined outcome". <a href="../chapter_8.4_references_cas/">Chapter 8.4</a> shows where those timeouts come from.</p>
 <p>One detail is easy to read past. The comparison rebuilds the candidate with the <em>stored</em> commit's <code>created</code> timestamp before calling <code>equals</code>. <code>created</code> is <code>@Value.Auxiliary</code> — excluded from <code>equals</code>/<code>hashCode</code> — precisely so that two attempts separated in time still compare equal.</p>
 <h2 id="7-gotchas">7. Gotchas<a class="headerlink" href="#7-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
@@ -3718,7 +3712,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 8.3 opens the four fields this chapter skipped, and answers the question that makes Nessie usable as a catalog: how a branch with a million keys answers a point lookup without reading a million-entry index.</p>
+<p><strong>Next:</strong> <a href="../chapter_8.3_key_indexes/">Chapter 8.3</a> opens the four fields this chapter skipped, and answers the question that makes Nessie usable as a catalog: how a branch with a million keys answers a point lookup without reading a million-entry index.</p>
 
 
 
@@ -3756,7 +3750,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_8.1_persist_spi/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 8.1 The `Persist` SPI and the storage abstraction">
+          <a href="../chapter_8.1_persist_spi/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 8.1 The Persist SPI and the storage abstraction">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3766,7 +3760,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                8.1 The `Persist` SPI and the storage abstraction
+                8.1 The Persist SPI and the storage abstraction
               </div>
             </div>
           </a>

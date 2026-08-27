@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1544,7 +1544,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1572,7 +1572,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1873,7 +1873,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1901,7 +1901,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1929,7 +1929,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2097,7 +2097,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2125,7 +2125,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2293,7 +2293,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2321,7 +2321,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2515,7 +2515,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2709,7 +2709,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2905,7 +2905,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2933,7 +2933,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -2989,7 +2989,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3223,11 +3223,11 @@
 <h1 id="chapter-54-copy-on-write-merge-on-read-and-v3-deletion-vectors">Chapter 5.4 — Copy-on-write, merge-on-read, and V3 deletion vectors<a class="headerlink" href="#chapter-54-copy-on-write-merge-on-read-and-v3-deletion-vectors" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> for a single-row <code>DELETE</code>, Iceberg can rewrite a 512 MB data file or write a few bytes of delete metadata — what decides which, what does each cost on the other side, and what do V3 deletion vectors change about that arithmetic?</p>
-<p><strong>Prerequisites:</strong> Chapter 5.3 (the two delete kinds and <code>RowDelta</code>), Chapter 3.3 (the commit loop and its <code>validate()</code> hook), Chapter 3.5 (what an isolation level is, and which validations it turns on), Chapters 2.3 and 2.5 (delete manifests, and the V2/V3 rule about how a position delete may be encoded)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_5.3_deletes/">Chapter 5.3</a> (the two delete kinds and <code>RowDelta</code>), <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> (the commit loop and its <code>validate()</code> hook), <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/">Chapter 3.5</a> (what an isolation level is, and which validations it turns on), Chapters <a href="../../part02_table_spec/chapter_2.3_manifest_list/">2.3</a> and <a href="../../part02_table_spec/chapter_2.5_format_versions/">2.5</a> (delete manifests, and the V2/V3 rule about how a position delete may be encoded)</p>
 <p><strong>Source covered:</strong> <code>core/.../RowLevelOperationMode.java</code>, <code>core/.../deletes/BaseDVFileWriter.java</code>, <code>core/.../DVUtil.java</code>, <code>core/.../MergingSnapshotProducer.java</code>, <code>spark/v4.0/.../SparkPositionDeltaWrite.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p>Chapter 5.3 built delete files without ever asking whether you should write one. That is the question here, and it has a name in the codebase:</p>
+<p><a href="../chapter_5.3_deletes/">Chapter 5.3</a> built delete files without ever asking whether you should write one. That is the question here, and it has a name in the codebase:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RowLevelOperationMode — the trade, defined upstream</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-40">40</a></span>
 <span class="normal"><a href="#__codelineno-0-41">41</a></span>
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
@@ -3278,13 +3278,12 @@
 </span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/RowLevelOperationMode.java` L40–L64](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/RowLevelOperationMode.java#L40-L64) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/RowLevelOperationMode.java#L40-L64"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/RowLevelOperationMode.java</code> L40–L64</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The javadoc is the cleanest statement of the trade in the project, and the last paragraph is the whole of it: copy-on-write "consume[s] more time and resources during writes but [doesn't] introduce any performance overhead during reads"; merge-on-read is "much faster during writes but require[s] more time and resources to apply delete files during reads."</p>
 <p>Same correctness, cost moved to a different day.</p>
 <p>Three table properties select the mode per operation — <code>write.delete.mode</code>, <code>write.update.mode</code>, <code>write.merge.mode</code> — and <strong>all three default to <code>copy-on-write</code></strong>. That is worth stating plainly, because a great deal of advice assumes otherwise.</p>
-<p>Copy-on-write is not a separate mechanism. There is no CoW code path to read. It is <code>RewriteFiles</code> or <code>OverwriteFiles</code> over the <code>MergingSnapshotProducer</code> of Chapter 5.2: delete the whole data file, add a rewritten one without the affected rows. Which of the two depends on who is asking. A Spark <code>DELETE</code>, <code>UPDATE</code> or <code>MERGE</code> in copy-on-write mode commits through <code>table.newOverwrite()</code> — the class doing it is called <code>CopyOnWriteOperation</code>, and it is where the isolation level picks which of Chapter 5.3's validations run. <code>RewriteFiles</code> is the compaction path of Chapter 5.5. Both replace whole files, which is the part that matters here. No delete file exists. Its cost is write amplification proportional to <em>file size</em>, not to the number of rows changed — deleting one row from a 512 MB file rewrites 512 MB.</p>
-<p>Merge-on-read is Chapter 5.3's machinery, committed through <code>RowDelta</code>. Its cost is that every subsequent scan touching those data files must find, load and apply the delete information.</p>
+<p>Copy-on-write is not a separate mechanism. There is no CoW code path to read. It is <code>RewriteFiles</code> or <code>OverwriteFiles</code> over the <code>MergingSnapshotProducer</code> of <a href="../chapter_5.2_append_strategies/">Chapter 5.2</a>: delete the whole data file, add a rewritten one without the affected rows. Which of the two depends on who is asking. A Spark <code>DELETE</code>, <code>UPDATE</code> or <code>MERGE</code> in copy-on-write mode commits through <code>table.newOverwrite()</code> — the class doing it is called <code>CopyOnWriteOperation</code>, and it is where the isolation level picks which of <a href="../chapter_5.3_deletes/">Chapter 5.3</a>'s validations run. <code>RewriteFiles</code> is the compaction path of <a href="../chapter_5.5_maintenance/">Chapter 5.5</a>. Both replace whole files, which is the part that matters here. No delete file exists. Its cost is write amplification proportional to <em>file size</em>, not to the number of rows changed — deleting one row from a 512 MB file rewrites 512 MB.</p>
+<p>Merge-on-read is <a href="../chapter_5.3_deletes/">Chapter 5.3</a>'s machinery, committed through <code>RowDelta</code>. Its cost is that every subsequent scan touching those data files must find, load and apply the delete information.</p>
 <p>And that second cost is where the real objection to MoR always lived. Not the concept — the <em>bookkeeping</em>. V2 position deletes are ordinary Parquet files. They accumulate. Each may cover many data files. They must be sorted. At plan time, <code>DeleteFileIndex</code> has to work out which of them could apply to each data file, using path ranges. At scan time they must be merged.</p>
 <p>V3 deletion vectors attack precisely that. They do not add a new content type; they change the physical encoding so that the answer to "what is deleted in this data file" is one seek and one bitmap.</p>
 <h2 id="2-one-delete-three-outcomes">2. One DELETE, three outcomes<a class="headerlink" href="#2-one-delete-three-outcomes" title="Permanent link">&para;</a></h2>
@@ -3349,8 +3348,7 @@
 </span><span id="__span-1-315"><a id="__codelineno-1-315" name="__codelineno-1-315"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-1-316"><a id="__codelineno-1-316" name="__codelineno-1-316"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java` L295–L316](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L295-L316) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L295-L316"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java</code> L295–L316</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>V1: no deletes at all. V2: <em>"Must not use DVs for position deletes in V2"</em>. V3 and V4: <em>"Must use DVs for position deletes in V%s"</em>. Equality deletes are exempt in every version — they are unaffected by the change, because they were never position-based to begin with.</p>
 <p>There is no mixed mode. Upgrading a table to V3 does not convert its existing V2 position deletes, but from that point on every new position delete must be a DV.</p>
 <h2 id="3-what-a-deletion-vector-actually-is">3. What a deletion vector actually is<a class="headerlink" href="#3-what-a-deletion-vector-actually-is" title="Permanent link">&para;</a></h2>
@@ -3361,8 +3359,7 @@
 </span><span id="__span-2-143"><a id="__codelineno-2-143" name="__codelineno-2-143"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">deleteFile</span><span class="p">.</span><span class="na">format</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FileFormat</span><span class="p">.</span><span class="na">PUFFIN</span><span class="p">;</span>
 </span><span id="__span-2-144"><a id="__codelineno-2-144" name="__codelineno-2-144"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/util/ContentFileUtil.java` L142–L144](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/util/ContentFileUtil.java#L142-L144) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/util/ContentFileUtil.java#L142-L144"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/util/ContentFileUtil.java</code> L142–L144</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>That is all of it. A DV's manifest entry still says <code>content = POSITION_DELETES</code>. It is an ordinary <code>DeleteFile</code> in an ordinary delete manifest. What changed is <code>file_format</code>, and three fields that V2 position deletes leave empty.</p>
 <p>Here is the writer:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseDVFileWriter.close() — one Puffin file, many blobs</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-98"> 98</a></span>
@@ -3457,10 +3454,9 @@
 </span><span id="__span-3-142"><a id="__codelineno-3-142" name="__codelineno-3-142"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-143"><a id="__codelineno-3-143" name="__codelineno-3-143"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/deletes/BaseDVFileWriter.java` L98–L143](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/deletes/BaseDVFileWriter.java#L98-L143) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/deletes/BaseDVFileWriter.java#L98-L143"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/deletes/BaseDVFileWriter.java</code> L98–L143</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read it in four beats.</p>
-<p><strong>Merge before writing.</strong> For each data file, <code>loadPreviousDeletes.apply(path)</code> fetches whatever DV already exists, and <code>positions.merge(previousPositions)</code> folds it in. The superseded file goes into <code>rewrittenDeleteFiles</code> so the commit can remove it. Only file-scoped predecessors are eligible — the same <code>isFileScoped</code> guard as Chapter 5.3, for the same reason.</p>
+<p><strong>Merge before writing.</strong> For each data file, <code>loadPreviousDeletes.apply(path)</code> fetches whatever DV already exists, and <code>positions.merge(previousPositions)</code> folds it in. The superseded file goes into <code>rewrittenDeleteFiles</code> so the commit can remove it. Only file-scoped predecessors are eligible — the same <code>isFileScoped</code> guard as <a href="../chapter_5.3_deletes/">Chapter 5.3</a>, for the same reason.</p>
 <p><strong>One Puffin file, many blobs.</strong> <code>newWriter()</code> is called once. Every data file's bitmap is written as a separate blob into that single file.</p>
 <p><strong>Offsets, not files.</strong> After closing, <code>writer.location()</code> and <code>writer.fileSize()</code> are read once and shared:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">String</span><span class="w"> </span><span class="n">puffinPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="na">location</span><span class="p">();</span>
@@ -3502,8 +3498,7 @@
 </span><span id="__span-5-185"><a id="__codelineno-5-185" name="__codelineno-5-185"></a><span class="w">          </span><span class="n">String</span><span class="p">.</span><span class="na">valueOf</span><span class="p">(</span><span class="n">positions</span><span class="p">.</span><span class="na">cardinality</span><span class="p">())));</span>
 </span><span id="__span-5-186"><a id="__codelineno-5-186" name="__codelineno-5-186"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/deletes/BaseDVFileWriter.java` L173–L186](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/deletes/BaseDVFileWriter.java#L173-L186) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/deletes/BaseDVFileWriter.java#L173-L186"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/deletes/BaseDVFileWriter.java</code> L173–L186</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Type <code>StandardBlobTypes.DV_V1</code>, whose value is the string <code>"deletion-vector-v1"</code>. One field id — <code>_pos</code>. Snapshot id and sequence number both <code>-1</code>, with inline comments saying they are inherited. The payload is <code>positions.serialize()</code>. And two blob properties, <code>referenced-data-file</code> and <code>cardinality</code>, which duplicate information also held in the manifest entry — deliberately, so the Puffin file is self-describing if you ever have to read it without the table.</p>
 <p><code>serialize()</code> produces a big-endian length, a little-endian magic number, a portable Roaring bitmap and a big-endian CRC-32. Its javadoc notes that the length and checksum cover the magic bytes too, "for compatibility with Delta". The container is Iceberg's; the blob's interior is not Iceberg-specific.</p>
 <h2 id="4-why-this-makes-reads-cheap">4. Why this makes reads cheap<a class="headerlink" href="#4-why-this-makes-reads-cheap" title="Permanent link">&para;</a></h2>
@@ -3539,10 +3534,9 @@
 </span><span id="__span-6-64"><a id="__codelineno-6-64" name="__codelineno-6-64"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-6-65"><a id="__codelineno-6-65" name="__codelineno-6-65"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/DVUtil.java` L50–L65](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/DVUtil.java#L50-L65) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/DVUtil.java#L50-L65"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/DVUtil.java</code> L50–L65</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Sixteen lines, and no Puffin footer is parsed. The manifest entry already carries the byte range: <code>contentOffset</code>, <code>contentSizeInBytes</code>, <code>IOUtil.readFully</code>, <code>PositionDeleteIndex.deserialize</code>. One ranged GET, one bitmap.</p>
-<p>Compare what V2 requires for the same data file: find every position delete file that might reference it, using <code>file_path</code> bounds; read each one; filter to the rows matching this data file; merge into an index. <code>DeleteFileIndex</code> exists to do that matching, and the <code>file_path</code> bounds trick from Chapter 5.3 exists to make it cheaper.</p>
+<p>Compare what V2 requires for the same data file: find every position delete file that might reference it, using <code>file_path</code> bounds; read each one; filter to the rows matching this data file; merge into an index. <code>DeleteFileIndex</code> exists to do that matching, and the <code>file_path</code> bounds trick from <a href="../chapter_5.3_deletes/">Chapter 5.3</a> exists to make it cheaper.</p>
 <p>With DVs, matching is a lookup by <code>referenced_data_file</code>, and there is at most one hit. That is the change, and it is structural rather than incremental.</p>
 <pre class="mermaid"><code>flowchart LR
     subgraph MAN["delete manifest"]
@@ -3605,8 +3599,7 @@
 </span><span id="__span-7-877"><a id="__codelineno-7-877" name="__codelineno-7-877"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-7-878"><a id="__codelineno-7-878" name="__codelineno-7-878"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java` L857–L878](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L857-L878) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L857-L878"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java</code> L857–L878</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Every delete manifest added since the starting snapshot is scanned; if any newly added DV references a data file this commit also targets, the commit fails with <em>"Found concurrently added DV for %s"</em>.</p>
 <p><strong>At the format boundary</strong>, <code>validateDeleteFileForVersion</code>, already shown.</p>
 <p>The middle one has a consequence that deserves to be said out loud, because it is the one real regression in the DV design. Two V2 position delete files against the same data file could both commit; a reader would simply union them. Two DVs cannot. <strong>V3 makes concurrent row-level deletes to the same data file strictly more likely to conflict.</strong> For a high-concurrency <code>MERGE</code> workload, that is a behavioural change, and the mitigation is the same as it always was for optimistic concurrency: arrange for writers not to overlap.</p>
@@ -3658,8 +3651,7 @@
 </span><span id="__span-8-554"><a id="__codelineno-8-554" name="__codelineno-8-554"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-8-555"><a id="__codelineno-8-555" name="__codelineno-8-555"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v4.0/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java` L533–L555](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v4.0/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java#L533-L555) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v4.0/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java#L533-L555"><code>apache/iceberg</code> · <code>spark/v4.0/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java</code> L533–L555</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>DVs first, whenever <code>context.useDVs()</code> — which is simply <code>deleteFileFormat == FileFormat.PUFFIN</code>. Otherwise the V2 rules apply, and the comment states them: the spec requires position deletes ordered by file and position for V2 tables, so a clustered writer is used only when the input is already ordered and no previous deletes need rewriting; otherwise a fanout writer, "no matter whether fanout writers are enabled".</p>
 <p>Notice what the DV branch drops. No <code>targetFileSize</code>. No <code>DeleteGranularity</code>. No ordering requirement. A DV is inherently file-scoped and inherently sorted, because it is a bitmap.</p>
 <h2 id="6-gotchas">6. Gotchas<a class="headerlink" href="#6-gotchas" title="Permanent link">&para;</a></h2>
@@ -3681,7 +3673,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">DVs do not remove the need for compaction</p>
-<p>They make applying deletes cheap; they do not make the deleted rows go away. A data file that is 80% deleted still costs 100% of its bytes to scan. Chapter 5.5's <code>tooHighDeleteRatio</code> heuristic exists for exactly that, and it can only see the deleted-row counts of file-scoped deletes — which, on a V3 table, is all of them.</p>
+<p>They make applying deletes cheap; they do not make the deleted rows go away. A data file that is 80% deleted still costs 100% of its bytes to scan. <a href="../chapter_5.5_maintenance/">Chapter 5.5</a>'s <code>tooHighDeleteRatio</code> heuristic exists for exactly that, and it can only see the deleted-row counts of file-scoped deletes — which, on a V3 table, is all of them.</p>
 </div>
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
@@ -3743,7 +3735,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 5.5 takes the one thing deletion vectors do not fix — that deleted rows still occupy bytes — and works through the maintenance actions that reclaim them, along with the invariant all four of them must not break.</p>
+<p><strong>Next:</strong> <a href="../chapter_5.5_maintenance/">Chapter 5.5</a> takes the one thing deletion vectors do not fix — that deleted rows still occupy bytes — and works through the maintenance actions that reclaim them, along with the invariant all four of them must not break.</p>
 
 
 
@@ -3781,7 +3773,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_5.3_deletes/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5.3 Position deletes, equality deletes, and `RowDelta`">
+          <a href="../chapter_5.3_deletes/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5.3 Position deletes, equality deletes, and RowDelta">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3791,7 +3783,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                5.3 Position deletes, equality deletes, and `RowDelta`
+                5.3 Position deletes, equality deletes, and RowDelta
               </div>
             </div>
           </a>

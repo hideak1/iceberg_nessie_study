@@ -865,7 +865,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1089,7 +1089,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1117,7 +1117,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1285,7 +1285,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1313,7 +1313,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1341,7 +1341,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1537,7 +1537,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1565,7 +1565,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1731,7 +1731,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1759,7 +1759,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1787,7 +1787,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1955,7 +1955,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1983,7 +1983,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2011,7 +2011,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2151,7 +2151,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2179,7 +2179,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2373,7 +2373,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2567,7 +2567,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2768,7 +2768,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2796,7 +2796,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -2852,7 +2852,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3265,7 +3265,7 @@
 <h1 id="chapter-115-running-it-in-production-maintenance-procedures-and-their-traps">Chapter 11.5 — Running it in production: maintenance procedures and their traps<a class="headerlink" href="#chapter-115-running-it-in-production-maintenance-procedures-and-their-traps" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> <code>rewrite_data_files</code>, <code>expire_snapshots</code>, <code>remove_orphan_files</code> — what order must they run in, what does each one actually delete, and which of the three can destroy a table that is not even its argument?</p>
-<p><strong>Prerequisites:</strong> Chapter 5.5 (the mechanism of all four maintenance actions), Chapter 3.3 (files exist before the commit that references them), Chapter 11.2 (<code>gc.enabled=false</code> and <code>add_files</code> aliasing), Chapter 11.4 (the conflict window compaction competes for)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part05_write_path/chapter_5.5_maintenance/">Chapter 5.5</a> (the mechanism of all four maintenance actions), <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> (files exist before the commit that references them), <a href="../chapter_11.2_importing_existing_tables/">Chapter 11.2</a> (<code>gc.enabled=false</code> and <code>add_files</code> aliasing), <a href="../chapter_11.4_merge_and_conflicts/">Chapter 11.4</a> (the conflict window compaction competes for)</p>
 <p><strong>Source covered:</strong> <code>spark/v3.5/.../actions/ExpireSnapshotsSparkAction.java</code>, <code>.../actions/DeleteOrphanFilesSparkAction.java</code>, <code>.../procedures/RemoveOrphanFilesProcedure.java</code>, <code>.../actions/BaseSparkAction.java</code>, <code>core/.../util/FileSystemWalker.java</code>, <code>core/.../actions/BinPackRewriteFilePlanner.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3275,7 +3275,7 @@
 <li><strong>Expiry identifies garbage by set difference and deletes it</strong> — but it commits the metadata change <em>before</em> it starts deleting, so a job that dies in between leaks.</li>
 <li><strong>Orphan removal is the only job that can clean that leak up</strong>, because it is the only one that works by listing storage rather than by reading metadata. That is also exactly why it is the dangerous one.</li>
 </ul>
-<p>Chapter 5.5 owns the mechanism of all four maintenance actions, these three included. This chapter is the operational view: the order, the arguments, and — for <code>remove_orphan_files</code> — an exact accounting of which safety checks the code performs and which it does not, because someone will point this at production storage.</p>
+<p><a href="../../part05_write_path/chapter_5.5_maintenance/">Chapter 5.5</a> owns the mechanism of all four maintenance actions, these three included. This chapter is the operational view: the order, the arguments, and — for <code>remove_orphan_files</code> — an exact accounting of which safety checks the code performs and which it does not, because someone will point this at production storage.</p>
 <div class="admonition danger">
 <p class="admonition-title">Read section 6 before running <code>remove_orphan_files</code> against anything you care about</p>
 <p><code>DeleteOrphanFilesSparkAction</code> builds its "valid" set from <strong>one</strong> table and anti-joins it against <strong>everything under a location</strong>. It never checks that the location belongs to that table alone. Two tables under one warehouse prefix is a data-loss configuration, and nothing warns you.</p>
@@ -3283,7 +3283,7 @@
 <div class="admonition danger">
 <p class="admonition-title">None of this applies to a table in a Nessie catalog</p>
 <p>Every procedure in this chapter reasons from <strong>one table's snapshot history</strong>. A Nessie repository has many branches, and a snapshot that is unreachable from one branch is current on another. <code>expire_snapshots</code> cannot see the other branches and will delete files they are still reading; <code>remove_orphan_files</code> has the same blind spot, one level down.</p>
-<p>Chapter 9.4 covers the mechanism and the replacement: Nessie's own <code>gc/</code> tools walk manifest entries of <strong>every</strong> status precisely because another branch may still need them. Do not run this chapter's runbook against a Nessie-backed table — read 9.4 instead.</p>
+<p><a href="../../part09_branching/chapter_9.4_gc/">Chapter 9.4</a> covers the mechanism and the replacement: Nessie's own <code>gc/</code> tools walk manifest entries of <strong>every</strong> status precisely because another branch may still need them. Do not run this chapter's runbook against a Nessie-backed table — read 9.4 instead.</p>
 </div>
 <h2 id="2-the-pipeline">2. The pipeline<a class="headerlink" href="#2-the-pipeline" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart TD
@@ -3325,14 +3325,14 @@
 </span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="w">          </span><span class="n">outsideDesiredFileSizeRange</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">tooManyDeletes</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">tooHighDeleteRatio</span><span class="p">(</span><span class="n">task</span><span class="p">));</span>
 </span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/actions/BinPackRewriteFilePlanner.java` L188–L194](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/actions/BinPackRewriteFilePlanner.java#L188-L194) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/actions/BinPackRewriteFilePlanner.java#L188-L194"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/actions/BinPackRewriteFilePlanner.java</code> L188–L194</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Size is one of three. <code>outsideDesiredFileSizeRange</code> fires when a file falls outside <code>[0.75 × target, 1.80 × target]</code> — <code>MIN_FILE_SIZE_DEFAULT_RATIO</code> and <code>MAX_FILE_SIZE_DEFAULT_RATIO</code> — but a file sitting comfortably inside that window is still selected if it carries enough deletes. Of the two delete predicates only one is live out of the box: <code>delete-file-threshold</code> defaults to <code>Integer.MAX_VALUE</code>, and upstream says why in its javadoc — <em>"this feature is not enabled by default"</em> — while <code>delete-ratio-threshold</code> defaults to <code>0.3</code>, so any file with 30% of its rows deleted is a candidate at any size.</p>
-<p>That is the rule to carry into Chapter 11.4's tables. On a merge-on-read table with a 512 MB target, a 500 MB data file is never selected on size and can be selected constantly on delete ratio; "compaction is about file size" predicts neither. It also inherits 5.5 §8's blind spot: only file-scoped delete files contribute a countable number, so the ratio predicate goes quiet on a table using partition-scoped deletes.</p>
-<p>The surviving files are bin-packed into groups, and <code>filterFileGroups</code> keeps a group only if at least one of five predicates holds: <code>enoughInputFiles</code>, <code>enoughContent</code>, <code>tooMuchContent</code>, <code>tooManyDeletes</code>, <code>tooHighDeleteRatio</code>.</p>
-<p>With a 512 MB target and no delete files, a partition holding four 1 MB files satisfies none of them — <code>enoughInputFiles</code> needs <code>min-input-files</code>, default <code>5</code>. A default <code>rewrite_data_files</code> reports zero rewritten files and leaves the partition exactly as it was. <code>rewrite-all=true</code> bypasses both the size selection and the group filter.</p>
+<p>That is the rule to carry into <a href="../chapter_11.4_merge_and_conflicts/">Chapter 11.4</a>'s tables. On a merge-on-read table with a 512 MB target, a 500 MB data file is never selected on size and can be selected constantly on delete ratio; "compaction is about file size" predicts neither. It also inherits 5.5 §8's blind spot: only file-scoped delete files contribute a countable number, so the ratio predicate goes quiet on a table using partition-scoped deletes.</p>
+<p>The surviving files are then bin-packed — <code>new BinPacking.ListPacker&lt;&gt;(maxGroupSize, 1, false, maxGroupCount)</code>, packed on <code>ContentScanTask::length</code> — and the resulting groups face a second filter. <code>filterFileGroups</code> keeps a group only if at least one of five predicates holds, and the five are not five new rules: <code>enoughInputFiles</code> (<code>size() &gt; 1 &amp;&amp; size() &gt;= min-input-files</code>), <code>enoughContent</code> (<code>size() &gt; 1 &amp;&amp; inputSize &gt; target</code>), <code>tooMuchContent</code> (<code>inputSize &gt; maxFileSize</code>), and then <strong>the same two delete predicates from the per-file gate</strong>, re-applied over the group with <code>anyMatch</code>.</p>
+<p>Note the <code>size() &gt; 1</code> conjunct on the first two. A group of exactly one file can only survive on <code>tooMuchContent</code> or on deletes — so a single oversized-but-not-huge file, selected by <code>outsideDesiredFileSizeRange</code> at the first gate, is dropped at the second. Both gates read <code>rewriteAll</code> first: <code>planFileGroups</code> is <code>rewriteAll ? tasks : filterFiles(tasks)</code> followed by <code>rewriteAll ? groups : filterFileGroups(groups)</code>.</p>
+<p>With a 512 MB target and no delete files, a partition holding four 1 MB files satisfies none of them — <code>enoughInputFiles</code> needs <code>min-input-files</code>, default <code>5</code>. A default <code>rewrite_data_files</code> reports zero rewritten files and leaves the partition exactly as it was.</p>
 <p>Two other defaults are worth knowing before you schedule this:</p>
-<p><code>use-starting-sequence-number</code> defaults to <code>true</code>, and its javadoc says what it buys: <em>"If the compaction should use the sequence number of the snapshot at compaction start time for new data files … This avoids commit conflicts with updates that add newer equality deletes at a higher sequence number."</em> That is Chapter 11.4's conflict surface, pre-empted by a default. Chapter 5.5 §8 explains what turning it off costs: deleted rows reappear, with no error anywhere.</p>
+<p><code>use-starting-sequence-number</code> defaults to <code>true</code>, and its javadoc says what it buys: <em>"If the compaction should use the sequence number of the snapshot at compaction start time for new data files … This avoids commit conflicts with updates that add newer equality deletes at a higher sequence number."</em> That is <a href="../chapter_11.4_merge_and_conflicts/">Chapter 11.4</a>'s conflict surface, pre-empted by a default. <a href="../../part05_write_path/chapter_5.5_maintenance/">Chapter 5.5</a> §8 explains what turning it off costs: deleted rows reappear, with no error anywhere.</p>
 <p><code>partial-progress.enabled</code> defaults to <code>false</code> — one commit for the whole rewrite, and a single failed group loses everything. Enabling it produces up to <code>partial-progress.max-commits</code> (default <code>10</code>) separate commits, and the interface javadoc is explicit that this <em>"will not change the correctness of the rewrite operation as file groups can be compacted independently."</em> On a large table the choice is between one long conflict window and ten short ones — a scheduling decision, not a correctness one.</p>
 <h2 id="4-expiry-commits-before-it-deletes">4. Expiry commits before it deletes<a class="headerlink" href="#4-expiry-commits-before-it-deletes" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ExpireSnapshotsSparkAction.expireFiles()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-149">149</a></span>
@@ -3415,17 +3415,16 @@
 </span><span id="__span-1-187"><a id="__codelineno-1-187" name="__codelineno-1-187"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">expiredFileDS</span><span class="p">;</span>
 </span><span id="__span-1-188"><a id="__codelineno-1-188" name="__codelineno-1-188"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/ExpireSnapshotsSparkAction.java` L149–L188](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/ExpireSnapshotsSparkAction.java#L149-L188) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/ExpireSnapshotsSparkAction.java#L149-L188"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/ExpireSnapshotsSparkAction.java</code> L149–L188</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read it as four moves.</p>
 <ol>
 <li><code>TableMetadata originalMetadata = ops.current()</code> — capture the world before.</li>
-<li><code>expireSnapshots.cleanupLevel(CleanupLevel.NONE).commit()</code> — perform the expiry as a <strong>metadata-only</strong> commit. The enum constant is documented as <em>"Skip all file cleanup, only remove snapshot metadata"</em>, and <code>cleanupLevel(CleanupLevel)</code>'s own javadoc — a different one — recommends it <em>"when data and metadata files may be more efficiently removed using a distributed framework through the actions API"</em>, which is precisely what this action is. That second javadoc names a third level, <code>METADATA_ONLY</code>, for tables whose data files are shared with something else; no Spark action or procedure exposes it, which is why Chapter 11.2 can say <code>add_files</code> leaves you with no interlock.</li>
+<li><code>expireSnapshots.cleanupLevel(CleanupLevel.NONE).commit()</code> — perform the expiry as a <strong>metadata-only</strong> commit. The enum constant is documented as <em>"Skip all file cleanup, only remove snapshot metadata"</em>, and <code>cleanupLevel(CleanupLevel)</code>'s own javadoc — a different one — recommends it <em>"when data and metadata files may be more efficiently removed using a distributed framework through the actions API"</em>, which is precisely what this action is. That second javadoc names a third level, <code>METADATA_ONLY</code>, for tables whose data files are shared with something else; no Spark action or procedure exposes it, which is why <a href="../chapter_11.2_importing_existing_tables/">Chapter 11.2</a> can say <code>add_files</code> leaves you with no interlock.</li>
 <li><code>ops.refresh()</code> and build <code>validFileDS</code> from the metadata that survived.</li>
 <li><code>deleteCandidateFileDS.except(validFileDS)</code> — a distributed set difference. <code>doExecute()</code> then streams or collects that and deletes.</li>
 </ol>
 <p>The commit lands at step 2. Deletion is a separate distributed job at step 4. Kill the driver between them and the snapshots are gone from metadata while their files remain in storage — and re-running expiry will not find them, because those snapshots are no longer in <code>originalMetadata</code> to become delete candidates. Only orphan removal can.</p>
-<p>That is not a bug. It is the only ordering that keeps the table correct: deleting first and committing second would, on a crash, leave a live snapshot pointing at files that no longer exist. Chapter 3.3's rule again — leaked storage is recoverable, a corrupted table is not. It is also the reason the third job exists at all.</p>
+<p>That is not a bug. It is the only ordering that keeps the table correct: deleting first and committing second would, on a crash, leave a live snapshot pointing at files that no longer exist. <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>'s rule again — leaked storage is recoverable, a corrupted table is not. It is also the reason the third job exists at all.</p>
 <p>The method's own javadoc is worth quoting because it is easy to misread the API: <em>"This does not delete data files. To delete data files, run <code>execute()</code>."</em> Calling <code>expireFiles()</code> for a preview has already committed the expiry.</p>
 <h2 id="5-orphan-removal-reverses-the-direction-of-proof">5. Orphan removal reverses the direction of proof<a class="headerlink" href="#5-orphan-removal-reverses-the-direction-of-proof" title="Permanent link">&para;</a></h2>
 <p>Every other job in this book reasons forward from metadata: here is what the table references, therefore here is what must be kept. Orphan removal reasons backwards from storage: here is what exists, subtract what the table references, delete the remainder.</p>
@@ -3457,8 +3456,7 @@
 </span><span id="__span-2-403"><a id="__codelineno-2-403" name="__codelineno-2-403"></a><span class="w">      </span><span class="p">.</span><span class="na">union</span><span class="p">(</span><span class="n">otherMetadataFileIdentDS</span><span class="p">);</span>
 </span><span id="__span-2-404"><a id="__codelineno-2-404" name="__codelineno-2-404"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L391–L404](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L391-L404) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L391-L404"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java</code> L391–L404</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Four unions, and every one of them is <code>(table)</code> — the single <code>Table</code> handed to the action's constructor. <code>contentFileDS</code> and <code>manifestDS</code> read the <code>ALL_MANIFESTS</code> metadata table unfiltered, so they cover every snapshot still in table metadata, on every branch and tag, not just the current one. <code>manifestListDS</code> iterates <code>table.snapshots()</code>. <code>otherMetadataFileDS</code> is the current <code>metadata.json</code>, the entries in its metadata log, the version-hint file, and the statistics files.</p>
 <p>That is a correct and generous valid set — <strong>for one table</strong>. Nothing in it is scoped to a location, and nothing anywhere asks whether some other table's files live under the location being listed.</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DeleteOrphanFilesSparkAction.findOrphanFiles()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-349">349</a></span>
@@ -3543,8 +3541,7 @@
 </span><span id="__span-3-388"><a id="__codelineno-3-388" name="__codelineno-3-388"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-389"><a id="__codelineno-3-389" name="__codelineno-3-389"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L349–L389](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L349-L389) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L349-L389"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java</code> L349–L389</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The join is one line: <code>actualFileIdentDS.joinWith(validFileIdentDS, joinCond, "leftouter")</code>, keyed on normalised path, and everything with no match on the right is an orphan. The interesting code is the refusal underneath it — a <code>SetAccumulator</code> collects <code>(scheme, authority)</code> pairs that matched on path but differed on prefix, and under the default <code>PrefixMismatchMode.ERROR</code> the whole job throws instead of returning a result. Upstream's message ends with the sentence that should govern how you treat the option: <em>"'DELETE' iff you are ABSOLUTELY confident that remaining conflicting authorities/schemes are different. It will be impossible to recover deleted files."</em></p>
 <h2 id="6-exactly-what-protects-you-and-exactly-what-does-not">6. Exactly what protects you, and exactly what does not<a class="headerlink" href="#6-exactly-what-protects-you-and-exactly-what-does-not" title="Permanent link">&para;</a></h2>
 <p>This is the section to read twice. Everything in the left column is a check the code performs; everything in the right column is a check people assume it performs and it does not.</p>
@@ -3572,8 +3569,7 @@
 </span><span id="__span-4-146"><a id="__codelineno-4-146" name="__codelineno-4-146"></a><span class="w">      </span><span class="s">"Cannot delete orphan files: GC is disabled (deleting files may corrupt other tables)"</span><span class="p">);</span>
 </span><span id="__span-4-147"><a id="__codelineno-4-147" name="__codelineno-4-147"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L136–L147](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L136-L147) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L136-L147"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java</code> L136–L147</a> <span>@ apache-iceberg-1.11.0</span></p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The timestamp cutoff is applied during listing, in both listing modes</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-419">419</a></span>
 <span class="normal"><a href="#__codelineno-5-420">420</a></span>
 <span class="normal"><a href="#__codelineno-5-421">421</a></span>
@@ -3634,8 +3630,7 @@
 </span><span id="__span-5-447"><a id="__codelineno-5-447" name="__codelineno-5-447"></a><span class="w">      </span><span class="n">subDirs</span><span class="p">::</span><span class="n">add</span><span class="p">,</span>
 </span><span id="__span-5-448"><a id="__codelineno-5-448" name="__codelineno-5-448"></a><span class="w">      </span><span class="n">matchingFiles</span><span class="p">::</span><span class="n">add</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L419–L448](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L419-L448) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L419-L448"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java</code> L419–L448</a> <span>@ apache-iceberg-1.11.0</span></p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RemoveOrphanFilesProcedure.validateInterval()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-220">220</a></span>
 <span class="normal"><a href="#__codelineno-6-221">221</a></span>
 <span class="normal"><a href="#__codelineno-6-222">222</a></span>
@@ -3658,8 +3653,7 @@
 </span><span id="__span-6-229"><a id="__codelineno-6-229" name="__codelineno-6-229"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-6-230"><a id="__codelineno-6-230" name="__codelineno-6-230"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/procedures/RemoveOrphanFilesProcedure.java` L220–L230](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/procedures/RemoveOrphanFilesProcedure.java#L220-L230) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/procedures/RemoveOrphanFilesProcedure.java#L220-L230"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/procedures/RemoveOrphanFilesProcedure.java</code> L220–L230</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><strong>The guarantees the code actually gives:</strong></p>
 <table>
 <thead>
@@ -3673,7 +3667,7 @@
 <tr>
 <td>Refuses to run when <code>gc.enabled=false</code></td>
 <td><code>ValidationException.check</code> in the action constructor: <em>"Cannot delete orphan files: GC is disabled (deleting files may corrupt other tables)"</em></td>
-<td>The argument table only. Default is <code>true</code>, so this fires only on a table someone marked — e.g. one created by <code>snapshot</code> (Chapter 11.2).</td>
+<td>The argument table only. Default is <code>true</code>, so this fires only on a table someone marked — e.g. one created by <code>snapshot</code> (<a href="../chapter_11.2_importing_existing_tables/">Chapter 11.2</a>).</td>
 </tr>
 <tr>
 <td>Never considers a file newer than the cutoff</td>
@@ -3738,13 +3732,12 @@
 </span><span id="__span-7-233"><a id="__codelineno-7-233" name="__codelineno-7-233"></a><span class="w">      </span><span class="p">.</span><span class="na">as</span><span class="p">(</span><span class="n">Encoders</span><span class="p">.</span><span class="na">STRING</span><span class="p">());</span>
 </span><span id="__span-7-234"><a id="__codelineno-7-234" name="__codelineno-7-234"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java` L225–L234](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L225-L234) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java#L225-L234"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/actions/DeleteOrphanFilesSparkAction.java</code> L225–L234</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>It replaces the listing and nothing else. The location prefix is still applied — and this is the <strong>only</strong> place in the whole action where <code>location</code> acts as a bound rather than as a starting point — and so is the age cutoff, against a <code>last_modified</code> column the view is required to carry. <code>compareToFileList</code> rejects a dataset whose <code>file_path</code> is not a string or whose <code>last_modified</code> is not a timestamp, so a bare list of paths will not do. The class javadoc says the same in one line: <em>"This skips the directory listing … using the same <code>Table#location()</code> and <code>olderThan(long)</code> filtering as above."</em> That makes it a stronger guard than a raw candidate list would be, and it means a view built from a stale inventory quietly loses rows to the cutoff rather than deleting something it should not.</p>
 <p><strong>The checks that do not exist:</strong></p>
 <ul>
 <li><strong>No check that <code>location</code> belongs to the table.</strong> <code>this.location = table.location()</code> in the constructor, and <code>location(String)</code> overwrites it with whatever you pass. There is no validation, no prefix comparison, no warning.</li>
-<li><strong>No check that another table has files under that location.</strong> The valid set is built from one <code>Table</code>. A second Iceberg table under the same warehouse directory, a Hive table sharing the prefix, or an <code>add_files</code> source directory that happens to sit under the target's location (Chapter 11.2) all present as orphans.</li>
+<li><strong>No check that another table has files under that location.</strong> The valid set is built from one <code>Table</code>. A second Iceberg table under the same warehouse directory, a Hive table sharing the prefix, or an <code>add_files</code> source directory that happens to sit under the target's location (<a href="../chapter_11.2_importing_existing_tables/">Chapter 11.2</a>) all present as orphans.</li>
 <li><strong>No minimum interval on the Action API.</strong> <code>olderThan(0)</code> is accepted. The procedure's own error message tells you how to bypass its floor: <em>"you can use the Action API to remove orphan files with an arbitrary interval."</em></li>
 <li><strong>No consistency between the listing and the valid set.</strong> The action does not refresh the table inside <code>doExecute</code>, and the listing runs against live storage. The timestamp cutoff is the <em>only</em> thing standing in for a consistent snapshot, and it is a wall-clock heuristic rather than a proof.</li>
 <li><strong>No protection for a <code>metadata.json</code> that has fallen out of the metadata log.</strong> <code>otherMetadataFileDS(table)</code> calls <code>metadataFileLocations(table, /* recursive */ false)</code>, which is the current metadata file plus <code>metadata.previousFiles()</code>. Older metadata files trimmed by <code>write.metadata.previous-versions-max</code> are not in the valid set. That is correct for a normal table and wrong for one whose <code>metadata.json</code> someone pinned externally.</li>
@@ -3764,8 +3757,8 @@
 <tr>
 <td>1</td>
 <td><code>rewrite_data_files</code></td>
-<td>file count per partition (Chapter 11.3)</td>
-<td>conflicts with in-flight merge-on-read merges via <code>validateDataFilesExist</code> (Chapter 11.4); schedule outside write windows</td>
+<td>file count per partition (<a href="../chapter_11.3_write_distribution/">Chapter 11.3</a>)</td>
+<td>conflicts with in-flight merge-on-read merges via <code>validateDataFilesExist</code> (<a href="../chapter_11.4_merge_and_conflicts/">Chapter 11.4</a>); schedule outside write windows</td>
 </tr>
 <tr>
 <td>2</td>
@@ -3783,11 +3776,11 @@
 <td>—</td>
 <td><code>rewrite_manifests</code></td>
 <td>manifest count and planning latency</td>
-<td><strong>no position in the order.</strong> It only regroups references between manifests and never removes a content-file entry, so it creates no garbage for expiry to find and changes nothing orphan removal can reach. Run it whenever. It is still a commit that can lose a race (Chapter 5.5 §7)</td>
+<td><strong>no position in the order.</strong> It only regroups references between manifests and never removes a content-file entry, so it creates no garbage for expiry to find and changes nothing orphan removal can reach. Run it whenever. It is still a commit that can lose a race (<a href="../../part05_write_path/chapter_5.5_maintenance/">Chapter 5.5</a> §7)</td>
 </tr>
 </tbody>
 </table>
-<p>Two of those procedures are called <code>rewrite_*</code> and they are not the same kind of thing, which is worth stating outright because the shared prefix implies otherwise. <strong>"Rewrite" carries three senses in this book.</strong> Chapter 11.4's is copy-on-write <em>rewriting data files that contain a matched row</em> — a consequence of a <code>MERGE</code>, not a maintenance job at all. <code>rewrite_data_files</code> is compaction: it replaces data files with different data files, and it is the only one of the three that creates garbage. <code>rewrite_manifests</code> replaces <em>manifests</em> and touches no data file, so it creates none. So the first two rewrite the same <em>thing</em> — data files — for unrelated reasons, and the third rewrites something else entirely. Only the middle one is what this chapter has been calling compaction, and only the middle one belongs in the ordering below.</p>
+<p>Two of those procedures are called <code>rewrite_*</code> and they are not the same kind of thing, which is worth stating outright because the shared prefix implies otherwise. <strong>"Rewrite" carries three senses in this book.</strong> <a href="../chapter_11.4_merge_and_conflicts/">Chapter 11.4</a>'s is copy-on-write <em>rewriting data files that contain a matched row</em> — a consequence of a <code>MERGE</code>, not a maintenance job at all. <code>rewrite_data_files</code> is compaction: it replaces data files with different data files, and it is the only one of the three that creates garbage. <code>rewrite_manifests</code> replaces <em>manifests</em> and touches no data file, so it creates none. So the first two rewrite the same <em>thing</em> — data files — for unrelated reasons, and the third rewrites something else entirely. Only the middle one is what this chapter has been calling compaction, and only the middle one belongs in the ordering below.</p>
 <p>The last row is unnumbered deliberately. Three of these are a pipeline and one is a chore, and it would be easy to read a four-row table as a four-step sequence — but nothing in section 2's derivation applies to <code>rewrite_manifests</code>, because nothing it does changes what the other three are able to prove.</p>
 <p>Steps 1 and 2 both take table-level commits, so both compete with your writers. Step 3 takes no commit at all — it only deletes — which is why it is the one job that can do damage without any evidence appearing in the table's history.</p>
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
@@ -3797,7 +3790,7 @@
 </div>
 <div class="admonition danger">
 <p class="admonition-title">The 24-hour floor is on the procedure, not on the action</p>
-<p><code>validateInterval</code> throws below 24 hours with the reason spelled out — <em>"Executing this procedure with a short interval may corrupt the table if other operations are happening at the same time"</em> — and then names the bypass in the same message. <code>DeleteOrphanFilesSparkAction</code> enforces no minimum at all; its default is a field initialiser of <code>now − 3 days</code>. The floor is also skipped when <code>spark.testing</code> is true, and skipped when <code>older_than</code> is omitted — though that second case is not a hole: omitting the argument leaves the action's own three-day default in force, which is seventy-two times wider than the floor it skipped. The hole is the first sentence. Any tooling that calls the action directly has silently opted out of the guardrail. The window must be wide because <code>SnapshotProducer</code> writes data files, manifests and the manifest list <em>before</em> the commit that references them (Chapter 3.3): an in-flight write always has valid files that no snapshot can reach yet.</p>
+<p><code>validateInterval</code> throws below 24 hours with the reason spelled out — <em>"Executing this procedure with a short interval may corrupt the table if other operations are happening at the same time"</em> — and then names the bypass in the same message. <code>DeleteOrphanFilesSparkAction</code> enforces no minimum at all; its default is a field initialiser of <code>now − 3 days</code>. The floor is also skipped when <code>spark.testing</code> is true, and skipped when <code>older_than</code> is omitted — though that second case is not a hole: omitting the argument leaves the action's own three-day default in force, which is seventy-two times wider than the floor it skipped. The hole is the first sentence. Any tooling that calls the action directly has silently opted out of the guardrail. The window must be wide because <code>SnapshotProducer</code> writes data files, manifests and the manifest list <em>before</em> the commit that references them (<a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>): an in-flight write always has valid files that no snapshot can reach yet.</p>
 </div>
 <div class="admonition danger">
 <p class="admonition-title"><code>stream_results</code> silently truncates the row set you were told to read</p>
@@ -3809,7 +3802,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">A <code>snapshot</code>-created table cannot run either cleanup job — on purpose</p>
-<p>The <code>gc.enabled</code> <code>ValidationException.check</code> in <code>DeleteOrphanFilesSparkAction</code>'s constructor is duplicated in <code>ExpireSnapshotsSparkAction</code> and in <code>RemoveSnapshots</code> (Chapter 5.5 §5). Chapter 11.2 showed <code>SnapshotTableSparkAction.destTableProps</code> setting <code>gc.enabled=false</code>, because a snapshot table indexes the <em>source</em> table's data files. Setting it to <code>true</code> to make the error go away deletes the production source table's data. If a snapshot table has served its purpose, drop it.</p>
+<p>The <code>gc.enabled</code> <code>ValidationException.check</code> in <code>DeleteOrphanFilesSparkAction</code>'s constructor is duplicated in <code>ExpireSnapshotsSparkAction</code> and in <code>RemoveSnapshots</code> (<a href="../../part05_write_path/chapter_5.5_maintenance/">Chapter 5.5</a> §5). <a href="../chapter_11.2_importing_existing_tables/">Chapter 11.2</a> showed <code>SnapshotTableSparkAction.destTableProps</code> setting <code>gc.enabled=false</code>, because a snapshot table indexes the <em>source</em> table's data files. Setting it to <code>true</code> to make the error go away deletes the production source table's data. If a snapshot table has served its purpose, drop it.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Prefix mismatch defaults to failing the job, and <code>DELETE</code> mode is irreversible</p>
@@ -3875,7 +3868,7 @@
 <p class="admonition-title">Spark 4 differences</p>
 <p>The actions are effectively unchanged across v3.5, v4.0 and v4.1. The procedure classes in v4.x implement Spark 4's <code>BoundProcedure</code> API — <code>bind(StructType)</code> and <code>Iterator&lt;Scan&gt; call(…)</code> instead of <code>parameters()</code> / <code>outputType()</code> / <code>InternalRow[] call(…)</code> — and each declares a <code>static final String NAME</code>. Argument names, defaults, and every safety check quoted in this chapter are identical.</p>
 </div>
-<p><strong>Next:</strong> nothing — this is the last chapter. Every job here exists to protect one invariant from Chapter 3.4: the table is whatever its single catalog entry says it is, and a file is safe exactly as long as some retained snapshot can reach it. Compaction, expiry and orphan removal are three different ways of being careful about that, and the only one that can violate it is the one that never reads the catalog at all.</p>
+<p><strong>Next:</strong> nothing — this is the last chapter. Every job here exists to protect one invariant from <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a>: the table is whatever its single catalog entry says it is, and a file is safe exactly as long as some retained snapshot can reach it. Compaction, expiry and orphan removal are three different ways of being careful about that, and the only one that can violate it is the one that never reads the catalog at all.</p>
 
 
 
@@ -3913,7 +3906,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_11.4_merge_and_conflicts/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 11.4 `MERGE INTO`, row-level operations, and commit conflicts">
+          <a href="../chapter_11.4_merge_and_conflicts/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 11.4 MERGE INTO, row-level operations, and commit conflicts">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3923,7 +3916,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                11.4 `MERGE INTO`, row-level operations, and commit conflicts
+                11.4 MERGE INTO, row-level operations, and commit conflicts
               </div>
             </div>
           </a>

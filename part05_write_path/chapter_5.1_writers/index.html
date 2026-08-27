@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1712,7 +1712,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1740,7 +1740,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1906,7 +1906,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1934,7 +1934,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1962,7 +1962,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2130,7 +2130,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2158,7 +2158,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2186,7 +2186,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2326,7 +2326,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2354,7 +2354,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2548,7 +2548,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2742,7 +2742,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2938,7 +2938,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2966,7 +2966,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3022,7 +3022,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3288,12 +3288,12 @@
 
 <h1 id="chapter-51-the-writer-family-and-metrics-collection">Chapter 5.1 — The writer family and metrics collection<a class="headerlink" href="#chapter-51-the-writer-family-and-metrics-collection" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
-<p><strong>The question this chapter answers:</strong> between an engine handing Iceberg a row and a <code>DataFile</code> object appearing with column bounds inside it, which classes touch that row — and where do the bounds that Chapter 4.3 prunes on actually get computed?</p>
-<p><strong>Prerequisites:</strong> Chapter 2.4 (the manifest's <code>data_file</code> struct and its <code>lower_bounds</code> / <code>upper_bounds</code> maps), Chapter 4.3 (metrics pruning — this chapter is its other half)</p>
+<p><strong>The question this chapter answers:</strong> between an engine handing Iceberg a row and a <code>DataFile</code> object appearing with column bounds inside it, which classes touch that row — and where do the bounds that <a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a> prunes on actually get computed?</p>
+<p><strong>Prerequisites:</strong> <a href="../../part02_table_spec/chapter_2.4_manifest_file/">Chapter 2.4</a> (the manifest's <code>data_file</code> struct and its <code>lower_bounds</code> / <code>upper_bounds</code> maps), <a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a> (metrics pruning — this chapter is its other half)</p>
 <p><strong>Source covered:</strong> <code>core/.../io/FileWriter.java</code>, <code>core/.../io/RollingFileWriter.java</code>, <code>core/.../io/ClusteredWriter.java</code>, <code>core/.../io/DataWriter.java</code>, <code>core/.../MetricsConfig.java</code>, <code>parquet/.../ParquetMetrics.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p>Chapter 4.3 showed the read path throwing away entire files without opening them, on the strength of a few bytes in a manifest: <code>lower_bounds</code>, <code>upper_bounds</code>, <code>value_counts</code>, <code>null_value_counts</code>. That chapter treated those bytes as given.</p>
+<p><a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a> showed the read path throwing away entire files without opening them, on the strength of a few bytes in a manifest: <code>lower_bounds</code>, <code>upper_bounds</code>, <code>value_counts</code>, <code>null_value_counts</code>. That chapter treated those bytes as given.</p>
 <p>They are not given. Somebody wrote them, at write time, having made a decision about which columns deserved them. If that decision went the wrong way, the file has no bounds for the column you filter on, and nothing downstream can recover them — not a re-plan, not a rewrite of the manifest, not a hint. The pruning simply does not happen, and the query plan will not tell you why.</p>
 <p>So this chapter is the counterpart to 4.3. Half a mechanism lives there; the other half lives here, in the writer stack. And the writer stack has to solve three problems for every row, on behalf of every engine:</p>
 <ol>
@@ -3432,11 +3432,10 @@
 </span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="w">  </span><span class="n">R</span><span class="w"> </span><span class="nf">result</span><span class="p">();</span>
 </span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/FileWriter.java` L37–L71](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/FileWriter.java#L37-L71) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/FileWriter.java#L37-L71"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/io/FileWriter.java</code> L37–L71</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The interface is four methods, and the javadoc carries the whole point: as opposed to <code>FileAppender</code>, implementations "not only append records to files but actually produce <code>DataFile</code>s or <code>DeleteFile</code>s objects with Iceberg metadata."</p>
 <p>That is the boundary this chapter is about. A <code>FileAppender</code> knows Parquet; it does not know what a partition is. A <code>FileWriter</code> wraps one with "extra information such as spec, partition, sort order ID needed to construct <code>DataFile</code>s". One spec, one partition, one file — and a result object, not bytes.</p>
-<p>The generic result type <code>R</code> is why the same interface serves three purposes: <code>DataWriter</code> returns <code>DataWriteResult</code>, <code>EqualityDeleteWriter</code> and <code>PositionDeleteWriter</code> return <code>DeleteWriteResult</code>. Chapter 5.3 picks up the delete side.</p>
+<p>The generic result type <code>R</code> is why the same interface serves three purposes: <code>DataWriter</code> returns <code>DataWriteResult</code>, <code>EqualityDeleteWriter</code> and <code>PositionDeleteWriter</code> return <code>DeleteWriteResult</code>. <a href="../chapter_5.3_deletes/">Chapter 5.3</a> picks up the delete side.</p>
 <h2 id="4-the-size-axis">4. The size axis<a class="headerlink" href="#4-the-size-axis" title="Permanent link">&para;</a></h2>
 <p><code>RollingFileWriter</code> implements <code>FileWriter</code> by delegating to a <em>sequence</em> of <code>FileWriter</code>s, cutting a new one when the current file reaches the target size. The check is deliberately cheap:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RollingFileWriter.shouldRollToNewFile()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-103">103</a></span>
@@ -3445,8 +3444,7 @@
 </span><span id="__span-1-104"><a id="__codelineno-1-104" name="__codelineno-1-104"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">currentFileRows</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">ROWS_DIVISOR</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">currentWriter</span><span class="p">.</span><span class="na">length</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">targetFileSizeInBytes</span><span class="p">;</span>
 </span><span id="__span-1-105"><a id="__codelineno-1-105" name="__codelineno-1-105"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java` L103–L105](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java#L103-L105) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java#L103-L105"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java</code> L103–L105</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>ROWS_DIVISOR</code> is 1000. Asking a Parquet appender for its current length is not free — it has to account for buffered, uncompressed row-group state — so the size is <em>sampled</em> every thousand rows rather than checked per row. This is the first place <code>write.target-file-size-bytes</code> reveals itself as a target rather than a cap.</p>
 <p>The interesting method is the one that closes a file, because it has a branch that has nothing to do with rolling:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RollingFileWriter.closeCurrentWriter()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-123">123</a></span>
@@ -3507,10 +3505,9 @@
 </span><span id="__span-2-150"><a id="__codelineno-2-150" name="__codelineno-2-150"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-2-151"><a id="__codelineno-2-151" name="__codelineno-2-151"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java` L123–L151](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java#L123-L151) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java#L123-L151"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/io/RollingFileWriter.java</code> L123–L151</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>If <code>currentFileRows == 0</code>, the file is deleted instead of being added to the result. A zero-row data file is not wrong, exactly — it is a valid Parquet file with a valid footer — but it is a manifest entry that will be planned, opened and discarded forever after, for nothing. So it is removed.</p>
-<p>Note <em>how</em> it is removed: <code>Tasks.foreach(...).suppressFailureWhenFinished()</code>, with a comment saying the file "may not have been created or cannot be deleted, and it isn't worth failing the job to clean up". The same preference that Chapter 3.3 §6 established for commits shows up here in miniature — a leaked empty file is cheaper than a failed write job.</p>
+<p>Note <em>how</em> it is removed: <code>Tasks.foreach(...).suppressFailureWhenFinished()</code>, with a comment saying the file "may not have been created or cannot be deleted, and it isn't worth failing the job to clean up". The same preference that <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> §6 established for commits shows up here in miniature — a leaked empty file is cheaper than a failed write job.</p>
 <h2 id="5-the-routing-axis-clustered-or-fanout">5. The routing axis: clustered or fanout<a class="headerlink" href="#5-the-routing-axis-clustered-or-fanout" title="Permanent link">&para;</a></h2>
 <p><code>PartitioningWriter.write(row, spec, partition)</code> takes the partition as an argument, so the engine has already computed it. What remains is a bookkeeping question: how many files do you keep open at once?</p>
 <p>There are exactly two answers, and they are not preferences. <code>FanoutWriter</code> keeps a <code>Map&lt;Integer, StructLikeMap&lt;FileWriter&gt;&gt;</code> — every spec/partition pair it has ever seen stays open until close. <code>ClusteredWriter</code> keeps one:</p>
@@ -3596,8 +3593,7 @@
 </span><span id="__span-3-104"><a id="__codelineno-3-104" name="__codelineno-3-104"></a><span class="w">  </span><span class="n">currentWriter</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
 </span><span id="__span-3-105"><a id="__codelineno-3-105" name="__codelineno-3-105"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java` L65–L105](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java#L65-L105) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java#L65-L105"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/io/ClusteredWriter.java</code> L65–L105</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three things are happening here.</p>
 <p><strong>A spec change closes the current writer</strong> and clears the completed-partition set, because partitions are only comparable within a spec.</p>
 <p><strong>A partition change closes the current writer too</strong> — this is the memory guarantee. At most one file is open, so peak memory does not scale with partition cardinality.</p>
@@ -3641,12 +3637,11 @@
 </span><span id="__span-4-96"><a id="__codelineno-4-96" name="__codelineno-4-96"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-4-97"><a id="__codelineno-4-97" name="__codelineno-4-97"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/DataWriter.java` L80–L97](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/DataWriter.java#L80-L97) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/DataWriter.java#L80-L97"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/io/DataWriter.java</code> L80–L97</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Every field of the manifest entry is assembled here: format, path, partition, encryption key metadata, size, split offsets, sort order. And one line that this chapter exists for:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">.</span><span class="na">withMetrics</span><span class="p">(</span><span class="n">appender</span><span class="p">.</span><span class="na">metrics</span><span class="p">())</span>
 </span></code></pre></div>
-<p><code>appender.metrics()</code> is the appender's summary of what it just wrote — row count, per-column sizes, value counts, null counts, NaN counts, lower bounds, upper bounds. From here the <code>DataFile</code> travels into a manifest (Chapter 5.2), and from the manifest into <code>InclusiveMetricsEvaluator</code> (Chapter 4.3). <strong>Nothing between those two points can add a statistic that was not computed on this line.</strong></p>
+<p><code>appender.metrics()</code> is the appender's summary of what it just wrote — row count, per-column sizes, value counts, null counts, NaN counts, lower bounds, upper bounds. From here the <code>DataFile</code> travels into a manifest (<a href="../chapter_5.2_append_strategies/">Chapter 5.2</a>), and from the manifest into <code>InclusiveMetricsEvaluator</code> (<a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a>). <strong>Nothing between those two points can add a statistic that was not computed on this line.</strong></p>
 <h2 id="7-metricsconfig-deciding-what-to-collect-before-any-row-is-written">7. <code>MetricsConfig</code>: deciding what to collect, before any row is written<a class="headerlink" href="#7-metricsconfig-deciding-what-to-collect-before-any-row-is-written" title="Permanent link">&para;</a></h2>
 <p><code>Metrics</code> is not "everything the format knows". It is a filtered projection, and the filter is <code>MetricsConfig</code>, resolved from table properties, schema and sort order:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">MetricsConfig.from()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-226">226</a></span>
@@ -3737,8 +3732,7 @@
 </span><span id="__span-6-268"><a id="__codelineno-6-268" name="__codelineno-6-268"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MetricsConfig</span><span class="p">(</span><span class="n">columnModes</span><span class="p">,</span><span class="w"> </span><span class="n">defaultMode</span><span class="p">);</span>
 </span><span id="__span-6-269"><a id="__codelineno-6-269" name="__codelineno-6-269"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MetricsConfig.java` L226–L269](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetricsConfig.java#L226-L269) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetricsConfig.java#L226-L269"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/MetricsConfig.java</code> L226–L269</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Four decisions, in order:</p>
 <ol>
 <li><strong>A configured default wins.</strong> <code>write.metadata.metrics.default</code> — parsed into a <code>MetricsMode</code>: <code>none</code>, <code>counts</code>, <code>truncate(n)</code>, or <code>full</code>. The built-in default is <code>truncate(16)</code>.</li>
@@ -3805,8 +3799,7 @@
 </span><span id="__span-7-228"><a id="__codelineno-7-228" name="__codelineno-7-228"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">();</span>
 </span><span id="__span-7-229"><a id="__codelineno-7-229" name="__codelineno-7-229"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `parquet/src/main/java/org/apache/iceberg/parquet/ParquetMetrics.java` L202–L229](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/parquet/src/main/java/org/apache/iceberg/parquet/ParquetMetrics.java#L202-L229) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/parquet/src/main/java/org/apache/iceberg/parquet/ParquetMetrics.java#L202-L229"><code>apache/iceberg</code> · <code>parquet/src/main/java/org/apache/iceberg/parquet/ParquetMetrics.java</code> L202–L229</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The shape is: resolve the mode, convert it to a truncate length, then take the first available source of statistics.</p>
 <p><code>truncateLength(mode)</code> returns <code>0</code> for both <code>None</code> and <code>Counts</code>, and <code>Integer.MAX_VALUE</code> for <code>Full</code>. So the length is doing double duty — a length of zero means "counts only, no bounds", which is why <code>metricsFromFooter</code> branches to <code>counts(fieldId)</code> rather than <code>bounds(...)</code>.</p>
 <p>Mode <code>None</code> returns <code>ImmutableList.of()</code> before that: no entry at all. Not a null bound, not an empty one — the column is absent from <code>valueCounts</code>, <code>nullValueCounts</code>, <code>lowerBounds</code> and <code>upperBounds</code> entirely. It is also excluded from <code>columnSizes</code> in the enclosing <code>metrics()</code> method. A reader cannot distinguish "no metrics collected" from "no such column".</p>
@@ -3859,8 +3852,7 @@
 </span><span id="__span-8-115"><a id="__codelineno-8-115" name="__codelineno-8-115"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="c1">// Cannot find a valid upper bound</span>
 </span><span id="__span-8-116"><a id="__codelineno-8-116" name="__codelineno-8-116"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/util/UnicodeUtil.java` L93–L116](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/util/UnicodeUtil.java#L93-L116) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/util/UnicodeUtil.java#L93-L116"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/util/UnicodeUtil.java</code> L93–L116</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>It walks backwards through code points looking for one it can increment without overflow. If every position overflows, it returns <code>null</code> — and the upper bound is omitted from <code>Metrics</code> altogether, while the lower bound survives.</p>
 <p>This is the direction that matters for 4.3. A truncated lower bound is smaller than the true minimum; a truncated upper bound is larger than the true maximum. The stored range is always a <em>superset</em> of the real range, so <code>InclusiveMetricsEvaluator</code> may fail to prune a file it could have pruned, but never prunes one it should have kept. Correctness beat precision, and the truncation direction is where that decision is implemented.</p>
 <h2 id="9-gotchas">9. Gotchas<a class="headerlink" href="#9-gotchas" title="Permanent link">&para;</a></h2>
@@ -3884,7 +3876,7 @@
 <ul>
 <li>The writer stack composes two independent axes — rolling for file size, routing for spec/partition — over a single <code>FileWriter</code> contract whose job is to produce Iceberg metadata, not bytes.</li>
 <li>Clustered and fanout are a memory-versus-input-ordering trade, not a preference: clustered keeps one file open and throws when the input is unsorted; fanout keeps every seen partition open and scales memory with cardinality.</li>
-<li><code>DataWriter.close()</code> is where a <code>DataFile</code> comes into existence, and <code>withMetrics(appender.metrics())</code> is the single line that feeds Chapter 4.3's pruning.</li>
+<li><code>DataWriter.close()</code> is where a <code>DataFile</code> comes into existence, and <code>withMetrics(appender.metrics())</code> is the single line that feeds <a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a>'s pruning.</li>
 <li><code>MetricsConfig.from()</code> decides per-column modes before a row is written, and its wide-table fallback to <code>none</code> is the most consequential default in the write path.</li>
 <li>Bounds are truncated outward — lower down, upper up — so the stored range always contains the real one. When the upper bound cannot be incremented it is dropped rather than made wrong.</li>
 <li>A statistic not collected at write time cannot be recovered later. Metrics configuration is a permanent property of every file written under it.</li>
@@ -3940,7 +3932,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 5.2 takes the <code>DataFile</code> objects this chapter produced and asks how they get into manifests — where <code>FastAppend</code> and <code>MergeAppend</code> give opposite answers.</p>
+<p><strong>Next:</strong> <a href="../chapter_5.2_append_strategies/">Chapter 5.2</a> takes the <code>DataFile</code> objects this chapter produced and asks how they get into manifests — where <code>FastAppend</code> and <code>MergeAppend</code> give opposite answers.</p>
 
 
 
@@ -3995,13 +3987,13 @@
         
         
           
-          <a href="../chapter_5.2_append_strategies/" class="md-footer__link md-footer__link--next" aria-label="Next: 5.2 `FastAppend` vs `MergeAppend`">
+          <a href="../chapter_5.2_append_strategies/" class="md-footer__link md-footer__link--next" aria-label="Next: 5.2 FastAppend vs MergeAppend">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                5.2 `FastAppend` vs `MergeAppend`
+                5.2 FastAppend vs MergeAppend
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -29,7 +29,7 @@
     
     
       
-        <title>6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks - Iceberg & Nessie Internals</title>
+        <title>6.2 HadoopCatalog and HiveCatalog: where atomicity leaks - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+              6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1738,7 +1738,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1775,7 +1775,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1793,7 +1793,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1973,7 +1973,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2141,7 +2141,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2169,7 +2169,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2197,7 +2197,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2337,7 +2337,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2365,7 +2365,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2559,7 +2559,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2753,7 +2753,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2949,7 +2949,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2977,7 +2977,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3033,7 +3033,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3311,11 +3311,11 @@
 <h1 id="chapter-62-hadoopcatalog-and-hivecatalog-where-atomicity-leaks">Chapter 6.2 — <code>HadoopCatalog</code> and <code>HiveCatalog</code>: where atomicity leaks<a class="headerlink" href="#chapter-62-hadoopcatalog-and-hivecatalog-where-atomicity-leaks" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> each of these catalogs claims an atomic single-table commit — which mechanism provides it, and under exactly which conditions does that mechanism stop providing it?</p>
-<p><strong>Prerequisites:</strong> Chapter 3.4 (the commit protocol: CAS, retries), Chapter 6.1 (the <code>Catalog</code> SPI and <code>doCommit</code>)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> (the commit protocol: CAS, retries), <a href="../chapter_6.1_catalog_spi/">Chapter 6.1</a> (the <code>Catalog</code> SPI and <code>doCommit</code>)</p>
 <p><strong>Source covered:</strong> <code>core/.../hadoop/HadoopTableOperations.java</code>, <code>core/.../util/LockManagers.java</code>, <code>hive-metastore/.../HiveTableOperations.java</code>, <code>hive-metastore/.../HiveOperationsBase.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p>Chapter 6.1 left one method open: <code>doCommit(base, metadata)</code>, and Chapter 3.4 covered the protocol wrapped around it. This chapter asks the narrower question neither can answer: <strong>what actually performs the swap</strong>, for the two catalogs most Iceberg deployments started on. Only one of them has a <code>doCommit</code> to fill in — <code>HadoopTableOperations</code> implements <code>TableOperations</code> directly and rebuilds only the parts of that protocol it needs.</p>
+<p><a href="../chapter_6.1_catalog_spi/">Chapter 6.1</a> left one method open: <code>doCommit(base, metadata)</code>, and <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> covered the protocol wrapped around it. This chapter asks the narrower question neither can answer: <strong>what actually performs the swap</strong>, for the two catalogs most Iceberg deployments started on. Only one of them has a <code>doCommit</code> to fill in — <code>HadoopTableOperations</code> implements <code>TableOperations</code> directly and rebuilds only the parts of that protocol it needs.</p>
 <p>Neither answer is "Iceberg does". Both borrow atomicity from a component Iceberg does not own — a filesystem in one case, a metastore in the other — and both document the dependency, one in a javadoc and one in a config flag. <code>HadoopTableOperations</code> says it in its class javadoc's first line:</p>
 <blockquote>
 <p><em>TableOperations implementation for file systems that support atomic rename.</em></p>
@@ -3435,9 +3435,8 @@
 </span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">shouldRefresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 </span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java` L130–L172](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java#L130-L172) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>Two guards open it: a staleness check written <code>base != current.second()</code> — a third spelling of the comparison Chapter 3.4 read and section 7 makes again — and a no-op short circuit. Then four moves:</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java#L130-L172"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java</code> L130–L172</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Two guards open it: a staleness check written <code>base != current.second()</code> — a third spelling of the comparison <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> read and section 7 makes again — and a no-op short circuit. Then four moves:</p>
 <p><strong>Refuse to relocate, then write to a random name.</strong> Two <code>Preconditions</code> reject a metadata object whose <code>location()</code> differs from the base, and any table setting <code>write.metadata.path</code>: a path-based table <em>is</em> its path. The new metadata then goes to <code>&lt;uuid&gt;.metadata.json</code>, not its final name — nothing is claimed yet. <strong>Rename it.</strong> The comment on that line is the whole design:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// this rename operation is the atomic commit operation</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">renameToFinal</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="n">tempMetadataFile</span><span class="p">,</span><span class="w"> </span><span class="n">finalMetadataFile</span><span class="p">,</span><span class="w"> </span><span class="n">nextVersion</span><span class="p">);</span>
@@ -3541,12 +3540,11 @@
 </span><span id="__span-2-400"><a id="__codelineno-2-400" name="__codelineno-2-400"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-2-401"><a id="__codelineno-2-401" name="__codelineno-2-401"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java` L353–L401](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java#L353-L401) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java#L353-L401"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java</code> L353–L401</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three guards, doing three different jobs. <code>lockManager.acquire(dst, src)</code> serialises writers <em>if</em> a real lock manager is configured; section 6 covers what happens when one is not. <code>fs.exists(dst)</code> turns a lost race into a clean <code>CommitFailedException</code> naming the version that already exists — a courtesy, not a correctness mechanism, since another writer can land between check and rename. <code>if (!fs.rename(src, dst))</code> is the correctness mechanism: where rename fails when the destination exists, this is the compare-and-swap, and exactly one of N concurrent writers gets <code>true</code>. Everything the class guarantees rests on that line, which is why the javadoc states the requirement rather than assuming it.</p>
 <p>Three of the four failure paths call <code>tryDelete(src)</code> and attach any resulting exception with <code>addSuppressed</code>, so a losing writer cleans up its orphan without masking the real error. The fourth does not: when <code>lockManager.acquire</code> returns false the method throws <code>CommitFailedException</code> at <code>:363-366</code> with no <code>tryDelete</code>, and because that class extends <code>RuntimeException</code> the <code>catch (IOException e)</code> at <code>:388</code> never sees it — the <code>finally</code> only releases the lock. Losing the lock leaks the <code>&lt;uuid&gt;.metadata.json</code> written at <code>:155</code>.</p>
 <h2 id="4-what-hadoopcatalog-does-not-do">4. What <code>HadoopCatalog</code> does not do<a class="headerlink" href="#4-what-hadoopcatalog-does-not-do" title="Permanent link">&para;</a></h2>
-<p><code>HadoopCatalog</code>'s class javadoc is unusually direct about its limits — <em>"the <code>Catalog#renameTable</code> is not supported yet"</em>, and <em>"Note: The HadoopCatalog requires that the underlying file system supports atomic rename."</em> <code>renameTable</code> throws <code>UnsupportedOperationException("Cannot rename Hadoop tables")</code>, which is not an oversight: a path-based table's identity is its directory, and no single rename moves every file in it. <code>HadoopTableOperations</code> also never imports <code>CommitStateUnknownException</code>; <code>renameToFinal</code> converts every <code>IOException</code> into <code>CommitFailedException</code>, telling the caller <em>you lost, clean up your files</em>. Chapter 3.3 explained why that answer is dangerous when it is a guess — but on a filesystem that fails renames atomically it is not a guess, and the code claims nothing more.</p>
+<p><code>HadoopCatalog</code>'s class javadoc is unusually direct about its limits — <em>"the <code>Catalog#renameTable</code> is not supported yet"</em>, and <em>"Note: The HadoopCatalog requires that the underlying file system supports atomic rename."</em> <code>renameTable</code> throws <code>UnsupportedOperationException("Cannot rename Hadoop tables")</code>, which is not an oversight: a path-based table's identity is its directory, and no single rename moves every file in it. <code>HadoopTableOperations</code> also never imports <code>CommitStateUnknownException</code>; <code>renameToFinal</code> converts every <code>IOException</code> into <code>CommitFailedException</code>, telling the caller <em>you lost, clean up your files</em>. <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> explained why that answer is dangerous when it is a guess — but on a filesystem that fails renames atomically it is not a guess, and the code claims nothing more.</p>
 <h2 id="5-the-version-hint-is-a-hint">5. The version hint is a hint<a class="headerlink" href="#5-the-version-hint-is-a-hint" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">writeVersionHint() and findVersion()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-292">292</a></span>
 <span class="normal"><a href="#__codelineno-3-293">293</a></span>
@@ -3668,16 +3666,14 @@
 </span><span id="__span-3-350"><a id="__codelineno-3-350" name="__codelineno-3-350"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-351"><a id="__codelineno-3-351" name="__codelineno-3-351"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java` L292–L351](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java#L292-L351) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java#L292-L351"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/hadoop/HadoopTableOperations.java</code> L292–L351</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>writeVersionHint</code> writes a temp file, <strong>deletes</strong> <code>version-hint.text</code>, then renames the temp over it. A crash between the delete and the rename leaves no hint at all — and the method swallows <code>IOException</code> with <code>LOG.warn("Failed to update version hint")</code>, because the commit already happened and failing it now would be a lie.</p>
 <p><code>findVersion</code> makes that survivable. It reads the hint first; only when that throws does it list the metadata directory for names matching <code>v([^\.]*)\..*</code> and take the highest version <code>getMetadataFile</code> can resolve — correct, and on that path O(number of commits) in both directory entries and <code>getMetadataFile</code> calls. A missing <code>metadataRoot()</code> short-circuits to <code>0</code> first. And because the hint is written <em>after</em> the commit, a reader can legitimately see it pointing at version N while <code>v(N+1).metadata.json</code> already exists; <code>refresh()</code> walks forward with <code>getMetadataFile(ver + 1)</code> until it finds nothing.</p>
 <h2 id="6-the-default-lock-manager-is-not-a-lock">6. The default lock manager is not a lock<a class="headerlink" href="#6-the-default-lock-manager-is-not-a-lock" title="Permanent link">&para;</a></h2>
 <p><code>HadoopCatalog.initialize</code> sets up locking with one line:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">HadoopCatalog.initialize — the whole of its locking setup</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-120">120</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-120"><a id="__codelineno-4-120" name="__codelineno-4-120"></a><span class="k">this</span><span class="p">.</span><span class="na">lockManager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LockManagers</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">properties</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/hadoop/HadoopCatalog.java` L120–L120](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/hadoop/HadoopCatalog.java#L120-L120) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/hadoop/HadoopCatalog.java#L120-L120"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/hadoop/HadoopCatalog.java</code> L120–L120</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>LockManagers.from</code> returns a configured implementation when <code>lock-impl</code> is set, otherwise <code>defaultLockManager()</code> — a static <code>InMemoryLockManager</code> whose own javadoc says it <em>"uses an in-memory concurrent map for locking"</em> and <em>"should only be used for testing, or if the caller only needs locking within the same JVM during table commits"</em>.</p>
 <p>So by default <code>lockManager.acquire(dst, src)</code> serialises threads inside one JVM and does nothing across processes: two Spark drivers writing the same path-based table have only <code>fs.rename</code> between them. That is the honest summary of <code>HadoopCatalog</code> — on HDFS, correct; where rename overwrites the destination, an <code>exists</code> check and a JVM-local lock are all that is left.</p>
 <h2 id="7-hivetableoperations-compare-and-swap-on-a-table-property">7. <code>HiveTableOperations</code>: compare-and-swap on a table property<a class="headerlink" href="#7-hivetableoperations-compare-and-swap-on-a-table-property" title="Permanent link">&para;</a></h2>
@@ -3696,9 +3692,8 @@
 </span><span id="__span-5-309"><a id="__codelineno-5-309" name="__codelineno-5-309"></a><span class="w">      </span><span class="n">baseMetadataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">metadataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">database</span><span class="p">,</span><span class="w"> </span><span class="n">tableName</span><span class="p">);</span>
 </span><span id="__span-5-310"><a id="__codelineno-5-310" name="__codelineno-5-310"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java` L304–L310](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java#L304-L310) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>This runs against the freshly loaded HMS table, inside the lock — and it is <em>not</em> the check <code>BaseMetastoreTableOperations.commit</code> made in memory (Chapter 3.4 §3). That one is <code>base != current()</code>, object identity between two <code>TableMetadata</code> references; this one is <code>!Objects.equals(baseMetadataLocation, metadataLocation)</code> at <code>:306</code>, a string compared against a location read back out of the metastore. One asks "is this the object I refreshed from", the other "is the pointer still where I left it". The write half is where the locking modes diverge:</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java#L304-L310"><code>apache/iceberg</code> · <code>hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java</code> L304–L310</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>This runs against the freshly loaded HMS table, inside the lock — and it is <em>not</em> the check <code>BaseMetastoreTableOperations.commit</code> made in memory (<a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> §3). That one is <code>base != current()</code>, object identity between two <code>TableMetadata</code> references; this one is <code>!Objects.equals(baseMetadataLocation, metadataLocation)</code> at <code>:306</code>, a string compared against a location read back out of the metastore. One asks "is this the object I refreshed from", the other "is the pointer still where I left it". The write half is where the locking modes diverge:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The swap, and the proof that the lock was alive</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-345">345</a></span>
 <span class="normal"><a href="#__codelineno-6-346">346</a></span>
 <span class="normal"><a href="#__codelineno-6-347">347</a></span>
@@ -3733,8 +3728,7 @@
 </span><span id="__span-6-360"><a id="__codelineno-6-360" name="__codelineno-6-360"></a><span class="w">      </span><span class="n">le</span><span class="p">);</span>
 </span><span id="__span-6-361"><a id="__codelineno-6-361" name="__codelineno-6-361"></a><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">org</span><span class="p">.</span><span class="na">apache</span><span class="p">.</span><span class="na">hadoop</span><span class="p">.</span><span class="na">hive</span><span class="p">.</span><span class="na">metastore</span><span class="p">.</span><span class="na">api</span><span class="p">.</span><span class="na">AlreadyExistsException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java` L345–L361](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java#L345-L361) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java#L345-L361"><code>apache/iceberg</code> · <code>hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java</code> L345–L361</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>lock.ensureActive()</code> is called before <em>and</em> after <code>persistTable</code>, throwing if the heartbeat thread died — the only way this code learns its lock expired while the alter was in flight. The ternary <code>hiveLockEnabled(base, conf) ? null : baseMetadataLocation</code> then decides whether the metastore compares as well: null with locking on, and with locking off the base location goes down as an environment context:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The lock-free path: ask the HMS to compare-and-swap</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-93"> 93</a></span>
 <span class="normal"><a href="#__codelineno-7-94"> 94</a></span>
@@ -3754,15 +3748,14 @@
 </span><span id="__span-7-100"><a id="__codelineno-7-100" name="__codelineno-7-100"></a><span class="w">          </span><span class="n">metadataLocation</span><span class="p">);</span>
 </span><span id="__span-7-101"><a id="__codelineno-7-101" name="__codelineno-7-101"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `hive-metastore/src/main/java/org/apache/iceberg/hive/HiveOperationsBase.java` L93–L101](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveOperationsBase.java#L93-L101) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveOperationsBase.java#L93-L101"><code>apache/iceberg</code> · <code>hive-metastore/src/main/java/org/apache/iceberg/hive/HiveOperationsBase.java</code> L93–L101</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>expected_parameter_key</code> / <code>expected_parameter_value</code> is the HMS-side CAS added by HIVE-26882: the metastore applies the <code>alter_table</code> only if <code>metadata_location</code> still holds the expected value. <code>NoLock</code>'s constructor enforces the prerequisite — <em>"Minimally Hive 2 HMS client is needed to use HIVE-26882 based locking"</em>. A <code>LockException</code> raised by <code>ensureActive</code> around <code>persistTable</code> becomes <code>CommitStateUnknownException</code>; the outer catch at <code>:422-423</code>, for a failure to <em>acquire</em> the lock, raises <code>CommitFailedException</code> instead. The first names the risk:</p>
 <blockquote>
 <p><em>Failed to heartbeat for hive lock while committing changes. This can lead to a concurrent
 commit attempt be able to overwrite this commit. Please check the commit history. If you are
 running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</em></p>
 </blockquote>
-<p>A dead heartbeat is not a failed commit. The alter may well have landed, so the code escalates to a human rather than guessing — and <code>cleanupMetadata</code> deletes the new metadata file only when <code>commitStatus</code> is literally <code>FAILURE</code>, never on <code>UNKNOWN</code>. The compare above ran before the alter; the HMS runs its own after it, and a rejected conditional <code>alter_table</code> is where Chapter 3.4's two status checks are chosen between:</p>
+<p>A dead heartbeat is not a failed commit. The alter may well have landed, so the code escalates to a human rather than guessing — and <code>cleanupMetadata</code> deletes the new metadata file only when <code>commitStatus</code> is literally <code>FAILURE</code>, never on <code>UNKNOWN</code>. The compare above ran before the alter; the HMS runs its own after it, and a rejected conditional <code>alter_table</code> is where <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a>'s two status checks are chosen between:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the reconciliation: which status check, and the three ways out</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-380">380</a></span>
 <span class="normal"><a href="#__codelineno-8-381">381</a></span>
 <span class="normal"><a href="#__codelineno-8-382">382</a></span>
@@ -3829,11 +3822,10 @@ running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</
 </span><span id="__span-8-411"><a id="__codelineno-8-411" name="__codelineno-8-411"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CommitStateUnknownException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
 </span><span id="__span-8-412"><a id="__codelineno-8-412" name="__codelineno-8-412"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java` L380–L412](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java#L380-L412) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java#L380-L412"><code>apache/iceberg</code> · <code>hive-metastore/src/main/java/org/apache/iceberg/hive/HiveTableOperations.java</code> L380–L412</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The routing is a string match. A metastore that refuses the CAS says <em>"The table has been modified. The parameter value for key 'metadata_location' is"</em>, and that refusal proves no request still in flight can succeed later — exactly the precondition <code>checkCommitStatusStrict</code> needs, so it is taken at <code>:391</code>; anything unclassifiable gets the lenient <code>checkCommitStatus</code> at <code>:402</code>. <code>commitStatus</code> is seeded <code>UNKNOWN</code> at <code>:380</code>, so a check that cannot run leaves the honest answer standing. A strict <code>FAILURE</code> is dealt with on the spot at <code>:392-395</code>, as a <code>CommitFailedException</code> named for concurrent modification — it never reaches the <code>switch</code> below. So reconciliation has three ends, but the <code>switch</code> decides only two: <code>SUCCESS</code> swallows the exception, because the check proved the commit landed, and <code>UNKNOWN</code> becomes <code>CommitStateUnknownException</code>. Its third arm, <code>case FAILURE: throw e;</code>, is unreachable from here — strict's <code>FAILURE</code> has already thrown, and the lenient wrapper downgrades that same verdict before returning, as its javadoc says: <em>"@return Commit Status of Success or Unknown"</em>.</p>
 <h2 id="8-jdbccatalog-a-real-cas-that-throws-away-the-answer">8. <code>JdbcCatalog</code>: a real CAS that throws away the answer<a class="headerlink" href="#8-jdbccatalog-a-real-cas-that-throws-away-the-answer" title="Permanent link">&para;</a></h2>
-<p>Chapter 3.4 named a third shape in passing — a catalog whose swap is <code>UPDATE … WHERE metadata_location = ?</code>, deciding by row count. It is worth half a section, because it is the one of the three that gets the compare-and-swap unambiguously right and still ends up weaker than Hive on the axis this chapter cares about.</p>
+<p><a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> named a third shape in passing — a catalog whose swap is <code>UPDATE … WHERE metadata_location = ?</code>, deciding by row count. It is worth half a section, because it is the one of the three that gets the compare-and-swap unambiguously right and still ends up weaker than Hive on the axis this chapter cares about.</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">JdbcTableOperations.doCommit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-102">102</a></span>
 <span class="normal"><a href="#__codelineno-9-103">103</a></span>
 <span class="normal"><a href="#__codelineno-9-104">104</a></span>
@@ -3920,12 +3912,11 @@ running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</
 </span><span id="__span-9-143"><a id="__codelineno-9-143" name="__codelineno-9-143"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-9-144"><a id="__codelineno-9-144" name="__codelineno-9-144"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/jdbc/JdbcTableOperations.java` L102–L144](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/jdbc/JdbcTableOperations.java#L102-L144) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/jdbc/JdbcTableOperations.java#L102-L144"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/jdbc/JdbcTableOperations.java</code> L102–L144</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The swap is <code>updateTable(newMetadataLocation, oldMetadataLocation)</code>, and its whole verdict is two lines: <code>if (updatedRecords == 1)</code> it committed, otherwise <code>throw new CommitFailedException("Failed to update table %s from catalog %s", …)</code>. A relational <code>UPDATE</code> with the old location in its <code>WHERE</code> clause is a genuine conditional write — no lock, no borrowed filesystem semantics, and the database's own row count is the proof. On this axis JDBC is cleaner than either catalog above it.</p>
 <p>Now read the <code>catch</code> blocks, because that is where it diverges. There are seven, and <strong>not one of them produces a <code>CommitStatus</code></strong>. <code>SQLTimeoutException</code> becomes <code>UncheckedSQLException(e, "Database Connection timeout")</code>. <code>SQLTransientConnectionException</code> and <code>SQLNonTransientConnectionException</code> become <em>"Database Connection failed"</em>. A constraint violation becomes <code>AlreadyExistsException</code> or another <code>UncheckedSQLException</code> depending on whether <code>currentMetadataLocation()</code> is null. Everything unclassified becomes <em>"Unknown failure"</em>.</p>
-<p>Line those up against Chapter 3.4's three-valued enum and the gap is exact. A timeout on the <code>UPDATE</code> is precisely the indeterminate case: the statement may have committed and the answer may have been lost on the way back. <code>DynamoDbTableOperations</code> calls <code>checkCommitStatus</code> there; <code>HiveTableOperations</code> picks between the strict and lenient variants by classifying the failure. <code>JdbcTableOperations</code> throws an exception that is neither <code>CommitFailedException</code> — so Chapter 3.3's loop will not retry it — nor <code>CommitStateUnknownException</code> — so nothing tells the caller that the commit may have landed.</p>
-<p>The practical shape of that is worth following to the end, because it lands somewhere better than it deserves to. <code>UncheckedSQLException</code> is a plain <code>RuntimeException</code> — it does not implement <code>CleanableFailure</code>. Chapter 3.3's handler cleans up only under <code>!strictCleanup || e instanceof CleanableFailure</code>, and <code>TableOperations.requireStrictCleanup()</code> defaults to <code>true</code>. So neither clause holds, <code>cleanAll</code> does not run, and the attempt's manifests and manifest list stay on storage.</p>
+<p>Line those up against <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a>'s three-valued enum and the gap is exact. A timeout on the <code>UPDATE</code> is precisely the indeterminate case: the statement may have committed and the answer may have been lost on the way back. <code>DynamoDbTableOperations</code> calls <code>checkCommitStatus</code> there; <code>HiveTableOperations</code> picks between the strict and lenient variants by classifying the failure. <code>JdbcTableOperations</code> throws an exception that is neither <code>CommitFailedException</code> — so <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>'s loop will not retry it — nor <code>CommitStateUnknownException</code> — so nothing tells the caller that the commit may have landed.</p>
+<p>The practical shape of that is worth following to the end, because it lands somewhere better than it deserves to. <code>UncheckedSQLException</code> is a plain <code>RuntimeException</code> — it does not implement <code>CleanableFailure</code>. <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>'s handler cleans up only under <code>!strictCleanup || e instanceof CleanableFailure</code>, and <code>TableOperations.requireStrictCleanup()</code> defaults to <code>true</code>. So neither clause holds, <code>cleanAll</code> does not run, and the attempt's manifests and manifest list stay on storage.</p>
 <p>That is the correct outcome — it is what <code>CommitStateUnknownException</code> exists to produce — reached without anyone deciding to produce it. The exception type says "database error", the cleanup rule happens to read it as "do not touch anything", and the two agree by coincidence rather than by design. What is genuinely missing is the other half: nothing tells the caller the commit may have landed, so nobody knows to go and look.</p>
 <h2 id="9-the-audit">9. The audit<a class="headerlink" href="#9-the-audit" title="Permanent link">&para;</a></h2>
 <table>
@@ -3970,7 +3961,7 @@ running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</
 </tr>
 </tbody>
 </table>
-<p>Read the fourth row across. All three have a defensible answer to "did I win the race"; only one has an answer to "did anything happen at all". That is the axis Chapter 3.4 built the three-valued enum for, and two of the three catalogs most deployments start on decline to use it.</p>
+<p>Read the fourth row across. All three have a defensible answer to "did I win the race"; only one has an answer to "did anything happen at all". That is the axis <a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> built the three-valued enum for, and two of the three catalogs most deployments start on decline to use it.</p>
 <h2 id="10-gotchas">10. Gotchas<a class="headerlink" href="#10-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">The default <code>LockManager</code> only locks within one JVM</p>
@@ -4039,7 +4030,7 @@ running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 6.3 takes the swap away from storage entirely and puts it behind an HTTP endpoint — which changes what a commit request even contains.</p>
+<p><strong>Next:</strong> <a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a> takes the swap away from storage entirely and puts it behind an HTTP endpoint — which changes what a commit request even contains.</p>
 
 
 
@@ -4077,7 +4068,7 @@ running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_6.1_catalog_spi/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 6.1 The `Catalog` SPI">
+          <a href="../chapter_6.1_catalog_spi/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 6.1 The Catalog SPI">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4087,20 +4078,20 @@ running into this issue, try reducing iceberg.hive.lock-heartbeat-interval-ms.</
                 Previous
               </span>
               <div class="md-ellipsis">
-                6.1 The `Catalog` SPI
+                6.1 The Catalog SPI
               </div>
             </div>
           </a>
         
         
           
-          <a href="../chapter_6.3_rest_catalog/" class="md-footer__link md-footer__link--next" aria-label="Next: 6.3 The REST Catalog spec and `RESTSessionCatalog`">
+          <a href="../chapter_6.3_rest_catalog/" class="md-footer__link md-footer__link--next" aria-label="Next: 6.3 The REST Catalog spec and RESTSessionCatalog">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                6.3 The REST Catalog spec and `RESTSessionCatalog`
+                6.3 The REST Catalog spec and RESTSessionCatalog
               </div>
             </div>
             <div class="md-footer__button md-icon">

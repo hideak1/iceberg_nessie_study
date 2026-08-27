@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1292,7 +1292,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1320,7 +1320,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1348,7 +1348,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1701,7 +1701,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1729,7 +1729,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1895,7 +1895,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1923,7 +1923,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1951,7 +1951,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2119,7 +2119,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2147,7 +2147,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2175,7 +2175,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2315,7 +2315,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2343,7 +2343,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2537,7 +2537,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2731,7 +2731,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2927,7 +2927,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3011,7 +3011,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3267,12 +3267,12 @@
 <h1 id="chapter-44-residual-expressions-and-implicit-partition-filtering">Chapter 4.4 — Residual expressions and implicit partition filtering<a class="headerlink" href="#chapter-44-residual-expressions-and-implicit-partition-filtering" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> once planning has decided a file belongs in the scan, what is left of the filter — and why does Iceberg hand the engine a <em>different, weaker</em> expression than the one the user wrote?</p>
-<p><strong>Prerequisites:</strong> Chapter 4.2 (inclusive projection and the transform API), Chapter 4.3 (why a surviving file may still contain no matching rows)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> (inclusive projection and the transform API), <a href="../chapter_4.3_file_pruning/">Chapter 4.3</a> (why a surviving file may still contain no matching rows)</p>
 <p><strong>Source covered:</strong> <code>api/.../expressions/ResidualEvaluator.java</code>, <code>core/.../ManifestGroup.java</code>, <code>core/.../BaseContentScanTask.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
 <p>Three pruning stages are done. What remains is a set of files, each of which <em>may</em> contain matching rows, and a filter that still has to be applied to every row the engine reads. That last part is where the waste is.</p>
-<p>Take a table partitioned by <code>day(ts)</code>, one file per day, read with <code>ts &gt;= '2024-03-01 06:00' AND ts &lt;= '2024-03-31 18:00'</code>. The inclusive projection from Chapter 4.2 turns that into <code>ts_day &gt;= 2024-03-01 AND ts_day &lt;= 2024-03-31</code>, and planning selects thirty-one files. For twenty-nine of them — every day strictly inside the range — <em>both</em> predicates are already known to be true for every row, because the file's partition value says so. Evaluating <code>ts &gt;= '2024-03-01 06:00'</code> against a hundred million rows to learn something the planner established from one date is not a small inefficiency. It also forces the reader to materialise <code>ts</code> at all, even for a query that never selects it.</p>
+<p>Take a table partitioned by <code>day(ts)</code>, one file per day, read with <code>ts &gt;= '2024-03-01 06:00' AND ts &lt;= '2024-03-31 18:00'</code>. The inclusive projection from <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> turns that into <code>ts_day &gt;= 2024-03-01 AND ts_day &lt;= 2024-03-31</code>, and planning selects thirty-one files. For twenty-nine of them — every day strictly inside the range — <em>both</em> predicates are already known to be true for every row, because the file's partition value says so. Evaluating <code>ts &gt;= '2024-03-01 06:00'</code> against a hundred million rows to learn something the planner established from one date is not a small inefficiency. It also forces the reader to materialise <code>ts</code> at all, even for a query that never selects it.</p>
 <p>The fix has a name: the <strong>residual</strong>. Partially evaluate the filter against the file's partition tuple, and hand the engine only what is left undecided.</p>
 <p>This is the payoff of the whole part. "Implicit partition filtering" — the property that makes partitioned Iceberg tables fast without users writing partition predicates by hand — is not a claim about the query optimiser. It is this: the partition predicate is <em>removed from the expression</em> before the reader ever sees it.</p>
 <h2 id="2-what-a-residual-is">2. What a residual is<a class="headerlink" href="#2-what-a-residual-is" title="Permanent link">&para;</a></h2>
@@ -3317,8 +3317,7 @@
 </span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="cm"> * &lt;p&gt;This class is thread-safe.</span>
 </span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="cm"> */</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/expressions/ResidualEvaluator.java` L32–L51](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ResidualEvaluator.java#L32-L51) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ResidualEvaluator.java#L32-L51"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/expressions/ResidualEvaluator.java</code> L32–L51</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Four cases for one filter, depending on where the partition value <code>d</code> sits. Filling in the section 1 scan — <code>a = 2024-03-01 06:00</code>, <code>b = 2024-03-31 18:00</code>:</p>
 <table>
 <thead>
@@ -3488,15 +3487,14 @@
 </span><span id="__span-1-287"><a id="__codelineno-1-287" name="__codelineno-1-287"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">pred</span><span class="p">;</span>
 </span><span id="__span-1-288"><a id="__codelineno-1-288" name="__codelineno-1-288"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/expressions/ResidualEvaluator.java` L225–L288](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ResidualEvaluator.java#L225-L288) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ResidualEvaluator.java#L225-L288"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/expressions/ResidualEvaluator.java</code> L225–L288</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The comment at the top is the whole method, stated before it is implemented:</p>
 <blockquote>
 <p><em>The strict projection returns true iff the original predicate would have returned true, so the predicate can be eliminated if the strict projection evaluates to true. Similarly the inclusive projection returns false iff the original predicate would have returned false, so the predicate can also be eliminated if the inclusive projection evaluates to false.</em></p>
 </blockquote>
-<p>Both projections from Chapter 4.2 appear here, used in opposite directions:</p>
+<p>Both projections from <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> appear here, used in opposite directions:</p>
 <p><strong>The non-partition column.</strong> <code>spec.getFieldsBySourceId(pred.ref().fieldId())</code> asks whether the predicate's column is the source of any partition field. If it is not, the method returns <code>pred</code> unchanged — a predicate on a non-partition column cannot be simplified by a partition value, so it survives intact.</p>
-<p>The <code>if (parts == null)</code> guard on the next line looks like the code that does this, and the comment beside it reads like a confession that it does: <em>"not associated inclusive a partition field, can't be evaluated"</em> (the mangled wording is upstream's). It is dead code. As Chapter 4.2 established for the identical guard in <code>Projections.InclusiveProjection</code>, <code>getFieldsBySourceId</code> delegates to a Guava <code>ListMultimap</code>, whose <code>get</code> returns an empty list rather than <code>null</code> for a column that partitions nothing. The list is empty, the guard does not fire, the <code>for</code> loop body never executes, and control falls to the last line of the method — <code>return pred</code>, under the comment <em>"neither strict not inclusive predicate was conclusive"</em>. Right answer, different route. Both classes are worth reading with that in mind: the branch that looks like the explanation is unreachable in both, and in both the real mechanism is what the loop does when it has nothing to iterate over.</p>
+<p>The <code>if (parts == null)</code> guard on the next line looks like the code that does this, and the comment beside it reads like a confession that it does: <em>"not associated inclusive a partition field, can't be evaluated"</em> (the mangled wording is upstream's). It is dead code. As <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> established for the identical guard in <code>Projections.InclusiveProjection</code>, <code>getFieldsBySourceId</code> delegates to a Guava <code>ListMultimap</code>, whose <code>get</code> returns an empty list rather than <code>null</code> for a column that partitions nothing. The list is empty, the guard does not fire, the <code>for</code> loop body never executes, and control falls to the last line of the method — <code>return pred</code>, under the comment <em>"neither strict not inclusive predicate was conclusive"</em>. Right answer, different route. Both classes are worth reading with that in mind: the branch that looks like the explanation is unreachable in both, and in both the real mechanism is what the loop does when it has nothing to iterate over.</p>
 <p><strong>Strict.</strong> <code>part.transform().projectStrict(part.name(), pred)</code>, bound to <code>spec.partitionType()</code>, then evaluated by <code>super.predicate(...)</code> — which dispatches through <code>BoundExpressionVisitor</code> to the <code>lt</code>/<code>gt</code>/<code>eq</code>/… overloads on <code>ResidualVisitor</code> itself. Each of those is a single comparison that returns <code>alwaysTrue()</code> or <code>alwaysFalse()</code>, obtained by reading the reference out of the struct the visitor is holding. That struct is <em>this file's partition tuple</em>, so the projected predicate is evaluated against a concrete value, not an interval. If the result is <code>Operation.TRUE</code>, the strict guarantee says every row in this partition satisfies the original predicate, so it is discharged: <code>return Expressions.alwaysTrue()</code>.</p>
 <p><strong>Inclusive.</strong> Same shape, <code>project</code> instead of <code>projectStrict</code>. If it evaluates to <code>Operation.FALSE</code>, the inclusive guarantee says no row here can match, so <code>return Expressions.alwaysFalse()</code> — and the residual for the whole file collapses.</p>
 <p><strong>Neither.</strong> <code>return pred</code>. The partition value is compatible with the predicate but does not settle it, so the engine still has to check it per row.</p>
@@ -3558,8 +3556,7 @@
 </span><span id="__span-2-106"><a id="__codelineno-2-106" name="__codelineno-2-106"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-2-107"><a id="__codelineno-2-107" name="__codelineno-2-107"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/transforms/ProjectionUtil.java` L86–L107](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/transforms/ProjectionUtil.java#L86-L107) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/transforms/ProjectionUtil.java#L86-L107"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/transforms/ProjectionUtil.java</code> L86–L107</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read the two closed cases as the questions they answer. For <code>ts &gt;= X</code>, the strict projection has to name the days in which <em>every</em> timestamp satisfies <code>ts &gt;= X</code>. The obvious candidate, <code>ts_day &gt;= day(X)</code>, is wrong: the day containing <code>X</code> also contains the hours before it. So <code>GT_EQ</code> becomes <code>GT</code> against <code>transform.apply(boundary - 1L)</code> — strictly after the last day that could hold a value below <code>X</code>. <code>LT_EQ</code> is the mirror image, <code>LT</code> against <code>transform.apply(boundary + 1L)</code>. The literal that comes out is an <code>int</code> day ordinal; the dates below are how <code>day</code> renders one.</p>
 <p>Substitute the section 1 filter. With <code>a = 2024-03-01 06:00</code>, one microsecond earlier is still 2024-03-01, so the strict projection is <code>ts_day &gt; 2024-03-01</code> — false at the file whose partition value <em>is</em> 2024-03-01. The predicate is not discharged there, the inclusive projection <code>ts_day &gt;= 2024-03-01</code> is not false either, and <code>pred</code> survives into the residual. From 2024-03-02 onward the same expression is true and <code>ts &gt;= a</code> disappears. The upper bound behaves symmetrically: <code>ts_day &lt; 2024-03-31</code> is true everywhere except the last file.</p>
 <p>The <code>- 1L</code> is also why a <em>day-aligned</em> literal behaves completely differently. With <code>a = 2024-03-01 00:00</code>, one microsecond earlier falls into 2024-02-29, the strict projection becomes <code>ts_day &gt; 2024-02-29</code>, and that <strong>is</strong> true at 2024-03-01 — every timestamp in that day is at or after midnight, which is exactly what the predicate asks. The boundary file is discharged along with the interior ones. Pair it with a half-open upper bound, <code>ts &lt; '2024-04-01'</code>, whose strict projection is <code>ts_day &lt; 2024-04-01</code>, and all thirty-one files come back with <code>alwaysTrue()</code>: the reader evaluates no predicate at all, on any file, for the whole scan.</p>
@@ -3648,9 +3645,8 @@
 </span><span id="__span-3-220"><a id="__codelineno-3-220" name="__codelineno-3-220"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-221"><a id="__codelineno-3-221" name="__codelineno-3-221"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestGroup.java` L181–L221](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestGroup.java#L181-L221) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>The first statement in <code>plan()</code> builds the residual cache — lazily, so no evaluator exists until a manifest of that spec turns up (the statement immediately after it is the eager <code>DeleteFileIndex</code> build from Chapter 4.1):</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestGroup.java#L181-L221"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestGroup.java</code> L181–L221</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>The first statement in <code>plan()</code> builds the residual cache — lazily, so no evaluator exists until a manifest of that spec turns up (the statement immediately after it is the eager <code>DeleteFileIndex</code> build from <a href="../chapter_4.1_table_scan/">Chapter 4.1</a>):</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">LoadingCache</span><span class="o">&lt;</span><span class="n">Integer</span><span class="p">,</span><span class="w"> </span><span class="n">ResidualEvaluator</span><span class="o">&gt;</span><span class="w"> </span><span class="n">residualCache</span><span class="w"> </span><span class="o">=</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">Caffeine</span><span class="p">.</span><span class="na">newBuilder</span><span class="p">()</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">(</span>
@@ -3664,7 +3660,7 @@
 <p><code>ignoreResiduals</code> appears right here as a ternary. When set, the evaluator is built over <code>alwaysTrue()</code>, so every residual it produces is trivially true. Gotcha 2 covers what that is for and how it goes wrong.</p>
 <p><code>ResidualEvaluator.of</code> has one branch worth knowing: when <code>spec.fields()</code> is empty it returns an <code>UnpartitionedResidualEvaluator</code>, whose <code>residualFor</code> ignores its argument and returns the expression unchanged. Unpartitioned tables get the full filter as their residual, which is correct — there is no partition value to simplify against.</p>
 <p>The distributed scan reaches the same place by a slightly different road, and the difference is instructive. <code>BaseDistributedDataScan.toFileTasks</code> calls <code>specCache(this::newResidualEvaluator)</code>, which walks <code>table().specs()</code> and builds an evaluator for <em>every</em> spec the table has ever had, eagerly, into a plain <code>HashMap</code> — there is no lazy cache to consult from a worker, and the map has to be complete before tasks are handed out. <code>newResidualEvaluator</code> is one line, <code>ResidualEvaluator.of(spec, residualFilter(), isCaseSensitive())</code>, and <code>BaseScan.residualFilter()</code> is where the <code>ignoreResiduals</code> ternary actually lives: <code>shouldIgnoreResiduals() ? Expressions.alwaysTrue() : filter()</code>. <code>ManifestGroup</code> open-codes the same expression rather than calling it.</p>
-<p>The residual evaluator is then folded into a <code>TaskContext</code> alongside the serialised schema and spec, one per spec ID, and <code>createFileScanTasks</code> passes <code>ctx.residuals()</code> into every <code>BaseFileScanTask</code> it constructs. Note also the two lines above the task-context cache: if the delete index contains equality deletes, <code>select(ManifestReader.withStatsColumns(columns))</code> forces the statistics back into the projection — equality-delete matching needs bounds, the same way Chapter 4.3's evaluator does.</p>
+<p>The residual evaluator is then folded into a <code>TaskContext</code> alongside the serialised schema and spec, one per spec ID, and <code>createFileScanTasks</code> passes <code>ctx.residuals()</code> into every <code>BaseFileScanTask</code> it constructs. Note also the two lines above the task-context cache: if the delete index contains equality deletes, <code>select(ManifestReader.withStatsColumns(columns))</code> forces the statistics back into the projection — equality-delete matching needs bounds, the same way <a href="../chapter_4.3_file_pruning/">Chapter 4.3</a>'s evaluator does.</p>
 <h2 id="6-where-residuals-are-evaluated">6. Where residuals are evaluated<a class="headerlink" href="#6-where-residuals-are-evaluated" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseContentScanTask.residual()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-89">89</a></span>
 <span class="normal"><a href="#__codelineno-5-90">90</a></span>
@@ -3674,11 +3670,10 @@
 </span><span id="__span-5-91"><a id="__codelineno-5-91" name="__codelineno-5-91"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">residuals</span><span class="p">.</span><span class="na">residualFor</span><span class="p">(</span><span class="n">file</span><span class="p">.</span><span class="na">partition</span><span class="p">());</span>
 </span><span id="__span-5-92"><a id="__codelineno-5-92" name="__codelineno-5-92"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseContentScanTask.java` L89–L92](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseContentScanTask.java#L89-L92) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseContentScanTask.java#L89-L92"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseContentScanTask.java</code> L89–L92</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>One line. <code>residuals</code> is the shared per-spec evaluator; <code>file.partition()</code> is this file's tuple. Nothing is cached — every call constructs a fresh <code>ResidualVisitor</code> and walks the expression again.</p>
 <p>That is a defensible choice: the result depends on the file, planning may produce millions of tasks, and most callers ask once. It becomes a problem only in the case Gotcha 3 describes.</p>
-<p>Splits preserve it. <code>BaseFileScanTask.SplitScanTask.residual()</code> delegates straight to its parent task, so cutting a file into row-group-aligned pieces (Chapter 4.5) does not change what the reader must check.</p>
+<p>Splits preserve it. <code>BaseFileScanTask.SplitScanTask.residual()</code> delegates straight to its parent task, so cutting a file into row-group-aligned pieces (<a href="../chapter_4.5_split_planning/">Chapter 4.5</a>) does not change what the reader must check.</p>
 <h2 id="7-who-consumes-it">7. Who consumes it<a class="headerlink" href="#7-who-consumes-it" title="Permanent link">&para;</a></h2>
 <p>The residual is only worth computing if engines use it, and they do, at the point where a file reader is constructed.</p>
 <p>Spark's <code>RowDataReader.open</code> passes <code>task.residual()</code> — not the scan's filter — as the filter argument when it builds the underlying file iterable, and that becomes the Parquet or ORC reader's row filter. <code>BatchDataReader</code> does the same for vectorised reads. Flink's <code>RowDataFileScanTaskReader</code> calls <code>.filter(task.residual())</code> on the iterable it builds.</p>
@@ -3686,7 +3681,7 @@
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Pruning is inclusive, so applying the residual is not optional</p>
-<p>Chapters 4.2 and 4.3 admit false positives by design — a file can survive all three stages and contain no matching row. An engine that trusts planning and skips <code>task.residual()</code> returns wrong results. An engine that ignores the residual and applies the original scan filter instead is correct, but re-does work the planner already discharged and loses the entire optimisation in this chapter.</p>
+<p>Chapters <a href="../chapter_4.2_manifest_pruning/">4.2</a> and <a href="../chapter_4.3_file_pruning/">4.3</a> admit false positives by design — a file can survive all three stages and contain no matching row. An engine that trusts planning and skips <code>task.residual()</code> returns wrong results. An engine that ignores the residual and applies the original scan filter instead is correct, but re-does work the planner already discharged and loses the entire optimisation in this chapter.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title"><code>ignoreResiduals()</code> silently disarms row filtering for whoever reads the tasks</p>
@@ -3702,16 +3697,16 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">The <code>alwaysFalse()</code> branch cannot fire inside a data scan</p>
-<p>A file whose partition tuple makes the inclusive projection false never reaches a task. <code>ManifestReader.evaluator()</code> builds <code>new Evaluator(spec.partitionType(), and(partitionFilter, Projections.inclusive(spec, caseSensitive).project(rowFilter)))</code> — the same projection, the same spec, the same tuple — and stage two of the funnel applies it per manifest entry (Chapter 4.3, section 6). So by the time <code>residual()</code> runs, the file has already passed the test that branch exists to fail. It is not dead code: <code>ResidualEvaluator.of</code> is public API, and a caller that evaluates a filter the file list was not pruned with can reach it. Within <code>planFiles()</code>, it is a safety net over an invariant stage two already enforces.</p>
+<p>A file whose partition tuple makes the inclusive projection false never reaches a task. <code>ManifestReader.evaluator()</code> builds <code>new Evaluator(spec.partitionType(), and(partitionFilter, Projections.inclusive(spec, caseSensitive).project(rowFilter)))</code> — the same projection, the same spec, the same tuple — and stage two of the funnel applies it per manifest entry (<a href="../chapter_4.3_file_pruning/">Chapter 4.3</a>, section 6). So by the time <code>residual()</code> runs, the file has already passed the test that branch exists to fail. It is not dead code: <code>ResidualEvaluator.of</code> is public API, and a caller that evaluates a filter the file list was not pruned with can reach it. Within <code>planFiles()</code>, it is a safety net over an invariant stage two already enforces.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">The residual is per file, not per task group</p>
-<p>Bin-packing (Chapter 4.5) combines files from different partitions into one <code>CombinedScanTask</code>. Each <code>FileScanTask</code> inside it keeps its own residual, and readers must ask each file for its own. There is no such thing as a task group's residual.</p>
+<p>Bin-packing (<a href="../chapter_4.5_split_planning/">Chapter 4.5</a>) combines files from different partitions into one <code>CombinedScanTask</code>. Each <code>FileScanTask</code> inside it keeps its own residual, and readers must ask each file for its own. There is no such thing as a task group's residual.</p>
 </div>
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
 <li>A residual is the scan filter partially evaluated against a file's partition tuple: what the engine still has to check per row.</li>
-<li>The algorithm uses both projections from Chapter 4.2 in opposite directions — strict proving the predicate always true, inclusive proving it always false — and keeps the predicate only when neither is conclusive.</li>
+<li>The algorithm uses both projections from <a href="../chapter_4.2_manifest_pruning/">Chapter 4.2</a> in opposite directions — strict proving the predicate always true, inclusive proving it always false — and keeps the predicate only when neither is conclusive.</li>
 <li>Files in the interior of a range get <code>alwaysTrue()</code> and do no per-row filtering; the boundary partitions pay, and only for the half of the predicate that cuts into them.</li>
 <li>Whether there are boundary partitions at all is decided by the literal. <code>truncateLongStrict</code> projects <code>&gt;= X</code> to <code>&gt; day(X - 1µs)</code>, so a range expressed in whole partition units discharges everywhere and a range that cuts into a day pays on the files at the cut.</li>
 <li>Residual evaluators are built once per partition spec and evaluated per file on demand; nothing is cached, and splits delegate to their parent task.</li>
@@ -3761,7 +3756,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 4.5 closes the part — the file list is right, but the <em>units of work</em> are not, and fixing that is where split offsets, bin-packing, and metadata tables come in.</p>
+<p><strong>Next:</strong> <a href="../chapter_4.5_split_planning/">Chapter 4.5</a> closes the part — the file list is right, but the <em>units of work</em> are not, and fixing that is where split offsets, bin-packing, and metadata tables come in.</p>
 
 
 
@@ -3799,7 +3794,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_4.3_file_pruning/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 4.3 File pruning with `InclusiveMetricsEvaluator`">
+          <a href="../chapter_4.3_file_pruning/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 4.3 File pruning with InclusiveMetricsEvaluator">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3809,7 +3804,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                4.3 File pruning with `InclusiveMetricsEvaluator`
+                4.3 File pruning with InclusiveMetricsEvaluator
               </div>
             </div>
           </a>

@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2108,7 +2108,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2136,7 +2136,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2164,7 +2164,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2304,7 +2304,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2332,7 +2332,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2526,7 +2526,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2720,7 +2720,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2916,7 +2916,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2944,7 +2944,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3000,7 +3000,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3245,7 +3245,7 @@
 <h1 id="chapter-71-project-map-quarkus-layers-and-gradle-modules">Chapter 7.1 — Project map: Quarkus layers and Gradle modules<a class="headerlink" href="#chapter-71-project-map-quarkus-layers-and-gradle-modules" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> you have a Nessie stack trace, or a class name from a log line, and you need the file — where in a repository of roughly 135 Gradle modules does it live, and what does that split buy?</p>
-<p><strong>Prerequisites:</strong> Chapter 1.3 (Nessie's core idea: a reference is a named pointer, a commit is a set of key changes), Chapter 1.4 (the navigation routine, and why a code search fails in both repositories), Part 6 (what a catalog is and what it has to guarantee)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/">Chapter 1.3</a> (Nessie's core idea: a reference is a named pointer, a commit is a set of key changes), <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/">Chapter 1.4</a> (the navigation routine, and why a code search fails in both repositories), Part 6 (what a catalog is and what it has to guarantee)</p>
 <p><strong>Source covered:</strong> <code>settings.gradle.kts</code>, <code>gradle/projects.main.properties</code>, <code>servers/quarkus-common/.../ConfigurableVersionStoreFactory.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3254,7 +3254,7 @@
 <ol>
 <li>Its wire model is a published artifact. A Spark job on a five-year-old client must talk to today's server, so the model classes cannot drag a server framework onto the classpath.</li>
 <li>Its storage engine is pluggable — JDBC, MongoDB, DynamoDB, Cassandra, BigTable, RocksDB, in-memory — and the choice is made at runtime by configuration.</li>
-<li>It exposes <em>two</em> unrelated HTTP APIs over the same data: Nessie's own REST API, and the Iceberg REST Catalog protocol from Chapter 6.3.</li>
+<li>It exposes <em>two</em> unrelated HTTP APIs over the same data: Nessie's own REST API, and the Iceberg REST Catalog protocol from <a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a>.</li>
 <li>Its tests need to run the real request path in-process, with no server, in milliseconds.</li>
 </ol>
 <p>A single <code>core</code> module cannot deliver any of those. So Nessie encodes the layering in the build graph: each layer is its own Gradle module, and a dependency that would invert the layering simply fails to compile. Reading the module map is therefore not bookkeeping — it is how you find out what Nessie thinks its own architecture is.</p>
@@ -3292,11 +3292,11 @@
     H --&gt; P
     I --&gt; P</code></pre>
 <p>Three facts in that picture matter more than the rest.</p>
-<p><strong><code>nessie-services</code> is where all three front doors meet.</strong> <code>A</code>, <code>B</code> and <code>C</code> are three completely different ways to arrive — Nessie's REST API, the Iceberg REST Catalog protocol, and an in-JVM test harness — and they converge on the same <code>TreeApiImpl</code> instance type. Chapter 7.4 walks one path from <code>A</code>, and Chapter 7.5 shows <code>B</code> arriving at the same place.</p>
+<p><strong><code>nessie-services</code> is where all three front doors meet.</strong> <code>A</code>, <code>B</code> and <code>C</code> are three completely different ways to arrive — Nessie's REST API, the Iceberg REST Catalog protocol, and an in-JVM test harness — and they converge on the same <code>TreeApiImpl</code> instance type. <a href="../chapter_7.4_request_path/">Chapter 7.4</a> walks one path from <code>A</code>, and <a href="../chapter_7.5_iceberg_rest_catalog/">Chapter 7.5</a> shows <code>B</code> arriving at the same place.</p>
 <p><strong>The <code>E → G</code> edge is where this part stops.</strong> <code>VersionStore</code> is an interface in <code>versioned/spi</code>. Everything below it — <code>VersionStoreImpl</code>, the object store, the key index, the compare-and-swap — is Part 8.</p>
 <p><strong><code>H</code> and <code>I</code> do not know about each other.</strong> <code>versioned/storage/store</code> holds <code>VersionStoreImpl</code> and depends on <code>-common</code>, <code>-batching</code>, <code>nessie-model</code> and <code>nessie-versioned-spi</code> (<code>versioned/storage/store/build.gradle.kts:24-27</code>); its only reference to a backend is a <code>testImplementation</code> on <code>-inmemory</code> at <code>:53</code>. Each backend depends on <code>-common</code> too — <code>versioned/storage/jdbc/build.gradle.kts:27-29</code> names <code>-common</code>, <code>-common-proto</code>, <code>-common-serialize</code> — and on nothing above it. The shape is an inverted V converging on <code>nessie-versioned-storage-common</code>, which declares <code>Persist</code>. <code>VersionStoreImpl</code> and the backend that serves it meet for the first time at runtime, when CDI hands a <code>Persist</code> to a constructor. Section 6 is that constructor.</p>
 <h2 id="3-modules-are-named-by-a-properties-file">3. Modules are named by a properties file<a class="headerlink" href="#3-modules-are-named-by-a-properties-file" title="Permanent link">&para;</a></h2>
-<p>Chapter 1.4 gave the navigation rule for this repository in one line — the index is <code>gradle/projects.main.properties</code>, and grep it. This section is why that file exists and what the shape of its contents tells you, which is a different question and the one this chapter is for.</p>
+<p><a href="../../part01_foundations/chapter_1.4_reading_the_codebases/">Chapter 1.4</a> gave the navigation rule for this repository in one line — the index is <code>gradle/projects.main.properties</code>, and grep it. This section is why that file exists and what the shape of its contents tells you, which is a different question and the one this chapter is for.</p>
 <p>Nessie's <code>settings.gradle.kts</code> never writes <code>include("nessie-model")</code>. It reads a map:</p>
 <div class="language-text highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">settings.gradle.kts — projects are loaded, not listed</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-167">167</a></span>
 <span class="normal"><a href="#__codelineno-0-168">168</a></span>
@@ -3342,8 +3342,7 @@
 </span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>
 </span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>loadProjects("gradle/projects.main.properties", groupIdMain)
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `settings.gradle.kts` L167–L189](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/settings.gradle.kts#L167-L189) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/settings.gradle.kts#L167-L189"><code>projectnessie/nessie</code> · <code>settings.gradle.kts</code> L167–L189</a> <span>@ nessie-0.108.4</span></p>
 <p><code>nessieProject</code> takes a name, a group id and a <em>directory</em>, and sets <code>p.projectDir</code> explicitly. <code>loadProjects</code> feeds it every line of a properties file. The consequence is the first thing to internalise about this repository:</p>
 <div class="language-text highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the servers/ band of the module map</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-38">38</a></span>
 <span class="normal"><a href="#__codelineno-1-39">39</a></span>
@@ -3373,8 +3372,7 @@
 </span><span id="__span-1-50"><a id="__codelineno-1-50" name="__codelineno-1-50"></a>nessie-rest-common=servers/rest-common
 </span><span id="__span-1-51"><a id="__codelineno-1-51" name="__codelineno-1-51"></a>nessie-rest-services=servers/rest-services
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `gradle/projects.main.properties` L38–L51](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/gradle/projects.main.properties#L38-L51) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/gradle/projects.main.properties#L38-L51"><code>projectnessie/nessie</code> · <code>gradle/projects.main.properties</code> L38–L51</a> <span>@ nessie-0.108.4</span></p>
 <p><code>nessie-quarkus</code> is <code>servers/quarkus-server</code>. <code>nessie-rest-services</code> is <code>servers/rest-services</code>. The Gradle coordinate you see in a dependency report and the directory you need to <code>cd</code> into are related only by this file. It is 122 lines long, carrying 120 module entries — one blank line and one comment account for the difference — and it is not quite the whole index. <code>settings.gradle.kts:211</code> loads six more projects from <code>gradle/projects.iceberg.properties</code>, and <code>:226-244</code> synthesises nine <code>nessie-spark-extensions-*</code> projects inline from a Spark/Scala version matrix. A full configure produces about 135.</p>
 <p>Read it as five bands:</p>
 <table>
@@ -3389,7 +3387,7 @@
 <tr>
 <td><code>api/</code></td>
 <td><code>nessie-model</code>, <code>nessie-client</code></td>
-<td>The wire model and the Java client — Chapter 7.2</td>
+<td>The wire model and the Java client — <a href="../chapter_7.2_data_model/">Chapter 7.2</a></td>
 </tr>
 <tr>
 <td><code>versioned/</code></td>
@@ -3404,7 +3402,7 @@
 <tr>
 <td><code>catalog/</code></td>
 <td><code>nessie-catalog-service-rest</code>, <code>-impl</code>, <code>-format-iceberg</code>, <code>-files-*</code></td>
-<td>The Iceberg REST Catalog server — Chapter 7.5</td>
+<td>The Iceberg REST Catalog server — <a href="../chapter_7.5_iceberg_rest_catalog/">Chapter 7.5</a></td>
 </tr>
 <tr>
 <td><code>tools/</code>, <code>testing/</code></td>
@@ -3457,10 +3455,9 @@
 </span><span id="__span-2-66"><a id="__codelineno-2-66" name="__codelineno-2-66"></a>  implementation(project(":nessie-versioned-storage-jdbc2"))
 </span><span id="__span-2-67"><a id="__codelineno-2-67" name="__codelineno-2-67"></a>  implementation(libs.nessie.ui)
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `servers/quarkus-server/build.gradle.kts` L47–L67](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/servers/quarkus-server/build.gradle.kts#L47-L67) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/servers/quarkus-server/build.gradle.kts#L47-L67"><code>projectnessie/nessie</code> · <code>servers/quarkus-server/build.gradle.kts</code> L47–L67</a> <span>@ nessie-0.108.4</span></p>
 <p>That is the whole assembly. <code>nessie-rest-services</code> supplies the JAX-RS resources, <code>nessie-quarkus-catalog</code> the Iceberg catalog beans, <code>nessie-quarkus-common</code> the storage producers. The two <code>nessie-versioned-storage-jdbc</code> and <code>-jdbc2</code> lines are <em>not</em> a default-backend selection: all eleven backends are already on the classpath transitively via <code>servers/quarkus-common/build.gradle.kts:38-51</code>, and the default is <code>IN_MEMORY</code> — <code>@WithDefault("IN_MEMORY")</code> on <code>VersionStoreConfig.getVersionStoreType()</code> (<code>servers/quarkus-config/.../VersionStoreConfig.java:64</code>), restated at <code>servers/quarkus-server/src/main/resources/application.properties:188</code>. A server started with no configuration keeps its repository in the heap. Quarkus scans the modules for CDI beans at build time and stitches the application together.</p>
-<p>The payoff is visible one line up the graph. <code>nessie-rest-services</code> — the module that owns every JAX-RS resource class — declares <code>jakarta.ws.rs</code> and CDI as <code>compileOnly</code> and has <strong>no Quarkus dependency at all</strong>. <code>nessie-services</code>, one layer further down, does not even have JAX-RS on its compile path. That is why <code>servers/jax-rs-testextension</code> can register <code>RestV2TreeResource</code> with a plain Jersey <code>ResourceConfig</code> and exercise the real request path with no Quarkus at all. It does still start a server: those registrations sit inside a <code>new JerseyTest() { … }</code> (<code>NessieJaxRsExtension.java:219-253</code>) that sets <code>TestProperties.CONTAINER_PORT</code> to <code>"0"</code>, calls <code>jerseyTest.setUp()</code>, and exposes a base URI over Grizzly — the class javadoc says it outright, <em>"A JUnit 5 extension that starts up Weld/JerseyTest."</em> The genuinely socket-free in-JVM path is <code>versioned/combined-cs</code>, and Chapter 7.3 ends on it.</p>
+<p>The payoff is visible one line up the graph. <code>nessie-rest-services</code> — the module that owns every JAX-RS resource class — declares <code>jakarta.ws.rs</code> and CDI as <code>compileOnly</code> and has <strong>no Quarkus dependency at all</strong>. <code>nessie-services</code>, one layer further down, does not even have JAX-RS on its compile path. That is why <code>servers/jax-rs-testextension</code> can register <code>RestV2TreeResource</code> with a plain Jersey <code>ResourceConfig</code> and exercise the real request path with no Quarkus at all. It does still start a server: those registrations sit inside a <code>new JerseyTest() { … }</code> (<code>NessieJaxRsExtension.java:219-253</code>) that sets <code>TestProperties.CONTAINER_PORT</code> to <code>"0"</code>, calls <code>jerseyTest.setUp()</code>, and exposes a base URI over Grizzly — the class javadoc says it outright, <em>"A JUnit 5 extension that starts up Weld/JerseyTest."</em> The genuinely socket-free in-JVM path is <code>versioned/combined-cs</code>, and <a href="../chapter_7.3_rest_api_v2/">Chapter 7.3</a> ends on it.</p>
 <h2 id="5-half-the-code-is-generated">5. Half the code is generated<a class="headerlink" href="#5-half-the-code-is-generated" title="Permanent link">&para;</a></h2>
 <p>Before you go looking for <code>ImmutableBranch</code>, know that it is not in the tree. Look at what <code>nessie-model</code> compiles against:</p>
 <div class="language-text highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">nessie-model&#x27;s compile path</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-29">29</a></span>
@@ -3505,9 +3502,8 @@
 </span><span id="__span-3-48"><a id="__codelineno-3-48" name="__codelineno-3-48"></a>  compileOnly(project(":nessie-immutables-std"))
 </span><span id="__span-3-49"><a id="__codelineno-3-49" name="__codelineno-3-49"></a>  annotationProcessor(project(":nessie-immutables-std", configuration = "processor"))
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `api/model/build.gradle.kts` L29–L50](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/build.gradle.kts#L29-L50) <span>@ nessie-0.108.4</span></p>
-
-<p>Three deliberate decisions, all of which will bite you in Chapter 7.2 if you have not seen them here.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/api/model/build.gradle.kts#L29-L50"><code>projectnessie/nessie</code> · <code>api/model/build.gradle.kts</code> L29–L50</a> <span>@ nessie-0.108.4</span></p>
+<p>Three deliberate decisions, all of which will bite you in <a href="../chapter_7.2_data_model/">Chapter 7.2</a> if you have not seen them here.</p>
 <p><strong><code>annotationProcessor(project(":nessie-immutables-std", configuration = "processor"))</code>.</strong> Nessie's model types are <code>@Value.Immutable</code> interfaces; the <a href="https://immutables.github.io/">Immutables</a> processor generates <code>ImmutableBranch</code>, <code>ImmutablePut</code>, <code>ImmutableCommitResponse</code> and several hundred siblings at compile time. Grepping for them in a clean checkout finds nothing.</p>
 <p><strong>javax <em>and</em> jakarta, both <code>compileOnly</code>.</strong> <code>libs.jakarta.ws.rs.api</code> and <code>libs.javax.ws.rs</code>. <code>libs.jakarta.validation.api</code> and <code>libs.javax.validation.api</code>. One artifact has to work on a Jakarta EE 9+ server and on an older javax stack, and <code>compileOnly</code> means neither is imposed on a consumer.</p>
 <p><strong>Jackson 2 as <code>implementation</code>, Jackson 3 as <code>compileOnly</code>.</strong> <code>com.fasterxml.jackson.core:jackson-databind</code> is a real dependency; <code>tools.jackson.core:jackson-databind</code> is compiled against but not required. What gets written twice is narrower than it sounds: only the <em>databind</em> annotations, <code>@JsonSerialize</code> beside <code>@tools.jackson.databind.annotation.JsonSerialize</code> and so on. Jackson 3 kept the annotation package name <code>com.fasterxml.jackson.annotation</code>, so <code>@JsonIgnore</code>, <code>@JsonTypeName</code>, <code>@JsonSubTypes</code> and <code>@JsonTypeInfo</code> are written once and satisfy both stacks — nothing under <code>api/model/src/main</code> imports <code>tools.jackson.annotation</code> at all. 7.2 shows what that looks like on a real class.</p>
@@ -3549,8 +3545,7 @@
 </span><span id="__span-4-84"><a id="__codelineno-4-84" name="__codelineno-4-84"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-4-85"><a id="__codelineno-4-85" name="__codelineno-4-85"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `servers/quarkus-common/src/main/java/org/projectnessie/quarkus/providers/versionstore/ConfigurableVersionStoreFactory.java` L68–L85](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/servers/quarkus-common/src/main/java/org/projectnessie/quarkus/providers/versionstore/ConfigurableVersionStoreFactory.java#L68-L85) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/servers/quarkus-common/src/main/java/org/projectnessie/quarkus/providers/versionstore/ConfigurableVersionStoreFactory.java#L68-L85"><code>projectnessie/nessie</code> · <code>servers/quarkus-common/src/main/java/org/projectnessie/quarkus/providers/versionstore/ConfigurableVersionStoreFactory.java</code> L68–L85</a> <span>@ nessie-0.108.4</span></p>
 <p>Read what the method does <em>not</em> do. <code>versionStoreType</code> is read on the method's first line — and then used only in the log message. The store is always <code>new VersionStoreImpl(persist)</code>. The configured backend selects the <code>Persist</code> instance that gets injected here, not the version store wrapped around it. <code>VersionStoreType</code> is a <code>Persist</code> selector wearing a misleading name; the actual selection happens in <code>PersistProvider.produceBackend()</code>, which calls <code>backendBuilder.select(new Literal(versionStoreType))</code>.</p>
 <p>The optional decorator is worth noting for the same reason:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">storeConfig</span><span class="p">.</span><span class="na">isEventsEnabled</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">resultConsumer</span><span class="p">.</span><span class="na">isResolvable</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
@@ -3568,8 +3563,7 @@
 </span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-6-29"><a id="__codelineno-6-29" name="__codelineno-6-29"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `servers/quarkus-common/src/main/java/org/projectnessie/quarkus/providers/versionstore/QuarkusObservingVersionStore.java` L25–L29](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/servers/quarkus-common/src/main/java/org/projectnessie/quarkus/providers/versionstore/QuarkusObservingVersionStore.java#L25-L29) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/servers/quarkus-common/src/main/java/org/projectnessie/quarkus/providers/versionstore/QuarkusObservingVersionStore.java#L25-L29"><code>projectnessie/nessie</code> · <code>servers/quarkus-common/src/main/java/org/projectnessie/quarkus/providers/versionstore/QuarkusObservingVersionStore.java</code> L25–L29</a> <span>@ nessie-0.108.4</span></p>
 <p>Five lines, and they reverse the default. The producer above publishes its bean under the <code>@NotObserved</code> qualifier; <code>QuarkusObservingVersionStore</code> takes that bean and publishes itself <em>unqualified</em>. Every <code>@Inject VersionStore</code> in every resource therefore lands on the instrumented wrapper. Reading only the producer tells you the wrong thing about what runs in production.</p>
 <h2 id="7-gotchas">7. Gotchas<a class="headerlink" href="#7-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
@@ -3602,7 +3596,7 @@ between backends is a job for <code>tools/server-admin</code>, whose CLI ships <
 <li>Module names and directories are decoupled by <code>gradle/projects.main.properties</code>, which <code>settings.gradle.kts</code> reads at configuration time. That file is the repository's index.</li>
 <li>The runnable server module holds two Java classes; the application is assembled by CDI from beans declared in sibling modules.</li>
 <li><code>VersionStore</code> is always <code>VersionStoreImpl</code>. The <code>versionStoreType</code> setting picks the <code>Persist</code> backend underneath it — <code>IN_MEMORY</code> unless configured — and two decorators, events and observability, sit on top.</li>
-<li>Model classes are generated by the <code>nessie-immutables-std</code> annotation processor and carry duplicated javax/jakarta annotations and duplicated Jackson <em>databind</em> annotations. Both facts shape everything you read in Chapter 7.2.</li>
+<li>Model classes are generated by the <code>nessie-immutables-std</code> annotation processor and carry duplicated javax/jakarta annotations and duplicated Jackson <em>databind</em> annotations. Both facts shape everything you read in <a href="../chapter_7.2_data_model/">Chapter 7.2</a>.</li>
 <li>Three front doors — Nessie REST, the Iceberg REST Catalog, and an in-process Jersey harness — converge on <code>servers/services</code>. That convergence is the subject of 7.4 and 7.5.</li>
 </ul>
 <h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
@@ -3664,7 +3658,7 @@ between backends is a job for <code>tools/server-admin</code>, whose CLI ships <
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 7.2 opens <code>api/model</code> and reads the four types every Nessie request is built from — starting with the one whose <code>getType()</code> throws.</p>
+<p><strong>Next:</strong> <a href="../chapter_7.2_data_model/">Chapter 7.2</a> opens <code>api/model</code> and reads the four types every Nessie request is built from — starting with the one whose <code>getType()</code> throws.</p>
 
 
 
@@ -3719,13 +3713,13 @@ between backends is a job for <code>tools/server-admin</code>, whose CLI ships <
         
         
           
-          <a href="../chapter_7.2_data_model/" class="md-footer__link md-footer__link--next" aria-label="Next: 7.2 The data model: `Reference`, `Content`, `Operation`">
+          <a href="../chapter_7.2_data_model/" class="md-footer__link md-footer__link--next" aria-label="Next: 7.2 The data model: Reference, Content, Operation">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                7.2 The data model: `Reference`, `Content`, `Operation`
+                7.2 The data model: Reference, Content, Operation
               </div>
             </div>
             <div class="md-footer__button md-icon">

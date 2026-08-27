@@ -29,7 +29,7 @@
     
     
       
-        <title>6.3 The REST Catalog spec and `RESTSessionCatalog` - Iceberg & Nessie Internals</title>
+        <title>6.3 The REST Catalog spec and RESTSessionCatalog - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              6.3 The REST Catalog spec and `RESTSessionCatalog`
+              6.3 The REST Catalog spec and RESTSessionCatalog
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1738,7 +1738,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1766,7 +1766,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1803,7 +1803,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1821,7 +1821,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2119,7 +2119,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2147,7 +2147,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2175,7 +2175,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2315,7 +2315,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2343,7 +2343,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2537,7 +2537,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2731,7 +2731,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2927,7 +2927,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3011,7 +3011,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3266,15 +3266,15 @@
 
 <h1 id="chapter-63-the-rest-catalog-spec-and-restsessioncatalog">Chapter 6.3 — The REST Catalog spec and <code>RESTSessionCatalog</code><a class="headerlink" href="#chapter-63-the-rest-catalog-spec-and-restsessioncatalog" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
-<p><strong>The question this chapter answers:</strong> when a REST-catalog client commits, what actually goes over the wire — and why is that payload the <code>MetadataUpdate</code> list from Chapter 3.2 rather than a metadata file?</p>
-<p><strong>Prerequisites:</strong> Chapter 3.2 (<code>TableMetadata</code> and <code>MetadataUpdate</code>), Chapter 6.1 (the <code>Catalog</code> SPI), Chapter 6.2 (what storage-backed catalogs guarantee)</p>
+<p><strong>The question this chapter answers:</strong> when a REST-catalog client commits, what actually goes over the wire — and why is that payload the <code>MetadataUpdate</code> list from <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/">Chapter 3.2</a> rather than a metadata file?</p>
+<p><strong>Prerequisites:</strong> <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/">Chapter 3.2</a> (<code>TableMetadata</code> and <code>MetadataUpdate</code>), <a href="../chapter_6.1_catalog_spi/">Chapter 6.1</a> (the <code>Catalog</code> SPI), <a href="../chapter_6.2_hadoop_hive_catalog/">Chapter 6.2</a> (what storage-backed catalogs guarantee)</p>
 <p><strong>Source covered:</strong> <code>core/.../rest/RESTSessionCatalog.java</code>, <code>core/.../rest/RESTTableOperations.java</code>, <code>core/.../UpdateRequirements.java</code>, <code>core/.../UpdateRequirement.java</code>, <code>core/.../rest/CatalogHandlers.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p>Chapter 6.2 ended with an uncomfortable summary: what a Hadoop or Hive catalog guarantees is a property of a filesystem or a metastore, and the client has to know which one it is talking to in order to know what it gets. A service could fix that — but only if the protocol between client and service is designed for it.</p>
+<p><a href="../chapter_6.2_hadoop_hive_catalog/">Chapter 6.2</a> ended with an uncomfortable summary: what a Hadoop or Hive catalog guarantees is a property of a filesystem or a metastore, and the client has to know which one it is talking to in order to know what it gets. A service could fix that — but only if the protocol between client and service is designed for it.</p>
 <p>Two constraints shape that protocol. The client cannot be trusted to hold current metadata: it read the table some milliseconds ago and the world has moved. And the client cannot be allowed to upload a finished <code>metadata.json</code>, because then the server is a file store with extra steps — it would have no way to reason about, authorise, or merge what changed.</p>
-<p>The REST catalog resolves both by sending something else entirely. It sends <strong>the change log</strong>: the <code>MetadataUpdate</code> list <code>TableMetadata</code> has been accumulating since Chapter 3.2, plus a set of <code>UpdateRequirement</code> assertions describing the base those changes were computed against. The server reads its own base, checks the assertions, applies the updates, and performs the swap.</p>
-<p>That is the shift. In Chapter 6.2 the client computed the new state and storage arbitrated. Here the client computes a <em>diff</em> and the server owns the state.</p>
+<p>The REST catalog resolves both by sending something else entirely. It sends <strong>the change log</strong>: the <code>MetadataUpdate</code> list <code>TableMetadata</code> has been accumulating since <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/">Chapter 3.2</a>, plus a set of <code>UpdateRequirement</code> assertions describing the base those changes were computed against. The server reads its own base, checks the assertions, applies the updates, and performs the swap.</p>
+<p>That is the shift. In <a href="../chapter_6.2_hadoop_hive_catalog/">Chapter 6.2</a> the client computed the new state and storage arbitrated. Here the client computes a <em>diff</em> and the server owns the state.</p>
 <h2 id="2-where-the-commit-happens-now">2. Where the commit happens now<a class="headerlink" href="#2-where-the-commit-happens-now" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>sequenceDiagram
     participant P as SnapshotProducer
@@ -3347,8 +3347,7 @@
 </span><span id="__span-0-137"><a id="__codelineno-0-137" name="__codelineno-0-137"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ImmutableMap</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">Maps</span><span class="p">.</span><span class="na">filterValues</span><span class="p">(</span><span class="n">merged</span><span class="p">,</span><span class="w"> </span><span class="n">Objects</span><span class="p">::</span><span class="n">nonNull</span><span class="p">));</span>
 </span><span id="__span-0-138"><a id="__codelineno-0-138" name="__codelineno-0-138"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/responses/ConfigResponse.java` L118–L138](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/responses/ConfigResponse.java#L118-L138) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/responses/ConfigResponse.java#L118-L138"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/responses/ConfigResponse.java</code> L118–L138</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Defaults first, then client properties, then overrides last. A catalog service can therefore <em>force</em> a setting — <code>io-impl</code>, a warehouse location, a table default — regardless of what the client passed. That is what makes multi-tenant hosting possible, and it is also why a local property can silently have no effect.</p>
 <p>Second, capabilities. The response may list the endpoints the server implements, and call sites consult that list before making a request — though not all in the same way:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Endpoint.check()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-141">141</a></span>
@@ -3363,8 +3362,7 @@
 </span><span id="__span-1-145"><a id="__codelineno-1-145" name="__codelineno-1-145"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-1-146"><a id="__codelineno-1-146" name="__codelineno-1-146"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/Endpoint.java` L141–L146](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/Endpoint.java#L141-L146) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/Endpoint.java#L141-L146"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/Endpoint.java</code> L141–L146</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>A missing endpoint becomes an <code>UnsupportedOperationException</code> at the client, not an HTTP error at the server. That is the two-argument overload, and it is one of four shapes. A second <code>check</code> at <code>Endpoint.java:156-161</code> throws whatever a <code>Supplier&lt;RuntimeException&gt;</code> produces, and the most-travelled read paths use it: <code>RESTSessionCatalog.loadTable</code> (<code>:449-455</code>) raises <code>NoSuchTableException</code>, <code>loadView</code> (<code>:1439-1445</code>) raises <code>NoSuchViewException</code>. <code>listTables</code> (<code>:306-309</code>) does not throw at all — it returns an empty list. And <code>tableExists</code> (<code>:402-416</code>) checks for <code>V1_TABLE_EXISTS</code> and, when it is absent, <em>falls back</em> to a load-based check with the comment <em>"fallback in order to work with 1.7.x and older servers"</em>. Refusing, substituting, returning empty, degrading: the endpoint set is consulted four different ways, and only the first produces the exception the class is named for.</p>
 <p>None of it works if the server said nothing. When it does not, the client falls back to a frozen set:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">DEFAULT_ENDPOINTS — what the client assumes when the server is silent</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-125">125</a></span>
@@ -3405,9 +3403,8 @@
 </span><span id="__span-2-142"><a id="__codelineno-2-142" name="__codelineno-2-142"></a><span class="w">        </span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">Endpoint</span><span class="p">.</span><span class="na">V1_COMMIT_TRANSACTION</span><span class="p">)</span>
 </span><span id="__span-2-143"><a id="__codelineno-2-143" name="__codelineno-2-143"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java` L125–L144](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L125-L144) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>The comment above it is the reason it can never grow: <em>"these default endpoints must not be updated in order to maintain backwards compatibility with legacy servers"</em>. Adding an entry would make the client assume a capability of every server written before that entry existed. Note what is already in the list — <code>V1_COMMIT_TRANSACTION</code>. Chapter 6.4 returns to that.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L125-L144"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java</code> L125–L144</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>The comment above it is the reason it can never grow: <em>"these default endpoints must not be updated in order to maintain backwards compatibility with legacy servers"</em>. Adding an entry would make the client assume a capability of every server written before that entry existed. Note what is already in the list — <code>V1_COMMIT_TRANSACTION</code>. <a href="../chapter_6.4_server_side_commits/">Chapter 6.4</a> returns to that.</p>
 <h2 id="4-before-any-of-that-proving-who-you-are">4. Before any of that: proving who you are<a class="headerlink" href="#4-before-any-of-that-proving-who-you-are" title="Permanent link">&para;</a></h2>
 <p>Section 3 skipped a step. <code>GET /v1/config</code> is an HTTP request to a service, and a service that will hand out table locations and accept commits does not answer anonymous callers. So before the negotiation there is an authentication decision, and it is made by inference rather than by configuration more often than anyone intends.</p>
 <p><code>AuthManager</code> is the interface, and its three methods are three <em>lifetimes</em> rather than three mechanisms:</p>
@@ -3487,9 +3484,8 @@
 </span><span id="__span-3-69"><a id="__codelineno-3-69" name="__codelineno-3-69"></a><span class="w">   </span><span class="o">*</span><span class="w"> </span><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">This</span><span class="w"> </span><span class="n">method</span><span class="w"> </span><span class="n">cannot</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">.</span><span class="w"> </span><span class="n">By</span><span class="w"> </span><span class="k">default</span><span class="p">,</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">returns</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">catalog</span><span class="w"> </span><span class="n">session</span><span class="p">.</span>
 </span><span id="__span-3-70"><a id="__codelineno-3-70" name="__codelineno-3-70"></a><span class="w">   </span><span class="o">*</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/auth/AuthManager.java` L33–L70](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/auth/AuthManager.java#L33-L70) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p><code>initSession</code> exists "to use for contacting the configuration endpoint only", over a client the javadoc calls short-lived and says "must be discarded after that". <code>catalogSession</code> is the long-lived one, "the parent session for all other sessions", closed when the catalog is. <code>tableSession</code> — below the excerpt — is for components that reach a table without going through the catalog, request signers among them. Chapter 7.5's S3 signing endpoint is on the other end of that third one.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/auth/AuthManager.java#L33-L70"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/auth/AuthManager.java</code> L33–L70</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p><code>initSession</code> exists "to use for contacting the configuration endpoint only", over a client the javadoc calls short-lived and says "must be discarded after that". <code>catalogSession</code> is the long-lived one, "the parent session for all other sessions", closed when the catalog is. <code>tableSession</code> — below the excerpt — is for components that reach a table without going through the catalog, request signers among them. <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/">Chapter 7.5</a>'s S3 signing endpoint is on the other end of that third one.</p>
 <p>The chicken-and-egg is the reason the first exists. Credentials may themselves come from the config response, so the client needs <em>some</em> session to fetch the config that tells it how to authenticate properly. <code>initSession</code> defaults to returning the catalog session, and an implementation overrides it only when the two genuinely differ.</p>
 <p>Which manager you get is chosen here:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">AuthManagers.loadAuthManager() — auth type by inference</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-39"> 39</a></span>
@@ -3684,8 +3680,7 @@
 </span><span id="__span-4-133"><a id="__codelineno-4-133" name="__codelineno-4-133"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">authManager</span><span class="p">;</span>
 </span><span id="__span-4-134"><a id="__codelineno-4-134" name="__codelineno-4-134"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/auth/AuthManagers.java` L39–L134](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/auth/AuthManagers.java#L39-L134) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/auth/AuthManagers.java#L39-L134"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/auth/AuthManagers.java</code> L39–L134</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read the middle of it, because that is the part that surprises people. When <code>rest.auth.type</code> is not set, the method does not default to a fixed value. It <strong>infers</strong> one:</p>
 <ul>
 <li><code>credential</code> or <code>token</code> present in the properties → <code>oauth2</code>, with a <code>LOG.warn</code> that says so and asks you to set the type explicitly;</li>
@@ -3693,7 +3688,7 @@
 </ul>
 <p>So the same client, pointed at the same server, authenticates differently depending on whether an unrelated-looking property happens to be present, and the only notice is a warning line. A deployment that stops passing <code>credential</code> — moved to a vault, dropped from a config template — silently becomes an anonymous client, and the failure surfaces as a 401 from a catalog that worked yesterday.</p>
 <p>The <code>sigv4</code> branch above it is the one place the design composes rather than chooses: SigV4 signs requests to a gateway, but something still has to authenticate to the <em>catalog</em> behind it, so a SigV4 manager wraps a delegate resolved by calling <code>loadAuthManager</code> again with <code>rest.auth.type</code> replaced by <code>rest.auth.sigv4.delegate-auth-type</code>. The recursion is guarded by one precondition — <em>"Cannot delegate a SigV4 auth manager to another SigV4 auth manager"</em>.</p>
-<p>None of this is negotiated with the server. The client decides how to authenticate from local properties, and only then asks the server what it supports — which is why Chapter 7.5's Nessie gotcha reads the way it does: a client left on Iceberg's OAuth defaults sends a token request to <code>/v1/oauth/tokens</code>, Nessie answers <code>501</code>, and the fix is a client property (<code>oauth2-server-uri</code>) rather than anything on the server.</p>
+<p>None of this is negotiated with the server. The client decides how to authenticate from local properties, and only then asks the server what it supports — which is why <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/">Chapter 7.5</a>'s Nessie gotcha reads the way it does: a client left on Iceberg's OAuth defaults sends a token request to <code>/v1/oauth/tokens</code>, Nessie answers <code>501</code>, and the fix is a client property (<code>oauth2-server-uri</code>) rather than anything on the server.</p>
 <h2 id="5-the-commit-request">5. The commit request<a class="headerlink" href="#5-the-commit-request" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">RESTTableOperations.commit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-156">156</a></span>
 <span class="normal"><a href="#__codelineno-5-157">157</a></span>
@@ -3825,8 +3820,7 @@
 </span><span id="__span-5-219"><a id="__codelineno-5-219" name="__codelineno-5-219"></a><span class="w">  </span><span class="n">updateCurrentMetadata</span><span class="p">(</span><span class="n">response</span><span class="p">);</span>
 </span><span id="__span-5-220"><a id="__codelineno-5-220" name="__codelineno-5-220"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/RESTTableOperations.java` L156–L220](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTTableOperations.java#L156-L220) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTTableOperations.java#L156-L220"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/RESTTableOperations.java</code> L156–L220</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The <code>switch</code> is the interesting part. Three update types, each producing a different set of requirements from a different base:</p>
 <ul>
 <li><strong><code>CREATE</code></strong> — <code>base</code> must be null, the updates are <code>createChanges</code> plus <code>metadata.changes()</code>, and <code>UpdateRequirements.forCreateTable(updates)</code> asserts the table does not exist.</li>
@@ -3834,7 +3828,7 @@
 <li><strong><code>SIMPLE</code></strong> — the ordinary case. <code>updates = metadata.changes()</code>, requirements from the live <code>base</code>.</li>
 </ul>
 <p>All three converge on one <code>UpdateTableRequest</code> and one <code>client.post(...)</code>. And after any successful commit, <code>this.updateType = UpdateType.SIMPLE</code> — a create or replace happens once; everything after it is an ordinary update.</p>
-<p><code>metadata.changes()</code> is doing the real work here. Chapter 3.2 introduced it as a bookkeeping device: <code>TableMetadata.Builder</code> records each <code>MetadataUpdate</code> it applies so the metadata object knows its own diff. In a Hadoop or Hive catalog that log is almost decorative — the finished metadata file is what gets written. Here it <em>is</em> the request body. The REST catalog is the reason <code>MetadataUpdate</code> had to be a first-class, serialisable type rather than an internal detail.</p>
+<p><code>metadata.changes()</code> is doing the real work here. <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/">Chapter 3.2</a> introduced it as a bookkeeping device: <code>TableMetadata.Builder</code> records each <code>MetadataUpdate</code> it applies so the metadata object knows its own diff. In a Hadoop or Hive catalog that log is almost decorative — the finished metadata file is what gets written. Here it <em>is</em> the request body. The REST catalog is the reason <code>MetadataUpdate</code> had to be a first-class, serialisable type rather than an internal detail.</p>
 <h2 id="6-requirements-the-base-described">6. Requirements: the base, described<a class="headerlink" href="#6-requirements-the-base-described" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">UpdateRequirements.forUpdateTable()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-50">50</a></span>
 <span class="normal"><a href="#__codelineno-6-51">51</a></span>
@@ -3854,8 +3848,7 @@
 </span><span id="__span-6-57"><a id="__codelineno-6-57" name="__codelineno-6-57"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </span><span id="__span-6-58"><a id="__codelineno-6-58" name="__codelineno-6-58"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/UpdateRequirements.java` L50–L58](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/UpdateRequirements.java#L50-L58) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/UpdateRequirements.java#L50-L58"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/UpdateRequirements.java</code> L50–L58</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Nine lines, and the shape is the point: one unconditional <code>AssertTableUUID</code>, then a single pass handing each update to the builder, which adds whatever assertion that <em>kind</em> of change needs. Adding a snapshot ref adds an <code>AssertRefSnapshotID</code> for that ref. Adding a schema adds an <code>AssertLastAssignedFieldId</code>. Removing partition specs adds an <code>AssertDefaultSpecID</code> and, under the comment <em>"so that old specs won't be written"</em>, an <code>AssertRefSnapshotID</code> for every branch — except <code>main</code>. <code>requireNoBranchesChanged</code> (<code>UpdateRequirements.java:200-210</code>) guards on <code>ref.isBranch() &amp;&amp; !name.equals(SnapshotRef.MAIN_BRANCH)</code>, so tags are skipped because they are not branches, and <code>main</code> is skipped by name. A spec removal races freely against a commit to <code>main</code> — the one branch a reader would assume was protected.</p>
 <p>The requirements are derived from the updates, not written by hand, and that is what keeps them honest: a client cannot forget one for a change it is actually making.</p>
 <p>On the server, each assertion is one <code>validate</code> call:</p>
@@ -3933,9 +3926,8 @@
 </span><span id="__span-7-126"><a id="__codelineno-7-126" name="__codelineno-7-126"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-7-127"><a id="__codelineno-7-127" name="__codelineno-7-127"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/UpdateRequirement.java` L91–L127](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/UpdateRequirement.java#L91-L127) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>Three distinct failures, all <code>CommitFailedException</code>. A null expected <code>snapshotId</code> means <em>this ref must not exist yet</em>, so finding one is "created concurrently". A non-null mismatch is the ordinary lost race. A missing ref where one was expected is the third. This is the same optimistic-concurrency check <code>BaseMetastoreTableOperations</code> made with <code>base != current()</code> (Chapter 6.1) — decomposed into named, serialisable assertions so it can survive a network hop.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/UpdateRequirement.java#L91-L127"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/UpdateRequirement.java</code> L91–L127</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Three distinct failures, all <code>CommitFailedException</code>. A null expected <code>snapshotId</code> means <em>this ref must not exist yet</em>, so finding one is "created concurrently". A non-null mismatch is the ordinary lost race. A missing ref where one was expected is the third. This is the same optimistic-concurrency check <code>BaseMetastoreTableOperations</code> made with <code>base != current()</code> (<a href="../chapter_6.1_catalog_spi/">Chapter 6.1</a>) — decomposed into named, serialisable assertions so it can survive a network hop.</p>
 <h2 id="7-the-server-is-a-catalog-too">7. The server is a catalog too<a class="headerlink" href="#7-the-server-is-a-catalog-too" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CatalogHandlers.commit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-613">613</a></span>
 <span class="normal"><a href="#__codelineno-8-614">614</a></span>
@@ -4045,9 +4037,8 @@
 </span><span id="__span-8-665"><a id="__codelineno-8-665" name="__codelineno-8-665"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">current</span><span class="p">();</span>
 </span><span id="__span-8-666"><a id="__codelineno-8-666" name="__codelineno-8-666"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java` L613–L666](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java#L613-L666) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>This is the helper Iceberg ships for building a REST server — in the pinned tree <code>CatalogHandlers</code> is referenced only by itself and two test classes, so "every server is built from it" would be a claim about the ecosystem, not about this repository. What it contains is strikingly familiar: <code>Tasks.foreach(ops)</code> with <code>onlyRetryOn(CommitFailedException.class)</code>, exactly the retry loop Chapter 3.3 walked through — now running on the server, against a <code>TableOperations</code> obtained from the server's own catalog (<code>Table table = catalog.loadTable(ident);</code> then <code>((BaseTable) table).operations()</code>, <code>:562-564</code>). The catalog may be a <code>HiveCatalog</code>; the <code>ops</code> is then a <code>HiveTableOperations</code>, and Chapter 6.2's audit applies underneath the HTTP.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java#L613-L666"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java</code> L613–L666</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>This is the helper Iceberg ships for building a REST server — in the pinned tree <code>CatalogHandlers</code> is referenced only by itself and two test classes, so "every server is built from it" would be a claim about the ecosystem, not about this repository. What it contains is strikingly familiar: <code>Tasks.foreach(ops)</code> with <code>onlyRetryOn(CommitFailedException.class)</code>, exactly the retry loop <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> walked through — now running on the server, against a <code>TableOperations</code> obtained from the server's own catalog (<code>Table table = catalog.loadTable(ident);</code> then <code>((BaseTable) table).operations()</code>, <code>:562-564</code>). The catalog may be a <code>HiveCatalog</code>; the <code>ops</code> is then a <code>HiveTableOperations</code>, and <a href="../chapter_6.2_hadoop_hive_catalog/">Chapter 6.2</a>'s audit applies underneath the HTTP.</p>
 <p>Two details are specific to being a server.</p>
 <p><code>ValidationFailureException</code> wraps a failed requirement so it escapes the retry loop immediately. The comment is explicit: <em>"wrap and rethrow outside of tasks to avoid unnecessary retry"</em>. A requirement that failed against the current base will fail again on the next attempt; only a <code>CommitFailedException</code> from the swap itself is worth retrying.</p>
 <p><code>RetryableValidationException</code> gets converted the other way — into a <code>CommitFailedException</code> carrying <em>"Validation failed, please retry"</em>. The comment explains the distinction: the request contains stale values such as a sequence number, so <em>"Server-side retry won't help since the stale values are in the request itself"</em>. The client must rebuild the request from fresh metadata. Two failure modes, and the server routes each to whoever can fix it.</p>
@@ -4071,7 +4062,7 @@
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Authentication is decided locally and before the negotiation: <code>AuthManagers.loadAuthManager</code> <em>infers</em> <code>oauth2</code> from the presence of <code>credential</code> or <code>token</code> and falls back to <code>none</code>, warning either way. A property that stops being passed turns a client anonymous without changing a line of catalog config.</li>
-<li>The REST catalog sends a diff, not a document: <code>metadata.changes()</code> plus derived <code>UpdateRequirement</code>s. This is what Chapter 3.2's update log was built for.</li>
+<li>The REST catalog sends a diff, not a document: <code>metadata.changes()</code> plus derived <code>UpdateRequirement</code>s. This is what <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/">Chapter 3.2</a>'s update log was built for.</li>
 <li><code>initialize()</code> negotiates. <code>GET /v1/config</code> supplies defaults, overrides (which win over client settings), and an endpoint set that four different kinds of call site consult in four different ways — refusing, substituting an exception, returning empty, or degrading to an older path.</li>
 <li><code>DEFAULT_ENDPOINTS</code> is frozen by design; when a server advertises nothing, the client assumes that set — including the transaction endpoint.</li>
 <li><code>RESTTableOperations.commit</code> has three modes, but only one request type: create and replace differ in which base the requirements come from, then collapse to <code>SIMPLE</code>.</li>
@@ -4125,7 +4116,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 6.4 asks what happens when one request has to carry changes to two tables — and finds the seam where Iceberg's model stops.</p>
+<p><strong>Next:</strong> <a href="../chapter_6.4_server_side_commits/">Chapter 6.4</a> asks what happens when one request has to carry changes to two tables — and finds the seam where Iceberg's model stops.</p>
 
 
 
@@ -4163,7 +4154,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_6.2_hadoop_hive_catalog/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks">
+          <a href="../chapter_6.2_hadoop_hive_catalog/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 6.2 HadoopCatalog and HiveCatalog: where atomicity leaks">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4173,7 +4164,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+                6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
               </div>
             </div>
           </a>

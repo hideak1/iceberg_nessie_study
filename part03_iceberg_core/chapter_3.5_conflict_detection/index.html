@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1096,7 +1096,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1124,7 +1124,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1471,7 +1471,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1499,7 +1499,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1527,7 +1527,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1723,7 +1723,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1751,7 +1751,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1917,7 +1917,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1945,7 +1945,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1973,7 +1973,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2141,7 +2141,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2169,7 +2169,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2197,7 +2197,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2337,7 +2337,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2365,7 +2365,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2559,7 +2559,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2753,7 +2753,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2949,7 +2949,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2977,7 +2977,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3033,7 +3033,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3311,11 +3311,11 @@
 <h1 id="chapter-35-conflict-detection-and-isolation-levels">Chapter 3.5 — Conflict detection and isolation levels<a class="headerlink" href="#chapter-35-conflict-detection-and-isolation-levels" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> two writers commit concurrently and the second one loses the compare-and-swap, retries, and wins it cleanly. What stops that retry from committing a change that is now wrong?</p>
-<p><strong>Prerequisites:</strong> Chapter 3.3 (<code>SnapshotProducer</code>, <code>runValidations</code>), Chapter 3.4 (the CAS and its exceptions), Chapter 2.4 (manifest entries and metrics)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> (<code>SnapshotProducer</code>, <code>runValidations</code>), <a href="../chapter_3.4_commit_protocol/">Chapter 3.4</a> (the CAS and its exceptions), <a href="../../part02_table_spec/chapter_2.4_manifest_file/">Chapter 2.4</a> (manifest entries and metrics)</p>
 <p><strong>Source covered:</strong> <code>core/.../MergingSnapshotProducer.java</code>, <code>core/.../BaseRowDelta.java</code>, <code>core/.../IsolationLevel.java</code>, <code>spark/v3.5/.../SparkPositionDeltaWrite.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p>Chapter 3.4 delivered a compare-and-swap that answers exactly one question: <em>is the metadata I based this commit on still the current metadata?</em> When the answer is no, Chapter 3.3's loop refreshes and tries again.</p>
+<p><a href="../chapter_3.4_commit_protocol/">Chapter 3.4</a> delivered a compare-and-swap that answers exactly one question: <em>is the metadata I based this commit on still the current metadata?</em> When the answer is no, <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a>'s loop refreshes and tries again.</p>
 <p>That question is not enough.</p>
 <p>Take a <code>DELETE FROM t WHERE id = 5</code>. The engine plans a scan, finds the three data files that could contain <code>id = 5</code>, and builds a <code>RowDelta</code> that adds position deletes for them. While it is doing that, another writer appends a new data file that also contains <code>id = 5</code>. Our writer loses the CAS, refreshes, re-runs <code>apply()</code>, wins the second attempt — and commits a delete that misses rows, because the new file was never in the plan.</p>
 <p>Nothing about the swap was wrong. The base was current at the instant of the swap. What went stale was not the metadata pointer but <em>the assumption the change was computed under</em>.</p>
@@ -3329,9 +3329,9 @@
     CAS --&gt;|CommitFailedException| ATTEMPT
     CAS --&gt;|CommitStateUnknownException| UNKNOWN["delete nothing, rethrow"]
     CAS --&gt;|ok| DONE([committed])</code></pre>
-<p>Both failure edges out of the diagram are <code>CleanableFailure</code>, so both clean up the files they wrote. Only one of them re-enters the loop. Chapter 3.3 showed the single line that decides it: <code>.onlyRetryOn(CommitFailedException.class)</code>.</p>
+<p>Both failure edges out of the diagram are <code>CleanableFailure</code>, so both clean up the files they wrote. Only one of them re-enters the loop. <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> showed the single line that decides it: <code>.onlyRetryOn(CommitFailedException.class)</code>.</p>
 <h2 id="3-one-hook-filled-by-each-operation">3. One hook, filled by each operation<a class="headerlink" href="#3-one-hook-filled-by-each-operation" title="Permanent link">&para;</a></h2>
-<p><code>SnapshotProducer.runValidations</code> — read in Chapter 3.3 — does two things. It runs the ancestry validator, and it calls <code>validate(base, parentSnapshot)</code>. That method is declared on <code>SnapshotProducer</code> as <code>protected void validate(TableMetadata currentMetadata, Snapshot snapshot) {}</code> — an empty body. <code>FastAppend</code> never overrides it, which is correct: an append that adds files and asserts nothing about existing data cannot conflict with anything.</p>
+<p><code>SnapshotProducer.runValidations</code> — read in <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> — does two things. It runs the ancestry validator, and it calls <code>validate(base, parentSnapshot)</code>. That method is declared on <code>SnapshotProducer</code> as <code>protected void validate(TableMetadata currentMetadata, Snapshot snapshot) {}</code> — an empty body. <code>FastAppend</code> never overrides it, which is correct: an append that adds files and asserts nothing about existing data cannot conflict with anything.</p>
 <p>Every conflict rule in Iceberg lives behind that hook, in the operation subclasses. The commit machinery has no opinion about conflicts at all.</p>
 <p><code>MergingSnapshotProducer</code> supplies the reusable checks that those subclasses call. Before reading any of them, get the names straight, because there are two sets and they are confusingly similar.</p>
 <h2 id="4-the-family-by-name">4. The family, by name<a class="headerlink" href="#4-the-family-by-name" title="Permanent link">&para;</a></h2>
@@ -3382,7 +3382,8 @@
 </tr>
 </tbody>
 </table>
-<p>The <strong>opt-in flags</strong>, on the api interfaces, which only set booleans: <code>OverwriteFiles.validateNoConflictingData()</code>, <code>validateNoConflictingDeletes()</code>, <code>validateAddedFilesMatchOverwriteFilter()</code>; <code>RowDelta.validateNoConflictingDataFiles()</code>, <code>validateNoConflictingDeleteFiles()</code>, <code>validateDeletedFiles()</code>, <code>validateDataFilesExist(Iterable)</code>; <code>ReplacePartitions.validateNoConflictingData()</code>, <code>validateNoConflictingDeletes()</code>, <code>validateAppendOnly()</code>. Plus <code>validateFromSnapshot(long)</code>, on all three, and <code>conflictDetectionFilter(Expression)</code>, on <code>RowDelta</code> and <code>OverwriteFiles</code> only — parameters rather than switches. <code>ReplacePartitions</code> has no conflict-detection filter, and does not need one: the partitions it is replacing <em>are</em> the predicate, which is why <code>BaseReplacePartitions.validate</code> hands the family a <code>PartitionSet</code> where the other two hand it an <code>Expression</code>.</p>
+<p>The <strong>opt-in flags</strong>, on the api interfaces, which only set booleans: <code>OverwriteFiles.validateNoConflictingData()</code>, <code>validateNoConflictingDeletes()</code>, <code>validateAddedFilesMatchOverwriteFilter()</code>; <code>RowDelta.validateNoConflictingDataFiles()</code>, <code>validateNoConflictingDeleteFiles()</code>, <code>validateDeletedFiles()</code>; <code>ReplacePartitions.validateNoConflictingData()</code>, <code>validateNoConflictingDeletes()</code>, <code>validateAppendOnly()</code>. Then three that take an argument instead of flipping a switch: <code>validateFromSnapshot(long)</code> on all three, <code>conflictDetectionFilter(Expression)</code> on <code>RowDelta</code> and <code>OverwriteFiles</code> only, and <code>RowDelta.validateDataFilesExist(Iterable)</code> — which is not a flag at all. It appends to <code>referencedDataFiles</code>, and <code>BaseRowDelta.validate</code> runs the check whenever that collection is non-empty. <code>ReplacePartitions</code> has no conflict-detection filter, and does not need one: the partitions it is replacing <em>are</em> the predicate, which is why <code>BaseReplacePartitions.validate</code> hands the family a <code>PartitionSet</code> where the other two hand it an <code>Expression</code>.</p>
+<p>The mapping from switch to check is not one-to-one, and <code>BaseRowDelta.validate</code> is where that is easiest to see. <code>validateNoConflictingDeleteFiles()</code> sets a single boolean that drives <strong>two</strong> checks: <code>validateNoNewDeletesForDataFiles</code>, itself nested behind <code>!removedDataFiles.isEmpty()</code>, and then <code>validateNoNewDeleteFiles</code>. <code>validateDeletedFiles()</code> also does double duty — it calls <code>failMissingDeletePaths()</code>, which is absent from the table above because it is a precondition rather than a history walk, and its <em>negation</em> is handed to <code>validateDataFilesExist</code> as <code>skipDeletes</code>. Reading the flag names as a menu of checks will mislead; the method body is the mapping.</p>
 <p>Almost nothing validates by default. Most checks in the first table run only because a caller flipped a flag in the second — but three do not wait to be asked:</p>
 <ul>
 <li><code>validateNewDeleteFile</code> runs from <code>add(DeleteFile, long)</code>, so on every delete file the commit accepts. It is the odd one out in the table for a reason: it asks whether a delete file is <em>legal</em> for this format version, which no flag should be able to switch off.</li>
@@ -3434,8 +3435,7 @@
 </span><span id="__span-0-411"><a id="__codelineno-0-411" name="__codelineno-0-411"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-0-412"><a id="__codelineno-0-412" name="__codelineno-0-412"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java` L391–L412](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L391-L412) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L391-L412"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java</code> L391–L412</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Twenty-two lines, and the shape is shared by every member of the family: ask a private helper for an iterable of <em>conflicting entries</em>, and if it has a first element, throw. The exception names the offending files — <code>Iterators.transform(conflicts, entry -&gt; entry.file().location().toString())</code> — because an operator's next question is always "which ones".</p>
 <p>Two details are deliberate. The iterable is lazy and consumed inside try-with-resources, so a conflict short-circuits after the first matching entry rather than materialising the whole set. And <code>IOException</code> becomes <code>UncheckedIOException</code>, not <code>ValidationException</code> — a failure to <em>read</em> the manifests is not a finding of conflict, and must not be reported as one.</p>
 <h2 id="6-the-engine-underneath">6. The engine underneath<a class="headerlink" href="#6-the-engine-underneath" title="Permanent link">&para;</a></h2>
@@ -3522,8 +3522,7 @@
 </span><span id="__span-1-952"><a id="__codelineno-1-952" name="__codelineno-1-952"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">Pair</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">manifests</span><span class="p">,</span><span class="w"> </span><span class="n">newSnapshots</span><span class="p">);</span>
 </span><span id="__span-1-953"><a id="__codelineno-1-953" name="__codelineno-1-953"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java` L913–L953](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L913-L953) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L913-L953"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java</code> L913–L953</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three filters, applied in order.</p>
 <p><strong>By ancestry.</strong> <code>SnapshotUtil.ancestorsBetween(parent.snapshotId(), startingSnapshotId, base::snapshot)</code> yields only the snapshots committed on this branch after the writer read the table.</p>
 <p><strong>By operation.</strong> <code>if (matchingOperations.contains(currentSnapshot.operation()))</code> — and the constants at the top of the file encode real knowledge about which operations can produce which conflict:</p>
@@ -3539,8 +3538,7 @@
 </span><span id="__span-2-76"><a id="__codelineno-2-76" name="__codelineno-2-76"></a><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">VALIDATE_DATA_FILES_EXIST_OPERATIONS</span><span class="w"> </span><span class="o">=</span>
 </span><span id="__span-2-77"><a id="__codelineno-2-77" name="__codelineno-2-77"></a><span class="w">    </span><span class="n">ImmutableSet</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">DataOperations</span><span class="p">.</span><span class="na">OVERWRITE</span><span class="p">,</span><span class="w"> </span><span class="n">DataOperations</span><span class="p">.</span><span class="na">REPLACE</span><span class="p">,</span><span class="w"> </span><span class="n">DataOperations</span><span class="p">.</span><span class="na">DELETE</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java` L72–L77](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L72-L77) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L72-L77"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java</code> L72–L77</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>A concurrent <code>delete</code> cannot have added data files, so a check for added data files skips those snapshots entirely — without opening a single manifest.</p>
 <p><strong>By authorship.</strong> <code>if (manifest.snapshotId() == currentSnapshot.snapshotId())</code> keeps only the manifests a matching snapshot actually <em>wrote</em>. Snapshots inherit their predecessors' manifests; without this the same manifest would be scanned once per snapshot in the window.</p>
 <p>Then the closing check, which is the one people meet in production:</p>
@@ -3641,8 +3639,7 @@
 </span><span id="__span-4-173"><a id="__codelineno-4-173" name="__codelineno-4-173"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-4-174"><a id="__codelineno-4-174" name="__codelineno-4-174"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseRowDelta.java` L131–L174](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseRowDelta.java#L131-L174) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseRowDelta.java#L131-L174"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseRowDelta.java</code> L131–L174</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Five checks from the family, plus two things that are not checks from the family at all. Five checks is not five flags, though — read the nesting. <code>validateNoNewDeletesForDataFiles</code> and <code>validateNoNewDeleteFiles</code> share a single <code>if (validateNewDeleteFiles)</code>, which is why <code>RowDelta.validateNoConflictingDeleteFiles()</code> turns on two checks at once. And <code>validateAddedDVs</code> is the last statement in the method, outside every conditional, behind no flag at all.</p>
 <p>That last one is guarded from the inside instead: its first lines return immediately unless <code>parent != null &amp;&amp; !dvsByReferencedFile.isEmpty()</code>, so it costs nothing unless this commit is actually adding deletion vectors. When it is, the check is not negotiable — a deletion vector replaces a data file's whole delete state, so two writers each attaching one to the same data file would silently lose one set of deletes. There is no isolation level under which that is acceptable, so there is no flag.</p>
 <p><code>SnapshotUtil.isAncestorOf(parent.snapshotId(), startingSnapshotId, base::snapshot)</code> is a <code>Preconditions.checkArgument</code>, not a <code>ValidationException</code> — a starting snapshot that is not an ancestor of the head is a caller bug, not a concurrency event. And <code>validateNoConflictingFileAndPositionDeletes</code> is local to this class: it fails when the same commit both removes a data file and adds a delete file referencing it, which is a self-contradiction rather than a conflict with anyone else.</p>
@@ -3706,8 +3703,7 @@
 </span><span id="__span-5-51"><a id="__codelineno-5-51" name="__codelineno-5-51"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-5-52"><a id="__codelineno-5-52" name="__codelineno-5-52"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/IsolationLevel.java` L24–L52](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/IsolationLevel.java#L24-L52) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/IsolationLevel.java#L24-L52"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/IsolationLevel.java</code> L24–L52</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Two constants, a <code>fromName</code>, and no behaviour whatsoever. The semantics are entirely in the javadoc, and the sentence that matters is the last one: under serializable isolation an ongoing UPDATE/DELETE/MERGE "must fail" if a concurrent transaction adds a file that might contain matching rows, whereas under snapshot isolation the same operation "can still commit".</p>
 <p>Where does that become code? In the engine integration:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Where SERIALIZABLE turns into a method call</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-240">240</a></span>
@@ -3754,8 +3750,7 @@
 </span><span id="__span-6-260"><a id="__codelineno-6-260" name="__codelineno-6-260"></a><span class="w">    </span><span class="n">rowDelta</span><span class="p">.</span><span class="na">validateNoConflictingDataFiles</span><span class="p">();</span>
 </span><span id="__span-6-261"><a id="__codelineno-6-261" name="__codelineno-6-261"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java` L240–L261](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java#L240-L261) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java#L240-L261"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java</code> L240–L261</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>if (isolationLevel == SERIALIZABLE) { rowDelta.validateNoConflictingDataFiles(); }</code>. One call. That is the entire difference for a merge-on-read row-level operation — precisely the scenario from section 1, and precisely the check that would have caught it.</p>
 <p>The rest of the block is as instructive. <code>validateDataFilesExist(referencedDataFiles)</code> runs at <em>both</em> levels, because a delete that references a file someone else already rewrote is broken under any isolation. <code>validateFromSnapshot(scan.snapshotId())</code> bounds the history walk to snapshots after the read, with a comment saying what happens otherwise: "the validation will go through all snapshots present in the table". And when <code>scan == null</code> — the optimizer replaced it with an empty relation — no validation runs at all, because there is no read to be serialized against.</p>
 <p>Reading the same pattern out of <code>SparkWrite</code>, the full mapping is:</p>
@@ -3840,9 +3835,8 @@
 </span><span id="__span-7-47"><a id="__codelineno-7-47" name="__codelineno-7-47"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-7-48"><a id="__codelineno-7-48" name="__codelineno-7-48"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/RetryableValidationException.java` L24–L48](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/RetryableValidationException.java#L24-L48) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p><code>TableMetadata.Builder.addSnapshot</code> raises this when a snapshot's sequence number or <code>first-row-id</code> is behind the table's current state — stale values, not a conflict, and a refresh fixes them. Chapter 3.2 met it from the builder's side. <code>CatalogHandlers.commit</code> catches it server-side and re-throws it as a <code>CommitFailedException</code>, with a comment explaining that server-side retry cannot help because the stale values are in the request itself. Only the client, after refreshing, can produce a valid one.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/RetryableValidationException.java#L24-L48"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/RetryableValidationException.java</code> L24–L48</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p><code>TableMetadata.Builder.addSnapshot</code> raises this when a snapshot's sequence number or <code>first-row-id</code> is behind the table's current state — stale values, not a conflict, and a refresh fixes them. <a href="../chapter_3.2_table_metadata/">Chapter 3.2</a> met it from the builder's side. <code>CatalogHandlers.commit</code> catches it server-side and re-throws it as a <code>CommitFailedException</code>, with a comment explaining that server-side retry cannot help because the stale values are in the request itself. Only the client, after refreshing, can produce a valid one.</p>
 <h2 id="10-gotchas">10. Gotchas<a class="headerlink" href="#10-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Without <code>validateFromSnapshot()</code>, validation walks the entire table history</p>
@@ -3858,7 +3852,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">Partition pruning of concurrent manifests gives up when a spec changed</p>
-<p><code>filterManifestsByPartition</code> prunes concurrent manifests with a <code>ManifestEvaluator</code> before scanning them, but first checks whether any of them carries a <code>partitionSpecId</code> other than the default and, if so, returns them all unpruned. The comment gives the reason: "to avoid incorrectly excluding manifests when a spec change happened during validation". A slower complete scan beats a fast wrong one — the same tradeoff Chapter 3.3 found in the cleanup path.</p>
+<p><code>filterManifestsByPartition</code> prunes concurrent manifests with a <code>ManifestEvaluator</code> before scanning them, but first checks whether any of them carries a <code>partitionSpecId</code> other than the default and, if so, returns them all unpruned. The comment gives the reason: "to avoid incorrectly excluding manifests when a spec change happened during validation". A slower complete scan beats a fast wrong one — the same tradeoff <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> found in the cleanup path.</p>
 </div>
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>

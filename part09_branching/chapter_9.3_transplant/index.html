@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2181,7 +2181,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2380,7 +2380,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2742,7 +2742,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2938,7 +2938,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2966,7 +2966,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3022,7 +3022,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3289,7 +3289,7 @@
 <h1 id="chapter-93-transplant-cherry-pick-and-conflict-resolution-policies">Chapter 9.3 — Transplant (cherry-pick) and conflict resolution policies<a class="headerlink" href="#chapter-93-transplant-cherry-pick-and-conflict-resolution-policies" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> merge and transplant run through the same <code>createMergeTransplantCommit</code>, so what is actually different between them — and what does that shared structure force to be true about conflict resolution?</p>
-<p><strong>Prerequisites:</strong> Chapter 9.2 (conflict detection, <code>MergeBehavior</code>, <code>finishMergeTransplant</code>), Chapter 9.1 (<code>CreateCommit</code> actions and expected values)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_9.2_merge/">Chapter 9.2</a> (conflict detection, <code>MergeBehavior</code>, <code>finishMergeTransplant</code>), <a href="../chapter_9.1_commit_path/">Chapter 9.1</a> (<code>CreateCommit</code> actions and expected values)</p>
 <p><strong>Source covered:</strong> <code>versioned/storage/store/.../versionstore/TransplantIndividualImpl.java</code>, <code>.../BaseCommitHelper.java</code>, <code>.../MergeBehaviors.java</code>, <code>api/model/.../MergeKeyBehavior.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3312,8 +3312,8 @@
     CC2 --&gt; SHARED
     SHARED["createMergeTransplantCommit()&lt;br/&gt;ConflictHandler + 2 ValueReplacement&lt;br/&gt;buildCommitObj on the target"]
     SHARED --&gt; FIN["finishMergeTransplant()&lt;br/&gt;conflicts? do not bump the reference"]</code></pre>
-<p>Everything to the right of the two <code>Add</code> nodes is literally the same code, described in Chapter 9.2. <code>VersionStoreImpl</code> wires exactly one implementation for each operation — <code>MergeSquashImpl</code> and <code>TransplantIndividualImpl</code> — so merge is always a squash and transplant is always a per-commit replay. Neither is configurable.</p>
-<p>The two entry points are otherwise indistinguishable. Both wrap their supplier in <code>dryRunCommitterSupplier</code> when the request asks for a dry run, which swaps the real <code>Persist</code> for a <code>BatchingPersist</code> with <code>batchSize(-1)</code> that never flushes; both return through the same <code>mergeTransplantResponse</code>, which turns <code>wasSuccessful() == false</code> into a <code>MergeConflictException</code> listing every conflicting key, sorted and quoted. Chapter 9.2's "build it all, report it all" decision is inherited here unchanged.</p>
+<p>Everything to the right of the two <code>Add</code> nodes is literally the same code, described in <a href="../chapter_9.2_merge/">Chapter 9.2</a>. <code>VersionStoreImpl</code> wires exactly one implementation for each operation — <code>MergeSquashImpl</code> and <code>TransplantIndividualImpl</code> — so merge is always a squash and transplant is always a per-commit replay. Neither is configurable.</p>
+<p>The two entry points are otherwise indistinguishable. Both wrap their supplier in <code>dryRunCommitterSupplier</code> when the request asks for a dry run, which swaps the real <code>Persist</code> for a <code>BatchingPersist</code> with <code>batchSize(-1)</code> that never flushes; both return through the same <code>mergeTransplantResponse</code>, which turns <code>wasSuccessful() == false</code> into a <code>MergeConflictException</code> listing every conflicting key, sorted and quoted. <a href="../chapter_9.2_merge/">Chapter 9.2</a>'s "build it all, report it all" decision is inherited here unchanged.</p>
 <h2 id="3-a-cherry-pick-is-a-run-not-a-set">3. A cherry-pick is a run, not a set<a class="headerlink" href="#3-a-cherry-pick-is-a-run-not-a-set" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">TransplantIndividualImpl.loadSourceCommitsForTransplant()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-173">173</a></span>
 <span class="normal"><a href="#__codelineno-0-174">174</a></span>
@@ -3413,8 +3413,7 @@
 </span><span id="__span-0-220"><a id="__codelineno-0-220" name="__codelineno-0-220"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MergeTransplantContext</span><span class="p">(</span><span class="n">commits</span><span class="p">,</span><span class="w"> </span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">);</span>
 </span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java` L173–L221](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java#L173-L221) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java#L173-L221"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java</code> L173–L221</a> <span>@ nessie-0.108.4</span></p>
 <p>The hashes are bulk-loaded in one <code>fetchTypedObjs</code> call, and then checked:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">commit</span><span class="p">.</span><span class="na">directParent</span><span class="p">().</span><span class="na">equals</span><span class="p">(</span><span class="n">commits</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">).</span><span class="na">id</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">"Sequence of hashes is not contiguous."</span><span class="p">);</span>
@@ -3481,8 +3480,7 @@
 </span><span id="__span-2-170"><a id="__codelineno-2-170" name="__codelineno-2-170"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">createCommitBuilder</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </span><span id="__span-2-171"><a id="__codelineno-2-171" name="__codelineno-2-171"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java` L144–L171](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java#L144-L171) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java#L144-L171"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java</code> L144–L171</a> <span>@ nessie-0.108.4</span></p>
 <p>Twenty-eight lines, and one of them is the chapter:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">ObjId</span><span class="w"> </span><span class="n">expectedId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">idForExpectedContent</span><span class="p">(</span><span class="n">el</span><span class="p">.</span><span class="na">key</span><span class="p">(),</span><span class="w"> </span><span class="n">sourceParentIndex</span><span class="p">);</span>
 </span></code></pre></div>
@@ -3625,18 +3623,17 @@
 </span><span id="__span-4-141"><a id="__codelineno-4-141" name="__codelineno-4-141"></a><span class="w">      </span><span class="n">empty</span><span class="p">,</span><span class="w"> </span><span class="n">transplantResult</span><span class="p">,</span><span class="w"> </span><span class="n">newHead</span><span class="p">,</span><span class="w"> </span><span class="n">transplantOp</span><span class="p">.</span><span class="na">dryRun</span><span class="p">(),</span><span class="w"> </span><span class="n">hasConflicts</span><span class="p">);</span>
 </span><span id="__span-4-142"><a id="__codelineno-4-142" name="__codelineno-4-142"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java` L76–L142](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java#L76-L142) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java#L76-L142"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/TransplantIndividualImpl.java</code> L76–L142</a> <span>@ nessie-0.108.4</span></p>
 <p>Two indexes advance together at the bottom of each iteration:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">sourceParentIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">indexesLogic</span><span class="p">.</span><span class="na">buildCompleteIndex</span><span class="p">(</span><span class="n">sourceCommit</span><span class="p">,</span><span class="w"> </span><span class="n">Optional</span><span class="p">.</span><span class="na">empty</span><span class="p">());</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">targetParentIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">indexesLogic</span><span class="p">.</span><span class="na">buildCompleteIndex</span><span class="p">(</span><span class="n">newCommit</span><span class="p">,</span><span class="w"> </span><span class="n">Optional</span><span class="p">.</span><span class="na">empty</span><span class="p">());</span>
 </span></code></pre></div>
 <p><code>sourceParentIndex</code> walks forward through the source chain, supplying §4's expected values. <code>targetParentIndex</code> walks forward through the commits being created, so validation and namespace policy for commit <em>i+1</em> see the effects of commit <em>i</em>. Both are complete indexes, rebuilt per commit — a transplant of N commits is N index builds, which is the cost of not squashing.</p>
 <p>Three more things in this loop deserve naming.</p>
-<p><strong>The loop never breaks on conflict.</strong> <code>keyDetailsMap</code> is declared outside it and accumulates across every commit; <code>recordKeyDetailsAndCheckConflicts</code> runs once, after. As in Chapter 9.2, the commits are all built and the reference is simply not bumped. A five-commit transplant with a conflict in commit two still constructs all five.</p>
+<p><strong>The loop never breaks on conflict.</strong> <code>keyDetailsMap</code> is declared outside it and accumulates across every commit; <code>recordKeyDetailsAndCheckConflicts</code> runs once, after. As in <a href="../chapter_9.2_merge/">Chapter 9.2</a>, the commits are all built and the reference is simply not bumped. A five-commit transplant with a conflict in commit two still constructs all five.</p>
 <p><strong>Empty commits are skipped silently.</strong> <code>if (!indexesLogic.commitOperations(newCommit).iterator().hasNext()) continue;</code> — a source commit whose operations were all dropped, or all redundant against the target, produces no commit at all.</p>
 <p><strong><code>newHead</code> starts at <code>headId()</code> and only moves on a real commit.</strong> The <code>empty</code> flag is set false the first time a commit survives the skip check, and both are handed to <code>finishMergeTransplant(empty, ...)</code>. A transplant in which every source commit turned out to be a no-op returns successful, applied-false, with the branch untouched — the same outcome as merging a source that is already an ancestor.</p>
-<p><strong><code>committed.stored()</code> distinguishes a genuinely new commit from one that already existed</strong>, with a comment explaining the case: <em>"If not equal, we have to assume that the commit already existed - aka a 'fast-forward transplant'. This is only to maintain compatibility with (pre-)existing behavior."</em> Because commit IDs are content hashes (Chapter 9.1), transplanting a commit already present on the target reproduces its exact ID, and Nessie reports it rather than duplicating it.</p>
+<p><strong><code>committed.stored()</code> distinguishes a genuinely new commit from one that already existed</strong>, with a comment explaining the case: <em>"If not equal, we have to assume that the commit already existed - aka a 'fast-forward transplant'. This is only to maintain compatibility with (pre-)existing behavior."</em> Because commit IDs are content hashes (<a href="../chapter_9.1_commit_path/">Chapter 9.1</a>), transplanting a commit already present on the target reproduces its exact ID, and Nessie reports it rather than duplicating it.</p>
 <h2 id="6-validation-runs-per-commit-too">6. Validation runs per commit, too<a class="headerlink" href="#6-validation-runs-per-commit-too" title="Permanent link">&para;</a></h2>
 <p>Two checks sit at the top of each iteration, before any commit object is built, and both take <code>targetParentIndex</code> — the index that advances with the commits being created:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">validateMergeTransplantCommit</span><span class="p">(</span><span class="n">createCommit</span><span class="p">,</span><span class="w"> </span><span class="n">transplantOp</span><span class="p">.</span><span class="na">validator</span><span class="p">(),</span><span class="w"> </span><span class="n">targetParentIndex</span><span class="p">);</span>
@@ -3644,7 +3641,7 @@
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">verifyMergeTransplantCommitPolicies</span><span class="p">(</span><span class="n">targetParentIndex</span><span class="p">,</span><span class="w"> </span><span class="n">sourceCommit</span><span class="p">);</span>
 </span></code></pre></div>
 <p><code>validateMergeTransplantCommit</code> reconstructs an <code>IdentifiedContentKey</code> for every add and remove and hands the set to the caller's <code>CommitValidator</code> — the hook authorization is wired into. So a transplant is authorized once per replayed commit, not once for the range.</p>
-<p><code>verifyMergeTransplantCommitPolicies</code> re-runs the namespace rules from Chapter 9.1: every new key must have an existing parent namespace, and no namespace may be deleted while it still holds children. Because the index advances, a source commit that creates namespace <code>a.b</code> and a later one that creates <code>a.b.t</code> both pass — the second sees the first. But a transplant can be asked for a run whose namespace creation was <em>left behind</em>, and then the replay fails with <code>NAMESPACE_ABSENT</code> even though the source branch was perfectly consistent. That is the price of replaying a subrange rather than a state.</p>
+<p><code>verifyMergeTransplantCommitPolicies</code> re-runs the namespace rules from <a href="../chapter_9.1_commit_path/">Chapter 9.1</a>: every new key must have an existing parent namespace, and no namespace may be deleted while it still holds children. Because the index advances, a source commit that creates namespace <code>a.b</code> and a later one that creates <code>a.b.t</code> both pass — the second sees the first. But a transplant can be asked for a run whose namespace creation was <em>left behind</em>, and then the replay fails with <code>NAMESPACE_ABSENT</code> even though the source branch was perfectly consistent. That is the price of replaying a subrange rather than a state.</p>
 <p>The merge path calls both methods too, and against <code>headIndex</code> rather than an advancing one — once, not N times.</p>
 <h2 id="7-advanced-resolution-two-callbacks">7. Advanced resolution: two callbacks<a class="headerlink" href="#7-advanced-resolution-two-callbacks" title="Permanent link">&para;</a></h2>
 <p><code>MergeBehavior</code> gets you source-wins or target-wins. Neither helps when the right answer is a <em>third</em> value. That is what the remaining two callbacks of <code>buildCommitObj</code> are for:</p>
@@ -3744,8 +3741,7 @@
 </span><span id="__span-7-561"><a id="__codelineno-7-561" name="__codelineno-7-561"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">resolvedValue</span><span class="p">.</span><span class="na">id</span><span class="p">();</span>
 </span><span id="__span-7-562"><a id="__codelineno-7-562" name="__codelineno-7-562"></a><span class="p">});</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java` L515–L562](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java#L515-L562) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java#L515-L562"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java</code> L515–L562</a> <span>@ nessie-0.108.4</span></p>
 <p><code>expectedValueReplacement</code> runs <em>before</em> conflict detection and substitutes what the commit logic compares against. When a client supplies <code>MergeKeyBehavior.expectedTargetContent</code>, Nessie builds that content's <code>ContentValueObj</code> and uses its ID as the expected value — and the comment notes the shortcut: <em>"we only need the ObjId for it to let the commit code perform the check. An object load is not needed."</em> Hashing the client's object is enough; if the hash matches what the target holds, the assertion passes.</p>
 <p><code>committedValueReplacement</code> runs on the value being written. When <code>MergeKeyBehavior.resolvedContent</code> is set, the client's merged object is persisted — <code>objsToStore.accept(resolvedValue)</code> — and its ID is committed instead of the source's. This is how an external three-way merge is fed back in: the client reads both sides, resolves them, and hands Nessie the answer.</p>
 <p><code>MergeBehaviors.validate()</code> enforces the pairing at construction time:</p>
@@ -3803,8 +3799,7 @@
 </span><span id="__span-8-102"><a id="__codelineno-8-102" name="__codelineno-8-102"></a><span class="w">          </span><span class="p">});</span>
 </span><span id="__span-8-103"><a id="__codelineno-8-103" name="__codelineno-8-103"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/MergeBehaviors.java` L77–L103](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/MergeBehaviors.java#L77-L103) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/MergeBehaviors.java#L77-L103"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/MergeBehaviors.java</code> L77–L103</a> <span>@ nessie-0.108.4</span></p>
 <p>Two rules, and they are narrower than they look. Under <code>NORMAL</code>, <code>resolvedContent</code> without <code>expectedTargetContent</code> is rejected: a resolution is only valid against a known starting point, and writing a merged value onto a target that has since moved again would silently discard the third change. Under <code>FORCE</code> or <code>DROP</code>, <code>resolvedContent</code> is rejected outright, because those behaviours skip exactly the check that would make it meaningful.</p>
 <p><code>expectedTargetContent</code> is <strong>not</strong> rejected under <code>FORCE</code> or <code>DROP</code>. It is deliberately honoured there, and chapter 9.2 showed the code that does it: the <code>FORCE</code>/<code>DROP</code> arm of the conflict handler only takes its fast path when <code>getExpectedTargetContent() == null</code>, and otherwise falls through into the <code>NORMAL</code> case. The two features are asymmetric on purpose. <code>resolvedContent</code> supplies an answer, which needs a question that was actually asked; <code>expectedTargetContent</code> <em>is</em> a question, and a client that asks it gets an answer even when it also said "force".</p>
 <h2 id="8-why-resolution-is-documented-merge-only">8. Why resolution is documented merge-only<a class="headerlink" href="#8-why-resolution-is-documented-merge-only" title="Permanent link">&para;</a></h2>
@@ -3879,7 +3874,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 9.4 turns to what these operations leave behind. A conflicting merge or transplant builds complete commit objects and abandons them — which makes garbage collection the last algorithm in this part, and the one with two independent implementations that must not be confused.</p>
+<p><strong>Next:</strong> <a href="../chapter_9.4_gc/">Chapter 9.4</a> turns to what these operations leave behind. A conflicting merge or transplant builds complete commit objects and abandons them — which makes garbage collection the last algorithm in this part, and the one with two independent implementations that must not be confused.</p>
 
 
 

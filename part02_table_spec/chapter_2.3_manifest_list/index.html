@@ -872,7 +872,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1264,7 +1264,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1292,7 +1292,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1460,7 +1460,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1488,7 +1488,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1516,7 +1516,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1712,7 +1712,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1740,7 +1740,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1906,7 +1906,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1934,7 +1934,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1962,7 +1962,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2130,7 +2130,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2158,7 +2158,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2186,7 +2186,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2326,7 +2326,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2354,7 +2354,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2548,7 +2548,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2742,7 +2742,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2938,7 +2938,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2966,7 +2966,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3022,7 +3022,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3289,7 +3289,7 @@
 <h1 id="chapter-23-the-manifest-list-snapshot-level-pruning-data">Chapter 2.3 — The manifest list: snapshot-level pruning data<a class="headerlink" href="#chapter-23-the-manifest-list-snapshot-level-pruning-data" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> what is stored per manifest in a <code>snap-*.avro</code> file, and how much of a query can be eliminated without opening a single manifest?</p>
-<p><strong>Prerequisites:</strong> Chapter 2.1 (the <code>snap-*.avro</code> name), Chapter 2.2 (<code>snapshots[].manifest-list</code>)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_2.1_table_directory_anatomy/">Chapter 2.1</a> (the <code>snap-*.avro</code> name), <a href="../chapter_2.2_metadata_json/">Chapter 2.2</a> (<code>snapshots[].manifest-list</code>)</p>
 <p><strong>Source covered:</strong> <code>api/.../ManifestFile.java</code>, <code>core/.../ManifestWriter.java</code>, <code>core/.../PartitionSummary.java</code>, <code>api/.../expressions/ManifestEvaluator.java</code>, <code>core/.../ManifestGroup.java</code>, <code>core/.../V3Metadata.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3310,10 +3310,10 @@
 
     DM --&gt;|"partitions[] (507)&lt;br/&gt;ManifestEvaluator.eval"| DM2["partition-matching manifests"]
     DM2 --&gt;|"added/existing/deleted&lt;br/&gt;counts (504-506)"| DM3["manifests with live entries"]
-    DM3 --&gt; OPEN["open the manifest&lt;br/&gt;Chapter 2.4"]
+    DM3 --&gt; OPEN["open the manifest&lt;br/&gt;[Chapter 2.4](../part02_table_spec/chapter_2.4_manifest_file.md)"]
 
     XM --&gt;|"partitions[] (507)&lt;br/&gt;+ hasAddedFiles / hasExistingFiles"| XM2["candidate delete manifests"]
-    XM2 --&gt;|"per-entry:&lt;br/&gt;dataSequenceNumber &amp;gt; minSeq"| XM3["deletes that can apply&lt;br/&gt;Chapter 2.5"]
+    XM2 --&gt;|"per-entry:&lt;br/&gt;dataSequenceNumber &amp;gt; minSeq"| XM3["deletes that can apply&lt;br/&gt;[Chapter 2.5](../part02_table_spec/chapter_2.5_format_versions.md)"]
 
     NOTE["a missing count means MIGHT,&lt;br/&gt;never NONE"] -.-&gt; DM3</code></pre>
 <p>Four filters, three of them answered entirely from the manifest list row. The fourth — the sequence-number comparison on delete files — is the one that is <em>not</em> done from the row, and section 8 explains why that is worth knowing.</p>
@@ -3490,8 +3490,7 @@
 </span><span id="__span-0-116"><a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="w">        </span><span class="n">KEY_METADATA</span><span class="p">,</span>
 </span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="w">        </span><span class="n">FIRST_ROW_ID</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/ManifestFile.java` L32–L117](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/ManifestFile.java#L32-L117) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/ManifestFile.java#L32-L117"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/ManifestFile.java</code> L32–L117</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Sixteen fields, IDs 500 through 520, each with a doc string that is part of the written Avro schema. This declaration is the spec: there is no separate <code>.avsc</code>, and <code>ManifestFile.SCHEMA</code> at the bottom is what a reader binds against.</p>
 <p>Group them by job:</p>
 <table>
@@ -3524,7 +3523,7 @@
 </tr>
 <tr>
 <td>Row lineage</td>
-<td><code>first_row_id</code> (520) — v3, Chapter 2.5</td>
+<td><code>first_row_id</code> (520) — v3, <a href="../chapter_2.5_format_versions/">Chapter 2.5</a></td>
 </tr>
 </tbody>
 </table>
@@ -3583,8 +3582,7 @@
 </span><span id="__span-1-117"><a id="__codelineno-1-117" name="__codelineno-1-117"></a><span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">prepare</span><span class="p">(</span><span class="n">entry</span><span class="p">));</span>
 </span><span id="__span-1-118"><a id="__codelineno-1-118" name="__codelineno-1-118"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestWriter.java` L93–L118](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestWriter.java#L93-L118) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestWriter.java#L93-L118"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestWriter.java</code> L93–L118</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The switch on <code>entry.status()</code> is the whole counting scheme: <code>ADDED</code>, <code>EXISTING</code> and <code>DELETED</code> each bump a file counter and a row counter. <code>stats.update(...)</code> folds the partition tuple into the summaries. And <code>minDataSequenceNumber</code> tracks the lowest data sequence number among <strong>live</strong> entries only — <code>entry.isLive()</code> guards it, so a deleted file's sequence number never lowers the manifest's floor.</p>
 <p>Then the row is emitted:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">where the summary numbers come from</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-206">206</a></span>
@@ -3659,14 +3657,13 @@
 </span><span id="__span-2-240"><a id="__codelineno-2-240" name="__codelineno-2-240"></a><span class="w">      </span><span class="n">firstRowId</span><span class="p">);</span>
 </span><span id="__span-2-241"><a id="__codelineno-2-241" name="__codelineno-2-241"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestWriter.java` L206–L241](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestWriter.java#L206-L241) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestWriter.java#L206-L241"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestWriter.java</code> L206–L241</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Two details repay attention.</p>
 <p><code>UNASSIGNED_SEQ</code> is passed as the manifest's own <code>sequence_number</code>, and as <code>min_sequence_number</code> too when no live entry carried one. The comment says why:</p>
 <blockquote>
 <p><em>if the minSequenceNumber is null, then no manifests with a sequence number have been written, so the min data sequence number is the one that will be assigned when this is committed. pass UNASSIGNED_SEQ to inherit it.</em></p>
 </blockquote>
-<p>Sequence numbers are not known until the commit succeeds — the writer does not know which sequence number it will win. Inheritance, signalled by a sentinel, is how the value gets filled in at commit time. Chapter 2.4 shows the same mechanism one level down, on manifest entries.</p>
+<p>Sequence numbers are not known until the commit succeeds — the writer does not know which sequence number it will win. Inheritance, signalled by a sentinel, is how the value gets filled in at commit time. <a href="../chapter_2.4_manifest_file/">Chapter 2.4</a> shows the same mechanism one level down, on manifest entries.</p>
 <p>The second detail: <code>Preconditions.checkState(closed, "Cannot build ManifestFile, writer is not closed")</code>. The counts are only correct once every entry has gone through <code>addEntry</code>, so the row cannot be built early.</p>
 <p>The consequence of accumulate-once is worth stating plainly: <strong>these fields are asserted, never verified.</strong> A manifest whose counts are wrong will be trusted, and will silently produce wrong results. That is a design choice — checking them would mean reading the manifest, which defeats the point of the manifest list.</p>
 <h2 id="5-partition-summaries-per-field-by-ordinal">5. Partition summaries, per field, by ordinal<a class="headerlink" href="#5-partition-summaries-per-field-by-ordinal" title="Permanent link">&para;</a></h2>
@@ -3750,8 +3747,7 @@
 </span><span id="__span-3-100"><a id="__codelineno-3-100" name="__codelineno-3-100"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-101"><a id="__codelineno-3-101" name="__codelineno-3-101"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/PartitionSummary.java` L62–L101](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/PartitionSummary.java#L62-L101) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/PartitionSummary.java#L62-L101"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/PartitionSummary.java</code> L62–L101</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Four pieces of state per partition field: <code>containsNull</code>, <code>containsNaN</code>, <code>min</code>, <code>max</code>.</p>
 <p>Read <code>update</code> carefully, because the ordering of its branches is the contract. A null value sets <code>containsNull</code> and <strong>does not touch the bounds</strong>. A NaN sets <code>containsNaN</code> and does not touch the bounds either. Only an ordinary value participates in min/max. So <code>lower_bound == null</code> does not mean "we did not compute it" — it means <em>no ordinary value was ever seen</em>, which is a much stronger statement, and section 6 depends on it being true.</p>
 <p>The shape of the summary list is the thing readers most often get wrong. The javadoc on <code>partitions()</code> is unambiguous:</p>
@@ -3824,9 +3820,8 @@
 </span><span id="__span-4-188"><a id="__codelineno-4-188" name="__codelineno-4-188"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ROWS_MIGHT_MATCH</span><span class="p">;</span>
 </span><span id="__span-4-189"><a id="__codelineno-4-189" name="__codelineno-4-189"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java` L158–L189](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java#L158-L189) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>This class decides what <em>provably cannot</em> match rather than what does, and every uncertain answer resolves to "might". <strong>Chapter 4.2 owns that contract</strong> — the two named constants, the javadoc's "if and only if", and what it costs the planner — because the evaluator belongs to the read path and is read there against a whole scan. What this chapter needs from it is narrower and is about the <em>row</em>: whether the sixteen fields of section 3 are strong enough to support a proof at all.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java#L158-L189"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java</code> L158–L189</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>This class decides what <em>provably cannot</em> match rather than what does, and every uncertain answer resolves to "might". <strong><a href="../../part04_read_path/chapter_4.2_manifest_pruning/">Chapter 4.2</a> owns that contract</strong> — the two named constants, the javadoc's "if and only if", and what it costs the planner — because the evaluator belongs to the read path and is read there against a whole scan. What this chapter needs from it is narrower and is about the <em>row</em>: whether the sixteen fields of section 3 are strong enough to support a proof at all.</p>
 <p>They are, and one branch shows exactly where the strength comes from. Look at <code>lt</code>:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">ByteBuffer</span><span class="w"> </span><span class="n">lowerBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stats</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">pos</span><span class="p">).</span><span class="na">lowerBound</span><span class="p">();</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lowerBound</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -3899,8 +3894,7 @@
 </span><span id="__span-6-330"><a id="__codelineno-6-330" name="__codelineno-6-330"></a><span class="w">          </span><span class="n">manifest</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">manifest</span><span class="p">.</span><span class="na">hasAddedFiles</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">manifest</span><span class="p">.</span><span class="na">hasDeletedFiles</span><span class="p">());</span>
 </span><span id="__span-6-331"><a id="__codelineno-6-331" name="__codelineno-6-331"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestGroup.java` L301–L331](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestGroup.java#L301-L331) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestGroup.java#L301-L331"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestGroup.java</code> L301–L331</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three filters chain. First the partition filter, with <code>evalCache</code> keyed by <code>partitionSpecId</code> — one <code>ManifestEvaluator</code> per spec, exactly as section 5 requires. Then two count-based filters, and the comments state the rule twice:</p>
 <blockquote>
 <p><em>remove any manifests that don't have any existing or added files. if either the added or existing files count is missing, the manifest must be scanned.</em></p>
@@ -3946,11 +3940,10 @@
 </span><span id="__span-7-47"><a id="__codelineno-7-47" name="__codelineno-7-47"></a><span class="w">        </span><span class="n">ManifestFile</span><span class="p">.</span><span class="na">KEY_METADATA</span><span class="p">,</span>
 </span><span id="__span-7-48"><a id="__codelineno-7-48" name="__codelineno-7-48"></a><span class="w">        </span><span class="n">ManifestFile</span><span class="p">.</span><span class="na">FIRST_ROW_ID</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/V3Metadata.java` L31–L48](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/V3Metadata.java#L31-L48) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/V3Metadata.java#L31-L48"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/V3Metadata.java</code> L31–L48</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Same field list, but <code>content</code>, <code>sequence_number</code>, <code>min_sequence_number</code> and all six counts are wrapped in <code>asRequired()</code>. The API declares them optional so that a v1 manifest list — which has none of the first three and may omit the counts — still parses. The writers declare them required so that anything written at v2 or above is fully pruneable.</p>
-<p>This split is a small piece of a bigger pattern: there is a <code>V1Metadata</code>, <code>V2Metadata</code>, <code>V3Metadata</code> and <code>V4Metadata</code>, each holding one static <code>MANIFEST_LIST_SCHEMA</code>, and <code>ManifestLists.write</code> switches on the format version to pick one. Chapter 2.5 turns those four declarations into a version table.</p>
-<p>One honest note before leaving the row. <code>min_sequence_number</code> is documented as <em>"the lowest data sequence number of any live file in the manifest"</em>, and it is written faithfully — but at this tag, <strong>core's scan planner does not read it</strong>. There is no call to <code>ManifestFile.minSequenceNumber()</code> anywhere in <code>ManifestGroup</code>, <code>DeleteFileIndex</code>, <code>BaseDistributedDataScan</code> or <code>TableScan</code>. The filter that decides whether a delete can apply runs one level down and per <em>entry</em>, inside <code>DeleteFileIndex.loadDeleteFiles()</code> — <code>if (entry.dataSequenceNumber() &gt; minSequenceNumber)</code>, where <code>minSequenceNumber</code> is the index builder's own floor, not the row's field. Chapter 4.1 injects that method in full.</p>
+<p>This split is a small piece of a bigger pattern: there is a <code>V1Metadata</code>, <code>V2Metadata</code>, <code>V3Metadata</code> and <code>V4Metadata</code>, each holding one static <code>MANIFEST_LIST_SCHEMA</code>, and <code>ManifestLists.write</code> switches on the format version to pick one. <a href="../chapter_2.5_format_versions/">Chapter 2.5</a> turns those four declarations into a version table.</p>
+<p>One honest note before leaving the row. <code>min_sequence_number</code> is documented as <em>"the lowest data sequence number of any live file in the manifest"</em>, and it is written faithfully — but at this tag, <strong>core's scan planner does not read it</strong>. There is no call to <code>ManifestFile.minSequenceNumber()</code> anywhere in <code>ManifestGroup</code>, <code>DeleteFileIndex</code>, <code>BaseDistributedDataScan</code> or <code>TableScan</code>. The filter that decides whether a delete can apply runs one level down and per <em>entry</em>, inside <code>DeleteFileIndex.loadDeleteFiles()</code> — <code>if (entry.dataSequenceNumber() &gt; minSequenceNumber)</code>, where <code>minSequenceNumber</code> is the index builder's own floor, not the row's field. <a href="../../part04_read_path/chapter_4.1_table_scan/">Chapter 4.1</a> injects that method in full.</p>
 <p>The same builder carries a second method that looks like the same filter and is not:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the same comparison, over the wrong collection</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-449">449</a></span>
 <span class="normal"><a href="#__codelineno-8-450">450</a></span>
@@ -3958,10 +3951,9 @@
 </span><span id="__span-8-450"><a id="__codelineno-8-450" name="__codelineno-8-450"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">Iterables</span><span class="p">.</span><span class="na">filter</span><span class="p">(</span><span class="n">deleteFiles</span><span class="p">,</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">file</span><span class="p">.</span><span class="na">dataSequenceNumber</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">minSequenceNumber</span><span class="p">);</span>
 </span><span id="__span-8-451"><a id="__codelineno-8-451" name="__codelineno-8-451"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/DeleteFileIndex.java` L449–L451](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/DeleteFileIndex.java#L449-L451) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/DeleteFileIndex.java#L449-L451"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/DeleteFileIndex.java</code> L449–L451</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>It filters an already-materialised <code>Iterable&lt;DeleteFile&gt;</code>, not manifest entries, and <code>build()</code> picks between the two with <code>deleteFiles != null ? filterDeleteFiles() : loadDeleteFiles()</code>. <code>deleteFiles</code> is non-null only through <code>builderFor(Iterable&lt;DeleteFile&gt;)</code>, whose only non-test callers are Spark's <code>SparkDistributedDataScan</code>. Every core path — <code>ManifestGroup</code>, <code>BaseDistributedDataScan</code>, both <code>MergingSnapshotProducer</code> call sites — uses the <code>FileIO</code> plus <code>Iterable&lt;ManifestFile&gt;</code> builder and takes the other branch. Two methods, one comparison, and core runs the one that opens the manifests.</p>
-<p>Where core <em>does</em> read the row's field is the commit path rather than the read path. <code>MergingSnapshotProducer.apply</code> maps <code>ManifestFile::minSequenceNumber</code> over the data manifests that survived filtering, discards <code>UNASSIGNED_SEQ</code>, reduces the rest to a minimum, and hands it to <code>dropDeleteFilesOlderThan</code> — which is how a commit drops delete files that can no longer match any surviving data file. <code>SnapshotProducer</code> copies the field forward whenever it rewrites a manifest. Chapter 5.2 reads that same number from the writer's side.</p>
+<p>Where core <em>does</em> read the row's field is the commit path rather than the read path. <code>MergingSnapshotProducer.apply</code> maps <code>ManifestFile::minSequenceNumber</code> over the data manifests that survived filtering, discards <code>UNASSIGNED_SEQ</code>, reduces the rest to a minimum, and hands it to <code>dropDeleteFilesOlderThan</code> — which is how a commit drops delete files that can no longer match any surviving data file. <code>SnapshotProducer</code> copies the field forward whenever it rewrites a manifest. <a href="../../part05_write_path/chapter_5.2_append_strategies/">Chapter 5.2</a> reads that same number from the writer's side.</p>
 <p>So the field is load-bearing, just not where a reader of this chapter would first look for it — and one prominent consumer discards it outright. Spark's <code>ManifestFileBean</code>, the serialisable row wrapper its rewrite actions pass through, has no <code>minSequenceNumber</code> field at all: <code>fromManifest</code> copies <code>content</code> and <code>sequenceNumber</code> and stops, and the accessor is overridden to <code>return 0;</code> in every one of the four Spark versions in the tree.</p>
 <h2 id="9-gotchas">9. Gotchas<a class="headerlink" href="#9-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
@@ -4027,7 +4019,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 2.4 opens one of the manifests this list points at, where the unit stops being "a manifest" and becomes "an assertion about one data file".</p>
+<p><strong>Next:</strong> <a href="../chapter_2.4_manifest_file/">Chapter 2.4</a> opens one of the manifests this list points at, where the unit stops being "a manifest" and becomes "an assertion about one data file".</p>
 
 
 
@@ -4065,7 +4057,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_2.2_metadata_json/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 2.2 `metadata.json`, field by field">
+          <a href="../chapter_2.2_metadata_json/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 2.2 metadata.json, field by field">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4075,7 +4067,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                2.2 `metadata.json`, field by field
+                2.2 metadata.json, field by field
               </div>
             </div>
           </a>

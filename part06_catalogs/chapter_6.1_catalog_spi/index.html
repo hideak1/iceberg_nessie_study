@@ -29,7 +29,7 @@
     
     
       
-        <title>6.1 The `Catalog` SPI - Iceberg & Nessie Internals</title>
+        <title>6.1 The Catalog SPI - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              6.1 The `Catalog` SPI
+              6.1 The Catalog SPI
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1747,7 +1747,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1765,7 +1765,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1923,7 +1923,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1951,7 +1951,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2119,7 +2119,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2147,7 +2147,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2175,7 +2175,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2315,7 +2315,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2343,7 +2343,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2537,7 +2537,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2731,7 +2731,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2927,7 +2927,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3011,7 +3011,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3267,14 +3267,14 @@
 <h1 id="chapter-61-the-catalog-spi">Chapter 6.1 — The <code>Catalog</code> SPI<a class="headerlink" href="#chapter-61-the-catalog-spi" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> what does a catalog actually have to implement, and where in that contract does the atomic commit live?</p>
-<p><strong>Prerequisites:</strong> Chapter 3.2 (<code>TableMetadata</code> and <code>MetadataUpdate</code>), Chapter 3.3 (<code>SnapshotProducer</code>)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/">Chapter 3.2</a> (<code>TableMetadata</code> and <code>MetadataUpdate</code>), <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> (<code>SnapshotProducer</code>)</p>
 <p><strong>Source covered:</strong> <code>api/.../catalog/Catalog.java</code>, <code>api/.../catalog/SupportsNamespaces.java</code>, <code>api/.../catalog/SessionCatalog.java</code>, <code>core/.../BaseMetastoreCatalog.java</code>, <code>core/.../BaseMetastoreTableOperations.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
 <p>A table lives in object storage as a tree of immutable files. Nothing in that tree says which <code>metadata.json</code> is <em>current</em> — every file is equally real, and two writers appending to the same table both produce a perfectly valid new one. Something outside the tree has to answer one question: <strong>which metadata file is the table right now</strong>, and let exactly one writer change that answer at a time. That is the catalog's entire job; everything else it does — listing, renaming, namespaces, credential vending — is convenience layered on a single mutable pointer per table.</p>
 <p>Reading <code>Catalog</code> with that in mind produces the first surprise of Part 6, and it is structural rather than a detail:</p>
 <p><strong><code>Catalog</code> has no <code>commit</code> method.</strong></p>
-<p>The interface can create tables, drop them, rename them, list them, and load them. It cannot commit to one. The atomic swap lives one level down, on <code>TableOperations</code> — the interface Chapter 3.3 handed to <code>SnapshotProducer</code>. A catalog's real contribution to a write is to <em>manufacture a <code>TableOperations</code></em> and step out of the way.</p>
+<p>The interface can create tables, drop them, rename them, list them, and load them. It cannot commit to one. The atomic swap lives one level down, on <code>TableOperations</code> — the interface <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> handed to <code>SnapshotProducer</code>. A catalog's real contribution to a write is to <em>manufacture a <code>TableOperations</code></em> and step out of the way.</p>
 <p>That split is what lets a catalog be a Hadoop directory, a Hive Metastore row, or an HTTP service without any of them touching the write path. It also settles something before a single implementation exists: the unit of atomicity is one table, because <code>TableOperations</code> addresses one table.</p>
 <h2 id="2-two-interfaces-one-of-which-commits">2. Two interfaces, one of which commits<a class="headerlink" href="#2-two-interfaces-one-of-which-commits" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>classDiagram
@@ -3324,7 +3324,7 @@
     BaseTable --&gt; TableOperations : holds
     BaseMetastoreCatalog ..&gt; BaseTable : loadTable() wraps</code></pre>
 <p><code>SupportsNamespaces</code> and <code>ViewCatalog</code> are <em>siblings</em> of <code>Catalog</code>, not superinterfaces. A catalog opts in by implementing them, and callers test with <code>instanceof</code>. That is why <code>HadoopCatalog</code> can manage namespaces while refusing to rename a table, and why a catalog that knows nothing about views is still a legal <code>Catalog</code>.</p>
-<p>Part 6 follows three: <code>HadoopCatalog</code> and <code>HiveCatalog</code> (Chapter 6.2), both through <code>BaseMetastoreCatalog</code>, and <code>RESTSessionCatalog</code> (Chapter 6.3), which does not.</p>
+<p>Part 6 follows three: <code>HadoopCatalog</code> and <code>HiveCatalog</code> (<a href="../chapter_6.2_hadoop_hive_catalog/">Chapter 6.2</a>), both through <code>BaseMetastoreCatalog</code>, and <code>RESTSessionCatalog</code> (<a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a>), which does not.</p>
 <h2 id="3-what-an-implementation-must-supply">3. What an implementation must supply<a class="headerlink" href="#3-what-an-implementation-must-supply" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Catalog — the methods an implementation must supply</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-288">288</a></span>
 <span class="normal"><a href="#__codelineno-0-289">289</a></span>
@@ -3424,8 +3424,7 @@
 </span><span id="__span-0-335"><a id="__codelineno-0-335" name="__codelineno-0-335"></a><span class="cm"> */</span>
 </span><span id="__span-0-336"><a id="__codelineno-0-336" name="__codelineno-0-336"></a><span class="k">default</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">invalidateTable</span><span class="p">(</span><span class="n">TableIdentifier</span><span class="w"> </span><span class="n">identifier</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/catalog/Catalog.java` L288–L336](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/catalog/Catalog.java#L288-L336) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/catalog/Catalog.java#L288-L336"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/catalog/Catalog.java</code> L288–L336</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Four abstract methods in the whole interface: <code>dropTable(identifier, purge)</code>, <code>renameTable</code>, <code>loadTable</code>, and — further up the file — <code>listTables</code>. Everything else is a default.</p>
 <p>The eight <code>createTable</code> and <code>newCreateTableTransaction</code> overloads above this excerpt — twelve, counting the four <code>newReplaceTableTransaction</code> forms — all funnel into <code>buildTable(identifier, schema)</code>, which itself defaults to throwing <code>UnsupportedOperationException</code>. The real creation contract is one builder; an implementation that supplies it gets every overload for free.</p>
 <p>One default in the excerpt deserves its own line: <code>dropTable(identifier)</code> delegates to <code>dropTable(identifier, true)</code> — the comment reads <em>drop data and metadata files</em>. A second sits just above it at <code>Catalog.java:279</code>, outside the excerpt: <code>tableExists</code> is <code>loadTable</code> wrapped in a <code>catch (NoSuchTableException)</code>, a full metadata read unless the implementation overrides it.</p>
@@ -3486,8 +3485,7 @@
 </span><span id="__span-1-70"><a id="__codelineno-1-70" name="__codelineno-1-70"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
 </span><span id="__span-1-71"><a id="__codelineno-1-71" name="__codelineno-1-71"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java` L44–L71](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java#L44-L71) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java#L44-L71"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java</code> L44–L71</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Loading a table is three steps: build a <code>TableOperations</code> for the identifier, ask it whether the table exists, wrap it in a <code>BaseTable</code>. <code>ops.current() == null</code> <em>is</em> the existence test — there is no separate lookup, and the same call that would give you metadata gives you "no such table" by returning null. The <code>isValidMetadataIdentifier</code> branch handles <code>db.tbl.snapshots</code>-style metadata tables, where the identifier's namespace names the real table.</p>
 <p>The method that produces <code>ops</code> is the one that matters:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseMetastoreCatalog — the two methods a subclass must supply</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-135">135</a></span>
@@ -3496,8 +3494,7 @@
 </span><span id="__span-2-136"><a id="__codelineno-2-136" name="__codelineno-2-136"></a>
 </span><span id="__span-2-137"><a id="__codelineno-2-137" name="__codelineno-2-137"></a><span class="kd">protected</span><span class="w"> </span><span class="kd">abstract</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">defaultWarehouseLocation</span><span class="p">(</span><span class="n">TableIdentifier</span><span class="w"> </span><span class="n">tableIdentifier</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java` L135–L137](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java#L135-L137) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java#L135-L137"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java</code> L135–L137</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Two abstract methods of its own, neither of which appears on <code>Catalog</code>: a subclass says how to reach one table's pointer and where new tables go. What the base class assembles on top of them is narrower than it looks — <code>loadTable</code>, <code>registerTable</code>, <code>buildTable</code>, <code>toString</code>, <code>close</code> — so <code>listTables</code>, <code>dropTable</code> and <code>renameTable</code> are still abstract when they arrive at the subclass. Five methods reach an implementation, not two.</p>
 <p>Creation runs through the same door, one level down in the builder:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseMetastoreCatalogTableBuilder.create()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-188">188</a></span>
@@ -3540,15 +3537,14 @@
 </span><span id="__span-3-206"><a id="__codelineno-3-206" name="__codelineno-3-206"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BaseTable</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="n">fullTableName</span><span class="p">(</span><span class="n">name</span><span class="p">(),</span><span class="w"> </span><span class="n">identifier</span><span class="p">),</span><span class="w"> </span><span class="n">metricsReporter</span><span class="p">());</span>
 </span><span id="__span-3-207"><a id="__codelineno-3-207" name="__codelineno-3-207"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java` L188–L207](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java#L188-L207) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java#L188-L207"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseMetastoreCatalog.java</code> L188–L207</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>ops.commit(null, metadata)</code> — a commit whose <code>base</code> is null. That is how "create" is expressed in a model with only one verb: replace the current metadata, where the current metadata is nothing.</p>
 <p>Note the <code>catch</code>. A <code>CommitFailedException</code> here means another writer created the table first, so the builder rewrites it as <code>AlreadyExistsException("Table was created concurrently: %s", identifier)</code>. The API's exception vocabulary survives even though the mechanism underneath only knows about failed swaps.</p>
 <h2 id="5-what-a-metastore-backed-implementation-is-actually-required-to-write">5. What a metastore-backed implementation is actually required to write<a class="headerlink" href="#5-what-a-metastore-backed-implementation-is-actually-required-to-write" title="Permanent link">&para;</a></h2>
 <p>Sections 3 and 4 counted abstract methods — four on <code>Catalog</code>, two added by <code>BaseMetastoreCatalog</code>. Apply the same count one level down, to the class every metastore-shaped <code>TableOperations</code> extends, and the answer is stranger than the pattern so far suggests.</p>
-<p><code>BaseMetastoreTableOperations</code> supplies <code>commit</code> itself: the identity pre-check, the create-versus-update distinction, the no-op short circuit, <code>doCommit</code>, and the trailing cleanup. That method is the <em>protocol a catalog is wrapped in</em> rather than anything a catalog contributes, so <strong>Chapter 3.4 §3 reads it line by line</strong> and this chapter does not. What belongs here is the shape of the hole it leaves.</p>
+<p><code>BaseMetastoreTableOperations</code> supplies <code>commit</code> itself: the identity pre-check, the create-versus-update distinction, the no-op short circuit, <code>doCommit</code>, and the trailing cleanup. That method is the <em>protocol a catalog is wrapped in</em> rather than anything a catalog contributes, so <strong><a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a> §3 reads it line by line</strong> and this chapter does not. What belongs here is the shape of the hole it leaves.</p>
 <p>Almost nothing in the class is <code>abstract</code>. <code>doCommit</code> is declared <strong>concrete</strong> at <code>:137-139</code>, with a body of <code>throw new UnsupportedOperationException("Not implemented: doCommit")</code>; <code>doRefresh</code> is the same at <code>:104-106</code>. The class's single <code>abstract</code> method is <code>tableName()</code> at <code>:67</code>.</p>
-<p>So the compiler asks a subclass for a name and nothing else. A <code>TableOperations</code> that forgets to commit is a legal, compiling class that throws on first use — the failure moves from build time to commit time, deliberately. Read against sections 3 and 4 the progression is consistent and worth naming: <code>Catalog</code> requires four methods, <code>BaseMetastoreCatalog</code> requires two more, and <code>BaseMetastoreTableOperations</code> requires one. <strong>The interface gets stricter as you move away from the atomic operation, and looser as you approach it.</strong> The methods that actually move the pointer are the ones the type system declines to demand, because the base class cannot know which of them a given store can honestly implement — Chapter 6.2 finds a catalog that implements none of them, having bypassed this class entirely.</p>
+<p>So the compiler asks a subclass for a name and nothing else. A <code>TableOperations</code> that forgets to commit is a legal, compiling class that throws on first use — the failure moves from build time to commit time, deliberately. Read against sections 3 and 4 the progression is consistent and worth naming: <code>Catalog</code> requires four methods, <code>BaseMetastoreCatalog</code> requires two more, and <code>BaseMetastoreTableOperations</code> requires one. <strong>The interface gets stricter as you move away from the atomic operation, and looser as you approach it.</strong> The methods that actually move the pointer are the ones the type system declines to demand, because the base class cannot know which of them a given store can honestly implement — <a href="../chapter_6.2_hadoop_hive_catalog/">Chapter 6.2</a> finds a catalog that implements none of them, having bypassed this class entirely.</p>
 <p>The pointer a metastore <code>doCommit</code> moves has a name — one of five constants declared together:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the table properties a metastore catalog swaps</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-46">46</a></span>
 <span class="normal"><a href="#__codelineno-4-47">47</a></span>
@@ -3560,11 +3556,10 @@
 </span><span id="__span-4-49"><a id="__codelineno-4-49" name="__codelineno-4-49"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">METADATA_HASH_PROP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"metadata_hash"</span><span class="p">;</span>
 </span><span id="__span-4-50"><a id="__codelineno-4-50" name="__codelineno-4-50"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">PREVIOUS_METADATA_LOCATION_PROP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"previous_metadata_location"</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L46–L50](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L46-L50) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p><code>metadata_location</code> is the pointer and <code>previous_metadata_location</code> its predecessor; the other three mark the metastore row as an Iceberg table and carry an optional hash of the metadata file. Only the first is ever compared. In Chapter 6.2 it is the literal Hive Metastore parameter the compare-and-swap runs against, while <code>previous_metadata_location</code> is written beside it (<code>HMSTablePropertyHelper.java:184</code>) and read by nothing — a breadcrumb, not a guard. <code>JdbcCatalog</code> has the same shape: its <code>UPDATE</code> sets both columns and its <code>WHERE</code> tests only <code>metadata_location</code>. Chapter 6.3 takes the other road: its request body is a change log rather than a pointer, and no <code>metadata_location</code> crosses the wire at all.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L46-L50"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java</code> L46–L50</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p><code>metadata_location</code> is the pointer and <code>previous_metadata_location</code> its predecessor; the other three mark the metastore row as an Iceberg table and carry an optional hash of the metadata file. Only the first is ever compared. In <a href="../chapter_6.2_hadoop_hive_catalog/">Chapter 6.2</a> it is the literal Hive Metastore parameter the compare-and-swap runs against, while <code>previous_metadata_location</code> is written beside it (<code>HMSTablePropertyHelper.java:184</code>) and read by nothing — a breadcrumb, not a guard. <code>JdbcCatalog</code> has the same shape: its <code>UPDATE</code> sets both columns and its <code>WHERE</code> tests only <code>metadata_location</code>. <a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a> takes the other road: its request body is a change log rather than a pointer, and no <code>metadata_location</code> crosses the wire at all.</p>
 <h2 id="6-capabilities-are-interfaces-and-the-caller-has-to-ask">6. Capabilities are interfaces, and the caller has to ask<a class="headerlink" href="#6-capabilities-are-interfaces-and-the-caller-has-to-ask" title="Permanent link">&para;</a></h2>
-<p>Section 2 called <code>SupportsNamespaces</code> and <code>ViewCatalog</code> siblings of <code>Catalog</code> rather than parts of it, and left the consequence hanging. It is the same pattern Chapter 3.1 found underneath <code>FileIO</code>, where <code>SupportsPrefixOperations</code> and <code>SupportsBulkOperations</code> are separate opt-in interfaces a caller tests for at runtime. Iceberg uses it wherever a capability is real for some implementations and impossible for others.</p>
+<p>Section 2 called <code>SupportsNamespaces</code> and <code>ViewCatalog</code> siblings of <code>Catalog</code> rather than parts of it, and left the consequence hanging. It is the same pattern <a href="../../part03_iceberg_core/chapter_3.1_module_map/">Chapter 3.1</a> found underneath <code>FileIO</code>, where <code>SupportsPrefixOperations</code> and <code>SupportsBulkOperations</code> are separate opt-in interfaces a caller tests for at runtime. Iceberg uses it wherever a capability is real for some implementations and impossible for others.</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SupportsNamespaces — an interface that does not require its own methods</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-28">28</a></span>
 <span class="normal"><a href="#__codelineno-5-29">29</a></span>
 <span class="normal"><a href="#__codelineno-5-30">30</a></span>
@@ -3629,15 +3624,14 @@
 </span><span id="__span-5-58"><a id="__codelineno-5-58" name="__codelineno-5-58"></a><span class="w">   </span><span class="o">*</span><span class="w"> </span><span class="nd">@throws</span><span class="w"> </span><span class="n">AlreadyExistsException</span><span class="w"> </span><span class="n">If</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">namespace</span><span class="w"> </span><span class="n">already</span><span class="w"> </span><span class="n">exists</span>
 </span><span id="__span-5-59"><a id="__codelineno-5-59" name="__codelineno-5-59"></a><span class="w">   </span><span class="o">*</span><span class="w"> </span><span class="nd">@throws</span><span class="w"> </span><span class="n">UnsupportedOperationException</span><span class="w"> </span><span class="n">If</span><span class="w"> </span><span class="n">create</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">supported</span><span class="w"> </span><span class="n">operation</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/catalog/SupportsNamespaces.java` L28–L60](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/catalog/SupportsNamespaces.java#L28-L60) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/catalog/SupportsNamespaces.java#L28-L60"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/catalog/SupportsNamespaces.java</code> L28–L60</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The class javadoc does something worth stopping on. Having declared an interface for managing namespaces, it immediately says implementations need not manage them: <em>"Catalog implementations are not required to maintain the existence of namespaces independent of objects in a namespace."</em> Its worked example is a function catalog using Java packages as namespaces, which can <em>discover</em> a namespace and can never <em>create</em> one. So even inside the opt-in interface, individual methods are allowed to throw <code>UnsupportedOperationException</code> — the javadoc on <code>createNamespace</code> lists it as a documented outcome, beside <code>AlreadyExistsException</code>.</p>
 <p>That is two levels of optionality on one capability: implement the interface or not, and then honour each method or not. It is easy to read as weakness. It is the same trade the whole SPI makes — the alternative is a <code>Catalog</code> interface whose method set is the intersection of a filesystem directory, a Hive metastore, a JDBC table and an HTTP service, which is close to nothing.</p>
 <p>The cost lands on callers, and it is worth being concrete about the shape, because it is the shape of every Iceberg integration:</p>
 <ul>
 <li><strong>Test, then use.</strong> <code>catalog instanceof SupportsNamespaces</code> before <code>createNamespace</code>. A cast without the test is a <code>ClassCastException</code> at the first <code>CREATE SCHEMA</code>.</li>
 <li><strong>Catch, then fall back.</strong> Even after the test, <code>UnsupportedOperationException</code> remains possible per method.</li>
-<li><strong>Neither is enforced.</strong> Nothing in the type system requires the test, and nothing in the interface requires the method to work. Chapter 3.1's gotcha about <code>HasTableOperations</code> is the identical trap on the other seam, and Chapter 6.3 meets a third version of it — a REST server that advertises its endpoint set, which is this same question asked over a wire and answered with data instead of with a type.</li>
+<li><strong>Neither is enforced.</strong> Nothing in the type system requires the test, and nothing in the interface requires the method to work. <a href="../../part03_iceberg_core/chapter_3.1_module_map/">Chapter 3.1</a>'s gotcha about <code>HasTableOperations</code> is the identical trap on the other seam, and <a href="../chapter_6.3_rest_catalog/">Chapter 6.3</a> meets a third version of it — a REST server that advertises its endpoint set, which is this same question asked over a wire and answered with data instead of with a type.</li>
 </ul>
 <p><code>HadoopCatalog</code> is the specimen worth holding onto: it implements <code>SupportsNamespaces</code> and it throws from <code>renameTable</code>. Capability is not a property of a catalog. It is a property of a catalog and a method together.</p>
 <h2 id="7-sessioncatalog-the-same-contract-plus-a-caller">7. <code>SessionCatalog</code>: the same contract, plus a caller<a class="headerlink" href="#7-sessioncatalog-the-same-contract-plus-a-caller" title="Permanent link">&para;</a></h2>
@@ -3703,8 +3697,7 @@
 </span><span id="__span-6-148"><a id="__codelineno-6-148" name="__codelineno-6-148"></a><span class="cm"> */</span>
 </span><span id="__span-6-149"><a id="__codelineno-6-149" name="__codelineno-6-149"></a><span class="n">List</span><span class="o">&lt;</span><span class="n">TableIdentifier</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">listTables</span><span class="p">(</span><span class="n">SessionContext</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">Namespace</span><span class="w"> </span><span class="n">namespace</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/catalog/SessionCatalog.java` L119–L150](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/catalog/SessionCatalog.java#L119-L150) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/catalog/SessionCatalog.java#L119-L150"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/catalog/SessionCatalog.java</code> L119–L150</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>SessionCatalog</code> is <code>Catalog</code> with a <code>SessionContext</code> threaded through every method that addresses a table or a namespace. The catalog's own lifecycle is exempt, and the excerpt shows it: <code>initialize(String, Map)</code>, <code>name()</code> and <code>properties()</code> take none. The context carries a session ID, an identity, a credential map, and properties — and its javadoc pins down what may not change: <em>"This identity cannot change for a given session ID."</em></p>
 <p>For a catalog backed by a local Hive Metastore client this is redundant; the process is the principal. For a catalog that is a remote service serving many users it is the difference between a client library and a multi-tenant protocol. <code>RESTSessionCatalog</code> implements this interface rather than <code>Catalog</code>, and <code>RESTCatalog</code> wraps it with a fixed context — <code>sessionCatalog.asCatalog(context)</code> — so engines written against <code>Catalog</code> still work.</p>
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
@@ -3732,7 +3725,7 @@
 <li>Capabilities beyond the core four are opt-in interfaces tested with <code>instanceof</code>, and even inside one, individual methods may throw <code>UnsupportedOperationException</code>. <code>HadoopCatalog</code> implements <code>SupportsNamespaces</code> and refuses <code>renameTable</code>: capability is a property of a catalog <em>and a method</em>, never of a catalog alone.</li>
 <li>The requirement thins out as you approach the atomic operation: <code>Catalog</code> declares four abstract methods, <code>BaseMetastoreCatalog</code> two more, and <code>BaseMetastoreTableOperations</code> exactly one — <code>tableName()</code>. <code>doCommit</code> and <code>doRefresh</code> are concrete methods that throw, so a subclass that omits them compiles and fails at commit time.</li>
 <li>The pointer a metastore <code>doCommit</code> moves is the <code>metadata_location</code> table property — a metastore catalog's pointer, not every catalog's: <code>HadoopTableOperations</code> implements <code>TableOperations</code> directly and has no <code>doCommit</code>.</li>
-<li>Because <code>TableOperations</code> addresses exactly one table, the unit of atomicity is decided before any implementation is written. Chapter 6.4 returns to what that costs.</li>
+<li>Because <code>TableOperations</code> addresses exactly one table, the unit of atomicity is decided before any implementation is written. <a href="../chapter_6.4_server_side_commits/">Chapter 6.4</a> returns to what that costs.</li>
 </ul>
 <h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
 <table>
@@ -3773,7 +3766,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 6.2 audits the swap itself in the two catalogs most deployments started on — a metastore that overrides <code>doCommit</code>, and a filesystem catalog that bypasses the whole class.</p>
+<p><strong>Next:</strong> <a href="../chapter_6.2_hadoop_hive_catalog/">Chapter 6.2</a> audits the swap itself in the two catalogs most deployments started on — a metastore that overrides <code>doCommit</code>, and a filesystem catalog that bypasses the whole class.</p>
 
 
 
@@ -3828,13 +3821,13 @@
         
         
           
-          <a href="../chapter_6.2_hadoop_hive_catalog/" class="md-footer__link md-footer__link--next" aria-label="Next: 6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks">
+          <a href="../chapter_6.2_hadoop_hive_catalog/" class="md-footer__link md-footer__link--next" aria-label="Next: 6.2 HadoopCatalog and HiveCatalog: where atomicity leaks">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+                6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -29,7 +29,7 @@
     
     
       
-        <title>8.1 The `Persist` SPI and the storage abstraction - Iceberg & Nessie Internals</title>
+        <title>8.1 The Persist SPI and the storage abstraction - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              8.1 The `Persist` SPI and the storage abstraction
+              8.1 The Persist SPI and the storage abstraction
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2167,7 +2167,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2185,7 +2185,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2349,7 +2349,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2543,7 +2543,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2737,7 +2737,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2933,7 +2933,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2961,7 +2961,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3017,7 +3017,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3279,7 +3279,7 @@
 <h1 id="chapter-81-the-persist-spi-and-the-storage-abstraction">Chapter 8.1 — The <code>Persist</code> SPI and the storage abstraction<a class="headerlink" href="#chapter-81-the-persist-spi-and-the-storage-abstraction" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> what is the complete list of things a database has to be able to do before Nessie can run on it, and why is that list so short?</p>
-<p><strong>Prerequisites:</strong> Chapter 7.2 (the data model: <code>Reference</code>, <code>Content</code>, <code>Operation</code>), Chapter 7.4 (from HTTP to the <code>VersionStore</code>)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part07_nessie_architecture/chapter_7.2_data_model/">Chapter 7.2</a> (the data model: <code>Reference</code>, <code>Content</code>, <code>Operation</code>), <a href="../../part07_nessie_architecture/chapter_7.4_request_path/">Chapter 7.4</a> (from HTTP to the <code>VersionStore</code>)</p>
 <p><strong>Source covered:</strong> <code>versioned/storage/common/.../persist/Persist.java</code>, <code>.../persist/Obj.java</code>, <code>.../objtypes/StandardObjType.java</code>, <code>.../objtypes/ContentValueObj.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3414,8 +3414,7 @@
 </span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="w">  </span><span class="n">Obj</span><span class="w"> </span><span class="nf">withReferenced</span><span class="p">(</span><span class="kt">long</span><span class="w"> </span><span class="n">referenced</span><span class="p">);</span>
 </span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Obj.java` L25–L65](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Obj.java#L25-L65) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Obj.java#L25-L65"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Obj.java</code> L25–L65</a> <span>@ nessie-0.108.4</span></p>
 <p>An ID, a type, and a timestamp whose javadoc spends more words forbidding you to read it than describing it. That is deliberate — <code>referenced()</code> exists so repository cleanup can implement "delete this object only if nobody has touched it since I read it", and it is <em>not</em> consistent through a caching <code>Persist</code>. Section 5 returns to it.</p>
 <p>The type is an open registry, but eight values are built in:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">StandardObjType</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-22">22</a></span>
@@ -3520,8 +3519,7 @@
 </span><span id="__span-1-71"><a id="__codelineno-1-71" name="__codelineno-1-71"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-1-72"><a id="__codelineno-1-72" name="__codelineno-1-72"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/StandardObjType.java` L22–L72](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/StandardObjType.java#L22-L72) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/StandardObjType.java#L22-L72"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/StandardObjType.java</code> L22–L72</a> <span>@ nessie-0.108.4</span></p>
 <p>That is the entire storage vocabulary of Nessie on one screen. A commit (8.2), an index segment and a segment list (8.3), a reference record and a tag, a content value, a string blob, a unique-ID marker. The one-character <code>shortName</code> is what goes into the database column, because at a billion rows the difference between <code>"c"</code> and <code>"COMMIT"</code> is measurable.</p>
 <h3 id="where-ids-come-from">Where IDs come from<a class="headerlink" href="#where-ids-come-from" title="Permanent link">&para;</a></h3>
 <p>Every one of those types derives its own ID by hashing its own fields. <code>ContentValueObj</code> is the smallest example:</p>
@@ -3549,8 +3547,7 @@
 </span><span id="__span-2-70"><a id="__codelineno-2-70" name="__codelineno-2-70"></a><span class="w">      </span><span class="n">data</span><span class="p">);</span>
 </span><span id="__span-2-71"><a id="__codelineno-2-71" name="__codelineno-2-71"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/ContentValueObj.java` L60–L71](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/ContentValueObj.java#L60-L71) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/ContentValueObj.java#L60-L71"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/objtypes/ContentValueObj.java</code> L60–L71</a> <span>@ nessie-0.108.4</span></p>
 <p><code>objIdHasher(VALUE)</code> seeds a SHA-256 with the type name; each field is fed in; <code>generate()</code> is the primary key. Feed the same content ID, payload and bytes in again and you get the same 32 bytes out. <code>ObjIdHasherImpl</code> is a thin wrapper over Guava's <code>Hashing.sha256()</code>.</p>
 <p>Three consequences follow, and they are load-bearing for the rest of Part 8:</p>
 <div class="grid cards">
@@ -3608,8 +3605,7 @@
 </span><span id="__span-3-346"><a id="__codelineno-3-346" name="__codelineno-3-346"></a><span class="kt">boolean</span><span class="w"> </span><span class="nf">storeObj</span><span class="p">(</span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">Obj</span><span class="w"> </span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">ignoreSoftSizeRestrictions</span><span class="p">)</span>
 </span><span id="__span-3-347"><a id="__codelineno-3-347" name="__codelineno-3-347"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">ObjTooLargeException</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java` L329–L347](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java#L329-L347) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java#L329-L347"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java</code> L329–L347</a> <span>@ nessie-0.108.4</span></p>
 <p>Read the return contract carefully: <code>true</code> if stored as a new record, <code>false</code> <strong>if an object with the same ID already exists</strong>. Not an exception. Not an overwrite. <code>false</code> is a normal, expected outcome, and chapter 8.2 shows the commit path treating it as such.</p>
 <p>The <code>ignoreSoftSizeRestrictions</code> flag and the <code>ObjTooLargeException</code> distinguish two kinds of "too big". A <em>hard</em> limit is the database's own row or item limit — 400 KB on DynamoDB, and there is nothing to be done about it. A <em>soft</em> limit is Nessie's own configured threshold, and hitting it is not a failure but a signal: chapter 8.3 shows the commit path catching <code>ObjTooLargeException</code> and using it to trigger the key-index spill.</p>
 <h2 id="4-the-mutable-half-references">4. The mutable half: references<a class="headerlink" href="#4-the-mutable-half-references" title="Permanent link">&para;</a></h2>
@@ -3736,8 +3732,7 @@
 </span><span id="__span-4-117"><a id="__codelineno-4-117" name="__codelineno-4-117"></a><span class="n">Reference</span><span class="w"> </span><span class="nf">updateReferencePointer</span><span class="p">(</span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">reference</span><span class="p">,</span><span class="w"> </span><span class="nd">@Nonnull</span><span class="w"> </span><span class="n">ObjId</span><span class="w"> </span><span class="n">newPointer</span><span class="p">)</span>
 </span><span id="__span-4-118"><a id="__codelineno-4-118" name="__codelineno-4-118"></a><span class="w">    </span><span class="kd">throws</span><span class="w"> </span><span class="n">RefNotFoundException</span><span class="p">,</span><span class="w"> </span><span class="n">RefConditionFailedException</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java` L58–L118](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java#L58-L118) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java#L58-L118"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/Persist.java</code> L58–L118</a> <span>@ nessie-0.108.4</span></p>
 <p>Four operations, and every one of them is conditional:</p>
 <table>
 <thead>
@@ -3765,7 +3760,7 @@
 </tr>
 </tbody>
 </table>
-<p>Note that the precondition is never "the pointer is <em>X</em>". It is always <strong>equal to <code>reference</code></strong> — the entire record, name, pointer, deleted flag, creation timestamp and extended-info pointer. Chapter 8.4 explains why that width matters, and chapter 8.5 shows what each backend does to evaluate it.</p>
+<p>Note that the precondition is never "the pointer is <em>X</em>". It is always <strong>equal to <code>reference</code></strong> — the entire record, name, pointer, deleted flag, creation timestamp and extended-info pointer. <a href="../chapter_8.4_references_cas/">Chapter 8.4</a> explains why that width matters, and chapter 8.5 shows what each backend does to evaluate it.</p>
 <p>Note also what every one of these javadocs says: <em>"Do not use this function from service implementations, use <code>ReferenceLogic</code> instead."</em> <code>Persist</code> is the SPI a database implementer targets. <code>ReferenceLogic</code> is the API everything else calls, and the gap between them — reference-name indexing and crash recovery — is chapter 8.4's subject.</p>
 <h2 id="5-everything-else-is-a-wrapper">5. Everything else is a wrapper<a class="headerlink" href="#5-everything-else-is-a-wrapper" title="Permanent link">&para;</a></h2>
 <p><code>Persist</code> implementations compose. The Quarkus server assembles them in <code>PersistProvider.producePersist</code>: the backend's own <code>Persist</code> is wrapped by the object cache, and CDI wraps <em>that</em> in <code>QuarkusObservingPersist</code> for OpenTelemetry.</p>
@@ -3785,7 +3780,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title"><code>fetchReference</code> and <code>fetchReferenceForUpdate</code> are not interchangeable</p>
-<p>The first may be served from the reference cache; the second always goes to the backend. The javadoc says database-specific implementations must implement the former and must <strong>not</strong> implement the latter. Using the cached variant to obtain the expected value for a compare-and-swap means comparing against a value you may never have actually observed. Chapter 8.4 shows the commit path calling <code>fetchReferenceForUpdate</code> for exactly this reason — it is a correctness rule, not a performance tip.</p>
+<p>The first may be served from the reference cache; the second always goes to the backend. The javadoc says database-specific implementations must implement the former and must <strong>not</strong> implement the latter. Using the cached variant to obtain the expected value for a compare-and-swap means comparing against a value you may never have actually observed. <a href="../chapter_8.4_references_cas/">Chapter 8.4</a> shows the commit path calling <code>fetchReferenceForUpdate</code> for exactly this reason — it is a correctness rule, not a performance tip.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title"><code>storeObjs</code> is a bulk write, not a transaction</p>
@@ -3851,7 +3846,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 8.2 opens the most important <code>ObjType</code> — <code>CommitObj</code> — and asks why a commit stores a list of parent IDs rather than a single parent link.</p>
+<p><strong>Next:</strong> <a href="../chapter_8.2_commit_log_dag/">Chapter 8.2</a> opens the most important <code>ObjType</code> — <code>CommitObj</code> — and asks why a commit stores a list of parent IDs rather than a single parent link.</p>
 
 
 
@@ -3906,13 +3901,13 @@
         
         
           
-          <a href="../chapter_8.2_commit_log_dag/" class="md-footer__link md-footer__link--next" aria-label="Next: 8.2 `CommitObj` and the commit log DAG">
+          <a href="../chapter_8.2_commit_log_dag/" class="md-footer__link md-footer__link--next" aria-label="Next: 8.2 CommitObj and the commit log DAG">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                8.2 `CommitObj` and the commit log DAG
+                8.2 CommitObj and the commit log DAG
               </div>
             </div>
             <div class="md-footer__button md-icon">

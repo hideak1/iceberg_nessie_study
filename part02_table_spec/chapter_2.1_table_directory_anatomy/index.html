@@ -1018,7 +1018,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1242,7 +1242,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1270,7 +1270,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1438,7 +1438,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1466,7 +1466,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1494,7 +1494,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1690,7 +1690,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1718,7 +1718,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1884,7 +1884,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1912,7 +1912,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1940,7 +1940,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2108,7 +2108,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2136,7 +2136,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2164,7 +2164,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2304,7 +2304,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2332,7 +2332,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2526,7 +2526,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2720,7 +2720,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2916,7 +2916,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2944,7 +2944,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3000,7 +3000,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3258,7 +3258,7 @@
 <p>Only the first three lines share a UUID with each other: <code>f5a8b3c1</code> is the commit UUID, and the data file's <code>b71e9d02</code> is an unrelated <em>operation</em> ID minted by the writing engine. Section 6 says why they cannot be the same value.</p>
 <p>None of that is a convention someone wrote down in a style guide. Every one of those names is a <code>String.format</code> call in the source, and each format string was chosen to solve a specific problem: ordering without a catalog round-trip, uniqueness under object-store negative caching, attributing a file to the commit that wrote it, and telling a catalog's files apart from another catalog's.</p>
 <p>That matters more than it sounds. Iceberg's correctness rests on the catalog, not on the file system — but its <em>operational</em> tooling (orphan cleanup, migration, forensic recovery after a bad commit) rests almost entirely on file names. When a commit ends in an unknown state and deletes nothing, the names are what an operator has left to work with.</p>
-<p>It is worth naming the absence first. Nothing in the directory says <em>which</em> <code>metadata.json</code> is current. That single pointer lives in the catalog — a row in a metastore, a key in a JDBC table, a Nessie reference — and swapping it is the commit (Chapter 3.4). Everything on disk is append-only history around that one mutable pointer. Which is exactly why the version counter in the file name matters: it is the only ordering signal a reader has when the catalog is unavailable, and the only one a migration tool has when the catalog is being replaced.</p>
+<p>It is worth naming the absence first. Nothing in the directory says <em>which</em> <code>metadata.json</code> is current. That single pointer lives in the catalog — a row in a metastore, a key in a JDBC table, a Nessie reference — and swapping it is the commit (<a href="../../part03_iceberg_core/chapter_3.4_commit_protocol/">Chapter 3.4</a>). Everything on disk is append-only history around that one mutable pointer. Which is exactly why the version counter in the file name matters: it is the only ordering signal a reader has when the catalog is unavailable, and the only one a migration tool has when the catalog is being replaced.</p>
 <p>So this chapter reads the four naming functions and the one pluggable placement strategy, and asks what each field in each name is for.</p>
 <h2 id="2-which-code-names-which-file">2. Which code names which file<a class="headerlink" href="#2-which-code-names-which-file" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart LR
@@ -3291,7 +3291,7 @@
     MJ["metadata.json"] --&gt;|"snapshots[].manifest-list"| SNAP["snap-*.avro"]
     SNAP --&gt;|"manifest_path (500)"| MAN["*-m0.avro"]
     MAN --&gt;|"data_file.file_path (100)"| DAT["data/**/*.parquet"]</code></pre>
-<p>The numbers in parentheses are Avro field IDs. They are stable across every format version, and Chapters 2.3 and 2.4 spend their time inside those two boxes.</p>
+<p>The numbers in parentheses are Avro field IDs. They are stable across every format version, and Chapters <a href="../chapter_2.3_manifest_list/">2.3</a> and <a href="../chapter_2.4_manifest_file/">2.4</a> spend their time inside those two boxes.</p>
 <h2 id="3-metadatajson-a-counter-and-a-uuid">3. <code>metadata.json</code>: a counter and a UUID<a class="headerlink" href="#3-metadatajson-a-counter-and-a-uuid" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">metadata.json naming</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-342">342</a></span>
 <span class="normal"><a href="#__codelineno-1-343">343</a></span>
@@ -3311,10 +3311,9 @@
 </span><span id="__span-1-349"><a id="__codelineno-1-349" name="__codelineno-1-349"></a><span class="w">      </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">ROOT</span><span class="p">,</span><span class="w"> </span><span class="s">"%05d-%s%s"</span><span class="p">,</span><span class="w"> </span><span class="n">newVersion</span><span class="p">,</span><span class="w"> </span><span class="n">UUID</span><span class="p">.</span><span class="na">randomUUID</span><span class="p">(),</span><span class="w"> </span><span class="n">fileExtension</span><span class="p">));</span>
 </span><span id="__span-1-350"><a id="__codelineno-1-350" name="__codelineno-1-350"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L342–L350](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L342-L350) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L342-L350"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java</code> L342–L350</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>%05d-%s%s</code> — a zero-padded version counter, a fresh UUID, and a codec-dependent extension.</p>
-<p>The counter is the obvious part: it makes <code>ls</code> sort correctly and lets a human say "we are on metadata version 3". The UUID is the interesting part, and the caller explains it. <code>writeNewMetadata</code> — the two-line method that calls this one, injected in full in Chapter 1.2 §9 — writes through <code>TableMetadataParser.overwrite</code> under the comment <em>"use overwrite to avoid negative caching in S3. this is safe because the metadata location is always unique because it includes a UUID."</em></p>
+<p>The counter is the obvious part: it makes <code>ls</code> sort correctly and lets a human say "we are on metadata version 3". The UUID is the interesting part, and the caller explains it. <code>writeNewMetadata</code> — the two-line method that calls this one, injected in full in <a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> §9 — writes through <code>TableMetadataParser.overwrite</code> under the comment <em>"use overwrite to avoid negative caching in S3. this is safe because the metadata location is always unique because it includes a UUID."</em></p>
 <p>An object store that has served a 404 for a key may keep serving it for a while after the key exists. A name derived only from the version counter would be <em>reused</em> across a failed and a retried attempt, and the retry could write to a path the store still believes is absent. The UUID guarantees a name no attempt has ever asked for.</p>
 <p>The extension is the third field, and it is assembled the way round that surprises people. <code>TableMetadataParser.getFileExtension</code> returns <code>codec.extension + ".metadata.json"</code>, so gzipped metadata is <code>00003-&lt;uuid&gt;.gz.metadata.json</code>, not <code>…metadata.json.gz</code>. The old ordering exists too — <code>getOldFileExtension</code> still produces it, and <code>Codec.fromFileName</code> accepts both — because files written by older versions are still out there.</p>
 <p>The counter is not write-only. It gets parsed back:</p>
@@ -3362,157 +3361,194 @@
 </span><span id="__span-2-372"><a id="__codelineno-2-372" name="__codelineno-2-372"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-2-373"><a id="__codelineno-2-373" name="__codelineno-2-373"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L352–L373](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L352-L373) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L352-L373"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java</code> L352–L373</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read the javadoc's second sentence: <code>-1</code> is returned <em>"as a sign that the metadata is not part of this catalog"</em>. <code>HadoopTableOperations</code> names its files <code>v7.metadata.json</code>; a metastore-backed catalog names them <code>00007-&lt;uuid&gt;.metadata.json</code>. The name is how one tells the other's files apart. That is a load-bearing role for a string.</p>
-<p>Every one of these files is kept. Two properties govern that: <code>write.metadata.previous-versions-max</code> bounds how many entries the <code>metadata-log</code> array inside the current file retains (default <code>100</code>), and <code>write.metadata.delete-after-commit.enabled</code> decides whether the files that fall off the end are actually deleted — and it defaults to <strong><code>false</code></strong>. A long-lived table therefore accumulates one <code>*.metadata.json</code> per commit indefinitely by default, most of them no longer listed anywhere.</p>
-<p>Which 100 it keeps is worth being exact about, because it is the opposite of what "previous versions" suggests. <code>addPreviousFile</code> computes <code>removeIndex = previousFiles.size() - maxSize + 1</code> and keeps <code>subList(removeIndex, size)</code> — the <strong>most recent</strong> hundred, dropping from the front. The oldest roots are the ones that stop being listed, which is also why the metadata log is no help at all in finding the file a table started life at. Chapter 2.2 shows where the array sits in the document; the entries trimmed out of it are reachable only by listing the directory.</p>
-<h2 id="4-the-manifest-list-a-snapshot-id-and-an-attempt-counter">4. The manifest list: a snapshot ID and an attempt counter<a class="headerlink" href="#4-the-manifest-list-a-snapshot-id-and-an-attempt-counter" title="Permanent link">&para;</a></h2>
-<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">snap-snapshotId-attempt-commitUUID.avro</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-590">590</a></span>
-<span class="normal"><a href="#__codelineno-3-591">591</a></span>
-<span class="normal"><a href="#__codelineno-3-592">592</a></span>
-<span class="normal"><a href="#__codelineno-3-593">593</a></span>
-<span class="normal"><a href="#__codelineno-3-594">594</a></span>
-<span class="normal"><a href="#__codelineno-3-595">595</a></span>
-<span class="normal"><a href="#__codelineno-3-596">596</a></span>
-<span class="normal"><a href="#__codelineno-3-597">597</a></span>
-<span class="normal"><a href="#__codelineno-3-598">598</a></span>
-<span class="normal"><a href="#__codelineno-3-599">599</a></span>
-<span class="normal"><a href="#__codelineno-3-600">600</a></span>
-<span class="normal"><a href="#__codelineno-3-601">601</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-590"><a id="__codelineno-3-590" name="__codelineno-3-590"></a><span class="kd">protected</span><span class="w"> </span><span class="n">OutputFile</span><span class="w"> </span><span class="nf">manifestListPath</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-591"><a id="__codelineno-3-591" name="__codelineno-3-591"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">io</span><span class="p">()</span>
-</span><span id="__span-3-592"><a id="__codelineno-3-592" name="__codelineno-3-592"></a><span class="w">      </span><span class="p">.</span><span class="na">newOutputFile</span><span class="p">(</span>
-</span><span id="__span-3-593"><a id="__codelineno-3-593" name="__codelineno-3-593"></a><span class="w">          </span><span class="n">ops</span><span class="p">.</span><span class="na">metadataFileLocation</span><span class="p">(</span>
-</span><span id="__span-3-594"><a id="__codelineno-3-594" name="__codelineno-3-594"></a><span class="w">              </span><span class="n">FileFormat</span><span class="p">.</span><span class="na">AVRO</span><span class="p">.</span><span class="na">addExtension</span><span class="p">(</span>
-</span><span id="__span-3-595"><a id="__codelineno-3-595" name="__codelineno-3-595"></a><span class="w">                  </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span>
-</span><span id="__span-3-596"><a id="__codelineno-3-596" name="__codelineno-3-596"></a><span class="w">                      </span><span class="n">Locale</span><span class="p">.</span><span class="na">ROOT</span><span class="p">,</span>
-</span><span id="__span-3-597"><a id="__codelineno-3-597" name="__codelineno-3-597"></a><span class="w">                      </span><span class="s">"snap-%d-%d-%s"</span><span class="p">,</span>
-</span><span id="__span-3-598"><a id="__codelineno-3-598" name="__codelineno-3-598"></a><span class="w">                      </span><span class="n">snapshotId</span><span class="p">(),</span>
-</span><span id="__span-3-599"><a id="__codelineno-3-599" name="__codelineno-3-599"></a><span class="w">                      </span><span class="n">attempt</span><span class="p">.</span><span class="na">incrementAndGet</span><span class="p">(),</span>
-</span><span id="__span-3-600"><a id="__codelineno-3-600" name="__codelineno-3-600"></a><span class="w">                      </span><span class="n">commitUUID</span><span class="p">))));</span>
-</span><span id="__span-3-601"><a id="__codelineno-3-601" name="__codelineno-3-601"></a><span class="p">}</span>
+<p>Every one of these files is kept, and two properties govern that. There is no configuration document behind them either — the names and their defaults are <code>static final</code> constants, declared in pairs:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the retention and metrics defaults, as constants</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-322">322</a></span>
+<span class="normal"><a href="#__codelineno-3-323">323</a></span>
+<span class="normal"><a href="#__codelineno-3-324">324</a></span>
+<span class="normal"><a href="#__codelineno-3-325">325</a></span>
+<span class="normal"><a href="#__codelineno-3-326">326</a></span>
+<span class="normal"><a href="#__codelineno-3-327">327</a></span>
+<span class="normal"><a href="#__codelineno-3-328">328</a></span>
+<span class="normal"><a href="#__codelineno-3-329">329</a></span>
+<span class="normal"><a href="#__codelineno-3-330">330</a></span>
+<span class="normal"><a href="#__codelineno-3-331">331</a></span>
+<span class="normal"><a href="#__codelineno-3-332">332</a></span>
+<span class="normal"><a href="#__codelineno-3-333">333</a></span>
+<span class="normal"><a href="#__codelineno-3-334">334</a></span>
+<span class="normal"><a href="#__codelineno-3-335">335</a></span>
+<span class="normal"><a href="#__codelineno-3-336">336</a></span>
+<span class="normal"><a href="#__codelineno-3-337">337</a></span>
+<span class="normal"><a href="#__codelineno-3-338">338</a></span>
+<span class="normal"><a href="#__codelineno-3-339">339</a></span>
+<span class="normal"><a href="#__codelineno-3-340">340</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-322"><a id="__codelineno-3-322" name="__codelineno-3-322"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">METADATA_COMPRESSION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"write.metadata.compression-codec"</span><span class="p">;</span>
+</span><span id="__span-3-323"><a id="__codelineno-3-323" name="__codelineno-3-323"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">METADATA_COMPRESSION_DEFAULT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"none"</span><span class="p">;</span>
+</span><span id="__span-3-324"><a id="__codelineno-3-324" name="__codelineno-3-324"></a>
+</span><span id="__span-3-325"><a id="__codelineno-3-325" name="__codelineno-3-325"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">METADATA_PREVIOUS_VERSIONS_MAX</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-326"><a id="__codelineno-3-326" name="__codelineno-3-326"></a><span class="w">    </span><span class="s">"write.metadata.previous-versions-max"</span><span class="p">;</span>
+</span><span id="__span-3-327"><a id="__codelineno-3-327" name="__codelineno-3-327"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">METADATA_PREVIOUS_VERSIONS_MAX_DEFAULT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
+</span><span id="__span-3-328"><a id="__codelineno-3-328" name="__codelineno-3-328"></a>
+</span><span id="__span-3-329"><a id="__codelineno-3-329" name="__codelineno-3-329"></a><span class="c1">// This enables to delete the oldest metadata file after commit.</span>
+</span><span id="__span-3-330"><a id="__codelineno-3-330" name="__codelineno-3-330"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">METADATA_DELETE_AFTER_COMMIT_ENABLED</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-331"><a id="__codelineno-3-331" name="__codelineno-3-331"></a><span class="w">    </span><span class="s">"write.metadata.delete-after-commit.enabled"</span><span class="p">;</span>
+</span><span id="__span-3-332"><a id="__codelineno-3-332" name="__codelineno-3-332"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">METADATA_DELETE_AFTER_COMMIT_ENABLED_DEFAULT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+</span><span id="__span-3-333"><a id="__codelineno-3-333" name="__codelineno-3-333"></a>
+</span><span id="__span-3-334"><a id="__codelineno-3-334" name="__codelineno-3-334"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">METRICS_MAX_INFERRED_COLUMN_DEFAULTS</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-3-335"><a id="__codelineno-3-335" name="__codelineno-3-335"></a><span class="w">    </span><span class="s">"write.metadata.metrics.max-inferred-column-defaults"</span><span class="p">;</span>
+</span><span id="__span-3-336"><a id="__codelineno-3-336" name="__codelineno-3-336"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">METRICS_MAX_INFERRED_COLUMN_DEFAULTS_DEFAULT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
+</span><span id="__span-3-337"><a id="__codelineno-3-337" name="__codelineno-3-337"></a>
+</span><span id="__span-3-338"><a id="__codelineno-3-338" name="__codelineno-3-338"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">METRICS_MODE_COLUMN_CONF_PREFIX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"write.metadata.metrics.column."</span><span class="p">;</span>
+</span><span id="__span-3-339"><a id="__codelineno-3-339" name="__codelineno-3-339"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">DEFAULT_WRITE_METRICS_MODE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"write.metadata.metrics.default"</span><span class="p">;</span>
+</span><span id="__span-3-340"><a id="__codelineno-3-340" name="__codelineno-3-340"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">DEFAULT_WRITE_METRICS_MODE_DEFAULT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"truncate(16)"</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/SnapshotProducer.java` L590–L601](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotProducer.java#L590-L601) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableProperties.java#L322-L341"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableProperties.java</code> L322–L341</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p><code>write.metadata.previous-versions-max</code> bounds how many entries the <code>metadata-log</code> array inside the current file retains — <code>METADATA_PREVIOUS_VERSIONS_MAX_DEFAULT = 100</code>. <code>write.metadata.delete-after-commit.enabled</code> decides whether the files that fall off the end are actually deleted, and <code>METADATA_DELETE_AFTER_COMMIT_ENABLED_DEFAULT</code> is <strong><code>false</code></strong>. A long-lived table therefore accumulates one <code>*.metadata.json</code> per commit indefinitely by default, most of them no longer listed anywhere.</p>
+<p>The other three constants in that block belong to later chapters and are worth knowing where to find: <code>METADATA_COMPRESSION_DEFAULT</code> is <code>"none"</code>, which is why the <code>.gz</code> extension above is an opt-in rather than the norm; <code>METRICS_MAX_INFERRED_COLUMN_DEFAULTS_DEFAULT</code> is <code>100</code> and <code>DEFAULT_WRITE_METRICS_MODE_DEFAULT</code> is <code>"truncate(16)"</code>, the two numbers <a href="../chapter_2.4_manifest_file/">Chapter 2.4</a> §6 and <a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a> both reason from. <strong><code>TableProperties</code> is the only statement of these defaults in the tree</strong> — <code>docs/docs/configuration.md</code> tabulates them, but the constants are what the code reads.</p>
+<p>Which 100 it keeps is worth being exact about, because it is the opposite of what "previous versions" suggests. <code>addPreviousFile</code> computes <code>removeIndex = previousFiles.size() - maxSize + 1</code> and keeps <code>subList(removeIndex, size)</code> — the <strong>most recent</strong> hundred, dropping from the front. The oldest roots are the ones that stop being listed, which is also why the metadata log is no help at all in finding the file a table started life at. <a href="../chapter_2.2_metadata_json/">Chapter 2.2</a> shows where the array sits in the document; the entries trimmed out of it are reachable only by listing the directory.</p>
+<h2 id="4-the-manifest-list-a-snapshot-id-and-an-attempt-counter">4. The manifest list: a snapshot ID and an attempt counter<a class="headerlink" href="#4-the-manifest-list-a-snapshot-id-and-an-attempt-counter" title="Permanent link">&para;</a></h2>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">snap-snapshotId-attempt-commitUUID.avro</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-590">590</a></span>
+<span class="normal"><a href="#__codelineno-4-591">591</a></span>
+<span class="normal"><a href="#__codelineno-4-592">592</a></span>
+<span class="normal"><a href="#__codelineno-4-593">593</a></span>
+<span class="normal"><a href="#__codelineno-4-594">594</a></span>
+<span class="normal"><a href="#__codelineno-4-595">595</a></span>
+<span class="normal"><a href="#__codelineno-4-596">596</a></span>
+<span class="normal"><a href="#__codelineno-4-597">597</a></span>
+<span class="normal"><a href="#__codelineno-4-598">598</a></span>
+<span class="normal"><a href="#__codelineno-4-599">599</a></span>
+<span class="normal"><a href="#__codelineno-4-600">600</a></span>
+<span class="normal"><a href="#__codelineno-4-601">601</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-590"><a id="__codelineno-4-590" name="__codelineno-4-590"></a><span class="kd">protected</span><span class="w"> </span><span class="n">OutputFile</span><span class="w"> </span><span class="nf">manifestListPath</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-591"><a id="__codelineno-4-591" name="__codelineno-4-591"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">io</span><span class="p">()</span>
+</span><span id="__span-4-592"><a id="__codelineno-4-592" name="__codelineno-4-592"></a><span class="w">      </span><span class="p">.</span><span class="na">newOutputFile</span><span class="p">(</span>
+</span><span id="__span-4-593"><a id="__codelineno-4-593" name="__codelineno-4-593"></a><span class="w">          </span><span class="n">ops</span><span class="p">.</span><span class="na">metadataFileLocation</span><span class="p">(</span>
+</span><span id="__span-4-594"><a id="__codelineno-4-594" name="__codelineno-4-594"></a><span class="w">              </span><span class="n">FileFormat</span><span class="p">.</span><span class="na">AVRO</span><span class="p">.</span><span class="na">addExtension</span><span class="p">(</span>
+</span><span id="__span-4-595"><a id="__codelineno-4-595" name="__codelineno-4-595"></a><span class="w">                  </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span>
+</span><span id="__span-4-596"><a id="__codelineno-4-596" name="__codelineno-4-596"></a><span class="w">                      </span><span class="n">Locale</span><span class="p">.</span><span class="na">ROOT</span><span class="p">,</span>
+</span><span id="__span-4-597"><a id="__codelineno-4-597" name="__codelineno-4-597"></a><span class="w">                      </span><span class="s">"snap-%d-%d-%s"</span><span class="p">,</span>
+</span><span id="__span-4-598"><a id="__codelineno-4-598" name="__codelineno-4-598"></a><span class="w">                      </span><span class="n">snapshotId</span><span class="p">(),</span>
+</span><span id="__span-4-599"><a id="__codelineno-4-599" name="__codelineno-4-599"></a><span class="w">                      </span><span class="n">attempt</span><span class="p">.</span><span class="na">incrementAndGet</span><span class="p">(),</span>
+</span><span id="__span-4-600"><a id="__codelineno-4-600" name="__codelineno-4-600"></a><span class="w">                      </span><span class="n">commitUUID</span><span class="p">))));</span>
+</span><span id="__span-4-601"><a id="__codelineno-4-601" name="__codelineno-4-601"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotProducer.java#L590-L601"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/SnapshotProducer.java</code> L590–L601</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>snap-%d-%d-%s</code> plus <code>.avro</code>: snapshot ID, <strong>attempt number</strong>, commit UUID.</p>
-<p>The middle field is the one to stop on. <code>attempt.incrementAndGet()</code> is evaluated every time this method is called, and this method is called once per pass through the commit retry loop. A commit that lost three races and won on the fourth wrote four manifest lists, named <code>…-1-…</code>, <code>…-2-…</code>, <code>…-3-…</code>, <code>…-4-…</code>, of which exactly one is referenced by the snapshot that landed. Chapter 3.3 covers why the retry cannot reuse the previous attempt's work, and how the losers are cleaned up.</p>
+<p>The middle field is the one to stop on. <code>attempt.incrementAndGet()</code> is evaluated every time this method is called, and this method is called once per pass through the commit retry loop. A commit that lost three races and won on the fourth wrote four manifest lists, named <code>…-1-…</code>, <code>…-2-…</code>, <code>…-3-…</code>, <code>…-4-…</code>, of which exactly one is referenced by the snapshot that landed. <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> covers why the retry cannot reuse the previous attempt's work, and how the losers are cleaned up.</p>
 <p>Consequence for anyone staring at a directory: <strong><code>snap-*</code> files are not all live</strong>, and the ones that are not live are not necessarily garbage either — see the gotchas.</p>
 <p>The first field is more useful than it looks. The snapshot ID is in the file name, so a <code>snap-*</code> file can be matched against <code>metadata.json</code>'s <code>snapshots[].snapshot-id</code> without opening either — enough to answer "is this manifest list referenced?" from a directory listing plus one JSON parse. That is the cheapest reachability check available, and it is why the ID is in the name at all: the file's own Avro key-value metadata already carries <code>snapshot-id</code>, so putting it in the name buys nothing except the ability to avoid reading the file.</p>
 <h2 id="5-manifests-one-prefix-per-commit">5. Manifests: one prefix per commit<a class="headerlink" href="#5-manifests-one-prefix-per-commit" title="Permanent link">&para;</a></h2>
-<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">commitUUID-m0.avro</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-603">603</a></span>
-<span class="normal"><a href="#__codelineno-4-604">604</a></span>
-<span class="normal"><a href="#__codelineno-4-605">605</a></span>
-<span class="normal"><a href="#__codelineno-4-606">606</a></span>
-<span class="normal"><a href="#__codelineno-4-607">607</a></span>
-<span class="normal"><a href="#__codelineno-4-608">608</a></span>
-<span class="normal"><a href="#__codelineno-4-609">609</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-603"><a id="__codelineno-4-603" name="__codelineno-4-603"></a><span class="kd">protected</span><span class="w"> </span><span class="n">EncryptedOutputFile</span><span class="w"> </span><span class="nf">newManifestOutputFile</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-604"><a id="__codelineno-4-604" name="__codelineno-4-604"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">manifestFileLocation</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-4-605"><a id="__codelineno-4-605" name="__codelineno-4-605"></a><span class="w">      </span><span class="n">ops</span><span class="p">.</span><span class="na">metadataFileLocation</span><span class="p">(</span>
-</span><span id="__span-4-606"><a id="__codelineno-4-606" name="__codelineno-4-606"></a><span class="w">          </span><span class="n">FileFormat</span><span class="p">.</span><span class="na">AVRO</span><span class="p">.</span><span class="na">addExtension</span><span class="p">(</span><span class="n">commitUUID</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"-m"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">manifestCount</span><span class="p">.</span><span class="na">getAndIncrement</span><span class="p">()));</span>
-</span><span id="__span-4-607"><a id="__codelineno-4-607" name="__codelineno-4-607"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">EncryptingFileIO</span><span class="p">.</span><span class="na">combine</span><span class="p">(</span><span class="n">ops</span><span class="p">.</span><span class="na">io</span><span class="p">(),</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">encryption</span><span class="p">())</span>
-</span><span id="__span-4-608"><a id="__codelineno-4-608" name="__codelineno-4-608"></a><span class="w">      </span><span class="p">.</span><span class="na">newEncryptingOutputFile</span><span class="p">(</span><span class="n">manifestFileLocation</span><span class="p">);</span>
-</span><span id="__span-4-609"><a id="__codelineno-4-609" name="__codelineno-4-609"></a><span class="p">}</span>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">commitUUID-m0.avro</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-603">603</a></span>
+<span class="normal"><a href="#__codelineno-5-604">604</a></span>
+<span class="normal"><a href="#__codelineno-5-605">605</a></span>
+<span class="normal"><a href="#__codelineno-5-606">606</a></span>
+<span class="normal"><a href="#__codelineno-5-607">607</a></span>
+<span class="normal"><a href="#__codelineno-5-608">608</a></span>
+<span class="normal"><a href="#__codelineno-5-609">609</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-603"><a id="__codelineno-5-603" name="__codelineno-5-603"></a><span class="kd">protected</span><span class="w"> </span><span class="n">EncryptedOutputFile</span><span class="w"> </span><span class="nf">newManifestOutputFile</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-604"><a id="__codelineno-5-604" name="__codelineno-5-604"></a><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="n">manifestFileLocation</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-5-605"><a id="__codelineno-5-605" name="__codelineno-5-605"></a><span class="w">      </span><span class="n">ops</span><span class="p">.</span><span class="na">metadataFileLocation</span><span class="p">(</span>
+</span><span id="__span-5-606"><a id="__codelineno-5-606" name="__codelineno-5-606"></a><span class="w">          </span><span class="n">FileFormat</span><span class="p">.</span><span class="na">AVRO</span><span class="p">.</span><span class="na">addExtension</span><span class="p">(</span><span class="n">commitUUID</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"-m"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">manifestCount</span><span class="p">.</span><span class="na">getAndIncrement</span><span class="p">()));</span>
+</span><span id="__span-5-607"><a id="__codelineno-5-607" name="__codelineno-5-607"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">EncryptingFileIO</span><span class="p">.</span><span class="na">combine</span><span class="p">(</span><span class="n">ops</span><span class="p">.</span><span class="na">io</span><span class="p">(),</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">encryption</span><span class="p">())</span>
+</span><span id="__span-5-608"><a id="__codelineno-5-608" name="__codelineno-5-608"></a><span class="w">      </span><span class="p">.</span><span class="na">newEncryptingOutputFile</span><span class="p">(</span><span class="n">manifestFileLocation</span><span class="p">);</span>
+</span><span id="__span-5-609"><a id="__codelineno-5-609" name="__codelineno-5-609"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/SnapshotProducer.java` L603–L609](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotProducer.java#L603-L609) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/SnapshotProducer.java#L603-L609"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/SnapshotProducer.java</code> L603–L609</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>commitUUID + "-m" + manifestCount.getAndIncrement()</code>.</p>
 <p>Note what is <em>shared</em>: <code>commitUUID</code> is a field of the <code>SnapshotProducer</code>, generated once per operation, and it also appears in every manifest list name from section 4. So every metadata file a single commit attempt produced carries the same UUID in its name. That is what makes "which files did this commit write?" answerable with a prefix match rather than by parsing Avro — the property orphan-file cleanup and post-mortem forensics both lean on.</p>
 <p>The counter after <code>-m</code> is per producer, not per table. Two concurrent commits both write <code>…-m0.avro</code>; their UUIDs keep them apart.</p>
-<p>What the manifest name deliberately does <em>not</em> encode is the snapshot that wrote it. It cannot: a manifest is frequently written by one commit and then referenced, unchanged, by every subsequent snapshot until something rewrites it. Ownership of a manifest is a property of the manifest list rows that point at it (<code>added_snapshot_id</code>, field 503 — Chapter 2.3), not of the file. The commit UUID says "this attempt produced this file"; it says nothing about how long the file stays live.</p>
+<p>What the manifest name deliberately does <em>not</em> encode is the snapshot that wrote it. It cannot: a manifest is frequently written by one commit and then referenced, unchanged, by every subsequent snapshot until something rewrites it. Ownership of a manifest is a property of the manifest list rows that point at it (<code>added_snapshot_id</code>, field 503 — <a href="../chapter_2.3_manifest_list/">Chapter 2.3</a>), not of the file. The commit UUID says "this attempt produced this file"; it says nothing about how long the file stays live.</p>
 <h2 id="6-data-files-written-by-one-factory-placed-by-another">6. Data files: written by one factory, placed by another<a class="headerlink" href="#6-data-files-written-by-one-factory-placed-by-another" title="Permanent link">&para;</a></h2>
 <p>Data file names come from <code>OutputFileFactory</code>:</p>
-<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">data file naming</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-93"> 93</a></span>
-<span class="normal"><a href="#__codelineno-5-94"> 94</a></span>
-<span class="normal"><a href="#__codelineno-5-95"> 95</a></span>
-<span class="normal"><a href="#__codelineno-5-96"> 96</a></span>
-<span class="normal"><a href="#__codelineno-5-97"> 97</a></span>
-<span class="normal"><a href="#__codelineno-5-98"> 98</a></span>
-<span class="normal"><a href="#__codelineno-5-99"> 99</a></span>
-<span class="normal"><a href="#__codelineno-5-100">100</a></span>
-<span class="normal"><a href="#__codelineno-5-101">101</a></span>
-<span class="normal"><a href="#__codelineno-5-102">102</a></span>
-<span class="normal"><a href="#__codelineno-5-103">103</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-93"><a id="__codelineno-5-93" name="__codelineno-5-93"></a><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">generateFilename</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-94"><a id="__codelineno-5-94" name="__codelineno-5-94"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">format</span><span class="p">.</span><span class="na">addExtension</span><span class="p">(</span>
-</span><span id="__span-5-95"><a id="__codelineno-5-95" name="__codelineno-5-95"></a><span class="w">      </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span>
-</span><span id="__span-5-96"><a id="__codelineno-5-96" name="__codelineno-5-96"></a><span class="w">          </span><span class="n">Locale</span><span class="p">.</span><span class="na">ROOT</span><span class="p">,</span>
-</span><span id="__span-5-97"><a id="__codelineno-5-97" name="__codelineno-5-97"></a><span class="w">          </span><span class="s">"%05d-%d-%s-%05d%s"</span><span class="p">,</span>
-</span><span id="__span-5-98"><a id="__codelineno-5-98" name="__codelineno-5-98"></a><span class="w">          </span><span class="n">partitionId</span><span class="p">,</span>
-</span><span id="__span-5-99"><a id="__codelineno-5-99" name="__codelineno-5-99"></a><span class="w">          </span><span class="n">taskId</span><span class="p">,</span>
-</span><span id="__span-5-100"><a id="__codelineno-5-100" name="__codelineno-5-100"></a><span class="w">          </span><span class="n">operationId</span><span class="p">,</span>
-</span><span id="__span-5-101"><a id="__codelineno-5-101" name="__codelineno-5-101"></a><span class="w">          </span><span class="n">fileCount</span><span class="p">.</span><span class="na">incrementAndGet</span><span class="p">(),</span>
-</span><span id="__span-5-102"><a id="__codelineno-5-102" name="__codelineno-5-102"></a><span class="w">          </span><span class="kc">null</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">suffix</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"-"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">suffix</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">""</span><span class="p">));</span>
-</span><span id="__span-5-103"><a id="__codelineno-5-103" name="__codelineno-5-103"></a><span class="p">}</span>
-</span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/io/OutputFileFactory.java` L93–L103](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/OutputFileFactory.java#L93-L103) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p><code>%05d-%d-%s-%05d%s</code> — partition ID, task ID, operation ID, a per-factory file counter, and a fifth conversion that is either empty or <code>"-" + suffix</code>. This is the engine's identity, not the table's: in Spark those first two are the partition and task IDs of the writing job, which is precisely what makes the name unique across executors without any coordination. The optional suffix is how compaction and other rewrites tag their output.</p>
-<p>Where that name lands is a separate decision:</p>
-<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">where data files land</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-97"> 97</a></span>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">data file naming</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-6-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-6-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-6-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-6-97"> 97</a></span>
 <span class="normal"><a href="#__codelineno-6-98"> 98</a></span>
 <span class="normal"><a href="#__codelineno-6-99"> 99</a></span>
 <span class="normal"><a href="#__codelineno-6-100">100</a></span>
 <span class="normal"><a href="#__codelineno-6-101">101</a></span>
 <span class="normal"><a href="#__codelineno-6-102">102</a></span>
-<span class="normal"><a href="#__codelineno-6-103">103</a></span>
-<span class="normal"><a href="#__codelineno-6-104">104</a></span>
-<span class="normal"><a href="#__codelineno-6-105">105</a></span>
-<span class="normal"><a href="#__codelineno-6-106">106</a></span>
-<span class="normal"><a href="#__codelineno-6-107">107</a></span>
-<span class="normal"><a href="#__codelineno-6-108">108</a></span>
-<span class="normal"><a href="#__codelineno-6-109">109</a></span>
-<span class="normal"><a href="#__codelineno-6-110">110</a></span>
-<span class="normal"><a href="#__codelineno-6-111">111</a></span>
-<span class="normal"><a href="#__codelineno-6-112">112</a></span>
-<span class="normal"><a href="#__codelineno-6-113">113</a></span>
-<span class="normal"><a href="#__codelineno-6-114">114</a></span>
-<span class="normal"><a href="#__codelineno-6-115">115</a></span>
-<span class="normal"><a href="#__codelineno-6-116">116</a></span>
-<span class="normal"><a href="#__codelineno-6-117">117</a></span>
-<span class="normal"><a href="#__codelineno-6-118">118</a></span>
-<span class="normal"><a href="#__codelineno-6-119">119</a></span>
-<span class="normal"><a href="#__codelineno-6-120">120</a></span>
-<span class="normal"><a href="#__codelineno-6-121">121</a></span>
-<span class="normal"><a href="#__codelineno-6-122">122</a></span>
-<span class="normal"><a href="#__codelineno-6-123">123</a></span>
-<span class="normal"><a href="#__codelineno-6-124">124</a></span>
-<span class="normal"><a href="#__codelineno-6-125">125</a></span>
-<span class="normal"><a href="#__codelineno-6-126">126</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-97"><a id="__codelineno-6-97" name="__codelineno-6-97"></a><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DefaultLocationProvider</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">LocationProvider</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-98"><a id="__codelineno-6-98" name="__codelineno-6-98"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">dataLocation</span><span class="p">;</span>
-</span><span id="__span-6-99"><a id="__codelineno-6-99" name="__codelineno-6-99"></a>
-</span><span id="__span-6-100"><a id="__codelineno-6-100" name="__codelineno-6-100"></a><span class="w">  </span><span class="n">DefaultLocationProvider</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">tableLocation</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">properties</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-101"><a id="__codelineno-6-101" name="__codelineno-6-101"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">dataLocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocationUtil</span><span class="p">.</span><span class="na">stripTrailingSlash</span><span class="p">(</span><span class="n">dataLocation</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">tableLocation</span><span class="p">));</span>
-</span><span id="__span-6-102"><a id="__codelineno-6-102" name="__codelineno-6-102"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-6-103"><a id="__codelineno-6-103" name="__codelineno-6-103"></a>
-</span><span id="__span-6-104"><a id="__codelineno-6-104" name="__codelineno-6-104"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">dataLocation</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">tableLocation</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-105"><a id="__codelineno-6-105" name="__codelineno-6-105"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">dataLocation</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-6-106"><a id="__codelineno-6-106" name="__codelineno-6-106"></a><span class="w">        </span><span class="n">getAndCheckLegacyLocation</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">TableProperties</span><span class="p">.</span><span class="na">WRITE_DATA_LOCATION</span><span class="p">);</span>
-</span><span id="__span-6-107"><a id="__codelineno-6-107" name="__codelineno-6-107"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dataLocation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-108"><a id="__codelineno-6-108" name="__codelineno-6-108"></a><span class="w">      </span><span class="n">dataLocation</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-6-109"><a id="__codelineno-6-109" name="__codelineno-6-109"></a><span class="w">          </span><span class="n">getAndCheckLegacyLocation</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">TableProperties</span><span class="p">.</span><span class="na">WRITE_FOLDER_STORAGE_LOCATION</span><span class="p">);</span>
-</span><span id="__span-6-110"><a id="__codelineno-6-110" name="__codelineno-6-110"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dataLocation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-111"><a id="__codelineno-6-111" name="__codelineno-6-111"></a><span class="w">        </span><span class="n">dataLocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"%s/data"</span><span class="p">,</span><span class="w"> </span><span class="n">tableLocation</span><span class="p">);</span>
-</span><span id="__span-6-112"><a id="__codelineno-6-112" name="__codelineno-6-112"></a><span class="w">      </span><span class="p">}</span>
-</span><span id="__span-6-113"><a id="__codelineno-6-113" name="__codelineno-6-113"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-6-114"><a id="__codelineno-6-114" name="__codelineno-6-114"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">dataLocation</span><span class="p">;</span>
-</span><span id="__span-6-115"><a id="__codelineno-6-115" name="__codelineno-6-115"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-6-116"><a id="__codelineno-6-116" name="__codelineno-6-116"></a>
-</span><span id="__span-6-117"><a id="__codelineno-6-117" name="__codelineno-6-117"></a><span class="w">  </span><span class="nd">@Override</span>
-</span><span id="__span-6-118"><a id="__codelineno-6-118" name="__codelineno-6-118"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">newDataLocation</span><span class="p">(</span><span class="n">PartitionSpec</span><span class="w"> </span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">StructLike</span><span class="w"> </span><span class="n">partitionData</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">filename</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-119"><a id="__codelineno-6-119" name="__codelineno-6-119"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"%s/%s/%s"</span><span class="p">,</span><span class="w"> </span><span class="n">dataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">.</span><span class="na">partitionToPath</span><span class="p">(</span><span class="n">partitionData</span><span class="p">),</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
-</span><span id="__span-6-120"><a id="__codelineno-6-120" name="__codelineno-6-120"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-6-121"><a id="__codelineno-6-121" name="__codelineno-6-121"></a>
-</span><span id="__span-6-122"><a id="__codelineno-6-122" name="__codelineno-6-122"></a><span class="w">  </span><span class="nd">@Override</span>
-</span><span id="__span-6-123"><a id="__codelineno-6-123" name="__codelineno-6-123"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">newDataLocation</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">filename</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-124"><a id="__codelineno-6-124" name="__codelineno-6-124"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"%s/%s"</span><span class="p">,</span><span class="w"> </span><span class="n">dataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
-</span><span id="__span-6-125"><a id="__codelineno-6-125" name="__codelineno-6-125"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-6-126"><a id="__codelineno-6-126" name="__codelineno-6-126"></a><span class="p">}</span>
+<span class="normal"><a href="#__codelineno-6-103">103</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-93"><a id="__codelineno-6-93" name="__codelineno-6-93"></a><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">generateFilename</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-94"><a id="__codelineno-6-94" name="__codelineno-6-94"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">format</span><span class="p">.</span><span class="na">addExtension</span><span class="p">(</span>
+</span><span id="__span-6-95"><a id="__codelineno-6-95" name="__codelineno-6-95"></a><span class="w">      </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span>
+</span><span id="__span-6-96"><a id="__codelineno-6-96" name="__codelineno-6-96"></a><span class="w">          </span><span class="n">Locale</span><span class="p">.</span><span class="na">ROOT</span><span class="p">,</span>
+</span><span id="__span-6-97"><a id="__codelineno-6-97" name="__codelineno-6-97"></a><span class="w">          </span><span class="s">"%05d-%d-%s-%05d%s"</span><span class="p">,</span>
+</span><span id="__span-6-98"><a id="__codelineno-6-98" name="__codelineno-6-98"></a><span class="w">          </span><span class="n">partitionId</span><span class="p">,</span>
+</span><span id="__span-6-99"><a id="__codelineno-6-99" name="__codelineno-6-99"></a><span class="w">          </span><span class="n">taskId</span><span class="p">,</span>
+</span><span id="__span-6-100"><a id="__codelineno-6-100" name="__codelineno-6-100"></a><span class="w">          </span><span class="n">operationId</span><span class="p">,</span>
+</span><span id="__span-6-101"><a id="__codelineno-6-101" name="__codelineno-6-101"></a><span class="w">          </span><span class="n">fileCount</span><span class="p">.</span><span class="na">incrementAndGet</span><span class="p">(),</span>
+</span><span id="__span-6-102"><a id="__codelineno-6-102" name="__codelineno-6-102"></a><span class="w">          </span><span class="kc">null</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">suffix</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"-"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">suffix</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">""</span><span class="p">));</span>
+</span><span id="__span-6-103"><a id="__codelineno-6-103" name="__codelineno-6-103"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/LocationProviders.java` L97–L126](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/LocationProviders.java#L97-L126) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/io/OutputFileFactory.java#L93-L103"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/io/OutputFileFactory.java</code> L93–L103</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p><code>%05d-%d-%s-%05d%s</code> — partition ID, task ID, operation ID, a per-factory file counter, and a fifth conversion that is either empty or <code>"-" + suffix</code>. This is the engine's identity, not the table's: in Spark those first two are the partition and task IDs of the writing job, which is precisely what makes the name unique across executors without any coordination. The optional suffix is how compaction and other rewrites tag their output.</p>
+<p>Where that name lands is a separate decision:</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">where data files land</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-7-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-7-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-7-100">100</a></span>
+<span class="normal"><a href="#__codelineno-7-101">101</a></span>
+<span class="normal"><a href="#__codelineno-7-102">102</a></span>
+<span class="normal"><a href="#__codelineno-7-103">103</a></span>
+<span class="normal"><a href="#__codelineno-7-104">104</a></span>
+<span class="normal"><a href="#__codelineno-7-105">105</a></span>
+<span class="normal"><a href="#__codelineno-7-106">106</a></span>
+<span class="normal"><a href="#__codelineno-7-107">107</a></span>
+<span class="normal"><a href="#__codelineno-7-108">108</a></span>
+<span class="normal"><a href="#__codelineno-7-109">109</a></span>
+<span class="normal"><a href="#__codelineno-7-110">110</a></span>
+<span class="normal"><a href="#__codelineno-7-111">111</a></span>
+<span class="normal"><a href="#__codelineno-7-112">112</a></span>
+<span class="normal"><a href="#__codelineno-7-113">113</a></span>
+<span class="normal"><a href="#__codelineno-7-114">114</a></span>
+<span class="normal"><a href="#__codelineno-7-115">115</a></span>
+<span class="normal"><a href="#__codelineno-7-116">116</a></span>
+<span class="normal"><a href="#__codelineno-7-117">117</a></span>
+<span class="normal"><a href="#__codelineno-7-118">118</a></span>
+<span class="normal"><a href="#__codelineno-7-119">119</a></span>
+<span class="normal"><a href="#__codelineno-7-120">120</a></span>
+<span class="normal"><a href="#__codelineno-7-121">121</a></span>
+<span class="normal"><a href="#__codelineno-7-122">122</a></span>
+<span class="normal"><a href="#__codelineno-7-123">123</a></span>
+<span class="normal"><a href="#__codelineno-7-124">124</a></span>
+<span class="normal"><a href="#__codelineno-7-125">125</a></span>
+<span class="normal"><a href="#__codelineno-7-126">126</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-97"><a id="__codelineno-7-97" name="__codelineno-7-97"></a><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DefaultLocationProvider</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">LocationProvider</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-98"><a id="__codelineno-7-98" name="__codelineno-7-98"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">dataLocation</span><span class="p">;</span>
+</span><span id="__span-7-99"><a id="__codelineno-7-99" name="__codelineno-7-99"></a>
+</span><span id="__span-7-100"><a id="__codelineno-7-100" name="__codelineno-7-100"></a><span class="w">  </span><span class="n">DefaultLocationProvider</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">tableLocation</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">properties</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-101"><a id="__codelineno-7-101" name="__codelineno-7-101"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">dataLocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocationUtil</span><span class="p">.</span><span class="na">stripTrailingSlash</span><span class="p">(</span><span class="n">dataLocation</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">tableLocation</span><span class="p">));</span>
+</span><span id="__span-7-102"><a id="__codelineno-7-102" name="__codelineno-7-102"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-103"><a id="__codelineno-7-103" name="__codelineno-7-103"></a>
+</span><span id="__span-7-104"><a id="__codelineno-7-104" name="__codelineno-7-104"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">dataLocation</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">tableLocation</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-105"><a id="__codelineno-7-105" name="__codelineno-7-105"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">dataLocation</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-7-106"><a id="__codelineno-7-106" name="__codelineno-7-106"></a><span class="w">        </span><span class="n">getAndCheckLegacyLocation</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">TableProperties</span><span class="p">.</span><span class="na">WRITE_DATA_LOCATION</span><span class="p">);</span>
+</span><span id="__span-7-107"><a id="__codelineno-7-107" name="__codelineno-7-107"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dataLocation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-108"><a id="__codelineno-7-108" name="__codelineno-7-108"></a><span class="w">      </span><span class="n">dataLocation</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-7-109"><a id="__codelineno-7-109" name="__codelineno-7-109"></a><span class="w">          </span><span class="n">getAndCheckLegacyLocation</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">TableProperties</span><span class="p">.</span><span class="na">WRITE_FOLDER_STORAGE_LOCATION</span><span class="p">);</span>
+</span><span id="__span-7-110"><a id="__codelineno-7-110" name="__codelineno-7-110"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dataLocation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-111"><a id="__codelineno-7-111" name="__codelineno-7-111"></a><span class="w">        </span><span class="n">dataLocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"%s/data"</span><span class="p">,</span><span class="w"> </span><span class="n">tableLocation</span><span class="p">);</span>
+</span><span id="__span-7-112"><a id="__codelineno-7-112" name="__codelineno-7-112"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-7-113"><a id="__codelineno-7-113" name="__codelineno-7-113"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-114"><a id="__codelineno-7-114" name="__codelineno-7-114"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">dataLocation</span><span class="p">;</span>
+</span><span id="__span-7-115"><a id="__codelineno-7-115" name="__codelineno-7-115"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-116"><a id="__codelineno-7-116" name="__codelineno-7-116"></a>
+</span><span id="__span-7-117"><a id="__codelineno-7-117" name="__codelineno-7-117"></a><span class="w">  </span><span class="nd">@Override</span>
+</span><span id="__span-7-118"><a id="__codelineno-7-118" name="__codelineno-7-118"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">newDataLocation</span><span class="p">(</span><span class="n">PartitionSpec</span><span class="w"> </span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">StructLike</span><span class="w"> </span><span class="n">partitionData</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">filename</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-119"><a id="__codelineno-7-119" name="__codelineno-7-119"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"%s/%s/%s"</span><span class="p">,</span><span class="w"> </span><span class="n">dataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">.</span><span class="na">partitionToPath</span><span class="p">(</span><span class="n">partitionData</span><span class="p">),</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
+</span><span id="__span-7-120"><a id="__codelineno-7-120" name="__codelineno-7-120"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-121"><a id="__codelineno-7-121" name="__codelineno-7-121"></a>
+</span><span id="__span-7-122"><a id="__codelineno-7-122" name="__codelineno-7-122"></a><span class="w">  </span><span class="nd">@Override</span>
+</span><span id="__span-7-123"><a id="__codelineno-7-123" name="__codelineno-7-123"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">newDataLocation</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">filename</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-124"><a id="__codelineno-7-124" name="__codelineno-7-124"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">"%s/%s"</span><span class="p">,</span><span class="w"> </span><span class="n">dataLocation</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
+</span><span id="__span-7-125"><a id="__codelineno-7-125" name="__codelineno-7-125"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-126"><a id="__codelineno-7-126" name="__codelineno-7-126"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/LocationProviders.java#L97-L126"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/LocationProviders.java</code> L97–L126</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>&lt;dataLocation&gt;/&lt;spec.partitionToPath(partition)&gt;/&lt;filename&gt;</code>, where <code>dataLocation</code> is <code>write.data.path</code> if set and <code>&lt;table&gt;/data</code> otherwise.</p>
 <p>The method looks like it has a third source — a second lookup for the legacy <code>write.folder-storage.path</code> sits between the two — but that branch cannot execute. <code>WRITE_FOLDER_STORAGE_LOCATION</code> is a member of <code>DEPRECATED_PROPERTIES</code>, and every lookup goes through <code>getAndCheckLegacyLocation</code>, which throws <code>IllegalArgumentException</code> — <em>"has been deprecated and will be removed in 2.0.0, use 'write.data.location' instead"</em> — the moment a deprecated key has a value. So the call returns <code>null</code> or throws; the assignment beneath it is dead code. Setting the old property is a hard failure at table load, not a second placement source. (<code>ObjectStoreLocationProvider</code> has the same shape with <em>two</em> dead lookups, <code>write.object-storage.path</code> and the folder-storage one.)</p>
 <p><code>DefaultLocationProvider</code> is one of three options — <code>write.location-provider.impl</code> replaces the whole thing with user code, and <code>ObjectStoreLocationProvider</code>, selected by <code>write.object-storage.enabled</code>, prefixes a hash computed from the file name so that keys spread across an object store's partitions instead of clustering under one path.</p>
 <p>What that provider does with the partition path is the part worth getting right, because the answer changed and the old answer is still widely repeated. <code>WRITE_OBJECT_STORE_PARTITIONED_PATHS_DEFAULT</code> is <strong><code>true</code></strong>, so by default <code>newDataLocation(spec, partitionData, filename)</code> builds <code>partitionPath/filename</code> and hands it to the single-argument overload, which prepends the hash as a directory — the upstream comment says <em>"if partition paths are included, add last part of entropy as dir before partition names"</em>. The default output is <code>&lt;storage&gt;/&lt;hash&gt;/dept=eng/&lt;file&gt;</code>: entropy <em>and</em> readable partition directories. Only <code>write.object-storage.partitioned-paths=false</code> drops them, and then the hash is joined to the file name with a hyphen rather than a slash: <code>&lt;storage&gt;/&lt;hash&gt;-&lt;file&gt;</code>.</p>
+<p>There is a further branch inside that provider, and it is tested <em>before</em> the partitioned-paths one. The constructor compares the resolved storage location against the table location — <code>if (storageLocation.startsWith(tableLocation))</code> — and when the answer is no it keeps a <code>context</code>, built by <code>pathContext</code> from the table location's last two components, <code>&lt;database&gt;/&lt;table&gt;</code>. <code>newDataLocation(String)</code> checks <code>context != null</code> first, so pointing <code>write.data.path</code> at a location <em>outside</em> the table directory produces <code>&lt;storage&gt;/&lt;hash&gt;/&lt;db&gt;/&lt;table&gt;/…</code> instead. The comment on the other branch says what it is for: <em>"if the storage location is within the table prefix, don't add table and database name context"</em> — without it, every table sharing one bucket prefix would write into the same hashed directories.</p>
 <p>So the <code>data/</code> directory and the <code>dept=eng/</code> path components are <em>defaults</em>, not spec. The manifest's <code>file_path</code> field is the only authority on where a data file is.</p>
 <p>The partition path is worth one more sentence, because it is the most misread part of the layout. <code>spec.partitionToPath(partitionData)</code> renders the <em>partition tuple of the spec that wrote the file</em>, not the table's current spec. After a partition-spec evolution, files written under the old spec keep their old directory shape forever, and the two shapes coexist under <code>data/</code>. Hive-style directory parsing therefore cannot reconstruct partition values reliably; the manifest's <code>partition</code> struct, tagged with its <code>partition_spec_id</code>, can.</p>
 <h2 id="7-gotchas">7. Gotchas<a class="headerlink" href="#7-gotchas" title="Permanent link">&para;</a></h2>
@@ -3588,7 +3624,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 2.2 opens the <code>metadata.json</code> this chapter named, and finds that its schema is not a document anywhere — it is the statement order of a single method.</p>
+<p><strong>Next:</strong> <a href="../chapter_2.2_metadata_json/">Chapter 2.2</a> opens the <code>metadata.json</code> this chapter named, and finds that its schema is not a document anywhere — it is the statement order of a single method.</p>
 
 
 
@@ -3643,13 +3679,13 @@
         
         
           
-          <a href="../chapter_2.2_metadata_json/" class="md-footer__link md-footer__link--next" aria-label="Next: 2.2 `metadata.json`, field by field">
+          <a href="../chapter_2.2_metadata_json/" class="md-footer__link md-footer__link--next" aria-label="Next: 2.2 metadata.json, field by field">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                2.2 `metadata.json`, field by field
+                2.2 metadata.json, field by field
               </div>
             </div>
             <div class="md-footer__button md-icon">

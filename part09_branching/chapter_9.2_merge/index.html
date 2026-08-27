@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2181,7 +2181,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2380,7 +2380,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2759,7 +2759,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2983,7 +2983,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3039,7 +3039,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3323,7 +3323,7 @@
 <h1 id="chapter-92-merge-merge-base-three-way-merge-conflict-detection">Chapter 9.2 — Merge: merge base, three-way merge, conflict detection<a class="headerlink" href="#chapter-92-merge-merge-base-three-way-merge-conflict-detection" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> when Nessie merges a branch, what is compared against what to decide that a key conflicts — and how does that differ from what git does?</p>
-<p><strong>Prerequisites:</strong> Chapter 9.1 (<code>CreateCommit</code> actions, expected values, <code>buildCommitObj</code>), Part 8 (the key index, and why <code>ObjId</code> equality is a content comparison), Chapter 1.3 (why Nessie has merge and transplant at all)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_9.1_commit_path/">Chapter 9.1</a> (<code>CreateCommit</code> actions, expected values, <code>buildCommitObj</code>), Part 8 (the key index, and why <code>ObjId</code> equality is a content comparison), <a href="../../part01_foundations/chapter_1.3_nessie_core_idea/">Chapter 1.3</a> (why Nessie has merge and transplant at all)</p>
 <p><strong>Source covered:</strong> <code>versioned/storage/common/.../logic/MergeBase.java</code>, <code>.../CommitLogicImpl.java</code>, <code>.../CommitConflict.java</code>, <code>versioned/storage/store/.../versionstore/BaseMergeTransplantSquash.java</code>, <code>.../BaseCommitHelper.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3370,8 +3370,7 @@
 </span><span id="__span-0-1054"><a id="__codelineno-0-1054" name="__codelineno-0-1054"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">mergeTransplantResponse</span><span class="p">(</span><span class="n">mergeResult</span><span class="p">);</span>
 </span><span id="__span-0-1055"><a id="__codelineno-0-1055" name="__codelineno-0-1055"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/VersionStoreImpl.java` L1037–L1055](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/VersionStoreImpl.java#L1037-L1055) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/VersionStoreImpl.java#L1037-L1055"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/VersionStoreImpl.java</code> L1037–L1055</a> <span>@ nessie-0.108.4</span></p>
 <p>The first statement is the whole story of Nessie's merge strategies. <code>CommitterSupplier&lt;Merge&gt; supplier = MergeSquashImpl::new</code> is not a default that something else overrides: <code>MergeSquashImpl</code> is the only class in the tree that implements <code>Merge</code>, nothing in <code>MergeOp</code> selects a strategy, and there is no fast-forward path, no replay path and no <code>--no-ff</code> flag. A merge that writes a commit writes exactly one, on the target, with the source head recorded as a secondary parent.</p>
 <p>The rest of the method does two things. It swaps the supplier for a dry-run variant — section 8 returns to that — and it converts the result, turning an unsuccessful merge into a <code>MergeConflictException</code> naming every conflicting key, sorted and quoted.</p>
 <p>Three outcomes write no commit at all, and it is worth having them in view before the machinery. The first is checked here in <code>MergeSquashImpl.merge</code>: if <code>fromId.equals(commonAncestorId)</code>, the source is already an ancestor of the target, and the result is <code>wasSuccessful(true).wasApplied(false)</code> with the head unchanged. The other two — an empty squash and a conflicting one — are section 8.</p>
@@ -3452,8 +3451,7 @@
 </span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
 </span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/MergeBase.java` L119–L152](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/MergeBase.java#L119-L152) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/MergeBase.java#L119-L152"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/MergeBase.java</code> L119–L152</a> <span>@ nessie-0.108.4</span></p>
 <p>The two starting commits are painted <code>COMMIT_A</code> and <code>COMMIT_B</code> and pushed into a <code>PriorityQueue</code> ordered by <code>seq</code> <strong>descending</strong> — newest first. Each pop propagates its flags to its parents. A commit that ends up carrying both flags is reachable from both sides, so it is a merge base: <code>setResult()</code> adds it to the results and the <code>CANDIDATE</code> flag starts flowing down from it, marking everything it can already reach as "not the nearest".</p>
 <p>The loop condition is the termination proof: <code>while (queue.stream().anyMatch(ShallowCommit::isNotCandidate))</code>. Once every queued commit is a candidate — reachable from an already-found base — nothing better can be found and the walk stops. Because the queue pops the highest <code>seq</code> first, the first <code>RESULT</code> recorded is the nearest one, and <code>identifyMergeBase</code> returns <code>mergeBases.get(0)</code>.</p>
 <p><code>ShallowCommit</code> exists purely to keep that walk cheap, and says so:</p>
@@ -3467,7 +3465,7 @@
 <li><code>findMergeBase</code> sets it <strong>true</strong>, and <code>shallowCommit</code> then builds each commit's parent array as <em>secondary parents first, direct parent last</em>.</li>
 <li><code>findCommonAncestor</code> sets it <strong>false</strong>, and the parent array is just <code>{commit.directParent()}</code>.</li>
 </ul>
-<p>Those two names are not synonyms in this codebase, and the book has used both. The <em>common ancestor</em> is the one a reader meets first, in Chapter 7.2: <code>getMetadata()</code> can report a <code>commonAncestorHash</code> for a reference, and that is <code>findCommonAncestor</code>'s answer — pure ancestry, merge parents ignored. The <strong>merge base</strong> is <code>findMergeBase</code>'s, and it is the one a merge needs. On a repository that has never merged the two agree; after the first merge they diverge, and the paragraph below is why.</p>
+<p>Those two names are not synonyms in this codebase, and the book has used both. The <em>common ancestor</em> is the one a reader meets first, in <a href="../../part07_nessie_architecture/chapter_7.2_data_model/">Chapter 7.2</a>: <code>getMetadata()</code> can report a <code>commonAncestorHash</code> for a reference, and that is <code>findCommonAncestor</code>'s answer — pure ancestry, merge parents ignored. The <strong>merge base</strong> is <code>findMergeBase</code>'s, and it is the one a merge needs. On a repository that has never merged the two agree; after the first merge they diverge, and the paragraph below is why.</p>
 <p>The secondary parent is what a squash merge recorded in §2. With merge parents respected, a second merge from the same source branch finds the <em>previous merge point</em> as its base, so only commits made since then are diffed. Turn the flag off and the search walks past it to the original fork, and the merge re-applies changes that are already on the target. Nessie uses <code>findMergeBase</code> for merges; <code>findCommonAncestor</code> exists for callers that genuinely want the ancestry question rather than the merge question.</p>
 <h2 id="4-the-source-side-becomes-a-diff">4. The source side becomes a diff<a class="headerlink" href="#4-the-source-side-becomes-a-diff" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseMergeTransplantSquash.createSquashCommit()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-132">132</a></span>
@@ -3552,8 +3550,7 @@
 </span><span id="__span-2-171"><a id="__codelineno-2-171" name="__codelineno-2-171"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">commitLogic</span><span class="p">.</span><span class="na">diffToCreateCommit</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span><span class="w"> </span><span class="n">commitBuilder</span><span class="p">).</span><span class="na">build</span><span class="p">();</span>
 </span><span id="__span-2-172"><a id="__codelineno-2-172" name="__codelineno-2-172"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java` L132–L172](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java#L132-L172) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java#L132-L172"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java</code> L132–L172</a> <span>@ nessie-0.108.4</span></p>
 <p>Three things happen here, and the first is the one to hold onto: the entire source branch — however many commits — collapses into <code>commitLogic.diff(diffQuery(baseCommit, headCommit, ...))</code>. A <strong>two-way</strong> diff. Individual source commits are never replayed and are not visible to anything downstream.</p>
 <p>Second, <code>MergeBehavior.DROP</code> is applied as a <code>Predicate&lt;StoreKey&gt;</code> <em>on the diff itself</em>. A dropped key never becomes an action, so it can never conflict — it is filtered out one layer below conflict detection.</p>
 <p>Third, <code>commitBuilder.addSecondaryParents(mergeFromId)</code> records the source head. That is the edge §3 walks on the next merge.</p>
@@ -3626,8 +3623,7 @@
 </span><span id="__span-3-1078"><a id="__codelineno-3-1078" name="__codelineno-3-1078"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">createCommit</span><span class="p">;</span>
 </span><span id="__span-3-1079"><a id="__codelineno-3-1079" name="__codelineno-3-1079"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L1046–L1079](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L1046-L1079) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L1046-L1079"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java</code> L1046–L1079</a> <span>@ nessie-0.108.4</span></p>
 <p>This 34-line method is the hinge of the whole chapter. Look at the "key updated" case:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">createCommit</span><span class="p">.</span><span class="na">addAdds</span><span class="p">(</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">commitAdd</span><span class="p">(</span>
@@ -3696,8 +3692,7 @@
 </span><span id="__span-5-788"><a id="__codelineno-5-788" name="__codelineno-5-788"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">conflict</span><span class="p">;</span>
 </span><span id="__span-5-789"><a id="__codelineno-5-789" name="__codelineno-5-789"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java` L761–L789](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L761-L789) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java#L761-L789"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitLogicImpl.java</code> L761–L789</a> <span>@ nessie-0.108.4</span></p>
 <p>And there are five ways to fail it:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CommitConflict.ConflictType</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-49">49</a></span>
 <span class="normal"><a href="#__codelineno-6-50">50</a></span>
@@ -3731,8 +3726,7 @@
 </span><span id="__span-6-63"><a id="__codelineno-6-63" name="__codelineno-6-63"></a><span class="w">  </span><span class="n">VALUE_DIFFERS</span>
 </span><span id="__span-6-64"><a id="__codelineno-6-64" name="__codelineno-6-64"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitConflict.java` L49–L64](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitConflict.java#L49-L64) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitConflict.java#L49-L64"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/logic/CommitConflict.java</code> L49–L64</a> <span>@ nessie-0.108.4</span></p>
 <p>Read the two together and the algorithm is complete:</p>
 <table>
 <thead>
@@ -3896,8 +3890,7 @@
 </span><span id="__span-7-503"><a id="__codelineno-7-503" name="__codelineno-7-503"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ConflictResolution</span><span class="p">.</span><span class="na">ADD</span><span class="p">;</span>
 </span><span id="__span-7-504"><a id="__codelineno-7-504" name="__codelineno-7-504"></a><span class="p">},</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java` L454–L504](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java#L454-L504) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java#L454-L504"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseCommitHelper.java</code> L454–L504</a> <span>@ nessie-0.108.4</span></p>
 <p>Start at the bottom, with the <code>MergeBehavior</code> switch. The enum has three values, documented in one line each: <code>NORMAL</code> ("merged, conflict detection takes place"), <code>FORCE</code> ("merged unconditionally, no conflict detection"), <code>DROP</code> ("will not be merged"). They map onto <code>ConflictResolution</code> — <code>CONFLICT</code>, <code>ADD</code>, <code>DROP</code> — but not one-to-one:</p>
 <ul>
 <li><strong><code>FORCE</code></strong> → <code>ConflictResolution.ADD</code>, and <code>keyDetails(mergeBehavior, null)</code>: the action is committed, <strong>no conflict is recorded</strong>. Source wins.</li>
@@ -3905,7 +3898,7 @@
 <li><strong><code>NORMAL</code></strong> → <code>keyDetails(mergeBehavior, commitConflictToConflict(conflict))</code> and then <strong><code>ConflictResolution.ADD</code></strong>.</li>
 </ul>
 <p>That last line is the one to stop on. <code>NORMAL</code> — the default, the conflict-detecting behaviour — does <em>not</em> return <code>CONFLICT</code>. It returns <code>ADD</code>. The conflicting action is committed into the resulting <code>CommitObj</code> alongside every clean one. <code>buildCommitObj</code>'s <code>conflicts</code> list stays empty and it never throws; the conflict is recorded in <code>keyDetailsMap</code> and nothing more.</p>
-<p>There is also a fall-through worth noting: <code>FORCE</code> and <code>DROP</code> only take their fast path when <code>mergeKeyBe.getExpectedTargetContent() == null</code>. The comment is explicit — <em>"Do not plain ignore (due to FORCE) or drop (DROP), when the caller provided an expectedTargetContent"</em> — so a client that asserted what the target holds gets that assertion honoured even under <code>FORCE</code>. Chapter 9.3 covers that mechanism.</p>
+<p>There is also a fall-through worth noting: <code>FORCE</code> and <code>DROP</code> only take their fast path when <code>mergeKeyBe.getExpectedTargetContent() == null</code>. The comment is explicit — <em>"Do not plain ignore (due to FORCE) or drop (DROP), when the caller provided an expectedTargetContent"</em> — so a client that asserted what the target holds gets that assertion honoured even under <code>FORCE</code>. <a href="../chapter_9.3_transplant/">Chapter 9.3</a> covers that mechanism.</p>
 <p>Above the switch sit two special cases for <code>KEY_EXISTS</code>, both firing only when source and target payloads match. If the values are also equal, <code>ConflictResolution.DROP</code> — the comment: <em>"Got another add for the exact same content that is already on the target, so drop the conflicting operation on the floor."</em> Otherwise, if the payload is <code>NAMESPACE</code>, <code>ConflictResolution.ADD</code>, under a comment that calls itself <em>"rather a hack to ignore conflicts when merging namespaces."</em></p>
 <h2 id="8-build-the-commit-then-throw-it-away">8. Build the commit, then throw it away<a class="headerlink" href="#8-build-the-commit-then-throw-it-away" title="Permanent link">&para;</a></h2>
 <p>Because <code>NORMAL</code> returns <code>ADD</code>, a conflicting merge runs to completion. <code>BaseMergeTransplantSquash.squash</code> builds the full <code>CommitObj</code> — index updates, hashing, all of it — and only then decides what to do with it:</p>
@@ -3957,8 +3950,7 @@
 </span><span id="__span-8-128"><a id="__codelineno-8-128" name="__codelineno-8-128"></a><span class="k">return</span><span class="w"> </span><span class="n">finishMergeTransplant</span><span class="p">(</span>
 </span><span id="__span-8-129"><a id="__codelineno-8-129" name="__codelineno-8-129"></a><span class="w">    </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">mergeResult</span><span class="p">,</span><span class="w"> </span><span class="n">newHead</span><span class="p">,</span><span class="w"> </span><span class="n">mergeTransplantOpBase</span><span class="p">.</span><span class="na">dryRun</span><span class="p">(),</span><span class="w"> </span><span class="n">hasConflicts</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java` L106–L129](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java#L106-L129) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java#L106-L129"><code>projectnessie/nessie</code> · <code>versioned/storage/store/src/main/java/org/projectnessie/versioned/storage/versionstore/BaseMergeTransplantSquash.java</code> L106–L129</a> <span>@ nessie-0.108.4</span></p>
 <p>Read the two exits in order. The first is the empty squash: if the built commit has no operations at all, it is not persisted and <code>finishMergeTransplant</code> is called with <code>isEmpty</code> true. The second is the branch that matters here — <code>dryRun() || hasConflicts</code> — where <code>newHead</code> simply stays at <code>headId()</code> and <code>storeCommit</code> is never reached.</p>
 <p><code>hasConflicts</code> and <code>dryRun</code> sharing one branch is not tidiness; it is the design. A conflict-checking merge <em>is</em> a dry run that decided not to commit, which buys two properties a fail-fast implementation could not have:</p>
 <p><strong>Every conflicting key is reported at once.</strong> <code>keyDetailsMap</code> accumulated an entry per key, so <code>MergeResponse</code> lists all of them. A client resolving conflicts sees the full set on the first attempt.</p>
@@ -4040,7 +4032,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 9.3 shows that transplant shares every line of this machinery and differs in exactly one argument — which is why some conflict-resolution features are legal for merge and rejected for cherry-pick.</p>
+<p><strong>Next:</strong> <a href="../chapter_9.3_transplant/">Chapter 9.3</a> shows that transplant shares every line of this machinery and differs in exactly one argument — which is why some conflict-resolution features are legal for merge and rejected for cherry-pick.</p>
 
 
 
@@ -4078,7 +4070,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_9.1_commit_path/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 9.1 Commit: from `Operation` to `CommitObj`">
+          <a href="../chapter_9.1_commit_path/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 9.1 Commit: from Operation to CommitObj">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4088,7 +4080,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                9.1 Commit: from `Operation` to `CommitObj`
+                9.1 Commit: from Operation to CommitObj
               </div>
             </div>
           </a>

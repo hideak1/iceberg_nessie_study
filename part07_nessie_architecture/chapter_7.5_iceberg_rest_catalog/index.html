@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1962,7 +1962,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1990,7 +1990,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2018,7 +2018,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2348,7 +2348,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2376,7 +2376,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2570,7 +2570,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2764,7 +2764,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2960,7 +2960,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2988,7 +2988,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3044,7 +3044,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3333,14 +3333,14 @@
 <h1 id="chapter-75-nessie-as-an-iceberg-rest-catalog">Chapter 7.5 — Nessie as an Iceberg REST Catalog<a class="headerlink" href="#chapter-75-nessie-as-an-iceberg-rest-catalog" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> when Spark points a stock Iceberg <code>RESTCatalog</code> at a Nessie server, what serves <code>/iceberg/v1/{prefix}/…</code> — and how does one opaque <code>prefix</code> string carry a Git-style branch reference through a protocol that was designed without one?</p>
-<p><strong>Prerequisites:</strong> Chapter 6.3 (the REST catalog protocol, from the client side), Chapter 7.2 (<code>Content</code>, <code>Operation</code>, the rename protocol), Chapter 7.3 (the <code>{ref}</code> grammar), Chapter 7.4 (what <code>treeService.commitMultipleOperations</code> does next)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a> (the REST catalog protocol, from the client side), <a href="../chapter_7.2_data_model/">Chapter 7.2</a> (<code>Content</code>, <code>Operation</code>, the rename protocol), <a href="../chapter_7.3_rest_api_v2/">Chapter 7.3</a> (the <code>{ref}</code> grammar), <a href="../chapter_7.4_request_path/">Chapter 7.4</a> (what <code>treeService.commitMultipleOperations</code> does next)</p>
 <p><strong>Source covered:</strong> <code>catalog/service/rest/.../IcebergApiV1TableResource.java</code>, <code>.../IcebergApiV1ResourceBase.java</code>, <code>.../IcebergConfigurer.java</code>, <code>catalog/service/impl/.../CatalogServiceImpl.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p>Chapter 6.3 built one half of a conversation. <code>RESTSessionCatalog</code> fetches <code>/v1/config</code>, then sends <code>MetadataUpdate</code> lists and <code>UpdateRequirement</code> assertions to <code>POST /v1/{prefix}/namespaces/{namespace}/tables/{table}</code>, and a server on the other end validates and commits. That protocol has fields for a namespace, a table, updates and requirements — and nothing at all for a branch.</p>
+<p><a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a> built one half of a conversation. <code>RESTSessionCatalog</code> fetches <code>/v1/config</code>, then sends <code>MetadataUpdate</code> lists and <code>UpdateRequirement</code> assertions to <code>POST /v1/{prefix}/namespaces/{namespace}/tables/{table}</code>, and a server on the other end validates and commits. That protocol has fields for a namespace, a table, updates and requirements — and nothing at all for a branch.</p>
 <p>Nessie's entire product is branches. So the two projects meet on an obstacle: a client that cannot express a reference, talking to a server whose data model is nothing but references.</p>
 <p>There are two ways out. Fork the protocol and add a field, which costs you every stock client in the ecosystem. Or find somewhere in the existing protocol to put a reference, and get every stock client for free. Nessie takes the second route, and the place it puts the reference is <code>prefix</code> — the one path segment the Iceberg spec leaves for the server to define.</p>
-<p>The second surprise is structural. This is not an adapter that translates Iceberg REST calls into Nessie REST calls. It is a <em>second front door onto the same service objects</em> Chapter 7.4 traced. A commit that arrives through the Iceberg protocol re-enters at exactly the layer that chapter ended at.</p>
+<p>The second surprise is structural. This is not an adapter that translates Iceberg REST calls into Nessie REST calls. It is a <em>second front door onto the same service objects</em> <a href="../chapter_7.4_request_path/">Chapter 7.4</a> traced. A commit that arrives through the Iceberg protocol re-enters at exactly the layer that chapter ended at.</p>
 <h2 id="2-two-front-doors-one-service-layer">2. Two front doors, one service layer<a class="headerlink" href="#2-two-front-doors-one-service-layer" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart TD
     SPARKN["Spark + Nessie client"] --&gt; NR["/api/v2/trees/{ref}/…&lt;br/&gt;RestV2TreeResource&lt;br/&gt;&lt;i&gt;ApiContext(Nessie, 2)&lt;/i&gt;"]
@@ -3385,12 +3385,11 @@
 </span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">loadTable</span><span class="p">(</span><span class="n">tableRef</span><span class="p">,</span><span class="w"> </span><span class="n">prefix</span><span class="p">,</span><span class="w"> </span><span class="n">dataAccess</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
 </span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1TableResource.java` L155–L170](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1TableResource.java#L155-L170) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1TableResource.java#L155-L170"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1TableResource.java</code> L155–L170</a> <span>@ nessie-0.108.4</span></p>
 <p>Nothing in this signature is Nessie-shaped. The class carries <code>@Path("iceberg")</code>, so the full path is <code>/iceberg/v1/{prefix}/namespaces/{namespace}/tables/{table}</code> — the spec's own path, with the spec's own <code>snapshots</code> query parameter and the spec's own <code>X-Iceberg-Access-Delegation</code> header for vended credentials.</p>
-<p>The whole surface is here: <code>createTable</code>, <code>registerTable</code>, <code>updateTable</code> (a <code>POST</code> back to the table path, carrying the requirements-and-updates payload of Chapter 6.3), <code>dropTable</code>, <code>listTables</code>, <code>tableExists</code>, <code>reportMetrics</code>, the namespace and view resources, and <code>commitTransaction</code> on <code>/v1/{prefix}/transactions/commit</code>, which Chapter 10.2 opens up. Almost everything <code>RESTSessionCatalog</code> can send has a resource method waiting for it, and the gaps are deliberate and few: there is no <code>register-view</code> — <code>RESTSessionCatalog.registerView</code> posts to <code>.../namespaces/{namespace}/register-view</code>, and that string appears nowhere in the Nessie tree — the three server-side scan-planning paths are declared and then kept out of the advertised set under a bare <code>// NOT implemented</code>, and Nessie serves its own <code>/v1/{prefix}/s3-sign/{identifier}</code> in place of the spec's <code>.../tables/{table}/sign</code>. Chapter 10.3 reads that declared-and-declined list as a capability statement.</p>
+<p>The whole surface is here: <code>createTable</code>, <code>registerTable</code>, <code>updateTable</code> (a <code>POST</code> back to the table path, carrying the requirements-and-updates payload of <a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a>), <code>dropTable</code>, <code>listTables</code>, <code>tableExists</code>, <code>reportMetrics</code>, the namespace and view resources, and <code>commitTransaction</code> on <code>/v1/{prefix}/transactions/commit</code>, which <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/">Chapter 10.2</a> opens up. Almost everything <code>RESTSessionCatalog</code> can send has a resource method waiting for it, and the gaps are deliberate and few: there is no <code>register-view</code> — <code>RESTSessionCatalog.registerView</code> posts to <code>.../namespaces/{namespace}/register-view</code>, and that string appears nowhere in the Nessie tree — the three server-side scan-planning paths are declared and then kept out of the advertised set under a bare <code>// NOT implemented</code>, and Nessie serves its own <code>/v1/{prefix}/s3-sign/{identifier}</code> in place of the spec's <code>.../tables/{table}/sign</code>. <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/">Chapter 10.3</a> reads that declared-and-declined list as a capability statement.</p>
 <p>One line does all the Nessie-specific work: <code>decodeTableRef(prefix, namespace, table)</code>. Sections 5 and 7 are that one line.</p>
-<p>Two things are worth noticing on the way past, because they mark where this stack differs from the Nessie resources of Chapter 7.4. The return type is <code>Uni&lt;IcebergLoadTableResponse&gt;</code> — reactive, because loading a table may mean fetching <code>metadata.json</code> from object storage — while <code>@Blocking</code> tells Quarkus to run the method on a worker thread anyway, since the version store access underneath it is not reactive. The catalog resources sit on the seam between the two models.</p>
+<p>Two things are worth noticing on the way past, because they mark where this stack differs from the Nessie resources of <a href="../chapter_7.4_request_path/">Chapter 7.4</a>. The return type is <code>Uni&lt;IcebergLoadTableResponse&gt;</code> — reactive, because loading a table may mean fetching <code>metadata.json</code> from object storage — while <code>@Blocking</code> tells Quarkus to run the method on a worker thread anyway, since the version store access underneath it is not reactive. The catalog resources sit on the seam between the two models.</p>
 <h2 id="4-the-structural-punchline">4. The structural punchline<a class="headerlink" href="#4-the-structural-punchline" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the same service layer, a different ApiContext</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-94"> 94</a></span>
 <span class="normal"><a href="#__codelineno-1-95"> 95</a></span>
@@ -3430,10 +3429,9 @@
 </span><span id="__span-1-111"><a id="__codelineno-1-111" name="__codelineno-1-111"></a><span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">ContentApiImpl</span><span class="p">(</span><span class="n">serverConfig</span><span class="p">,</span><span class="w"> </span><span class="n">store</span><span class="p">,</span><span class="w"> </span><span class="n">authorizer</span><span class="p">,</span><span class="w"> </span><span class="n">accessContext</span><span class="p">,</span><span class="w"> </span><span class="n">ICEBERG_V1</span><span class="p">);</span>
 </span><span id="__span-1-112"><a id="__codelineno-1-112" name="__codelineno-1-112"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java` L94–L112](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L94-L112) <span>@ nessie-0.108.4</span></p>
-
-<p>Put this next to <code>RestV2TreeResource</code>'s constructor from Chapter 7.4. That one builds four services; this one builds two — but the <code>new TreeApiImpl(…)</code> and <code>new ContentApiImpl(…)</code> lines are identical except for the last argument. There, <code>NESSIE_V2 = apiContext("Nessie", 2)</code>. Here, <code>ICEBERG_V1 = apiContext("Iceberg", 1)</code>. Same classes, same injected <code>VersionStore</code>.</p>
-<p>So everything Chapter 7.4 established still holds for a request that arrived over the Iceberg protocol. <code>validateCommitMeta</code> still rejects a client-supplied committer or parent hash. <code>HashValidator</code> still refuses a commit onto a tag. Authorization is still a <code>CommitValidator</code> invoked from inside the storage engine's retry loop. There is no second implementation of any of it, and therefore no second set of bugs.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L94-L112"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java</code> L94–L112</a> <span>@ nessie-0.108.4</span></p>
+<p>Put this next to <code>RestV2TreeResource</code>'s constructor from <a href="../chapter_7.4_request_path/">Chapter 7.4</a>. That one builds four services; this one builds two — but the <code>new TreeApiImpl(…)</code> and <code>new ContentApiImpl(…)</code> lines are identical except for the last argument. There, <code>NESSIE_V2 = apiContext("Nessie", 2)</code>. Here, <code>ICEBERG_V1 = apiContext("Iceberg", 1)</code>. Same classes, same injected <code>VersionStore</code>.</p>
+<p>So everything <a href="../chapter_7.4_request_path/">Chapter 7.4</a> established still holds for a request that arrived over the Iceberg protocol. <code>validateCommitMeta</code> still rejects a client-supplied committer or parent hash. <code>HashValidator</code> still refuses a commit onto a tag. Authorization is still a <code>CommitValidator</code> invoked from inside the storage engine's retry loop. There is no second implementation of any of it, and therefore no second set of bugs.</p>
 <p>What the <code>ApiContext</code> buys is discrimination without duplication. It travels with every access check, so a policy — or an audit record — can tell that a <code>Put</code> arrived through the Iceberg door rather than the Nessie one, while the code that produced the <code>Put</code> stays single.</p>
 <h2 id="5-the-prefix-carries-the-reference">5. The prefix carries the reference<a class="headerlink" href="#5-the-prefix-carries-the-reference" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">prefix → reference + warehouse, and the two constants it turns on</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-297">297</a></span>
@@ -3500,8 +3498,7 @@
 </span><span id="__span-2-327"><a id="__codelineno-2-327" name="__codelineno-2-327"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">decodedPrefix</span><span class="p">(</span><span class="n">parsedReference</span><span class="p">,</span><span class="w"> </span><span class="n">resolvedWarehouse</span><span class="p">);</span>
 </span><span id="__span-2-328"><a id="__codelineno-2-328" name="__codelineno-2-328"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java` L297–L328](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L297-L328) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L297-L328"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java</code> L297–L328</a> <span>@ nessie-0.108.4</span></p>
 <p>Four steps, and only the last is obvious.</p>
 <pre class="mermaid"><code>flowchart LR
     P0["path segment&lt;br/&gt;&lt;code&gt;main%2Ffeature%7Cwarehouse1&lt;/code&gt;"] --&gt; P1["URL-decode&lt;br/&gt;&lt;code&gt;main/feature&amp;#124;warehouse1&lt;/code&gt;"]
@@ -3509,10 +3506,10 @@
     P2 --&gt; P3["split on the first &amp;#124;&lt;br/&gt;&lt;i&gt;ref = main/feature&lt;/i&gt;&lt;br/&gt;&lt;i&gt;warehouse = warehouse1&lt;/i&gt;"]
     P3 --&gt; P4["resolveReferencePathElement&lt;br/&gt;&lt;i&gt;ParsedReference(main/feature)&lt;/i&gt;"]
     P5["&lt;code&gt;-&amp;#124;warehouse1&lt;/code&gt;"] --&gt; P6["'-' means the server's&lt;br/&gt;default branch"]
-    P7["&lt;code&gt;main@2e1cfa82~1&lt;/code&gt;"] --&gt; P8["the Chapter 7.3 grammar,&lt;br/&gt;unchanged: name, hash,&lt;br/&gt;relative specs"]</code></pre>
+    P7["&lt;code&gt;main@2e1cfa82~1&lt;/code&gt;"] --&gt; P8["the [Chapter 7.3](../part07_nessie_architecture/chapter_7.3_rest_api_v2.md) grammar,&lt;br/&gt;unchanged: name, hash,&lt;br/&gt;relative specs"]</code></pre>
 <p><code>SEPARATOR</code> is ASCII 31, the unit separator, drawn as <code>·US·</code> in the diagram above, and it is not an arbitrary pick. It is exactly Iceberg's own multi-level namespace separator — <code>RESTUtil.NAMESPACE_SEPARATOR_AS_UNICODE</code> — which the same Nessie class uses in <code>decodeNamespace</code> to split <code>{namespace}</code> into levels. Accepting that byte inside <code>{prefix}</code> too lets a reference named <code>feature/x</code> cross a single URL path segment without being read as two.</p>
 <p>Worth knowing that Nessie's own config response never produces it. Section 6's <code>IcebergConfigurer</code> builds the prefix with <code>java.net.URLEncoder.encode</code>, so a slash arrives as <code>%2F</code> and a <code>|</code> as <code>%7C</code>, and the <code>replace</code> is a no-op on anything Nessie itself handed out. The string <code>%1F</code> does not occur anywhere in the Nessie tree. The branch exists for clients and proxies that will not carry an encoded slash.</p>
-<p>Then <code>|</code> splits reference from warehouse, <code>-</code> means "the server's default branch", and what is left goes to <code>ReferenceResolver.resolveReferencePathElement</code> — the same parser Chapter 7.3 covered. That is why <code>main@2e1cfa82~1</code> works inside a <code>prefix</code>: it is not a second syntax, it is the same grammar reached through a different path parameter.</p>
+<p>Then <code>|</code> splits reference from warehouse, <code>-</code> means "the server's default branch", and what is left goes to <code>ReferenceResolver.resolveReferencePathElement</code> — the same parser <a href="../chapter_7.3_rest_api_v2/">Chapter 7.3</a> covered. That is why <code>main@2e1cfa82~1</code> works inside a <code>prefix</code>: it is not a second syntax, it is the same grammar reached through a different path parameter.</p>
 <h2 id="6-the-client-never-has-to-compose-that-string">6. The client never has to compose that string<a class="headerlink" href="#6-the-client-never-has-to-compose-that-string" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the server hands the client its prefix</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-178">178</a></span>
 <span class="normal"><a href="#__codelineno-3-179">179</a></span>
@@ -3594,8 +3591,7 @@
 </span><span id="__span-3-216"><a id="__codelineno-3-216" name="__codelineno-3-216"></a><span class="w">  </span><span class="n">configOverride</span><span class="p">.</span><span class="na">accept</span><span class="p">(</span><span class="s">"nessie.default-branch.name"</span><span class="p">,</span><span class="w"> </span><span class="n">branch</span><span class="p">);</span>
 </span><span id="__span-3-217"><a id="__codelineno-3-217" name="__codelineno-3-217"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergConfigurer.java` L178–L217](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergConfigurer.java#L178-L217) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergConfigurer.java#L178-L217"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergConfigurer.java</code> L178–L217</a> <span>@ nessie-0.108.4</span></p>
 <p>This is what <code>GET /iceberg/v1/config</code> returns, and the load-bearing line is the <code>configDefault.accept(ICEBERG_PREFIX, encode(branch + "|" + …, UTF_8))</code> call, where <code>ICEBERG_PREFIX</code> is the string <code>"prefix"</code> (<code>IcebergConfigurer.java:71</code>). The server picks the reference, encodes it, and puts it in the <code>defaults</code> block of the config response. Note its sibling one branch up: when the client names no warehouse and the server has a default one, the prefix is just <code>encode(branch, UTF_8)</code>, with no <code>|warehouse</code> at all. Three fixed <em>overrides</em> follow: <code>nessie.is-nessie-catalog=true</code>; <code>nessie.prefix-pattern={ref}|{warehouse}</code>, which the comment beside it calls informational for now; and <code>nessie.default-branch.name</code>, which a Nessie-aware client can read directly.</p>
 <p>Now cross back to the Iceberg side. <code>RESTSessionCatalog.initialize</code> does <code>Map&lt;String, String&gt; mergedProps = config.merge(props)</code> and builds its path helper from the result:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ResourcePaths.forCatalogProperties()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-56">56</a></span>
@@ -3614,8 +3610,7 @@
 </span><span id="__span-4-62"><a id="__codelineno-4-62" name="__codelineno-4-62"></a><span class="w">          </span><span class="n">RESTCatalogProperties</span><span class="p">.</span><span class="na">NAMESPACE_SEPARATOR_DEFAULT</span><span class="p">));</span>
 </span><span id="__span-4-63"><a id="__codelineno-4-63" name="__codelineno-4-63"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java` L56–L63](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java#L56-L63) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java#L56-L63"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java</code> L56–L63</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>properties.get(PREFIX)</code>. That value is then joined into every catalog path the client builds from then on — all of them except <code>config()</code> and <code>tokens()</code>, which are reached before a prefix is known:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">ResourcePaths.table()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-106">106</a></span>
 <span class="normal"><a href="#__codelineno-5-107">107</a></span>
@@ -3635,8 +3630,7 @@
 </span><span id="__span-5-113"><a id="__codelineno-5-113" name="__codelineno-5-113"></a><span class="w">      </span><span class="n">RESTUtil</span><span class="p">.</span><span class="na">encodeString</span><span class="p">(</span><span class="n">ident</span><span class="p">.</span><span class="na">name</span><span class="p">()));</span>
 </span><span id="__span-5-114"><a id="__codelineno-5-114" name="__codelineno-5-114"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java` L106–L114](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java#L106-L114) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java#L106-L114"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/ResourcePaths.java</code> L106–L114</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>That is the whole trick, and it deserves stating flatly. <strong>A stock Iceberg client, with no Nessie-aware code in it, becomes branch-aware because the server answered one config request with a string.</strong> The reference is chosen by the server, delivered as an ordinary configuration default, and substituted by the client into every subsequent URL without the client knowing what it means.</p>
 <p>There is a second way to select it, visible in the generic resource: <code>getConfig</code> is mapped at both <code>/v1/config</code> and <code>{reference}/v1/config</code>. Point a client's URI at <code>https://host/iceberg/mybranch/</code> and the config response comes back with a <code>prefix</code> naming that branch.</p>
 <h2 id="7-a-reference-can-also-hide-in-the-table-name">7. A reference can also hide in the table name<a class="headerlink" href="#7-a-reference-can-also-hide-in-the-table-name" title="Permanent link">&para;</a></h2>
@@ -3672,8 +3666,7 @@
 </span><span id="__span-6-286"><a id="__codelineno-6-286" name="__codelineno-6-286"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">tableRef</span><span class="p">(</span><span class="n">contentKey</span><span class="p">,</span><span class="w"> </span><span class="n">parsedReference</span><span class="p">(</span><span class="n">refName</span><span class="p">,</span><span class="w"> </span><span class="n">refHash</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">),</span><span class="w"> </span><span class="n">decoded</span><span class="p">.</span><span class="na">warehouse</span><span class="p">());</span>
 </span><span id="__span-6-287"><a id="__codelineno-6-287" name="__codelineno-6-287"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java` L272–L287](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L272-L287) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L272-L287"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java</code> L272–L287</a> <span>@ nessie-0.108.4</span></p>
 <p><code>TableReference.parse(table)</code> applies Nessie's <code>name@ref#hashOrTimestamp</code> syntax to the <em>table identifier</em> — the string the engine lifted out of the SQL. If it carries a reference, that reference beats the one decoded from the prefix. If it carries a hash or a timestamp, that replaces the prefix's hash.</p>
 <p>The precedence is therefore: table identifier, then prefix, then the server's default branch. In SQL, <code>SELECT * FROM db.`sales@dev`</code> reads <code>sales</code> on <code>dev</code> inside a session whose prefix says <code>main</code>, for that statement only. It is the mechanism behind ad-hoc time travel, and Gotcha 1 is what it costs.</p>
 <h2 id="8-watch-a-mutation-land">8. Watch a mutation land<a class="headerlink" href="#8-watch-a-mutation-land" title="Permanent link">&para;</a></h2>
@@ -3717,12 +3710,11 @@
 </span><span id="__span-7-244"><a id="__codelineno-7-244" name="__codelineno-7-244"></a><span class="w">      </span><span class="n">effectiveRef</span><span class="p">.</span><span class="na">getName</span><span class="p">(),</span><span class="w"> </span><span class="n">effectiveRef</span><span class="p">.</span><span class="na">getHash</span><span class="p">(),</span><span class="w"> </span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="n">requestMeta</span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 </span><span id="__span-7-245"><a id="__codelineno-7-245" name="__codelineno-7-245"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java` L226–L245](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L226-L245) <span>@ nessie-0.108.4</span></p>
-
-<p><code>POST /v1/{prefix}/tables/rename</code> becomes, literally, the rename protocol from Chapter 7.2: an <code>Operations</code> holding <code>Delete.of(from)</code> and <code>Put.of(to, existingFrom)</code>. The <code>Put</code> reuses the content object that was just fetched, which is how the content-id survives the rename — Nessie treats it as the same entity at a new key, not a new entity at a new key.</p>
-<p>Two details connect it back to Chapter 7.4. The commit message is synthesised by the server (<code>"rename table db.a to db.b"</code>), because Iceberg's protocol has no field for one; this is the same gap that <code>RestCommon.updateCommitMeta</code> and the <code>Nessie-Commit-*</code> headers fill for clients that can set headers. And <code>RequestMeta.apiWrite().addKeyAction(..., CatalogOps.CATALOG_RENAME_ENTITY_FROM.name())</code> populates the <code>keyActions</code> that Chapter 7.4 showed arriving empty for a plain Nessie commit. A policy can now separate "renamed a table" from "updated a table", although both reach the version store as a <code>Put</code>.</p>
-<p>The last statement is <code>treeService.commitMultipleOperations(...)</code>, and from there the trace is Chapter 7.4's, unchanged.</p>
-<p>Not every write takes this route. <code>updateTable</code> builds an <code>IcebergCatalogOperation</code> carrying the client's <code>updates</code> and <code>requirements</code> — the Chapter 6.3 payload, kept intact — wraps it in a <code>CatalogCommit</code>, and hands that to <code>catalogService.commit</code>. Chapter 10.2 follows that path, because it is the one that generalises to several tables at once.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java#L226-L245"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1ResourceBase.java</code> L226–L245</a> <span>@ nessie-0.108.4</span></p>
+<p><code>POST /v1/{prefix}/tables/rename</code> becomes, literally, the rename protocol from <a href="../chapter_7.2_data_model/">Chapter 7.2</a>: an <code>Operations</code> holding <code>Delete.of(from)</code> and <code>Put.of(to, existingFrom)</code>. The <code>Put</code> reuses the content object that was just fetched, which is how the content-id survives the rename — Nessie treats it as the same entity at a new key, not a new entity at a new key.</p>
+<p>Two details connect it back to <a href="../chapter_7.4_request_path/">Chapter 7.4</a>. The commit message is synthesised by the server (<code>"rename table db.a to db.b"</code>), because Iceberg's protocol has no field for one; this is the same gap that <code>RestCommon.updateCommitMeta</code> and the <code>Nessie-Commit-*</code> headers fill for clients that can set headers. And <code>RequestMeta.apiWrite().addKeyAction(..., CatalogOps.CATALOG_RENAME_ENTITY_FROM.name())</code> populates the <code>keyActions</code> that <a href="../chapter_7.4_request_path/">Chapter 7.4</a> showed arriving empty for a plain Nessie commit. A policy can now separate "renamed a table" from "updated a table", although both reach the version store as a <code>Put</code>.</p>
+<p>The last statement is <code>treeService.commitMultipleOperations(...)</code>, and from there the trace is <a href="../chapter_7.4_request_path/">Chapter 7.4</a>'s, unchanged.</p>
+<p>Not every write takes this route. <code>updateTable</code> builds an <code>IcebergCatalogOperation</code> carrying the client's <code>updates</code> and <code>requirements</code> — the <a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a> payload, kept intact — wraps it in a <code>CatalogCommit</code>, and hands that to <code>catalogService.commit</code>. <a href="../../part10_ecosystem/chapter_10.2_multi_table_commits/">Chapter 10.2</a> follows that path, because it is the one that generalises to several tables at once.</p>
 <h2 id="9-errors-have-to-be-icebergs-errors-too">9. Errors have to be Iceberg's errors too<a class="headerlink" href="#9-errors-have-to-be-icebergs-errors-too" title="Permanent link">&para;</a></h2>
 <p>A drop-in catalog has to reproduce more than paths. Iceberg's REST client reconstructs exceptions from the <code>type</code> string in the error body, and both its own test suite and real engine code branch on the resulting exception class and, in places, on the message text. So the server has to speak that vocabulary:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">one Nessie conflict, rendered as an Iceberg error</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-213">213</a></span>
@@ -3783,9 +3775,8 @@
 </span><span id="__span-8-240"><a id="__codelineno-8-240" name="__codelineno-8-240"></a><span class="w">    </span><span class="kd">yield</span><span class="w"> </span><span class="nf">errorResponse</span><span class="p">(</span><span class="mi">409</span><span class="p">,</span><span class="w"> </span><span class="s">"AlreadyExistsException"</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">);</span>
 </span><span id="__span-8-241"><a id="__codelineno-8-241" name="__codelineno-8-241"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergErrorMapper.java` L213–L241](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergErrorMapper.java#L213-L241) <span>@ nessie-0.108.4</span></p>
-
-<p>This is a <code>Conflict</code> of type <code>KEY_EXISTS</code> — a per-key conflict raised by the version store, the structured detail Chapter 7.4 was careful to carry across — being turned into a <code>409</code> whose <code>type</code> is <code>AlreadyExistsException</code> and whose message is composed three different ways depending on whether the operation was a rename, a create, or a failed requirement check. The comment above it is honest about why: <em>"Produces different messages depending on the target type - just to get the tests passing <img alt="🤦" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f926.svg" title=":facepalm:" />"</em>.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergErrorMapper.java#L213-L241"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergErrorMapper.java</code> L213–L241</a> <span>@ nessie-0.108.4</span></p>
+<p>This is a <code>Conflict</code> of type <code>KEY_EXISTS</code> — a per-key conflict raised by the version store, the structured detail <a href="../chapter_7.4_request_path/">Chapter 7.4</a> was careful to carry across — being turned into a <code>409</code> whose <code>type</code> is <code>AlreadyExistsException</code> and whose message is composed three different ways depending on whether the operation was a rename, a create, or a failed requirement check. The comment above it is honest about why: <em>"Produces different messages depending on the target type - just to get the tests passing <img alt="🤦" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f926.svg" title=":facepalm:" />"</em>.</p>
 <p><code>IcebergErrorMapper</code> does the same for the rest: <code>CONTENT_NOT_FOUND</code> becomes <code>404 NoSuchTableException</code> or <code>NoSuchViewException</code> depending on the <code>IcebergEntityKind</code> the resource passed in, <code>NAMESPACE_NOT_FOUND</code> becomes <code>404 NoSuchNamespaceException</code>, <code>REFERENCE_NOT_FOUND</code> becomes <code>400 NoSuchReferenceException</code>, and storage-side failures map to <code>429</code>, <code>401</code>, <code>403</code> or — for a missing object — <code>400</code>, on the reasoning that a bad location in Iceberg metadata is a client problem.</p>
 <p>Compatibility with a protocol includes compatibility with its failures. That is the part a feature matrix never captures.</p>
 <h2 id="10-what-the-catalog-stack-adds">10. What the catalog stack adds<a class="headerlink" href="#10-what-the-catalog-stack-adds" title="Permanent link">&para;</a></h2>
@@ -3845,10 +3836,9 @@
 </span><span id="__span-9-154"><a id="__codelineno-9-154" name="__codelineno-9-154"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ContentApiImpl</span><span class="p">(</span><span class="n">serverConfig</span><span class="p">,</span><span class="w"> </span><span class="n">versionStore</span><span class="p">,</span><span class="w"> </span><span class="n">authorizer</span><span class="p">,</span><span class="w"> </span><span class="n">accessContext</span><span class="p">,</span><span class="w"> </span><span class="n">apiContext</span><span class="p">);</span>
 </span><span id="__span-9-155"><a id="__codelineno-9-155" name="__codelineno-9-155"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/CatalogServiceImpl.java` L128–L156](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/CatalogServiceImpl.java#L128-L156) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/CatalogServiceImpl.java#L128-L156"><code>projectnessie/nessie</code> · <code>catalog/service/impl/src/main/java/org/projectnessie/catalog/service/impl/CatalogServiceImpl.java</code> L128–L156</a> <span>@ nessie-0.108.4</span></p>
 <p>Two things stand out in the injection list. <code>treeService(ApiContext)</code> and <code>contentService(ApiContext)</code> are the same hand-built service objects again, now parameterised rather than fixed, because this layer is reached from more than one API context. And <code>ObjectIO</code> sits alongside <code>VersionStore</code>.</p>
-<p>That second one is the real difference between the two front doors. Nessie's own model stores a <em>pointer</em>: an <code>IcebergTable</code> content object is a metadata location plus snapshot, schema, spec and sort-order IDs (Chapter 7.2), and a Nessie client is expected to read <code>metadata.json</code> for itself. Iceberg's <code>loadTable</code> response, by contrast, must contain the full table metadata document, and its <code>updateTable</code> request contains changes that only mean something once applied to that document. So this layer parses, applies and writes <code>metadata.json</code> on the server.</p>
+<p>That second one is the real difference between the two front doors. Nessie's own model stores a <em>pointer</em>: an <code>IcebergTable</code> content object is a metadata location plus snapshot, schema, spec and sort-order IDs (<a href="../chapter_7.2_data_model/">Chapter 7.2</a>), and a Nessie client is expected to read <code>metadata.json</code> for itself. Iceberg's <code>loadTable</code> response, by contrast, must contain the full table metadata document, and its <code>updateTable</code> request contains changes that only mean something once applied to that document. So this layer parses, applies and writes <code>metadata.json</code> on the server.</p>
 <p>Everything else distinctive about this catalog follows. Because the server already resolves the table's data locations and already holds storage credentials, it can vend scoped credentials in the <code>loadTable</code> response and sign S3 requests at <code>IcebergApiV1S3SignResource</code>. A pointer-only catalog can do neither.</p>
 <h2 id="11-gotchas">11. Gotchas<a class="headerlink" href="#11-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
@@ -3861,7 +3851,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Not every Iceberg REST endpoint is implemented</p>
-<p><code>POST /iceberg/v1/oauth/tokens</code> returns <code>501</code> with <em>"Endpoint not implemented: please configure the catalog client with the oauth2-server-uri property."</em> A client left on Iceberg's default OAuth flow fails at authentication, and the fix is client configuration, not server configuration. Chapter 10.3 reads Nessie's full declared endpoint set, including what it marks <code>// NOT implemented</code>.</p>
+<p><code>POST /iceberg/v1/oauth/tokens</code> returns <code>501</code> with <em>"Endpoint not implemented: please configure the catalog client with the oauth2-server-uri property."</em> A client left on Iceberg's default OAuth flow fails at authentication, and the fix is client configuration, not server configuration. <a href="../../part10_ecosystem/chapter_10.3_catalog_landscape/">Chapter 10.3</a> reads Nessie's full declared endpoint set, including what it marks <code>// NOT implemented</code>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">The audit trail knows which door you came through</p>
@@ -3873,11 +3863,11 @@
 </div>
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Nessie's Iceberg REST catalog is not an adapter over Nessie's REST API. Its resources construct <code>TreeApiImpl</code> and <code>ContentApiImpl</code> directly, stamped <code>ApiContext("Iceberg", 1)</code>, and re-enter exactly where Chapter 7.4 ended.</li>
+<li>Nessie's Iceberg REST catalog is not an adapter over Nessie's REST API. Its resources construct <code>TreeApiImpl</code> and <code>ContentApiImpl</code> directly, stamped <code>ApiContext("Iceberg", 1)</code>, and re-enter exactly where <a href="../chapter_7.4_request_path/">Chapter 7.4</a> ended.</li>
 <li>The Iceberg spec's <code>prefix</code> segment is the extension point the spec itself provides for multi-tenancy, and Nessie spends it on <code>{ref}|{warehouse}</code> — accepting ASCII 31 in place of <code>/</code> so a slash-containing branch name fits one path segment even where an encoded slash will not travel. A per-reference <code>/v1/config</code> path is the second way in.</li>
 <li>The client never composes that string. The server puts it in the <code>defaults</code> block of <code>/v1/config</code>; <code>RESTSessionCatalog</code> merges it and <code>ResourcePaths</code> substitutes it into every URL. A stock Iceberg client becomes branch-aware with no Nessie-aware code in it.</li>
 <li>A reference written into the table identifier overrides the prefix for one statement. The precedence is identifier, then prefix, then default branch.</li>
-<li><code>renameTable</code> is the <code>Delete</code> + <code>Put</code> pair from Chapter 7.2 handed to <code>treeService.commitMultipleOperations</code>, with per-key <code>CatalogOps</code> actions attached so authorization can see the intent behind the operations.</li>
+<li><code>renameTable</code> is the <code>Delete</code> + <code>Put</code> pair from <a href="../chapter_7.2_data_model/">Chapter 7.2</a> handed to <code>treeService.commitMultipleOperations</code>, with per-key <code>CatalogOps</code> actions attached so authorization can see the intent behind the operations.</li>
 <li>The catalog stack injects <code>ObjectIO</code> alongside <code>VersionStore</code> because Iceberg's protocol requires the full metadata document where Nessie stores only a pointer. Credential vending and S3 request signing are consequences of that one difference.</li>
 </ul>
 <p>Part 7 is complete: two protocols, one service layer, one storage boundary. Both doors end at the same six-argument <code>VersionStore.commit</code>.</p>
@@ -3928,7 +3918,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Part 8 goes through that boundary. Chapter 8.1 starts at the <code>Persist</code> SPI — the interface underneath <code>VersionStore</code>, where commits stop being objects and become rows.</p>
+<p><strong>Next:</strong> Part 8 goes through that boundary. <a href="../../part08_version_store/chapter_8.1_persist_spi/">Chapter 8.1</a> starts at the <code>Persist</code> SPI — the interface underneath <code>VersionStore</code>, where commits stop being objects and become rows.</p>
 
 
 
@@ -3966,7 +3956,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_7.4_request_path/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 7.4 From HTTP to the `VersionStore`">
+          <a href="../chapter_7.4_request_path/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 7.4 From HTTP to the VersionStore">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3976,7 +3966,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                7.4 From HTTP to the `VersionStore`
+                7.4 From HTTP to the VersionStore
               </div>
             </div>
           </a>

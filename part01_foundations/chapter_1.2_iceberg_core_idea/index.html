@@ -1051,7 +1051,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1275,7 +1275,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1303,7 +1303,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1471,7 +1471,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1499,7 +1499,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1527,7 +1527,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1723,7 +1723,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1751,7 +1751,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1917,7 +1917,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1945,7 +1945,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1973,7 +1973,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2141,7 +2141,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2169,7 +2169,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2197,7 +2197,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2337,7 +2337,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2365,7 +2365,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2559,7 +2559,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2753,7 +2753,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2949,7 +2949,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2977,7 +2977,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3033,7 +3033,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3311,15 +3311,15 @@
 <h1 id="chapter-12-icebergs-core-idea-an-immutable-metadata-tree-and-one-atomic-pointer">Chapter 1.2 — Iceberg's core idea: an immutable metadata tree and one atomic pointer<a class="headerlink" href="#chapter-12-icebergs-core-idea-an-immutable-metadata-tree-and-one-atomic-pointer" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> if every file Iceberg writes is immutable, where is the one mutable thing — and why is one enough?</p>
-<p><strong>Prerequisites:</strong> Chapter 1.1 (why the file set has to be a value rather than a listing)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_1.1_why_table_formats/">Chapter 1.1</a> (why the file set has to be a value rather than a listing)</p>
 <p><strong>Source covered:</strong> <code>core/.../TableMetadata.java</code>, <code>core/.../BaseMetastoreTableOperations.java</code>, <code>api/.../Snapshot.java</code></p>
 </div>
 <h2 id="1-find-the-mutable-thing">1. Find the mutable thing<a class="headerlink" href="#1-find-the-mutable-thing" title="Permanent link">&para;</a></h2>
-<p>Chapter 1.1 ended on a rename with a comment attached: <em>"this rename operation is the atomic commit operation."</em> That comment is the thesis of the whole format, stated once, in the simplest catalog Iceberg has.</p>
+<p><a href="../chapter_1.1_why_table_formats/">Chapter 1.1</a> ended on a rename with a comment attached: <em>"this rename operation is the atomic commit operation."</em> That comment is the thesis of the whole format, stated once, in the simplest catalog Iceberg has.</p>
 <p>Take it seriously and a question follows. Iceberg writes a lot of files — metadata files, manifest lists, manifests, data files, statistics files, delete files — and every one of them is written once and never modified. Nothing is appended to. Nothing is edited in place. So where does change live?</p>
 <p>The answer is that it lives in exactly one place, and it is one string. Everything else in Iceberg is a purely functional data structure: a tree of immutable nodes, each addressed by a location, rooted at a <code>metadata.json</code>. Committing means building a new tree that shares most of its nodes with the old one, writing the new root, and compare-and-swapping a single pointer from the old root to the new one.</p>
 <p>That reduction is worth internalising early, because it makes the rest of the format follow rather than accumulate. Time travel is <em>not throwing the old roots away</em>. Rollback is <em>pointing at an old root</em>. Snapshot isolation is <em>a reader holding a root while a writer makes a different one</em>. Optimistic concurrency is <em>the swap failing if the pointer moved</em>. None of these are features built on top of the commit protocol. They are the same fact, viewed from different directions.</p>
-<p>This chapter stays at that altitude. It shows the shape of the value, where the mutable cell physically is, and what the swap does. The machinery that <em>builds</em> a candidate — computing sequence numbers, writing the manifest list, validating against a moving base, retrying — is Chapter 3.3, and this chapter deliberately stops at the method call that hands off to it.</p>
+<p>This chapter stays at that altitude. It shows the shape of the value, where the mutable cell physically is, and what the swap does. The machinery that <em>builds</em> a candidate — computing sequence numbers, writing the manifest list, validating against a moving base, retrying — is <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>, and this chapter deliberately stops at the method call that hands off to it.</p>
 <h2 id="2-the-shape-of-the-tree">2. The shape of the tree<a class="headerlink" href="#2-the-shape-of-the-tree" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart TD
     CAT["catalog row&lt;br/&gt;metadata_location = .../00042-uuid.metadata.json"]
@@ -3401,13 +3401,12 @@
 </span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a><span class="kd">private</span><span class="w"> </span><span class="kd">volatile</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">SnapshotRef</span><span class="o">&gt;</span><span class="w"> </span><span class="n">refs</span><span class="p">;</span>
 </span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a><span class="kd">private</span><span class="w"> </span><span class="kd">volatile</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">snapshotsLoaded</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L242–L273](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L242-L273) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L242-L273"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableMetadata.java</code> L242–L273</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Almost everything under <code>// stored metadata</code> is <code>final</code>. Schemas, partition specs, sort orders, properties, <code>currentSnapshotId</code>, <code>lastSequenceNumber</code>, the snapshot log, the metadata log — all of it. There is no setter in the class. A <code>TableMetadata</code> is not a handle onto a table you can mutate; it is one version of a table, complete in itself.</p>
-<p>That is why <code>TableMetadata.Builder</code> exists and why changes are expressed as <code>MetadataUpdate</code> objects rather than field assignments: producing a new version means building a new object from the old one. Chapter 3.2 covers that builder.</p>
+<p>That is why <code>TableMetadata.Builder</code> exists and why changes are expressed as <code>MetadataUpdate</code> objects rather than field assignments: producing a new version means building a new object from the old one. <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/">Chapter 3.2</a> covers that builder.</p>
 <p>The last five fields on the page are the exception, and they are worth understanding now because they cause real surprises later. Count them in the excerpt: <code>snapshotsSupplier</code>, then four <code>volatile</code> — <code>snapshots</code>, <code>snapshotsById</code>, <code>refs</code>, <code>snapshotsLoaded</code>. None of them is <code>final</code>.</p>
 <p>The tempting reading is that they are a cache sitting outside the value. That is not what they are. <code>snapshots</code> and <code>refs</code> are both persisted <code>metadata.json</code> fields — <code>TableMetadataParser</code> has a constant, a writer and a parser branch for each — and both arrive through the constructor like any other stored field. <code>snapshotsById</code> is a derived index over <code>snapshots</code>. What is genuinely not part of the value is the pair that records <em>how much of it has arrived yet</em>: <code>snapshotsSupplier</code> and <code>snapshotsLoaded</code>.</p>
-<p>So the mutability here is about <strong>when</strong> the value shows up, not whether it can change. A REST catalog may return metadata whose snapshot list has not been fetched, because a table with fifty thousand snapshots should not force all of them into memory to answer a question about the current one; the catalog hands over a supplier instead. <code>ensureSnapshotsLoaded()</code> calls it once, under <code>synchronized</code>, then rebuilds <code>snapshotsById</code>, re-validates <code>refs</code> against the new index, sets <code>snapshotsLoaded</code> and drops the supplier to <code>null</code>. After that the object never changes again. The <code>volatile</code> markers exist because that one-time fill can happen on any thread.</p>
+<p>So the mutability here is about <strong>when</strong> the value shows up, not whether it can change. A REST catalog may return metadata whose snapshot list has not been fetched, because a table with fifty thousand snapshots should not force all of them into memory to answer a question about the current one; the catalog hands over a supplier instead. <code>ensureSnapshotsLoaded()</code> calls it once, under <code>synchronized</code>, then rebuilds <code>snapshotsById</code> through <code>indexAndValidateSnapshots</code>, checks the current snapshot is present via <code>validateCurrentSnapshot()</code>, re-validates <code>refs</code> against the new index, sets <code>snapshotsLoaded</code> and drops the supplier to <code>null</code>. After that the object never changes again. The <code>volatile</code> markers exist because that one-time fill can happen on any thread.</p>
 <h2 id="4-every-edge-in-the-tree-is-a-location-string">4. Every edge in the tree is a location string<a class="headerlink" href="#4-every-edge-in-the-tree-is-a-location-string" title="Permanent link">&para;</a></h2>
 <p>The tree in section 2 has no object references in it. Each node names its children by path:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Snapshot.manifestListLocation()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-166">166</a></span>
@@ -3422,8 +3421,7 @@
 </span><span id="__span-1-170"><a id="__codelineno-1-170" name="__codelineno-1-170"></a><span class="cm"> */</span>
 </span><span id="__span-1-171"><a id="__codelineno-1-171" name="__codelineno-1-171"></a><span class="n">String</span><span class="w"> </span><span class="nf">manifestListLocation</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/Snapshot.java` L166–L171](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/Snapshot.java#L166-L171) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/Snapshot.java#L166-L171"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/Snapshot.java</code> L166–L171</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>A snapshot does not contain its manifests. It contains a string. Resolving the edge means reading a file, and because that file is immutable, the resolution is stable forever: two readers following the same edge at any two times get identical bytes.</p>
 <p>The clause <em>"or null if it is not separate"</em> is a fossil. V1 tables could store the manifest list inline in <code>metadata.json</code>; the separate manifest-list file was introduced so that reading a snapshot's file set does not require parsing every snapshot's file set. Part 2 covers the format versions in detail.</p>
 <h2 id="5-dereferencing-the-pointer">5. Dereferencing the pointer<a class="headerlink" href="#5-dereferencing-the-pointer" title="Permanent link">&para;</a></h2>
@@ -3510,14 +3508,14 @@
 </span><span id="__span-2-555"><a id="__codelineno-2-555" name="__codelineno-2-555"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">refs</span><span class="p">;</span>
 </span><span id="__span-2-556"><a id="__codelineno-2-556" name="__codelineno-2-556"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L516–L556](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L516-L556) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p><code>currentSnapshot()</code> is a single map lookup. <code>snapshot(long)</code> is the same lookup, guarded by <code>ensureSnapshotsLoaded()</code> — and the asymmetry is deliberate. The <em>current</em> snapshot is expected to be in whatever partial set the catalog handed back, because a catalog that cannot describe the current state of the table has not done its job. An <em>arbitrary historical</em> snapshot may require going back to the source.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L516-L556"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableMetadata.java</code> L516–L556</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Three accessors sit side by side in the excerpt and each treats the supplier differently. <code>currentSnapshot()</code> is a bare map lookup and never forces a load. <code>snapshot(long)</code> tries the map first and calls <code>ensureSnapshotsLoaded()</code> only on a miss — <code>if (!snapshotsById.containsKey(snapshotId))</code>. <code>snapshots()</code> calls it unconditionally, because a caller asking for the list is asking for all of them.</p>
+<p>The asymmetry is deliberate. The <em>current</em> snapshot is expected to be in whatever partial set the catalog handed back, because a catalog that cannot describe the current state of the table has not done its job. An <em>arbitrary historical</em> snapshot may require going back to the source. And the list accessor is not the cheap one it looks like: on metadata that arrived with a supplier, <code>snapshots()</code> is the call that fetches fifty thousand snapshots.</p>
 <p>The defensive line inside <code>ensureSnapshotsLoaded</code> is the one to stop on:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">loadedSnapshots</span><span class="p">.</span><span class="na">removeIf</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="na">sequenceNumber</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lastSequenceNumber</span><span class="p">);</span>
 </span></code></pre></div>
 <p>The supplier is talking to something that keeps moving — a catalog, a REST endpoint, another process's view of the table. By the time it answers, it may know about snapshots that were committed <em>after</em> this <code>TableMetadata</code> was created. Keeping them would produce an object that reports a future its own <code>lastSequenceNumber</code> denies, and every consistency guarantee in the format would be void for anything holding it. So they are discarded. The immutable value stays immutable even though part of it arrived late.</p>
-<p><code>refs()</code> is the generalisation of <code>currentSnapshotId</code>: named branches and tags, each pointing at a snapshot id. Everything in this chapter applies to them unchanged — a ref is one more name for one more root, and <code>currentSnapshotId</code> is what <code>main</code> resolves to. Chapter 3.2 §4 opens <code>SnapshotRef</code> itself and shows what separates a branch from a tag, which turns out to be three nullable fields and nothing else.</p>
+<p><code>refs()</code> is the generalisation of <code>currentSnapshotId</code>: named branches and tags, each pointing at a snapshot id. Everything in this chapter applies to them unchanged — a ref is one more name for one more root, and <code>currentSnapshotId</code> is what <code>main</code> resolves to. <a href="../../part03_iceberg_core/chapter_3.2_table_metadata/">Chapter 3.2</a> §4 opens <code>SnapshotRef</code> itself and shows what separates a branch from a tag, which turns out to be three nullable fields and nothing else.</p>
 <h2 id="6-what-one-pointer-buys">6. What one pointer buys<a class="headerlink" href="#6-what-one-pointer-buys" title="Permanent link">&para;</a></h2>
 <p>Section 1 claimed that time travel, rollback and snapshot isolation are the same fact seen from different angles. The stored fields make that concrete. Three of them exist purely to keep old roots and old subtrees findable:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">TableMetadata — the three fields that keep the past findable</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-256">256</a></span>
@@ -3536,8 +3534,7 @@
 </span><span id="__span-4-262"><a id="__codelineno-4-262" name="__codelineno-4-262"></a><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">HistoryEntry</span><span class="o">&gt;</span><span class="w"> </span><span class="n">snapshotLog</span><span class="p">;</span>
 </span><span id="__span-4-263"><a id="__codelineno-4-263" name="__codelineno-4-263"></a><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">MetadataLogEntry</span><span class="o">&gt;</span><span class="w"> </span><span class="n">previousFiles</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L256–L263](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L256-L263) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L256-L263"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableMetadata.java</code> L256–L263</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>They are not adjacent in the source. <code>currentSnapshotId</code> sits at :258 and the other two at :262-263, with the by-id lookup maps between them — which is itself the shape of the thing: the pointer is one field among many, and the history that makes it reversible is stored separately from it.</p>
 <p><code>currentSnapshotId</code> is the pointer inside the current root. <code>snapshotLog</code> is the history of what it pointed at and when — which is what a <code>TIMESTAMP AS OF</code> query resolves against, since a timestamp has to be turned into a snapshot id before anything else can happen. <code>previousFiles</code> is the list of <em>earlier roots</em>, the metadata log, which is what the cleanup gotcha in section 10 trims.</p>
 <p>So:</p>
@@ -3582,8 +3579,7 @@
 </span><span id="__span-5-58"><a id="__codelineno-5-58" name="__codelineno-5-58"></a>
 </span><span id="__span-5-59"><a id="__codelineno-5-59" name="__codelineno-5-59"></a><span class="kd">protected</span><span class="w"> </span><span class="nf">BaseMetastoreTableOperations</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L44–L60](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L44-L60) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L44-L60"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java</code> L44–L60</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>METADATA_LOCATION_PROP</code> is <code>"metadata_location"</code>. That string — a path to a <code>metadata.json</code> — <em>is</em> the table, as far as the catalog is concerned. <code>TABLE_TYPE_PROP</code> is <code>"table_type"</code>, and the constant on the line below it, <code>ICEBERG_TABLE_TYPE_VALUE</code>, is <code>"iceberg"</code>: name and value are two constants, and a Hive metastore entry announces that its <code>metadata_location</code> means something by setting the first to the second.</p>
 <p><code>PREVIOUS_METADATA_LOCATION_PROP</code> is worth being precise about, because it looks like it does more than it does. Every metastore-backed catalog writes it — <code>HMSTablePropertyHelper</code>, <code>GlueTableOperations</code>, <code>DynamoDbTableOperations</code>, <code>BigQueryTableOperations</code>, and JDBC in its <code>SET</code> clause — and none of them ever conditions on it. JDBC's compare-and-swap is <code>WHERE metadata_location = ?</code>, the previous location appearing only on the left of the assignment; the single read of the property in the tree copies it into a map for a caller to look at. It is a breadcrumb for a human or an external tool, not a mechanism. Rollback is driven by <code>snapshotLog</code> and <code>snapshots</code> <em>inside</em> the metadata file, and losing a race is detected by <code>base != current()</code> plus the catalog's conditional write on <code>metadata_location</code> — both of which section 8 gets to.</p>
 <p>The four instance fields below them are the local cache of one resolution: <code>currentMetadata</code>, <code>currentMetadataLocation</code>, <code>shouldRefresh</code>, <code>version</code>. Everything a running process believes about the table is derived from these.</p>
@@ -3644,12 +3640,11 @@
 </span><span id="__span-6-134"><a id="__codelineno-6-134" name="__codelineno-6-134"></a><span class="w">      </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">);</span>
 </span><span id="__span-6-135"><a id="__codelineno-6-135" name="__codelineno-6-135"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L108–L135](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L108-L135) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L108-L135"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java</code> L108–L135</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Twenty-eight lines, and three decisions in them.</p>
 <p><strong><code>if (base != current())</code></strong> is the <em>local</em> half of the concurrency check, and it is reference identity, not <code>equals</code>. That works only because <code>TableMetadata</code> is immutable and this object hands out the same instance until <code>refresh()</code> replaces it — which makes the test free. It also means a commit must be built from the metadata <em>this</em> <code>TableOperations</code> gave you. Reconstructing an equal <code>TableMetadata</code> from the same JSON and committing against it fails, correctly, because you have not demonstrated that you read the current state.</p>
 <p>It is worth being exact about what this line can and cannot see, because it is easy to read it as the whole mechanism. <code>current()</code> re-reads the catalog only <code>if (shouldRefresh)</code>, and <code>refresh()</code> clears that flag on the way out. So a writer that refreshed, built a commit and submitted it compares its own cached instance against itself: the test passes, and it passes <em>even if another process committed in between</em>. What it reliably catches is a stale handle inside this process — a <code>base</code> older than the metadata this object has since loaded. What catches a genuinely concurrent writer is the conditional write inside <code>doCommit</code>, which is Part 6's subject. The two are complements, not alternatives.</p>
-<p><strong><code>base == null</code> means create, and losing that race is a different exception.</strong> The comment spells it out: <em>"when current is non-null, the table exists. but when base is null, the commit is trying to create the table."</em> The distinction matters two layers up: Chapter 3.3's retry loop retries <code>CommitFailedException</code> and nothing else, so a lost creation race is terminal by design. Retrying it would append to somebody else's brand-new table.</p>
+<p><strong><code>base == null</code> means create, and losing that race is a different exception.</strong> The comment spells it out: <em>"when current is non-null, the table exists. but when base is null, the commit is trying to create the table."</em> The distinction matters two layers up: <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>'s retry loop retries <code>CommitFailedException</code> and nothing else, so a lost creation race is terminal by design. Retrying it would append to somebody else's brand-new table.</p>
 <p><strong><code>doCommit(base, metadata)</code> is where this chapter stops.</strong> It is the hook every catalog fills in — not an <code>abstract</code> method but a concrete one whose body is <code>throw new UnsupportedOperationException("Not implemented: doCommit")</code>, so a subclass that forgets it compiles and fails at commit time rather than at build time — and whether the swap it performs is genuinely atomic is the subject of Part 6. What follows it — <code>CatalogUtil.deleteRemovedMetadataFiles</code>, then <code>requestRefresh()</code> — is trailing work, performed after the table has already changed.</p>
 <pre class="mermaid"><code>sequenceDiagram
     participant A as Writer A
@@ -3663,7 +3658,7 @@
     Note over C: B's local base != current() does not fire&lt;br/&gt;the catalog's conditional write on&lt;br/&gt;metadata_location is what rejects B
     C--&gt;&gt;B: CommitFailedException
     Note over B: 00043b and its manifest list exist,&lt;br/&gt;are internally consistent,&lt;br/&gt;and are reachable by nothing</code></pre>
-<p>That last note is the point of the diagram. Writer B's files are not corrupt and not partially written. They are a complete, valid tree that no pointer refers to. Cleaning them up is bookkeeping, not repair — and Chapter 3.3 shows the surprising amount of care that bookkeeping requires when the outcome of the swap is unknown.</p>
+<p>That last note is the point of the diagram. Writer B's files are not corrupt and not partially written. They are a complete, valid tree that no pointer refers to. Cleaning them up is bookkeeping, not repair — and <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> shows the surprising amount of care that bookkeeping requires when the outcome of the swap is unknown.</p>
 <h2 id="9-why-a-new-file-never-an-overwrite">9. Why a new file, never an overwrite<a class="headerlink" href="#9-why-a-new-file-never-an-overwrite" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">writeNewMetadata()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-155">155</a></span>
 <span class="normal"><a href="#__codelineno-7-156">156</a></span>
@@ -3687,8 +3682,7 @@
 </span><span id="__span-7-164"><a id="__codelineno-7-164" name="__codelineno-7-164"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">newMetadataLocation</span><span class="p">.</span><span class="na">location</span><span class="p">();</span>
 </span><span id="__span-7-165"><a id="__codelineno-7-165" name="__codelineno-7-165"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java` L155–L165](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L155-L165) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java#L155-L165"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseMetastoreTableOperations.java</code> L155–L165</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The comment carries the argument: <em>"use overwrite to avoid negative caching in S3. this is safe because the metadata location is always unique because it includes a UUID."</em></p>
 <p>Read it in the right order. Iceberg wants <code>overwrite</code> semantics because a create-if-absent call on S3 can leave a negative cache entry that makes a freshly written object look missing. Overwriting is normally dangerous. It is safe here only because the path can never collide — <code>newTableMetadataFilePath</code> embeds a <code>UUID.randomUUID()</code>, so no two calls can produce the same name.</p>
 <p>Immutability in Iceberg is enforced by naming, not by a filesystem flag. The <code>00042-</code> version prefix is a convenience for humans reading a directory listing; the UUID is what makes the name unrepeatable. Code that reconstructs metadata paths from a version number alone is relying on a property the format does not promise.</p>
@@ -3707,7 +3701,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">One pointer is one table</p>
-<p>Everything in this chapter is scoped to a single table. Two tables that must change together have no shared pointer to swap, and no amount of care inside <code>commit()</code> can create one. That gap is exactly what Chapter 1.3 is about.</p>
+<p>Everything in this chapter is scoped to a single table. Two tables that must change together have no shared pointer to swap, and no amount of care inside <code>commit()</code> can create one. That gap is exactly what <a href="../chapter_1.3_nessie_core_idea/">Chapter 1.3</a> is about.</p>
 </div>
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
@@ -3753,7 +3747,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 1.3 takes the same compare-and-swap one level up. Nessie gives the <em>catalog</em> a pointer, so that a branch names a consistent set of table pointers rather than one table's.</p>
+<p><strong>Next:</strong> <a href="../chapter_1.3_nessie_core_idea/">Chapter 1.3</a> takes the same compare-and-swap one level up. Nessie gives the <em>catalog</em> a pointer, so that a branch names a consistent set of table pointers rather than one table's.</p>
 
 
 

@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2181,7 +2181,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2375,7 +2375,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2574,7 +2574,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2949,7 +2949,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2977,7 +2977,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3033,7 +3033,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3311,12 +3311,12 @@
 <h1 id="chapter-104-v3-adoption-and-contributing-upstream">Chapter 10.4 — V3 adoption and contributing upstream<a class="headerlink" href="#chapter-104-v3-adoption-and-contributing-upstream" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> at <code>apache-iceberg-1.11.0</code> and <code>nessie-0.108.4</code>, which parts of format v3 can you actually use end to end — and what is the real process for changing that?</p>
-<p><strong>Prerequisites:</strong> Chapter 2.2 (<code>metadata.json</code> and the format-version constants), Chapter 2.5 (what v3 <em>is</em>), Chapter 10.1 (why <code>NessieCatalog</code> never parses metadata), Chapter 10.3 (answer capability questions from source, not from a README)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part02_table_spec/chapter_2.2_metadata_json/">Chapter 2.2</a> (<code>metadata.json</code> and the format-version constants), <a href="../../part02_table_spec/chapter_2.5_format_versions/">Chapter 2.5</a> (what v3 <em>is</em>), <a href="../chapter_10.1_nessie_catalog/">Chapter 10.1</a> (why <code>NessieCatalog</code> never parses metadata), <a href="../chapter_10.3_catalog_landscape/">Chapter 10.3</a> (answer capability questions from source, not from a README)</p>
 <p><strong>Source covered:</strong> <code>format/spec.md</code>, <code>core/.../TableMetadata.java</code>, <code>api/.../Schema.java</code>, <code>site/docs/status.md</code>, Nessie's <code>catalog/format/iceberg/</code>, and both projects' contribution documents</p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
 <p>"Does it support v3" is not one question, because a format version is adopted in four independent places: the specification, the reference library, each catalog, and each engine. Nothing forces those four to move together, and at the tags pinned in this book they demonstrably have not.</p>
-<p>That is not a defect. Staged adoption is what a format version looks like while it is being adopted, and the useful thing about Iceberg and Nessie is that every stage boundary is a constant, an enum, or a <code>throw</code> that you can go and read. Chapter 10.3 answered "which endpoints does this catalog serve" that way. This chapter does the same for format versions, and then asks the follow-on question — what it takes to move one of these gates — using each project's own contribution rules rather than generic advice about opening pull requests.</p>
+<p>That is not a defect. Staged adoption is what a format version looks like while it is being adopted, and the useful thing about Iceberg and Nessie is that every stage boundary is a constant, an enum, or a <code>throw</code> that you can go and read. <a href="../chapter_10.3_catalog_landscape/">Chapter 10.3</a> answered "which endpoints does this catalog serve" that way. This chapter does the same for format versions, and then asks the follow-on question — what it takes to move one of these gates — using each project's own contribution rules rather than generic advice about opening pull requests.</p>
 <h2 id="2-four-gates-four-different-answers">2. Four gates, four different answers<a class="headerlink" href="#2-four-gates-four-different-answers" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart LR
     SPEC["format/spec.md&lt;br/&gt;&lt;i&gt;v1–v3 adopted&lt;br/&gt;v4 under development&lt;/i&gt;"] --&gt; LIB["iceberg-core 1.11.0&lt;br/&gt;&lt;b&gt;SUPPORTED = 4&lt;/b&gt;&lt;br/&gt;&lt;b&gt;DEFAULT = 2&lt;/b&gt;"]
@@ -3336,8 +3336,7 @@
 </span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="gs">**Version 4 is under active development and has not been formally adopted.**</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `format/spec.md` L27–L29](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/format/spec.md#L27-L29) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/format/spec.md#L27-L29"><code>apache/iceberg</code> · <code>format/spec.md</code> L27–L29</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>So v3 is adopted, and v4 exists as a work in progress that the library already has a constant for. Now the feature list, which is what "v3" means in one place:</p>
 <div class="language-markdown highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">format/spec.md — Version 3</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-47">47</a></span>
 <span class="normal"><a href="#__codelineno-1-48">48</a></span>
@@ -3363,9 +3362,8 @@
 </span><span id="__span-1-57"><a id="__codelineno-1-57" name="__codelineno-1-57"></a>
 </span><span id="__span-1-58"><a id="__codelineno-1-58" name="__codelineno-1-58"></a>The full set of changes are listed in [<span class="nt">Appendix E</span>](<span class="na">#version-3</span>).
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `format/spec.md` L47–L58](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/format/spec.md#L47-L58) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>Ten capabilities, in six bullets — five new types on the first bullet, five features on the five after it. Chapter 2.5 explains how they work; this chapter only counts them and then goes looking for where each one is gated. Note the shape of the list: some entries are types (<code>variant</code>, <code>geometry</code>, nanosecond timestamps), some are metadata structures (row lineage, deletion vectors, encryption keys), and one is a semantic change to existing structures (multi-argument transforms). They are gated in different places, which is the first hint that "v3 support" is not a single switch.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/format/spec.md#L47-L58"><code>apache/iceberg</code> · <code>format/spec.md</code> L47–L58</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Ten capabilities, in six bullets — five new types on the first bullet, five features on the five after it. <a href="../../part02_table_spec/chapter_2.5_format_versions/">Chapter 2.5</a> explains how they work; this chapter only counts them and then goes looking for where each one is gated. Note the shape of the list: some entries are types (<code>variant</code>, <code>geometry</code>, nanosecond timestamps), some are metadata structures (row lineage, deletion vectors, encryption keys), and one is a semantic change to existing structures (multi-argument transforms). They are gated in different places, which is the first hint that "v3 support" is not a single switch.</p>
 <h2 id="4-the-library-supported-is-not-default">4. The library: supported is not default<a class="headerlink" href="#4-the-library-supported-is-not-default" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">TableMetadata — the format version constants</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-55">55</a></span>
 <span class="normal"><a href="#__codelineno-2-56">56</a></span>
@@ -3385,10 +3383,9 @@
 </span><span id="__span-2-62"><a id="__codelineno-2-62" name="__codelineno-2-62"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">INITIAL_SCHEMA_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-2-63"><a id="__codelineno-2-63" name="__codelineno-2-63"></a><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">INITIAL_ROW_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L55–L64](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L55-L64) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L55-L64"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableMetadata.java</code> L55–L64</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three of these constants tell the whole adoption story.</p>
-<p><code>SUPPORTED_TABLE_FORMAT_VERSION = 4</code>: the Java library will read and write up to v4, one version beyond what the spec calls adopted. <code>DEFAULT_TABLE_FORMAT_VERSION = 2</code>: a table created without an explicit <code>format-version</code> is v2. Chapter 2.2 flagged that gap while reading <code>metadata.json</code>; here is what it costs. <strong>Upgrading your Iceberg dependency to 1.11.0 does not start producing v3 tables.</strong> <code>newTableMetadata</code> reads <code>TableProperties.FORMAT_VERSION</code> with <code>DEFAULT_TABLE_FORMAT_VERSION</code> as its fallback, so v3 is opt-in per table, at creation or by an explicit upgrade.</p>
+<p><code>SUPPORTED_TABLE_FORMAT_VERSION = 4</code>: the Java library will read and write up to v4, one version beyond what the spec calls adopted. <code>DEFAULT_TABLE_FORMAT_VERSION = 2</code>: a table created without an explicit <code>format-version</code> is v2. <a href="../../part02_table_spec/chapter_2.2_metadata_json/">Chapter 2.2</a> flagged that gap while reading <code>metadata.json</code>; here is what it costs. <strong>Upgrading your Iceberg dependency to 1.11.0 does not start producing v3 tables.</strong> <code>newTableMetadata</code> reads <code>TableProperties.FORMAT_VERSION</code> with <code>DEFAULT_TABLE_FORMAT_VERSION</code> as its fallback, so v3 is opt-in per table, at creation or by an explicit upgrade.</p>
 <p><code>MIN_FORMAT_VERSION_ROW_LINEAGE = 3</code> is the interesting one. One v3 feature has been given its own named minimum in <code>TableMetadata</code>, rather than living in the general type gate of section 5, because row lineage changes the <em>snapshot</em> structure rather than the schema.</p>
 <p>The upgrade path is one-way and says so. <code>Builder.upgradeFormatVersion</code> refuses <code>newFormatVersion &lt; formatVersion</code> with <code>"Cannot downgrade v%s table to v%s"</code>, returns unchanged when the version is equal, and rejects anything above <code>SUPPORTED_TABLE_FORMAT_VERSION</code>. There is no code path in the library that lowers a table's format version.</p>
 <h2 id="5-where-a-v3-type-meets-a-v2-table">5. Where a v3 type meets a v2 table<a class="headerlink" href="#5-where-a-v3-type-meets-a-v2-table" title="Permanent link">&para;</a></h2>
@@ -3460,11 +3457,10 @@
 </span><span id="__span-3-636"><a id="__codelineno-3-636" name="__codelineno-3-636"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-637"><a id="__codelineno-3-637" name="__codelineno-3-637"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/Schema.java` L604–L637](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/Schema.java#L604-L637) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>This runs from <code>TableMetadata.Builder.addSchemaInternal</code>, which means every <code>AddSchema</code> update passes through it — creating a table, adding a column, evolving a schema, on a client or inside a REST catalog server applying the updates of Chapter 6.3.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/Schema.java#L604-L637"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/Schema.java</code> L604–L637</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>This runs from <code>TableMetadata.Builder.addSchemaInternal</code>, which means every <code>AddSchema</code> update passes through it — creating a table, adding a column, evolving a schema, on a client or inside a REST catalog server applying the updates of <a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a>.</p>
 <p>Two distinct problems land in one map. A field whose type has a minimum version above the table's — <code>MIN_FORMAT_VERSIONS</code> lists <code>timestamp_ns</code>, <code>variant</code>, <code>unknown</code>, <code>geometry</code> and <code>geography</code>, all at 3. And a field with a non-null <code>initialDefault</code> when the table is below <code>DEFAULT_VALUES_MIN_FORMAT_VERSION</code>, also 3. Column defaults are a v3 feature just as much as <code>variant</code> is, and they fail through the same door with a differently worded message.</p>
-<p>The reporting shape is deliberate. Problems accumulate into a <code>TreeMap</code> keyed by field ID — the comment says <em>"accumulate errors as a treemap to keep them in a reasonable order"</em> — and one <code>IllegalStateException</code> is thrown listing them, formatted <code>"Invalid schema for v%s:\n- %s"</code>. The map is keyed by field ID, so a field with <em>both</em> a bad type and a bad default reports only the second — one message per field, not per problem. That is the same accumulate-then-throw pattern as Nessie's conflict list in Chapter 10.2, adopted for the same reason: a schema with six offending columns should take one round trip to diagnose, not six.</p>
+<p>The reporting shape is deliberate. Problems accumulate into a <code>TreeMap</code> keyed by field ID — the comment says <em>"accumulate errors as a treemap to keep them in a reasonable order"</em> — and one <code>IllegalStateException</code> is thrown listing them, formatted <code>"Invalid schema for v%s:\n- %s"</code>. The map is keyed by field ID, so a field with <em>both</em> a bad type and a bad default reports only the second — one message per field, not per problem. That is the same accumulate-then-throw pattern as Nessie's conflict list in <a href="../chapter_10.2_multi_table_commits/">Chapter 10.2</a>, adopted for the same reason: a schema with six offending columns should take one round trip to diagnose, not six.</p>
 <p>The schema gate is not the only one, which is the point section 3 hinted at. Table encryption keys — another item on the v3 list — are gated on properties rather than on types, in a different class:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">EncryptionUtil.checkCompatibility()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-205">205</a></span>
 <span class="normal"><a href="#__codelineno-4-206">206</a></span>
@@ -3492,8 +3488,7 @@
 </span><span id="__span-4-216"><a id="__codelineno-4-216" name="__codelineno-4-216"></a><span class="w">      </span><span class="n">encryptionProperties</span><span class="p">);</span>
 </span><span id="__span-4-217"><a id="__codelineno-4-217" name="__codelineno-4-217"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/encryption/EncryptionUtil.java` L205–L217](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/encryption/EncryptionUtil.java#L205-L217) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/encryption/EncryptionUtil.java#L205-L217"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/encryption/EncryptionUtil.java</code> L205–L217</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Below v3, any encryption table property at all is rejected with <code>"Invalid properties for v%s: %s"</code>; at v3 the method returns immediately. And row lineage, gated on the snapshot structure rather than either of those, gets a public predicate of its own:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">TableUtil.supportsRowLineage()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-64">64</a></span>
 <span class="normal"><a href="#__codelineno-5-65">65</a></span>
@@ -3511,8 +3506,7 @@
 </span><span id="__span-5-70"><a id="__codelineno-5-70" name="__codelineno-5-70"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">formatVersion</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">TableMetadata</span><span class="p">.</span><span class="na">MIN_FORMAT_VERSION_ROW_LINEAGE</span><span class="p">;</span>
 </span><span id="__span-5-71"><a id="__codelineno-5-71" name="__codelineno-5-71"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableUtil.java` L64–L71](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableUtil.java#L64-L71) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableUtil.java#L64-L71"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableUtil.java</code> L64–L71</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three v3 features, three gates, in three classes. There is no single <code>isV3Enabled</code> to consult.</p>
 <h2 id="6-adoption-is-per-language-too">6. Adoption is per language, too<a class="headerlink" href="#6-adoption-is-per-language-too" title="Permanent link">&para;</a></h2>
 <p>The Java library is one implementation of five. Iceberg tracks the others in-tree:</p>
@@ -3570,8 +3564,7 @@
 </span><span id="__span-6-61"><a id="__codelineno-6-61" name="__codelineno-6-61"></a>| map            | Y    | Y         | Y    | Y  | Y   |
 </span><span id="__span-6-62"><a id="__codelineno-6-62" name="__codelineno-6-62"></a>| struct         | Y    | Y         | Y    | Y  | Y   |
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `site/docs/status.md` L36–L63](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/site/docs/status.md#L36-L63) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/site/docs/status.md#L36-L63"><code>apache/iceberg</code> · <code>site/docs/status.md</code> L36–L63</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Be precise about what this page is. It has sections for Table Spec V1 and Table Spec V2 — for maintenance, update, read, write and catalog operations — and <strong>no Table Spec V3 section at all</strong> at this tag. It is not a v3 support matrix.</p>
 <p>The data type table, though, is a v3 matrix in disguise, because section 3's <em>first</em> bullet — the five new data types — appears in it, rendered as six rows because nanosecond timestamps split into <code>timestamp_ns</code> and <code>timestamptz_ns</code>. The other five bullets (defaults, multi-argument transforms, row lineage, deletion vectors, encryption keys) appear nowhere in that table at all. Read it and the shape of adoption outside Java is visible immediately: <code>variant</code> is everywhere except C++; <code>unknown</code> is missing in Rust and C++; <code>geometry</code> and <code>geography</code> are Java-only. A pipeline that writes a <code>geometry</code> column from Spark and expects PyIceberg to read it is not blocked by a version number, it is blocked by a row in this table.</p>
 <h2 id="7-crossing-into-nessie-two-answers-in-one-release">7. Crossing into Nessie: two answers in one release<a class="headerlink" href="#7-crossing-into-nessie-two-answers-in-one-release" title="Permanent link">&para;</a></h2>
@@ -3589,9 +3582,8 @@
 </span><span id="__span-7-75"><a id="__codelineno-7-75" name="__codelineno-7-75"></a><span class="w">  </span><span class="p">};</span>
 </span><span id="__span-7-76"><a id="__codelineno-7-76" name="__codelineno-7-76"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/format/iceberg/src/main/java/org/projectnessie/catalog/formats/iceberg/IcebergSpec.java` L70–L76](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/format/iceberg/src/main/java/org/projectnessie/catalog/formats/iceberg/IcebergSpec.java#L70-L76) <span>@ nessie-0.108.4</span></p>
-
-<p><code>IcebergSpec</code> is an enum with exactly two values, <code>V1</code> and <code>V2</code>, each binding a Jackson view and an Avro bundle. <code>forVersion</code> throws <code>IllegalArgumentException("Unkown Iceberg spec version " + version)</code> — typo included — for anything else. The method is reached whenever the catalog server serialises table metadata back to a client, and whenever it reads a manifest list or manifest file itself. Nessie's REST catalog <em>parses</em> <code>metadata.json</code> (Chapter 7.5), so this enum is a hard ceiling on what it can round-trip.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/format/iceberg/src/main/java/org/projectnessie/catalog/formats/iceberg/IcebergSpec.java#L70-L76"><code>projectnessie/nessie</code> · <code>catalog/format/iceberg/src/main/java/org/projectnessie/catalog/formats/iceberg/IcebergSpec.java</code> L70–L76</a> <span>@ nessie-0.108.4</span></p>
+<p><code>IcebergSpec</code> is an enum with exactly two values, <code>V1</code> and <code>V2</code>, each binding a Jackson view and an Avro bundle. <code>forVersion</code> throws <code>IllegalArgumentException("Unkown Iceberg spec version " + version)</code> — typo included — for anything else. The method is reached whenever the catalog server serialises table metadata back to a client, and whenever it reads a manifest list or manifest file itself. Nessie's REST catalog <em>parses</em> <code>metadata.json</code> (<a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/">Chapter 7.5</a>), so this enum is a hard ceiling on what it can round-trip.</p>
 <p>The other half is marked in the source as pending work:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Nessie: upgradeFormatVersion()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-935">935</a></span>
 <span class="normal"><a href="#__codelineno-8-936">936</a></span>
@@ -3623,10 +3615,9 @@
 </span><span id="__span-8-948"><a id="__codelineno-8-948" name="__codelineno-8-948"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-8-949"><a id="__codelineno-8-949" name="__codelineno-8-949"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/format/iceberg/src/main/java/org/projectnessie/catalog/formats/iceberg/nessie/NessieModelIceberg.java` L935–L949](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/format/iceberg/src/main/java/org/projectnessie/catalog/formats/iceberg/nessie/NessieModelIceberg.java#L935-L949) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/format/iceberg/src/main/java/org/projectnessie/catalog/formats/iceberg/nessie/NessieModelIceberg.java#L935-L949"><code>projectnessie/nessie</code> · <code>catalog/format/iceberg/src/main/java/org/projectnessie/catalog/formats/iceberg/nessie/NessieModelIceberg.java</code> L935–L949</a> <span>@ nessie-0.108.4</span></p>
 <p>Any change of format version on an existing entity throws <code>UnsupportedOperationException("Implement format version update, ...")</code>. This is not a limitation someone discovered by testing; it is a <code>throw</code> with a to-do written into its message. Setting the version on an entity that has none is allowed, and everything else is deferred.</p>
-<p>Now the contrast that actually matters operationally. <code>NessieCatalog</code> — the Iceberg <code>Catalog</code> implementation of Chapter 10.1 — stores a metadata <em>location</em> plus snapshot, schema, spec and sort-order IDs. It never parses the file, so a table's format version is invisible to it and v3 tables pass through untouched. Nessie's REST catalog server materialises <code>IcebergTableMetadata</code> and is bounded by a two-element enum.</p>
+<p>Now the contrast that actually matters operationally. <code>NessieCatalog</code> — the Iceberg <code>Catalog</code> implementation of <a href="../chapter_10.1_nessie_catalog/">Chapter 10.1</a> — stores a metadata <em>location</em> plus snapshot, schema, spec and sort-order IDs. It never parses the file, so a table's format version is invisible to it and v3 tables pass through untouched. Nessie's REST catalog server materialises <code>IcebergTableMetadata</code> and is bounded by a two-element enum.</p>
 <p><strong>Same version of Nessie, opposite answers, decided by which endpoint the engine is configured against.</strong> The server half is not left to inference: <code>IcebergApiV1TableResource.java:339</code> hard-codes <code>upgradeFormatVersion(2)</code> into the update list it builds for a create-table request, so Nessie's REST catalog creates v2 tables and nothing else.</p>
 <p>Nessie's own release notes do say half of it. <code>CHANGELOG.md:187</code>, under the <code>0.103.0</code> upgrade notes, reads <em>"Iceberg table spec v3 is not supported in Nessie, because it is still under active development."</em> What that sentence does not distinguish is which Nessie is meant — the note is true of the REST catalog server and false of <code>NessieCatalog</code>, and no feature matrix has a column for the difference.</p>
 <h2 id="8-why-the-gates-move-slowly">8. Why the gates move slowly<a class="headerlink" href="#8-why-the-gates-move-slowly" title="Permanent link">&para;</a></h2>
@@ -3680,8 +3671,7 @@
 </span><span id="__span-9-101"><a id="__codelineno-9-101" name="__codelineno-9-101"></a>The voting process should be held in good faith to reinforce and affirm the agreed upon proposal, not to
 </span><span id="__span-9-102"><a id="__codelineno-9-102" name="__codelineno-9-102"></a>settle disagreements or to force a decision.
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `site/docs/contribute.md` L79–L102](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/site/docs/contribute.md#L79-L102) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/site/docs/contribute.md#L79-L102"><code>apache/iceberg</code> · <code>site/docs/contribute.md</code> L79–L102</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>A GitHub issue from a template, a document covering motivation, implementation, breaking changes and alternatives, and a <code>[DISCUSS]</code> thread on the dev list. Adoption needs a vote with <strong>three positive PMC votes and no lazy consensus modifier</strong> — and the text is explicit that the vote is <em>"to reinforce and affirm the agreed upon proposal, not to settle disagreements or to force a decision"</em>. The consensus has to exist before the vote starts.</p>
 <p>Then there is a mechanical gate underneath the social one:</p>
 <div class="language-markdown highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Iceberg: API stability tiers</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-142">142</a></span>
@@ -3746,8 +3736,7 @@
 </span><span id="__span-10-171"><a id="__codelineno-10-171" name="__codelineno-10-171"></a>Changes to public interfaces and classes in the subprojects listed above require a deprecation cycle of one minor
 </span><span id="__span-10-172"><a id="__codelineno-10-172" name="__codelineno-10-172"></a>release.
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `site/docs/contribute.md` L142–L172](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/site/docs/contribute.md#L142-L172) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/site/docs/contribute.md#L142-L172"><code>apache/iceberg</code> · <code>site/docs/contribute.md</code> L142–L172</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>iceberg-api</code> requires a full <strong>major version</strong> deprecation cycle, enforced by Revapi; <code>iceberg-core</code> and friends require one minor version. The task is <code>./gradlew revapi</code> — the same page demonstrates it at <code>:243-247</code> with a <code>Task :iceberg-api:revapi FAILED</code>. So a v3 feature that needs a new public API method cannot land as a single pull request — it lands as a deprecation, a release, and a removal. That is the mechanism behind the four out-of-step gates in section 2. Not inattention: policy, enforced by a build task.</p>
 <p>Nessie's rules are shorter and stricter in a different place:</p>
 <div class="language-markdown highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Nessie: submitting a pull request</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-271">271</a></span>
@@ -3760,8 +3749,7 @@
 </span><span id="__span-11-274"><a id="__codelineno-11-274" name="__codelineno-11-274"></a>Anyone can take part in the review process and once the community is happy and the build actions are passing a Pull Request will be merged. Support 
 </span><span id="__span-11-275"><a id="__codelineno-11-275" name="__codelineno-11-275"></a>must be unanimous for a change to be merged.
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `CONTRIBUTING.md` L271–L275](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/CONTRIBUTING.md#L271-L275) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/CONTRIBUTING.md#L271-L275"><code>projectnessie/nessie</code> · <code>CONTRIBUTING.md</code> L271–L275</a> <span>@ nessie-0.108.4</span></p>
 <p>A CLA on first submission, and <em>"Support must be unanimous for a change to be merged"</em> — no majority, no lazy consensus. For large changes, <code>CONTRIBUTING.md</code> asks for a mailing-list proposal first, for the same reason Iceberg does: to avoid duplicated work and to settle direction before code exists.</p>
 <p>There is one asymmetry worth knowing before you go looking. Iceberg's in-tree <code>CONTRIBUTING.md</code> is a 23-line stub, 18 lines of which are the ASF licence header, pointing at the website; the substantial in-tree material is <code>AGENTS.md</code> (build and PR conventions, including <code>Module: Description</code> PR titles and one concern per PR) and <code>site/docs/contribute.md</code>. Nessie inverts it: 279 lines of <code>CONTRIBUTING.md</code> carrying the real commands, and a 31-line <code>AGENTS.md</code>.</p>
 <p>Those commands are the actionable part:</p>
@@ -3801,8 +3789,7 @@
 </span><span id="__span-12-57"><a id="__codelineno-12-57" name="__codelineno-12-57"></a><span class="k">*</span><span class="w"> </span>Run all checks (including tests):
 </span><span id="__span-12-58"><a id="__codelineno-12-58" name="__codelineno-12-58"></a>  <span class="sb">`./gradlew check`</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `CONTRIBUTING.md` L41–L58](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/CONTRIBUTING.md#L41-L58) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/CONTRIBUTING.md#L41-L58"><code>projectnessie/nessie</code> · <code>CONTRIBUTING.md</code> L41–L58</a> <span>@ nessie-0.108.4</span></p>
 <p><code>./gradlew sAp compileAll jar codeChecks</code> is the smoke check to run before pushing anything. Iceberg's equivalents, from <code>AGENTS.md</code>, are <code>./gradlew spotlessApply</code>, <code>./gradlew build -x test -x integrationTest</code> for a compile check, and — as <code>AGENTS.md:154</code> writes it — <code>./gradlew revApiCheck</code> when you have touched a public interface. That last string appears exactly once in the Iceberg tree, in that file, and it is not a task: type it and Gradle reports task-not-found. The real one is <code>revapi</code>, per <code>site/docs/contribute.md</code>. A document about how to contribute, itself carrying a typo nobody has contributed a fix for, is a fair note to end the tooling section on.</p>
 <h2 id="9-gotchas">9. Gotchas<a class="headerlink" href="#9-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
@@ -3827,7 +3814,7 @@
 </div>
 <h2 id="10-what-this-book-cannot-tell-you">10. What this book cannot tell you<a class="headerlink" href="#10-what-this-book-cannot-tell-you" title="Permanent link">&para;</a></h2>
 <p>Everything asserted above is a constant, an enum, a <code>throw</code> or a document in the pinned trees. Three related questions are deliberately not answered here, because they are not verifiable from these two repositories: engine-side v3 support in Spark, Flink and Trino; the state of v3 in PyIceberg, Rust, Go and C++ beyond the type table in section 6; and whether or when Nessie's catalog server will gain v3.</p>
-<p>That last one is the most tempting to guess at and the most useful to check yourself, so here is the check, in the shape of Chapter 10.3's method:</p>
+<p>That last one is the most tempting to guess at and the most useful to check yourself, so here is the check, in the shape of <a href="../chapter_10.3_catalog_landscape/">Chapter 10.3</a>'s method:</p>
 <ol>
 <li>Find the ceiling: search the catalog's source for a <code>switch</code> or enum over the format version. In Nessie it is <code>IcebergSpec.forVersion</code>.</li>
 <li>Find the pending work: search for <code>UnsupportedOperationException</code> and to-do text near it. <code>NessieModelIceberg.upgradeFormatVersion</code> names itself.</li>
@@ -3892,7 +3879,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Part 11 turns the book's method on the one thing it has avoided so far — advice. Chapter 11.1 starts with Spark's catalog wiring, and every recommendation from there on is argued from the integration source, against these same pinned versions.</p>
+<p><strong>Next:</strong> Part 11 turns the book's method on the one thing it has avoided so far — advice. <a href="../../part11_spark_practice/chapter_11.1_catalog_wiring/">Chapter 11.1</a> starts with Spark's catalog wiring, and every recommendation from there on is argued from the integration source, against these same pinned versions.</p>
 
 
 

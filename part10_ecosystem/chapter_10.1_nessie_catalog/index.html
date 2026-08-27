@@ -29,7 +29,7 @@
     
     
       
-        <title>10.1 `NessieCatalog` and `NessieTableOperations` - Iceberg & Nessie Internals</title>
+        <title>10.1 NessieCatalog and NessieTableOperations - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              10.1 `NessieCatalog` and `NessieTableOperations`
+              10.1 NessieCatalog and NessieTableOperations
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2181,7 +2181,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2375,7 +2375,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2583,7 +2583,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2601,7 +2601,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2927,7 +2927,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3011,7 +3011,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3267,7 +3267,7 @@
 <h1 id="chapter-101-nessiecatalog-and-nessietableoperations">Chapter 10.1 — <code>NessieCatalog</code> and <code>NessieTableOperations</code><a class="headerlink" href="#chapter-101-nessiecatalog-and-nessietableoperations" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> when an engine resolves <code>db.orders@dev</code>, what code turns that string into a <code>Table</code>, and what does committing to it do that committing through a metastore does not?</p>
-<p><strong>Prerequisites:</strong> Chapter 3.3 (<code>SnapshotProducer</code> and the commit contract), Chapter 6.1 (the <code>Catalog</code> SPI), Chapter 7.2 (<code>Reference</code>, <code>Content</code>, <code>Operation</code>, <code>ContentKey</code>)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> (<code>SnapshotProducer</code> and the commit contract), <a href="../../part06_catalogs/chapter_6.1_catalog_spi/">Chapter 6.1</a> (the <code>Catalog</code> SPI), <a href="../../part07_nessie_architecture/chapter_7.2_data_model/">Chapter 7.2</a> (<code>Reference</code>, <code>Content</code>, <code>Operation</code>, <code>ContentKey</code>)</p>
 <p><strong>Source covered:</strong> <code>nessie/.../NessieCatalog.java</code>, <code>nessie/.../NessieTableOperations.java</code>, <code>nessie/.../NessieIcebergClient.java</code>, <code>nessie/.../NessieUtil.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3280,7 +3280,7 @@
 <li>The compare-and-swap token is not the previous metadata location. It is a Nessie commit hash.</li>
 </ul>
 <p>Two of these three are invisible in the class names. This chapter is about where they actually live in the code.</p>
-<p>One point of orientation first, because the name is ambiguous. The classes below ship in the <strong>Iceberg</strong> repository, in the <code>iceberg-nessie</code> module (<code>nessie/src/main/java/org/apache/iceberg/nessie/</code>). Nessie's own Iceberg integration is a REST <em>server</em>, not a <code>Catalog</code> implementation; it is Chapter 7.5's subject, and it reappears in 10.2 with a capability this one does not have.</p>
+<p>One point of orientation first, because the name is ambiguous. The classes below ship in the <strong>Iceberg</strong> repository, in the <code>iceberg-nessie</code> module (<code>nessie/src/main/java/org/apache/iceberg/nessie/</code>). Nessie's own Iceberg integration is a REST <em>server</em>, not a <code>Catalog</code> implementation; it is <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/">Chapter 7.5</a>'s subject, and it reappears in 10.2 with a capability this one does not have.</p>
 <h2 id="2-where-the-reference-enters">2. Where the reference enters<a class="headerlink" href="#2-where-the-reference-enters" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>sequenceDiagram
     participant E as Engine
@@ -3327,8 +3327,7 @@
 </span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a><span class="w">      </span><span class="n">fileIO</span><span class="p">);</span>
 </span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `nessie/src/main/java/org/apache/iceberg/nessie/NessieCatalog.java` L228–L237](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieCatalog.java#L228-L237) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieCatalog.java#L228-L237"><code>apache/iceberg</code> · <code>nessie/src/main/java/org/apache/iceberg/nessie/NessieCatalog.java</code> L228–L237</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three decisions in ten lines.</p>
 <p><strong>The reference is parsed out of the table <em>name</em>, not the namespace.</strong> <code>TableReference.parse(tableIdentifier.name())</code> accepts <code>orders@dev</code> and <code>orders@dev#a1b2c3d4</code> — the hash has to be at least eight hex characters, because <code>Validation.HASH_RAW_REGEX</code> is <code>[0-9a-fA-F]{8,64}</code>; anything shorter is filed as a <em>timestamp</em> by <code>TableReference.parse</code> and then rejected by the message below. That is why one catalog instance registered in an engine can serve every branch in the repository without reconfiguration — the branch travels in the identifier.</p>
 <p><strong><code>client.withReference(...)</code> returns a new client — but usually it does not.</strong> <code>NessieIcebergClient.java:114-121</code> short-circuits on <code>null == requestedRef</code> and returns <code>this</code>, and <code>newTableOps</code> passes <code>tr.getReference()</code>, which <code>TableReference</code> declares <code>@Nullable</code> and leaves null whenever the identifier carries no <code>@ref</code>. So for a plain <code>db.orders</code> — the common case — every <code>NessieTableOperations</code> from one catalog shares the catalog's single memoised <code>UpdateableReference</code>. A new client appears only when the identifier names a reference that differs from the current one.</p>
@@ -3425,8 +3424,7 @@
 </span><span id="__span-1-110"><a id="__codelineno-1-110" name="__codelineno-1-110"></a><span class="w">              </span><span class="n">reference</span><span class="p">));</span>
 </span><span id="__span-1-111"><a id="__codelineno-1-111" name="__codelineno-1-111"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `nessie/src/main/java/org/apache/iceberg/nessie/NessieTableOperations.java` L69–L111](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieTableOperations.java#L69-L111) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieTableOperations.java#L69-L111"><code>apache/iceberg</code> · <code>nessie/src/main/java/org/apache/iceberg/nessie/NessieTableOperations.java</code> L69–L111</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read it as three questions asked in order.</p>
 <p><strong>Is the reference still valid?</strong> <code>client.refresh()</code> re-reads the branch head. A <code>NessieNotFoundException</code> here means the branch itself is gone — someone deleted <code>dev</code> — and it is rethrown as an <code>UncheckedIOException</code>, not as a table-level error. The distinction matters: a missing branch is not a missing table.</p>
 <p><strong>Does the key exist on this reference?</strong> <code>getContent().key(key).reference(reference)</code>. The <code>null</code> handling is careful: a null content when <code>currentMetadataLocation()</code> is also null means "this is a brand new table", which is legal. A null content when we <em>did</em> have a metadata location means the table was dropped underneath us, which is <code>NoSuchTableException</code>.</p>
@@ -3498,9 +3496,8 @@
 </span><span id="__span-2-628"><a id="__codelineno-2-628" name="__codelineno-2-628"></a><span class="w">  </span><span class="n">commitContent</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">newTable</span><span class="p">,</span><span class="w"> </span><span class="n">properties</span><span class="p">,</span><span class="w"> </span><span class="n">commitMeta</span><span class="p">);</span>
 </span><span id="__span-2-629"><a id="__codelineno-2-629" name="__codelineno-2-629"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `nessie/src/main/java/org/apache/iceberg/nessie/NessieIcebergClient.java` L598–L629](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieIcebergClient.java#L598-L629) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>An <code>IcebergTable</code> is six live fields: a content ID, a metadata location, and four Iceberg IDs — <code>snapshotId</code> (a <code>long</code>), <code>schemaId</code>, <code>specId</code>, <code>sortOrderId</code>. That is the whole of what Nessie's <em>model</em> knows about an Iceberg table. The client does not parse the metadata file on Nessie's behalf, does not know what a manifest is, and stores no schema. (Nessie's Iceberg REST <em>server</em> does parse it — Chapter 7.5 — which is the distinction 10.4 turns into a whole section.)</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieIcebergClient.java#L598-L629"><code>apache/iceberg</code> · <code>nessie/src/main/java/org/apache/iceberg/nessie/NessieIcebergClient.java</code> L598–L629</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>An <code>IcebergTable</code> is six live fields: a content ID, a metadata location, and four Iceberg IDs — <code>snapshotId</code> (a <code>long</code>), <code>schemaId</code>, <code>specId</code>, <code>sortOrderId</code>. That is the whole of what Nessie's <em>model</em> knows about an Iceberg table. The client does not parse the metadata file on Nessie's behalf, does not know what a manifest is, and stores no schema. (Nessie's Iceberg REST <em>server</em> does parse it — <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/">Chapter 7.5</a> — which is the distinction 10.4 turns into a whole section.)</p>
 <p>Which is exactly enough. Everything a table <em>has ever been</em> lives in <code>metadata.json</code>; the four IDs pick out which of those the table currently <em>is</em>. A branch is then a cheap thing: two branches can share one metadata file and differ only in four integers.</p>
 <div class="grid cards">
 <ul>
@@ -3578,13 +3575,12 @@
 </span><span id="__span-3-185"><a id="__codelineno-3-185" name="__codelineno-3-185"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">discardChanges</span><span class="p">().</span><span class="na">build</span><span class="p">();</span>
 </span><span id="__span-3-186"><a id="__codelineno-3-186" name="__codelineno-3-186"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `nessie/src/main/java/org/apache/iceberg/nessie/NessieUtil.java` L156–L186](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieUtil.java#L156-L186) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieUtil.java#L156-L186"><code>apache/iceberg</code> · <code>nessie/src/main/java/org/apache/iceberg/nessie/NessieUtil.java</code> L156–L186</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The loaded <code>TableMetadata</code> has its current schema, sort order, partition spec and snapshot <strong>overwritten</strong> from the Nessie <code>IcebergTable</code> content object. <code>setPreviousFileLocation(null)</code> does not erase the metadata log — it does the opposite. <code>buildFrom(base)</code> seeds <code>previousFileLocation</code> with <code>base.metadataFileLocation</code> (<code>TableMetadata.java:997</code>) so that <code>build()</code> will <em>append</em> an entry; passing <code>null</code> makes <code>addPreviousFile</code> return the existing list untouched (<code>:1785-1787</code>). The inherited log survives; only the append is suppressed. And <code>discardChanges()</code> is not tidiness: <code>withMetadataLocation</code> on a builder with non-empty <code>changes</code> trips a <code>Preconditions.checkArgument</code> at <code>:1547-1550</code> — <em>"Cannot set metadata location with changes to table metadata"</em> — so the call is required for the rewrite to build at all.</p>
 <p>This is the chapter's structural fact. On a metastore catalog, <code>metadata.json</code> <em>is</em> the table. Here it is a catalogue of everything the table has ever been, and the Nessie content object supplies the selection. That is what makes branching cheap: pointing <code>dev</code> at an older snapshot is a new content value under the same key, not a rewritten metadata file.</p>
 <p>Two consequences worth naming now, because both come back later:</p>
 <ul>
-<li><code>builder.setBranchSnapshot(table.getSnapshotId(), SnapshotRef.MAIN_BRANCH)</code> installs the snapshot on Iceberg's <code>main</code> ref, whatever Nessie reference you are actually on. Iceberg branches and Nessie branches are different namespaces that happen to share a word. Chapter 10.2 shows where that collision bites.</li>
+<li><code>builder.setBranchSnapshot(table.getSnapshotId(), SnapshotRef.MAIN_BRANCH)</code> installs the snapshot on Iceberg's <code>main</code> ref, whatever Nessie reference you are actually on. Iceberg branches and Nessie branches are different namespaces that happen to share a word. <a href="../chapter_10.2_multi_table_commits/">Chapter 10.2</a> shows where that collision bites.</li>
 <li><code>newProperties.put(NessieTableOperations.NESSIE_COMMIT_ID_PROPERTY, reference.getHash())</code> writes the branch hash into the table's properties under the key <code>nessie.commit.id</code>. It looks like telemetry. It is the CAS token.</li>
 </ul>
 <h2 id="6-docommit-write-the-file-then-race-for-the-branch">6. <code>doCommit()</code> — write the file, then race for the branch<a class="headerlink" href="#6-docommit-write-the-file-then-race-for-the-branch" title="Permanent link">&para;</a></h2>
@@ -3644,9 +3640,8 @@
 </span><span id="__span-4-139"><a id="__codelineno-4-139" name="__codelineno-4-139"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-4-140"><a id="__codelineno-4-140" name="__codelineno-4-140"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `nessie/src/main/java/org/apache/iceberg/nessie/NessieTableOperations.java` L113–L140](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieTableOperations.java#L113-L140) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>The shape is conventional — write the new metadata file, then try to install it — but the <code>boolean failure</code> flag is doing precise work. It is set on three paths, all visible in the snippet: <code>NessieConflictException</code>, <code>NessieNotFoundException</code>, and — in its own clause further down — <code>NessieBadRequestException</code>. It is <em>not</em> set for <code>HttpClientException</code>, which shares a <code>catch</code> with the first two. So the <code>finally</code> block deletes the metadata file when the commit definitely failed, and leaks it when the outcome is unknown. That is Chapter 3.3's rule — leaked storage is recoverable, a corrupted table is not — implemented in one boolean.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieTableOperations.java#L113-L140"><code>apache/iceberg</code> · <code>nessie/src/main/java/org/apache/iceberg/nessie/NessieTableOperations.java</code> L113–L140</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>The shape is conventional — write the new metadata file, then try to install it — but the <code>boolean failure</code> flag is doing precise work. It is set on three paths, all visible in the snippet: <code>NessieConflictException</code>, <code>NessieNotFoundException</code>, and — in its own clause further down — <code>NessieBadRequestException</code>. It is <em>not</em> set for <code>HttpClientException</code>, which shares a <code>catch</code> with the first two. So the <code>finally</code> block deletes the metadata file when the commit definitely failed, and leaks it when the outcome is unknown. That is <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>'s rule — leaked storage is recoverable, a corrupted table is not — implemented in one boolean.</p>
 <p>The install itself, two calls down:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">NessieIcebergClient.commitContent()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-663">663</a></span>
 <span class="normal"><a href="#__codelineno-5-664">664</a></span>
@@ -3732,8 +3727,7 @@
 </span><span id="__span-5-703"><a id="__codelineno-5-703" name="__codelineno-5-703"></a><span class="w">  </span><span class="n">updateableReference</span><span class="p">.</span><span class="na">updateReference</span><span class="p">(</span><span class="n">branch</span><span class="p">);</span>
 </span><span id="__span-5-704"><a id="__codelineno-5-704" name="__codelineno-5-704"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `nessie/src/main/java/org/apache/iceberg/nessie/NessieIcebergClient.java` L663–L704](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieIcebergClient.java#L663-L704) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieIcebergClient.java#L663-L704"><code>apache/iceberg</code> · <code>nessie/src/main/java/org/apache/iceberg/nessie/NessieIcebergClient.java</code> L663–L704</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>expectedHead</code> starts as the branch as currently known to this client, and is then <em>replaced</em>:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">String</span><span class="w"> </span><span class="n">metadataCommitId</span><span class="w"> </span><span class="o">=</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">properties</span><span class="p">.</span><span class="na">getOrDefault</span><span class="p">(</span>
@@ -3743,9 +3737,9 @@
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Those <code>properties</code> are the <strong>base</strong> metadata's properties — the ones section 5 stamped when this writer loaded the table. Note the <code>if (properties != null)</code> guard the re-quote elides: <code>commitTable</code> passes <code>base != null ? base.properties() : null</code>, so on a <em>create</em> there is no base, the replacement never happens, and the CAS runs against the client's current head instead. For every update, though, the commit is attempted against the branch as it was when the writer read it, not as the client last happened to see it. The optimistic-concurrency token travels with the metadata rather than with the connection, which is what makes it correct when a single client holds several tables at different freshness.</p>
-<p>And then the operation itself: <code>.operation(Operation.Put.of(key, newContent))</code>. Singular. One key, one commit. Remember the method name — <code>commitMultipleOperations</code> — because Chapter 10.2 is about what happens when the list is longer than one.</p>
+<p>And then the operation itself: <code>.operation(Operation.Put.of(key, newContent))</code>. Singular. One key, one commit. Remember the method name — <code>commitMultipleOperations</code> — because <a href="../chapter_10.2_multi_table_commits/">Chapter 10.2</a> is about what happens when the list is longer than one.</p>
 <h2 id="7-speaking-icebergs-exception-vocabulary">7. Speaking Iceberg's exception vocabulary<a class="headerlink" href="#7-speaking-icebergs-exception-vocabulary" title="Permanent link">&para;</a></h2>
-<p>Before the code, a word. <strong>"Conflict" does work at three altitudes in this part, and they are not interchangeable.</strong> Iceberg's is the coarsest: a <code>CommitFailedException</code> meaning <em>someone else moved the pointer I was committing against</em>, with no detail about what they changed. Nessie's API-level <code>NessieReferenceConflictException</code> is finer — it carries a list of named per-key conflicts such as <code>KEY_EXISTS</code> or <code>NAMESPACE_ABSENT</code>. And below both sits the storage layer's <code>ConflictType</code>, the five-way classification <code>checkForConflict</code> produces per key, which Chapter 9.2 reads and Chapter 10.2 meets again. This section is about the seam between the first two, and the translation is lossy in exactly the direction you would expect.</p>
+<p>Before the code, a word. <strong>"Conflict" does work at three altitudes in this part, and they are not interchangeable.</strong> Iceberg's is the coarsest: a <code>CommitFailedException</code> meaning <em>someone else moved the pointer I was committing against</em>, with no detail about what they changed. Nessie's API-level <code>NessieReferenceConflictException</code> is finer — it carries a list of named per-key conflicts such as <code>KEY_EXISTS</code> or <code>NAMESPACE_ABSENT</code>. And below both sits the storage layer's <code>ConflictType</code>, the five-way classification <code>checkForConflict</code> produces per key, which <a href="../../part09_branching/chapter_9.2_merge/">Chapter 9.2</a> reads and <a href="../chapter_10.2_multi_table_commits/">Chapter 10.2</a> meets again. This section is about the seam between the first two, and the translation is lossy in exactly the direction you would expect.</p>
 <p><code>SnapshotProducer</code>'s retry loop only retries <code>CommitFailedException</code>, and refuses to delete anything on <code>CommitStateUnknownException</code>. Neither exception exists in Nessie's client. Something has to translate:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">NessieUtil.handleExceptionsForCommits()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-219">219</a></span>
 <span class="normal"><a href="#__codelineno-7-220">220</a></span>
@@ -3819,8 +3813,7 @@
 </span><span id="__span-7-253"><a id="__codelineno-7-253" name="__codelineno-7-253"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">Optional</span><span class="p">.</span><span class="na">empty</span><span class="p">();</span>
 </span><span id="__span-7-254"><a id="__codelineno-7-254" name="__codelineno-7-254"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `nessie/src/main/java/org/apache/iceberg/nessie/NessieUtil.java` L219–L254](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieUtil.java#L219-L254) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/nessie/src/main/java/org/apache/iceberg/nessie/NessieUtil.java#L219-L254"><code>apache/iceberg</code> · <code>nessie/src/main/java/org/apache/iceberg/nessie/NessieUtil.java</code> L219–L254</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>A reference conflict <em>usually</em> becomes <code>CommitFailedException</code> — retryable, which is right, because the branch moved and re-applying against the new head is the correct response. Read the first branch, though: a <code>NessieReferenceConflictException</code> carrying exactly one conflict of type <code>NAMESPACE_ABSENT</code>, <code>NAMESPACE_NOT_EMPTY</code>, <code>KEY_DOES_NOT_EXIST</code> or <code>KEY_EXISTS</code> is specialised instead, into <code>NoSuchNamespaceException</code>, <code>NamespaceNotEmptyException</code>, <code>NoSuchTableException</code> or <code>AlreadyExistsException</code> — none of them retryable, because none of them will fix itself on a second attempt. <code>CommitFailedException</code> is the fallthrough, not the rule. A vanished reference becomes a plain <code>RuntimeException</code> — not retryable, because retrying will not bring the branch back. And any <code>HttpClientException</code> becomes <code>CommitStateUnknownException</code>, with a comment that explains the deliberate over-catching:</p>
 <blockquote>
 <p>Intentionally catch all nessie-client-exceptions here and not just the "timeout" variant to catch all kinds of network errors (e.g. connection reset). Network code implementation details and all kinds of network devices can induce unexpected behavior. So better be safe than sorry.</p>
@@ -3829,7 +3822,7 @@
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Iceberg's garbage collection is turned off, on purpose</p>
-<p><code>NessieCatalog.DEFAULT_CATALOG_OPTIONS</code> pushes <code>gc.enabled=false</code> and <code>write.metadata.delete-after-commit.enabled=false</code> down as table defaults, and <code>NessieUtil.checkAndUpdateGCProperties</code> warns loudly if a table has either enabled. The upstream comment gives the failure mode: <em>"To prevent accidental deletion of files that are still referenced by other branches/tags... <code>nessie-gc</code> CLI provides a reference-aware GC functionality."</em> The reason is structural. <code>ExpireSnapshots</code> reasons over one snapshot lineage; Nessie's history is a DAG over many references, so a file unreachable from <code>main</code> may be live on <code>dev</code>. Chapter 9.4 covers the reference-aware alternative.</p>
+<p><code>NessieCatalog.DEFAULT_CATALOG_OPTIONS</code> pushes <code>gc.enabled=false</code> and <code>write.metadata.delete-after-commit.enabled=false</code> down as table defaults, and <code>NessieUtil.checkAndUpdateGCProperties</code> warns loudly if a table has either enabled. The upstream comment gives the failure mode: <em>"To prevent accidental deletion of files that are still referenced by other branches/tags... <code>nessie-gc</code> CLI provides a reference-aware GC functionality."</em> The reason is structural. <code>ExpireSnapshots</code> reasons over one snapshot lineage; Nessie's history is a DAG over many references, so a file unreachable from <code>main</code> may be live on <code>dev</code>. <a href="../../part09_branching/chapter_9.4_gc/">Chapter 9.4</a> covers the reference-aware alternative.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Committing to a tag or a pinned hash fails as an <code>IllegalArgumentException</code></p>
@@ -3887,7 +3880,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 10.2 takes the single <code>Operation.Put</code> in <code>commitContent</code>, asks what happens when the list holds two, and follows the answer down to the one compare-and-swap that makes two tables change together.</p>
+<p><strong>Next:</strong> <a href="../chapter_10.2_multi_table_commits/">Chapter 10.2</a> takes the single <code>Operation.Put</code> in <code>commitContent</code>, asks what happens when the list holds two, and follows the answer down to the one compare-and-swap that makes two tables change together.</p>
 
 
 

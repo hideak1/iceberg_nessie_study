@@ -29,7 +29,7 @@
     
     
       
-        <title>5.2 `FastAppend` vs `MergeAppend` - Iceberg & Nessie Internals</title>
+        <title>5.2 FastAppend vs MergeAppend - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              5.2 `FastAppend` vs `MergeAppend`
+              5.2 FastAppend vs MergeAppend
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1553,7 +1553,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1571,7 +1571,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1729,7 +1729,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1895,7 +1895,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1923,7 +1923,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1951,7 +1951,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2119,7 +2119,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2147,7 +2147,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2175,7 +2175,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2315,7 +2315,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2343,7 +2343,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2537,7 +2537,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2731,7 +2731,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2927,7 +2927,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3011,7 +3011,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3267,11 +3267,11 @@
 <h1 id="chapter-52-fastappend-vs-mergeappend">Chapter 5.2 — <code>FastAppend</code> vs <code>MergeAppend</code><a class="headerlink" href="#chapter-52-fastappend-vs-mergeappend" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> <code>table.newAppend()</code> and <code>table.newFastAppend()</code> both add data files and both produce an append snapshot — so what does the extra work in <code>MergeAppend</code> buy, and when does it cost more than it buys?</p>
-<p><strong>Prerequisites:</strong> Chapter 3.3 (<code>SnapshotProducer</code> — the commit loop and the abstract-<code>apply</code> contract), Chapters 2.3 and 2.4 (the manifest list, and the manifests it points at), Chapter 5.1 (the <code>DataFile</code> objects being appended)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> (<code>SnapshotProducer</code> — the commit loop and the abstract-<code>apply</code> contract), Chapters <a href="../../part02_table_spec/chapter_2.3_manifest_list/">2.3</a> and <a href="../../part02_table_spec/chapter_2.4_manifest_file/">2.4</a> (the manifest list, and the manifests it points at), <a href="../chapter_5.1_writers/">Chapter 5.1</a> (the <code>DataFile</code> objects being appended)</p>
 <p><strong>Source covered:</strong> <code>core/.../FastAppend.java</code>, <code>core/.../MergeAppend.java</code>, <code>core/.../MergingSnapshotProducer.java</code>, <code>core/.../ManifestMergeManager.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p>Chapter 3.3 established the contract: <code>SnapshotProducer</code> handles refresh, validation, sequence numbers, the manifest list, the retry loop and cleanup, and subclasses fill in one method — <em>given the current metadata and parent snapshot, produce the list of manifests this snapshot should point at.</em></p>
+<p><a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> established the contract: <code>SnapshotProducer</code> handles refresh, validation, sequence numbers, the manifest list, the retry loop and cleanup, and subclasses fill in one method — <em>given the current metadata and parent snapshot, produce the list of manifests this snapshot should point at.</em></p>
 <p>For an append that sounds trivial. You have new data files. Write them into a manifest. Return that manifest plus everything the parent snapshot already pointed at. Done.</p>
 <p>That is exactly what <code>FastAppend</code> does, and it has a defect that only shows up on the hundredth commit: the manifest count grows by at least one every time, forever. A thousand small appends produce a thousand manifests, every one of which every subsequent scan must open during planning. The table still works; planning gets slower and slower.</p>
 <p>The alternative is to pay a little on each commit to keep that number down — read some existing manifests, merge them into fewer, larger ones. That is <code>MergeAppend</code>. It amortises manifest compaction into every write instead of deferring it to a maintenance job.</p>
@@ -3284,8 +3284,7 @@
 </span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MergeAppend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">ops</span><span class="p">).</span><span class="na">reportWith</span><span class="p">(</span><span class="n">reporter</span><span class="p">);</span>
 </span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseTable.java` L189–L192](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTable.java#L189-L192) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTable.java#L189-L192"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseTable.java</code> L189–L192</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>newAppend()</code> returns <code>MergeAppend</code>. <code>newFastAppend()</code> returns <code>FastAppend</code>. The merging one is the default.</p>
 <div class="admonition note">
 <p class="admonition-title">There is no <code>BaseAppendFiles</code></p>
@@ -3313,7 +3312,7 @@
     MA8 --&gt; OUT
 
     OUT([List of ManifestFile → SnapshotProducer writes the manifest list])</code></pre>
-<p>The left lane never opens an existing manifest. The right lane may open and rewrite many of them — and, because <code>apply()</code> runs inside the retry loop (Chapter 3.3 §5), may do so several times for one logical commit.</p>
+<p>The left lane never opens an existing manifest. The right lane may open and rewrite many of them — and, because <code>apply()</code> runs inside the retry loop (<a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> §5), may do so several times for one logical commit.</p>
 <h2 id="3-fastappendapply">3. <code>FastAppend.apply()</code><a class="headerlink" href="#3-fastappendapply" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">FastAppend.apply()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-146">146</a></span>
 <span class="normal"><a href="#__codelineno-1-147">147</a></span>
@@ -3369,8 +3368,7 @@
 </span><span id="__span-1-171"><a id="__codelineno-1-171" name="__codelineno-1-171"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">manifests</span><span class="p">;</span>
 </span><span id="__span-1-172"><a id="__codelineno-1-172" name="__codelineno-1-172"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/FastAppend.java` L146–L172](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java#L146-L172) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java#L146-L172"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/FastAppend.java</code> L146–L172</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three moves and a summary.</p>
 <p>New data files become new manifests. Manifests handed in via <code>appendManifest</code> get a copy stamped with this snapshot's id. Then:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">snapshot</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -3408,8 +3406,7 @@
 </span><span id="__span-3-216"><a id="__codelineno-3-216" name="__codelineno-3-216"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">newManifests</span><span class="p">;</span>
 </span><span id="__span-3-217"><a id="__codelineno-3-217" name="__codelineno-3-217"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/FastAppend.java` L204–L217](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java#L204-L217) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java#L204-L217"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/FastAppend.java</code> L204–L217</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Note the plural in <code>writeNewManifests</code>, because "one manifest per spec" is the natural guess and it is wrong twice over. <code>SnapshotProducer.writeManifests</code> splits the file list across <code>manifestWriterCount(WORKER_THREAD_POOL_SIZE, fileCount)</code> writers — <code>max(1, min(workerPoolSize, round(fileCount / 10_000)))</code> — so a commit adding tens of thousands of files writes several manifests per spec in parallel. And each of those writers is a <code>RollingManifestWriter</code> that cuts a new file at <code>commit.manifest.target-size-bytes</code>, 8 MB by default. One manifest per spec is the small-commit case, not the rule.</p>
 <p>If new files were added since the last attempt wrote manifests, those manifests are deleted and rewritten. If not, the previously written ones are reused. So a retry caused purely by losing a commit race does <em>not</em> rewrite the data manifests — only the manifest list, which <code>SnapshotProducer</code> handles. That is a meaningful difference from the merging path, where the newest bin always changes identity.</p>
 <p>This is also why <code>FastAppend</code> opts out of post-commit cleanup entirely:</p>
@@ -3431,8 +3428,7 @@
 </span><span id="__span-4-201"><a id="__codelineno-4-201" name="__codelineno-4-201"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">!</span><span class="n">rewrittenAppendManifests</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">();</span>
 </span><span id="__span-4-202"><a id="__codelineno-4-202" name="__codelineno-4-202"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/FastAppend.java` L194–L202](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java#L194-L202) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/FastAppend.java#L194-L202"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/FastAppend.java</code> L194–L202</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The comment is the explanation: appended manifests are never rewritten, and manifests written by <code>appendFile</code> are already cleaned between attempts. The only case that needs the generic cleanup is a manifest that had to be <em>copied</em> because it could not inherit the snapshot id.</p>
 <h2 id="4-mergingsnapshotproducerapply">4. <code>MergingSnapshotProducer.apply()</code><a class="headerlink" href="#4-mergingsnapshotproducerapply" title="Permanent link">&para;</a></h2>
 <p>The merging path has a different shape, and it is doing more than merging:</p>
@@ -3572,11 +3568,10 @@
 </span><span id="__span-5-1039"><a id="__codelineno-5-1039" name="__codelineno-5-1039"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">manifests</span><span class="p">;</span>
 </span><span id="__span-5-1040"><a id="__codelineno-5-1040" name="__codelineno-5-1040"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java` L973–L1040](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L973-L1040) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java#L973-L1040"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/MergingSnapshotProducer.java</code> L973–L1040</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read it in four stages.</p>
 <p><strong>Filter.</strong> <code>filterManager.filterManifests(...)</code> walks the parent snapshot's data manifests and rewrites any that contain files this operation deletes. For a pure append there is nothing to delete and this is close to a no-op — but the code path is shared with <code>OverwriteFiles</code> and <code>RowDelta</code>, which is why <code>MergeAppend</code> inherits it.</p>
-<p><strong>Age out deletes.</strong> <code>minDataSequenceNumber</code> is the smallest sequence number among surviving data manifests. Any delete file older than that cannot apply to any live data file, so <code>dropDeleteFilesOlderThan</code> discards it. This is how equality delete files eventually leave a table (Chapter 5.3) — not by explicit removal, but by every data file they could have applied to being gone.</p>
+<p><strong>Age out deletes.</strong> <code>minDataSequenceNumber</code> is the smallest sequence number among surviving data manifests. Any delete file older than that cannot apply to any live data file, so <code>dropDeleteFilesOlderThan</code> discards it. This is how equality delete files eventually leave a table (<a href="../chapter_5.3_deletes/">Chapter 5.3</a>) — not by explicit removal, but by every data file they could have applied to being gone.</p>
 <p><strong>Keep only what is alive.</strong> The <code>shouldKeep</code> predicate drops manifests with no added and no existing files that were not written by this commit. A manifest whose every entry has been deleted is dead weight in the manifest list.</p>
 <p><strong>Merge.</strong> Two independent merge managers — one for data manifests, one for delete manifests. They never mix, because a manifest holds one content type.</p>
 <p>The summary bookkeeping at the end is worth noticing: <code>replacedManifestsCount</code> sums four sources, and the comment enumerates them. Manifests rewritten by filtering are <em>replaced</em>; manifests copied on append are <em>new</em>. That distinction shows up in the snapshot summary and, from there, in anything monitoring commit cost.</p>
@@ -3676,8 +3671,7 @@
 </span><span id="__span-6-184"><a id="__codelineno-6-184" name="__codelineno-6-184"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">Iterables</span><span class="p">.</span><span class="na">concat</span><span class="p">(</span><span class="n">binResults</span><span class="p">);</span>
 </span><span id="__span-6-185"><a id="__codelineno-6-185" name="__codelineno-6-185"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestMergeManager.java` L139–L185](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestMergeManager.java#L139-L185) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestMergeManager.java#L139-L185"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestMergeManager.java</code> L139–L185</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Two decisions here are counter-intuitive, and both are explained by the comments.</p>
 <p><strong><code>new ListPacker&lt;&gt;(targetSizeBytes, 1, false)</code> with <code>packEnd</code>.</strong> A lookback of 1 is the weakest possible bin-packer — it can only consider the current bin. A better packer would produce fuller bins. The comment says why it is not used:</p>
 <blockquote>
@@ -3821,8 +3815,7 @@
 </span><span id="__span-7-238"><a id="__codelineno-7-238" name="__codelineno-7-238"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">manifest</span><span class="p">;</span>
 </span><span id="__span-7-239"><a id="__codelineno-7-239" name="__codelineno-7-239"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestMergeManager.java` L187–L239](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestMergeManager.java#L187-L239) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestMergeManager.java#L187-L239"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestMergeManager.java</code> L187–L239</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Every entry of every manifest in the bin is read and re-written, with a three-way status decision:</p>
 <ul>
 <li><code>DELETED</code> from a <em>previous</em> snapshot is dropped. The comment: "suppress deletes from previous snapshots. only files deleted by this snapshot should be added to the new manifest." A tombstone that has already been superseded carries no information.</li>
@@ -3836,7 +3829,7 @@
 <ul>
 <li>
 <p><strong><code>newFastAppend()</code></strong></p>
-<p>Commit cost independent of table size. Manifest count grows monotonically. Requires <code>RewriteManifests</code> (Chapter 5.5) as a separate maintenance job. Right for high-frequency ingestion where commit latency matters and a maintenance schedule exists.</p>
+<p>Commit cost independent of table size. Manifest count grows monotonically. Requires <code>RewriteManifests</code> (<a href="../chapter_5.5_maintenance/">Chapter 5.5</a>) as a separate maintenance job. Right for high-frequency ingestion where commit latency matters and a maintenance schedule exists.</p>
 </li>
 <li>
 <p><strong><code>newAppend()</code></strong></p>
@@ -3848,7 +3841,7 @@
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Merge work is repeated on every commit retry</p>
-<p><code>apply()</code> is the first statement inside the retried lambda (Chapter 3.3 §5), and it must be, for the reasons given there. For <code>MergeAppend</code> that means N attempts do N rounds of manifest merging. The bin cache absorbs part of the cost for untouched bins, but never for the bin holding the new files. Under heavy concurrency this shows up as write amplification with no corresponding data volume.</p>
+<p><code>apply()</code> is the first statement inside the retried lambda (<a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> §5), and it must be, for the reasons given there. For <code>MergeAppend</code> that means N attempts do N rounds of manifest merging. The bin cache absorbs part of the cost for untouched bins, but never for the bin holding the new files. Under heavy concurrency this shows up as write amplification with no corresponding data volume.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title"><code>commit.manifest.min-count-to-merge</code> does not mean what it looks like</p>
@@ -3914,7 +3907,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 5.3 keeps the same <code>MergingSnapshotProducer</code> base but adds delete files — and with them, the validation that decides whether a delete still means what its writer thought it meant.</p>
+<p><strong>Next:</strong> <a href="../chapter_5.3_deletes/">Chapter 5.3</a> keeps the same <code>MergingSnapshotProducer</code> base but adds delete files — and with them, the validation that decides whether a delete still means what its writer thought it meant.</p>
 
 
 
@@ -3969,13 +3962,13 @@
         
         
           
-          <a href="../chapter_5.3_deletes/" class="md-footer__link md-footer__link--next" aria-label="Next: 5.3 Position deletes, equality deletes, and `RowDelta`">
+          <a href="../chapter_5.3_deletes/" class="md-footer__link md-footer__link--next" aria-label="Next: 5.3 Position deletes, equality deletes, and RowDelta">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                5.3 Position deletes, equality deletes, and `RowDelta`
+                5.3 Position deletes, equality deletes, and RowDelta
               </div>
             </div>
             <div class="md-footer__button md-icon">

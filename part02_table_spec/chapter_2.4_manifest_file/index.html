@@ -872,7 +872,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1264,7 +1264,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1292,7 +1292,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1460,7 +1460,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1488,7 +1488,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1516,7 +1516,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1712,7 +1712,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1740,7 +1740,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1906,7 +1906,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1934,7 +1934,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1962,7 +1962,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2130,7 +2130,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2158,7 +2158,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2186,7 +2186,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2326,7 +2326,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2354,7 +2354,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2548,7 +2548,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2742,7 +2742,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2938,7 +2938,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2966,7 +2966,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3022,7 +3022,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3289,7 +3289,7 @@
 <h1 id="chapter-24-the-manifest-file-data-files-column-metrics-field-ids">Chapter 2.4 — The manifest file: data files, column metrics, field IDs<a class="headerlink" href="#chapter-24-the-manifest-file-data-files-column-metrics-field-ids" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> what is stored about a single data file inside a manifest, and why is every column metric a map keyed by an integer instead of a column name?</p>
-<p><strong>Prerequisites:</strong> Chapter 2.3 (the manifest list row that points here, and <code>partition_spec_id</code>)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_2.3_manifest_list/">Chapter 2.3</a> (the manifest list row that points here, and <code>partition_spec_id</code>)</p>
 <p><strong>Source covered:</strong> <code>core/.../ManifestEntry.java</code>, <code>api/.../DataFile.java</code>, <code>core/.../MetricsConfig.java</code>, <code>core/.../ManifestReader.java</code>, <code>core/.../ManifestWriter.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3448,13 +3448,12 @@
 </span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">status</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Status</span><span class="p">.</span><span class="na">ADDED</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">status</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Status</span><span class="p">.</span><span class="na">EXISTING</span><span class="p">;</span>
 </span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestEntry.java` L27–L79](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestEntry.java#L27-L79) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestEntry.java#L27-L79"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestEntry.java</code> L27–L79</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Five fields, wrapped into a schema by <code>wrapFileSchema</code> at the centre of the excerpt: <code>STATUS</code>, <code>SNAPSHOT_ID</code>, <code>SEQUENCE_NUMBER</code>, <code>FILE_SEQUENCE_NUMBER</code>, and the file struct at <code>DATA_FILE_ID = 2</code>. The IDs run 0–4 with a <code>// next ID to assign: 5</code> underneath, and the comment above the block explains the gap between this space and the file struct's: <em>"ids for data-file columns are assigned from 1000"</em>.</p>
 <p>That comment is stale, and it is worth saying so rather than quietly repeating it. Data-file IDs start at <strong>100</strong>, not 1000 — section 4's field list shows it, and <code>DataFile.java</code> says it from the other side: <em>"IDs start at 100 to leave room for changes to ManifestEntry."</em> The intent survives the wrong number: the two ID spaces are deliberately far apart so the entry can grow without colliding with the file struct.</p>
 <p><code>status</code> is the whole delta mechanism, and the <code>Status</code> enum at the top of the excerpt is all of it: <code>EXISTING(0)</code>, <code>ADDED(1)</code>, <code>DELETED(2)</code>. A manifest is not a set of files. It is a set of <strong>assertions about entries</strong>, and the <code>isLive()</code> default method at the bottom is the two-line definition of what a scan should see — <code>ADDED</code> or <code>EXISTING</code>, nothing else.</p>
 <p>A <code>DELETED</code> entry is a tombstone: the file is still described in full, so that expiry and orphan cleanup can find it, but no scan reads it. This is why the manifest list carries <code>deleted_files_count</code> at all — a manifest can consist entirely of tombstones.</p>
-<p>The remaining three fields — <code>snapshot_id</code>, <code>sequence_number</code>, <code>file_sequence_number</code> — are all <strong>optional</strong>, and that is not a convenience. It is the inheritance mechanism from Chapter 2.3, one level down. A writer building a manifest does not know which snapshot ID or sequence number its commit will win, so it writes null and the reader fills the value in from the manifest list row.</p>
+<p>The remaining three fields — <code>snapshot_id</code>, <code>sequence_number</code>, <code>file_sequence_number</code> — are all <strong>optional</strong>, and that is not a convenience. It is the inheritance mechanism from <a href="../chapter_2.3_manifest_list/">Chapter 2.3</a>, one level down. A writer building a manifest does not know which snapshot ID or sequence number its commit will win, so it writes null and the reader fills the value in from the manifest list row.</p>
 <p>The javadoc on the two sequence numbers is the clearest statement in the codebase of a distinction that confuses everyone:</p>
 <blockquote>
 <p><em>[data sequence number] Independently of the entry status, this method represents the sequence number to which the file should apply. Note the data sequence number may differ from the sequence number of the snapshot in which the underlying file was added. New snapshots can add files that belong to older sequence numbers (e.g. compaction). The data sequence number also does not change when the file is marked as deleted.</em></p>
@@ -3646,10 +3645,9 @@
 </span><span id="__span-1-126"><a id="__codelineno-1-126" name="__codelineno-1-126"></a>
 </span><span id="__span-1-127"><a id="__codelineno-1-127" name="__codelineno-1-127"></a><span class="c1">// NEXT ID TO ASSIGN: 146</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/DataFile.java` L36–L127](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/DataFile.java#L36-L127) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/DataFile.java#L36-L127"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/DataFile.java</code> L36–L127</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Twenty <code>Types.NestedField</code> constants, IDs 100 through 145, plus <code>int PARTITION_ID = 102</code> — a bare id with no field, for reasons the end of this section gives — and a hand-maintained <code>// NEXT ID TO ASSIGN: 146</code> at the bottom. Counting the spliced-in <code>partition</code>, the struct has twenty-one fields. That comment is the allocator. Field IDs in this struct are a global, append-only namespace shared across every format version — which is why the numbers are not in order and never will be: <code>content</code> is 134 because it was added long after <code>file_path</code> was 100.</p>
-<p>The last four are worth naming now, since they are the v3 story and Chapter 2.5 spends its time on them: <code>first_row_id</code> (142) is row lineage; <code>referenced_data_file</code> (143), <code>content_offset</code> (144) and <code>content_size_in_bytes</code> (145) are what turn a <code>DeleteFile</code> row into a deletion vector.</p>
+<p>The last four are worth naming now, since they are the v3 story and <a href="../chapter_2.5_format_versions/">Chapter 2.5</a> spends its time on them: <code>first_row_id</code> (142) is row lineage; <code>referenced_data_file</code> (143), <code>content_offset</code> (144) and <code>content_size_in_bytes</code> (145) are what turn a <code>DeleteFile</code> row into a deletion vector.</p>
 <p>The canonical order — the order fields actually appear in Avro — is a separate declaration:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the canonical field order</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-129">129</a></span>
 <span class="normal"><a href="#__codelineno-2-130">130</a></span>
@@ -3701,8 +3699,7 @@
 </span><span id="__span-2-152"><a id="__codelineno-2-152" name="__codelineno-2-152"></a><span class="w">      </span><span class="n">CONTENT_SIZE</span><span class="p">);</span>
 </span><span id="__span-2-153"><a id="__codelineno-2-153" name="__codelineno-2-153"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/DataFile.java` L129–L153](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/DataFile.java#L129-L153) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/DataFile.java#L129-L153"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/DataFile.java</code> L129–L153</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>content</code> first, then path and format, then <code>spec_id</code>, then <code>partition</code>. The partition is injected here rather than declared above, because its type is not fixed: <code>required(PARTITION_ID, PARTITION_NAME, partitionType, PARTITION_DOC)</code> takes the struct type of whichever spec wrote the manifest. That is the field the Avro metadata's <code>partition-spec</code> entry exists to describe.</p>
 <h2 id="5-why-the-metrics-are-keyed-by-integers">5. Why the metrics are keyed by integers<a class="headerlink" href="#5-why-the-metrics-are-keyed-by-integers" title="Permanent link">&para;</a></h2>
 <p>Six of those twenty-one fields are maps:</p>
@@ -3825,13 +3822,11 @@
 </span><span id="__span-4-268"><a id="__codelineno-4-268" name="__codelineno-4-268"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MetricsConfig</span><span class="p">(</span><span class="n">columnModes</span><span class="p">,</span><span class="w"> </span><span class="n">defaultMode</span><span class="p">);</span>
 </span><span id="__span-4-269"><a id="__codelineno-4-269" name="__codelineno-4-269"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MetricsConfig.java` L217–L269](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetricsConfig.java#L217-L269) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>Three rules, in the order the method applies them.</p>
-<p><strong>The default mode is <code>truncate(16)</code></strong> — bounds are stored, truncated to sixteen units. Enough to prune string prefixes and any fixed-width type, cheap enough to store per column per file.</p>
-<p><strong>Above 100 columns, the default becomes <code>None</code>.</strong> <code>TypeUtil.getProjectedIds(schema).size()</code> is compared against <code>write.metadata.metrics.max-inferred-column-defaults</code> (default <code>100</code>); above it, only the first hundred projected IDs get <code>truncate(16)</code> and <em>"all other columns don't use metrics"</em>. Nested struct fields count toward that limit, so a schema with a few wide structs reaches it faster than its top-level column count suggests.</p>
-<p><strong>Sorted columns are promoted back.</strong> <code>sortedColumnDefaultMode</code> forces <code>truncate(16)</code> for any order-preserving sorted column even when the default is <code>None</code> or <code>Counts</code>, with the reasoning in its javadoc. Sorting a column is a statement that you intend to filter on it; metrics for it are worth more than for anything else in the file.</p>
-<p>Only after all three does the loop over <code>write.metadata.metrics.column.*</code> apply explicit user overrides. Which means: an override is the only way to get metrics on the 101st column of a wide table.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetricsConfig.java#L217-L269"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/MetricsConfig.java</code> L217–L269</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Four decisions, in the order the method applies them — and the order is the whole content, so <strong><a href="../../part05_write_path/chapter_5.1_writers/">Chapter 5.1</a> §7 walks all four</strong>, where the write path they belong to is being read. Two of them matter here, because they decide what a manifest ends up holding.</p>
+<p><strong>The built-in default is <code>truncate(16)</code></strong> — bounds are stored, truncated to sixteen units. Enough to prune string prefixes and any fixed-width type, cheap enough to store per column per file. It is a <em>default</em>, not a floor: <code>write.metadata.metrics.default</code> replaces it, and that is the method's first branch.</p>
+<p><strong>Above 100 columns, the inferred default becomes <code>None</code>.</strong> <code>TypeUtil.getProjectedIds(schema).size()</code> is compared against <code>write.metadata.metrics.max-inferred-column-defaults</code> (default <code>100</code>); above it, only the first hundred projected IDs get the default mode and <em>"all other columns don't use metrics"</em>. Nested struct fields count toward that limit, so a schema with a few wide structs reaches it faster than its top-level column count suggests. Both numbers in this section are <code>static final</code> constants — <code>METRICS_MAX_INFERRED_COLUMN_DEFAULTS_DEFAULT</code> and <code>DEFAULT_WRITE_METRICS_MODE_DEFAULT</code> — injected in <a href="../chapter_2.1_table_directory_anatomy/">Chapter 2.1</a> §3.</p>
+<p>That second rule is reached <strong>only when <code>write.metadata.metrics.default</code> is unset</strong> — a configured default short-circuits the width inference entirely and applies to every column. So there are two ways to get metrics on the 101st column of a wide table: name it in <code>write.metadata.metrics.column.*</code>, or set a default mode for the whole table.</p>
 <h2 id="7-which-metrics-get-read">7. Which metrics get read<a class="headerlink" href="#7-which-metrics-get-read" title="Permanent link">&para;</a></h2>
 <p>The other end of the size problem is on the read path:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">and which get read back</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-389">389</a></span>
@@ -3860,12 +3855,11 @@
 </span><span id="__span-5-400"><a id="__codelineno-5-400" name="__codelineno-5-400"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
 </span><span id="__span-5-401"><a id="__codelineno-5-401" name="__codelineno-5-401"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestReader.java` L389–L401](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestReader.java#L389-L401) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestReader.java#L389-L401"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestReader.java</code> L389–L401</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>STATS_COLUMNS</code> is the set <code>value_counts</code>, <code>null_value_counts</code>, <code>nan_value_counts</code>, <code>lower_bounds</code>, <code>upper_bounds</code>, <code>record_count</code>, and <code>dropStats</code> returns true — meaning the entry is copied <em>without</em> its stats, <code>e.file().copy(!dropStats)</code> — in exactly two cases: the projection intersects that set in nothing, or it intersects it in <code>record_count</code> alone.</p>
 <p>Read the exception in the right direction, because it runs the opposite way to the obvious reading. Naming <em>any</em> stats column normally <strong>protects</strong> all of them from being dropped; the comment is explicit — <em>"We do not drop stats even if we had partially added some stats columns, except for record_count column."</em> <code>record_count</code> is carved <strong>out</strong> of that protection, and the second half of the comment says why: <em>"we don't want to keep stats map which could be huge in size just because we select record_count, which is a primitive type."</em> One cheap integer should not drag six maps along behind it.</p>
 <p><code>record_count</code> does survive a projection that omits it, but by a different route entirely: <code>ManifestReader.open()</code> adds <code>DataFile.RECORD_COUNT</code> back into the projection when it is not there (and <code>FIRST_ROW_ID</code> with it), because a scan task cannot be built without a row count.</p>
-<p>There is a complementary branch, <code>requireStatsProjection</code>, which puts the stats columns <em>back</em> into a projection that omitted them. It belongs to the read path and Chapter 4.3 §6 reads it there, alongside the evaluator that needs them. The fact to carry out of this chapter is the one that makes both branches worth having: bounds are the biggest thing in a manifest, so a reader spends real effort deciding whether it can avoid deserializing them at all.</p>
+<p>There is a complementary branch, <code>requireStatsProjection</code>, which puts the stats columns <em>back</em> into a projection that omitted them. It belongs to the read path and <a href="../../part04_read_path/chapter_4.3_file_pruning/">Chapter 4.3</a> §6 reads it there, alongside the evaluator that needs them. The fact to carry out of this chapter is the one that makes both branches worth having: bounds are the biggest thing in a manifest, so a reader spends real effort deciding whether it can avoid deserializing them at all.</p>
 <h2 id="8-the-container">8. The container<a class="headerlink" href="#8-the-container" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">the self-describing container</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-335">335</a></span>
 <span class="normal"><a href="#__codelineno-6-336">336</a></span>
@@ -3947,10 +3941,9 @@
 </span><span id="__span-6-373"><a id="__codelineno-6-373" name="__codelineno-6-373"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-6-374"><a id="__codelineno-6-374" name="__codelineno-6-374"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestWriter.java` L335–L374](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestWriter.java#L335-L374) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestWriter.java#L335-L374"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestWriter.java</code> L335–L374</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Two things happen here, and both matter.</p>
-<p><code>Schema manifestSchema = V3Metadata.entrySchema(spec.partitionType())</code> picks the <em>write</em> schema for this format version, built from the partition type of this manifest's spec. As with the manifest list in Chapter 2.3, <code>ManifestEntry.getSchema</code> is the general read shape and <code>V&lt;N&gt;Metadata.entrySchema</code> is what a writer emits.</p>
+<p><code>Schema manifestSchema = V3Metadata.entrySchema(spec.partitionType())</code> picks the <em>write</em> schema for this format version, built from the partition type of this manifest's spec. As with the manifest list in <a href="../chapter_2.3_manifest_list/">Chapter 2.3</a>, <code>ManifestEntry.getSchema</code> is the general read shape and <code>V&lt;N&gt;Metadata.entrySchema</code> is what a writer emits.</p>
 <p>Then five Avro key-value metadata entries: <code>schema</code>, <code>partition-spec</code>, <code>partition-spec-id</code>, <code>format-version</code>, and <code>content</code>. That is the payload that makes everything above resolvable — the full table schema for interpreting metric field IDs and bound types, the spec for interpreting the <code>partition</code> struct, and <code>content</code> recording whether this manifest holds data or deletes, mirroring field 517 in the manifest list row.</p>
 <p><code>V3DeleteWriter</code> is a separate class beside this one, and diffing the two is the quickest way to see what a delete manifest is. There are four differences, not the two you would guess:</p>
 <ul>
@@ -3966,8 +3959,8 @@
 <p>Every metric map is <code>map&lt;int, X&gt;</code> over schema field IDs. Renaming preserves statistics; dropping and re-adding a column with the same name allocates a new field ID and starts from nothing. Predicates on it stop pruning against existing files, silently, until those files are rewritten.</p>
 </div>
 <div class="admonition warning">
-<p class="admonition-title">The 101st column silently gets no metrics</p>
-<p><code>MetricsConfig.from</code> compares the schema's projected ID count against <code>write.metadata.metrics.max-inferred-column-defaults</code> (default <code>100</code>) and sets <code>defaultMode</code> to <code>None</code> above it. Nested fields count. The symptom is a filter that used to prune and stopped after a schema grew, with nothing logged.</p>
+<p class="admonition-title">The 101st column silently gets no metrics — unless a default mode is set</p>
+<p>With <code>write.metadata.metrics.default</code> unset, <code>MetricsConfig.from</code> compares the schema's projected ID count against <code>write.metadata.metrics.max-inferred-column-defaults</code> (default <code>100</code>) and sets <code>defaultMode</code> to <code>None</code> above it. Nested fields count. The symptom is a filter that used to prune and stopped after a schema grew, with nothing logged. Setting a table-wide default mode skips the inference and this never fires.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">A null <code>sequence_number</code> does not mean zero</p>
@@ -4029,7 +4022,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 2.5 diffs everything in Chapters 2.2 through 2.4 across format versions 1, 2 and 3 — and finds that the whole difference reduces to four static schema declarations and a handful of named guards.</p>
+<p><strong>Next:</strong> <a href="../chapter_2.5_format_versions/">Chapter 2.5</a> diffs everything in <a href="../chapter_2.2_metadata_json/">Chapters 2.2</a> through 2.4 across format versions 1, 2 and 3 — and finds that the whole difference reduces to four static schema declarations and a handful of named guards.</p>
 
 
 

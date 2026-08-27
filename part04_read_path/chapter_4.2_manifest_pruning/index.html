@@ -29,7 +29,7 @@
     
     
       
-        <title>4.2 Manifest pruning with `ManifestEvaluator` - Iceberg & Nessie Internals</title>
+        <title>4.2 Manifest pruning with ManifestEvaluator - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              4.2 Manifest pruning with `ManifestEvaluator`
+              4.2 Manifest pruning with ManifestEvaluator
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1292,7 +1292,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1329,7 +1329,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1347,7 +1347,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1533,7 +1533,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1729,7 +1729,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1757,7 +1757,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1923,7 +1923,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1951,7 +1951,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1979,7 +1979,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2147,7 +2147,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2175,7 +2175,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2203,7 +2203,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2343,7 +2343,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2371,7 +2371,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2565,7 +2565,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2759,7 +2759,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2983,7 +2983,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3039,7 +3039,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3323,11 +3323,11 @@
 <h1 id="chapter-42-manifest-pruning-with-manifestevaluator">Chapter 4.2 — Manifest pruning with <code>ManifestEvaluator</code><a class="headerlink" href="#chapter-42-manifest-pruning-with-manifestevaluator" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> how does Iceberg decide <em>not to open</em> a manifest file, using only the few hundred bytes of partition summary already sitting in the manifest list?</p>
-<p><strong>Prerequisites:</strong> Chapter 2.3 (the manifest list and its partition summaries), Chapter 4.1 (where <code>ManifestGroup</code> is configured)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part02_table_spec/chapter_2.3_manifest_list/">Chapter 2.3</a> (the manifest list and its partition summaries), <a href="../chapter_4.1_table_scan/">Chapter 4.1</a> (where <code>ManifestGroup</code> is configured)</p>
 <p><strong>Source covered:</strong> <code>api/.../expressions/ManifestEvaluator.java</code>, <code>api/.../expressions/Projections.java</code>, <code>api/.../expressions/BoundReference.java</code>, <code>api/.../transforms/Transform.java</code>, <code>core/.../ManifestGroup.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p>This is stage one of the funnel from Chapter 4.1. No <em>data</em> manifest has been opened yet — only the manifest list, plus whatever delete manifests Chapter 4.1 watched <code>ManifestGroup.plan()</code> drain into its <code>DeleteFileIndex</code>.</p>
+<p>This is stage one of the funnel from <a href="../chapter_4.1_table_scan/">Chapter 4.1</a>. No <em>data</em> manifest has been opened yet — only the manifest list, plus whatever delete manifests <a href="../chapter_4.1_table_scan/">Chapter 4.1</a> watched <code>ManifestGroup.plan()</code> drain into its <code>DeleteFileIndex</code>.</p>
 <p>A snapshot's manifest list can name thousands of manifests. Each one is a separate Avro file: a network round trip, a decompress, and a parse before a single data file's metadata is visible. On object storage that round trip dominates. So the first question planning asks is not "which files match" but "which manifests are worth opening at all".</p>
 <p>The information available to answer it is limited on purpose. The manifest list row for each manifest carries a compact partition summary — bounds and null flags per partition field — and nothing about data columns. Meanwhile the user's filter is written against data columns. Those are different vocabularies, and bridging them without ever producing a wrong answer is what this chapter is about.</p>
 <p>The bridge is an <em>inclusive projection</em>: rewrite a predicate on rows into a predicate on partition values such that <strong>if a row matches, its partition matches</strong>. Predicates that cannot be rewritten become <code>alwaysTrue()</code> — they contribute no pruning rather than wrong pruning.</p>
@@ -3352,8 +3352,7 @@
 </span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="cm"> */</span>
 </span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="n">List</span><span class="o">&lt;</span><span class="n">PartitionFieldSummary</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">partitions</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/ManifestFile.java` L189–L198](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/ManifestFile.java#L189-L198) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/ManifestFile.java#L189-L198"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/ManifestFile.java</code> L189–L198</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The javadoc fixes the access pattern: summaries are positional, one per field of the manifest's spec, in spec order. That is why <code>ManifestEvalVisitor</code> reads them with <code>stats.get(Accessors.toPosition(ref.accessor()))</code> rather than by name — the reference has already been bound to <code>spec.partitionType()</code>, so its accessor knows its ordinal.</p>
 <p>Each <code>PartitionFieldSummary</code> carries four things: <code>lowerBound()</code>, <code>upperBound()</code>, <code>containsNull()</code>, and <code>containsNaN()</code> (nullable, defaulting to <code>null</code> for backward compatibility). Everything in this chapter is derived from those four fields.</p>
 <pre class="mermaid"><code>flowchart LR
@@ -3361,9 +3360,9 @@
     R1 --&gt; K["&lt;b&gt;partition_spec_id&lt;/b&gt;&lt;br/&gt;→ evaluator cache key"]
     R1 --&gt; C["&lt;b&gt;*_files_count&lt;/b&gt;&lt;br/&gt;→ ignoreDeleted / ignoreExisting"]
     R1 --&gt; P["&lt;b&gt;partitions[]&lt;/b&gt;&lt;br/&gt;lowerBound, upperBound,&lt;br/&gt;containsNull, containsNaN&lt;br/&gt;→ ManifestEvaluator"]</code></pre>
-<p>Note what is <em>not</em> there: no column bounds, no per-file information at all. Manifest-level pruning is partition pruning and nothing else. A filter on a non-partitioned column survives this stage untouched and is handed to Chapter 4.3.</p>
+<p>Note what is <em>not</em> there: no column bounds, no per-file information at all. Manifest-level pruning is partition pruning and nothing else. A filter on a non-partitioned column survives this stage untouched and is handed to <a href="../chapter_4.3_file_pruning/">Chapter 4.3</a>.</p>
 <h2 id="3-two-things-a-predicate-has-to-be-before-it-can-be-projected">3. Two things a predicate has to be before it can be projected<a class="headerlink" href="#3-two-things-a-predicate-has-to-be-before-it-can-be-projected" title="Permanent link">&para;</a></h2>
-<p>The rewrite in section 4 operates on a predicate that has already had two things done to it, and neither has been named yet in this book. Both are worth ten minutes now, because Chapters 4.3 and 4.4 assume them as thoroughly as this one does.</p>
+<p>The rewrite in section 4 operates on a predicate that has already had two things done to it, and neither has been named yet in this book. Both are worth ten minutes now, because Chapters <a href="../chapter_4.3_file_pruning/">4.3</a> and <a href="../chapter_4.4_residuals/">4.4</a> assume them as thoroughly as this one does.</p>
 <h3 id="bound-and-unbound">Bound and unbound<a class="headerlink" href="#bound-and-unbound" title="Permanent link">&para;</a></h3>
 <p>An <code>Expression</code> written by a caller — <code>Expressions.lessThan("event_ts", cutoff)</code> — names a column by <em>string</em>. It cannot be evaluated, because nothing has said which column that string is, whether it exists, or what type it holds. That is an <strong>unbound</strong> expression, and <code>UnboundPredicate</code> is its type.</p>
 <p>Binding resolves the name against a schema and produces the other kind:</p>
@@ -3435,13 +3434,12 @@
 </span><span id="__span-1-59"><a id="__codelineno-1-59" name="__codelineno-1-59"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">producesNull</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-1-60"><a id="__codelineno-1-60" name="__codelineno-1-60"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">field</span><span class="p">.</span><span class="na">isOptional</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/expressions/BoundReference.java` L27–L60](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/BoundReference.java#L27-L60) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>Three fields. A <code>Types.NestedField</code> — the resolved column, carrying the field ID that Chapter 2.4 showed every metric map is keyed by. An <code>Accessor&lt;StructLike&gt;</code>, which is a pre-computed path for pulling that column out of a struct, so evaluation is a field read rather than a name lookup. And the original <code>name</code>, kept only for error messages.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/BoundReference.java#L27-L60"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/expressions/BoundReference.java</code> L27–L60</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Three fields. A <code>Types.NestedField</code> — the resolved column, carrying the field ID that <a href="../../part02_table_spec/chapter_2.4_manifest_file/">Chapter 2.4</a> showed every metric map is keyed by. An <code>Accessor&lt;StructLike&gt;</code>, which is a pre-computed path for pulling that column out of a struct, so evaluation is a field read rather than a name lookup. And the original <code>name</code>, kept only for error messages.</p>
 <p><code>Binder.bind(struct, expr, caseSensitive)</code> is the entry point, and its failure modes are the point of the exercise. An unknown column, a type that cannot hold the literal, a case mismatch under <code>caseSensitive</code> — all of them fail <em>here</em>, once, at plan time, rather than per row or per file. <code>ValidationException: Cannot find field 'evnt_ts'</code> is a binding failure, and it is why a typo in a filter fails the query instead of silently matching nothing.</p>
 <p>Two consequences run through the rest of Part 4. Every evaluator in this part — <code>ManifestEvaluator</code>, <code>InclusiveMetricsEvaluator</code>, <code>StrictMetricsEvaluator</code>, <code>ResidualEvaluator</code> — binds its expression once in its constructor and then visits the bound form. And <code>pred.ref().fieldId()</code>, which section 4 is about to use as the key into the partition spec, is only available <em>because</em> the predicate was bound: an unbound predicate has a name where that integer would be.</p>
 <h3 id="transforms-and-the-one-property-projection-depends-on">Transforms, and the one property projection depends on<a class="headerlink" href="#transforms-and-the-one-property-projection-depends-on" title="Permanent link">&para;</a></h3>
-<p>A partition value is not a column value. It is a <strong>transform</strong> of one — <code>day(event_ts)</code>, <code>bucket(16, id)</code>, <code>truncate(10, name)</code>, or <code>identity(dept)</code> — computed by the writer and stored in the manifest as its own typed field (Chapter 1.1 §5). The partition summaries this chapter prunes on are bounds over <em>transformed</em> values, so a predicate on the raw column cannot be compared against them directly.</p>
+<p>A partition value is not a column value. It is a <strong>transform</strong> of one — <code>day(event_ts)</code>, <code>bucket(16, id)</code>, <code>truncate(10, name)</code>, or <code>identity(dept)</code> — computed by the writer and stored in the manifest as its own typed field (<a href="../../part01_foundations/chapter_1.1_why_table_formats/">Chapter 1.1</a> §5). The partition summaries this chapter prunes on are bounds over <em>transformed</em> values, so a predicate on the raw column cannot be compared against them directly.</p>
 <p>What makes the rewrite possible at all is a single method on <code>Transform</code>:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Transform.preservesOrder()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-79">79</a></span>
 <span class="normal"><a href="#__codelineno-2-80">80</a></span>
@@ -3465,11 +3463,10 @@
 </span><span id="__span-2-88"><a id="__codelineno-2-88" name="__codelineno-2-88"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
 </span><span id="__span-2-89"><a id="__codelineno-2-89" name="__codelineno-2-89"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/transforms/Transform.java` L79–L89](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/transforms/Transform.java#L79-L89) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/transforms/Transform.java#L79-L89"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/transforms/Transform.java</code> L79–L89</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><em>"Whether the transform preserves the order of values (is monotonic)."</em> <code>identity</code>, <code>year</code>, <code>month</code>, <code>day</code>, <code>hour</code> and <code>truncate</code> are order-preserving: if <code>a &lt; b</code> then <code>t(a) &lt;= t(b)</code>. <code>bucket</code> is not — hashing destroys order by design, which is the whole point of bucketing.</p>
 <p>That one bit decides which predicates survive projection. Against an order-preserving transform, <code>event_ts &lt; X</code> becomes <code>day(event_ts) &lt;= day(X)</code> and the manifest's <code>lower_bound</code>/<code>upper_bound</code> are usable. Against <code>bucket</code>, an inequality projects to nothing, because two adjacent ids land in unrelated buckets and no bound over bucket numbers says anything about a range of ids. Equality still projects — <code>id = 5</code> implies <code>bucket(16, id) = bucket(16, 5)</code> — which is why a bucketed table prunes beautifully for point lookups and not at all for ranges.</p>
-<p>Chapter 4.4 uses the same property in the opposite direction: where this chapter asks whether a partition <em>might</em> match, 4.4 asks whether it <em>must</em>, and reaches for <code>preservesOrder()</code> again to answer it.</p>
+<p><a href="../chapter_4.4_residuals/">Chapter 4.4</a> uses the same property in the opposite direction: where this chapter asks whether a partition <em>might</em> match, 4.4 asks whether it <em>must</em>, and reaches for <code>preservesOrder()</code> again to answer it.</p>
 <h2 id="4-from-a-row-filter-to-a-partition-filter">4. From a row filter to a partition filter<a class="headerlink" href="#4-from-a-row-filter-to-a-partition-filter" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Projections.InclusiveProjection</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-195">195</a></span>
 <span class="normal"><a href="#__codelineno-3-196">196</a></span>
@@ -3537,11 +3534,10 @@
 </span><span id="__span-3-226"><a id="__codelineno-3-226" name="__codelineno-3-226"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-227"><a id="__codelineno-3-227" name="__codelineno-3-227"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/expressions/Projections.java` L195–L227](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/Projections.java#L195-L227) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/Projections.java#L195-L227"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/expressions/Projections.java</code> L195–L227</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The whole rewrite is fourteen lines of logic and one long comment.</p>
 <p><code>spec().getFieldsBySourceId(pred.ref().fieldId())</code> asks: is this predicate's column the source of any partition field? If not, the answer is <code>Expressions.alwaysTrue()</code>. That is the safe direction: a predicate we cannot express over partition values must not eliminate anything.</p>
-<p>It is worth being exact about <em>how</em> that answer is produced, because the obvious reading is wrong and Chapter 4.4 meets the identical trap. The <code>if (parts == null)</code> guard on the line below the lookup never fires. <code>getFieldsBySourceId</code> is one line — <code>return lazyFieldsBySourceId().get(fieldId)</code> — over a Guava <code>ListMultimap</code>, and <code>Multimap.get</code> returns an <em>empty list</em> for an absent key, never <code>null</code>. The guard is dead defensive code. What actually handles a non-partition column is the pair of lines wrapped around the loop: <code>result</code> starts as <code>Expressions.alwaysTrue()</code>, the loop body never runs, and <code>result</code> is returned unchanged. The identity element of the conjunction is the mechanism; the null check is decoration. Chapter 4.4 finds the same dead branch — with the same wrong-looking explanation available — in <code>ResidualEvaluator</code>.</p>
+<p>It is worth being exact about <em>how</em> that answer is produced, because the obvious reading is wrong and <a href="../chapter_4.4_residuals/">Chapter 4.4</a> meets the identical trap. The <code>if (parts == null)</code> guard on the line below the lookup never fires. <code>getFieldsBySourceId</code> is one line — <code>return lazyFieldsBySourceId().get(fieldId)</code> — over a Guava <code>ListMultimap</code>, and <code>Multimap.get</code> returns an <em>empty list</em> for an absent key, never <code>null</code>. The guard is dead defensive code. What actually handles a non-partition column is the pair of lines wrapped around the loop: <code>result</code> starts as <code>Expressions.alwaysTrue()</code>, the loop body never runs, and <code>result</code> is returned unchanged. The identity element of the conjunction is the mechanism; the null check is decoration. <a href="../chapter_4.4_residuals/">Chapter 4.4</a> finds the same dead branch — with the same wrong-looking explanation available — in <code>ResidualEvaluator</code>.</p>
 <p>When the column <em>is</em> a partition source, every partition field derived from it contributes a projected predicate, and they are <strong>AND</strong>-ed. The comment explains why the conjunction is correct and not merely conservative:</p>
 <blockquote>
 <p><em>consider (d = 2019-01-01) with bucket(7, d) and bucket(5, d) / projections: b1 = bucket(7, '2019-01-01') = 5, b2 = bucket(5, '2019-01-01') = 0 / any value where b1 != 5 or any value where b2 != 0 cannot be the '2019-01-01'</em></p>
@@ -3567,8 +3563,7 @@
 </span><span id="__span-4-151"><a id="__codelineno-4-151" name="__codelineno-4-151"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ExpressionVisitors</span><span class="p">.</span><span class="na">visit</span><span class="p">(</span><span class="n">ExpressionVisitors</span><span class="p">.</span><span class="na">visit</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span><span class="w"> </span><span class="n">RewriteNot</span><span class="p">.</span><span class="na">get</span><span class="p">()),</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
 </span><span id="__span-4-152"><a id="__codelineno-4-152" name="__codelineno-4-152"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/expressions/Projections.java` L144–L152](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/Projections.java#L144-L152) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/Projections.java#L144-L152"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/expressions/Projections.java</code> L144–L152</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Two nested visits. <code>RewriteNot.get()</code> runs first and pushes every <code>NOT</code> down to the leaves, turning <code>not(a &lt; b)</code> into <code>a &gt;= b</code>. Only then is the projection applied. The comment says exactly why, and Gotcha 2 unpacks it.</p>
 <p>Put end to end, a two-predicate filter against a table partitioned by <code>day(ts)</code> travels like this:</p>
 <pre class="mermaid"><code>flowchart TD
@@ -3581,7 +3576,7 @@
     E --&gt; F["Binder.bind(spec.partitionType(),&lt;br/&gt;rewriteNot(expr), caseSensitive)"]
     F --&gt; G["ManifestEvalVisitor over&lt;br/&gt;List&amp;lt;PartitionFieldSummary&amp;gt;"]
     G --&gt; H{"eval(manifest)"}
-    H --&gt;|ROWS_MIGHT_MATCH| I["open the manifest&lt;br/&gt;→ Chapter 4.3"]
+    H --&gt;|ROWS_MIGHT_MATCH| I["open the manifest&lt;br/&gt;→ [Chapter 4.3](../part04_read_path/chapter_4.3_file_pruning.md)"]
     H --&gt;|ROWS_CANNOT_MATCH| J["skipped-data-manifests++&lt;br/&gt;&lt;i&gt;never downloaded&lt;/i&gt;"]</code></pre>
 <p>The <code>id = 42</code> branch is the important one. It contributes nothing here — and that is not a failure of the projection, it is the correct answer. <code>id</code> is not a partition column, so the manifest summary genuinely says nothing about it. The predicate is not lost; it is carried forward and does its work one stage later, against column statistics.</p>
 <h2 id="5-manifestevaluator-contract-and-construction">5. <code>ManifestEvaluator</code> — contract and construction<a class="headerlink" href="#5-manifestevaluator-contract-and-construction" title="Permanent link">&para;</a></h2>
@@ -3645,17 +3640,16 @@
 </span><span id="__span-5-67"><a id="__codelineno-5-67" name="__codelineno-5-67"></a><span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">expr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Binder</span><span class="p">.</span><span class="na">bind</span><span class="p">(</span><span class="n">spec</span><span class="p">.</span><span class="na">partitionType</span><span class="p">(),</span><span class="w"> </span><span class="n">rewriteNot</span><span class="p">(</span><span class="n">partitionFilter</span><span class="p">),</span><span class="w"> </span><span class="n">caseSensitive</span><span class="p">);</span>
 </span><span id="__span-5-68"><a id="__codelineno-5-68" name="__codelineno-5-68"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java` L39–L68](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java#L39-L68) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java#L39-L68"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java</code> L39–L68</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The javadoc states the contract in the form that matters:</p>
 <blockquote>
 <p><em>Manifest files may be skipped if and only if the return value of <code>eval</code> is false.</em></p>
 </blockquote>
-<p>"If and only if" is doing real work there. It licenses skipping on <code>false</code>, and it forbids skipping on anything else — including anything the evaluator could not decide. That asymmetry is the subject of Chapter 4.3; here it shows up as the two constants <code>ROWS_MIGHT_MATCH = true</code> and <code>ROWS_CANNOT_MATCH = false</code>, and the fact that <code>ManifestEvalVisitor.eval</code> returns <code>ROWS_MIGHT_MATCH</code> immediately when <code>manifest.partitions()</code> is <code>null</code>.</p>
-<p>Everything downstream of that contract rests on a promise made by the writer, not by this class. Chapter 2.3 §5–6 is where that promise is established: <code>PartitionFieldStats.update</code> sets a bound for every ordinary value and for nothing else, which is what licenses the one branch that skips a manifest on an <em>absent</em> bound rather than a present one. Read the two together and the division is clean — 2.3 proves the row is trustworthy, this chapter spends the trust.</p>
+<p>"If and only if" is doing real work there. It licenses skipping on <code>false</code>, and it forbids skipping on anything else — including anything the evaluator could not decide. That asymmetry is the subject of <a href="../chapter_4.3_file_pruning/">Chapter 4.3</a>; here it shows up as the two constants <code>ROWS_MIGHT_MATCH = true</code> and <code>ROWS_CANNOT_MATCH = false</code>, and the fact that <code>ManifestEvalVisitor.eval</code> returns <code>ROWS_MIGHT_MATCH</code> immediately when <code>manifest.partitions()</code> is <code>null</code>.</p>
+<p>Everything downstream of that contract rests on a promise made by the writer, not by this class. <a href="../../part02_table_spec/chapter_2.3_manifest_list/">Chapter 2.3</a> §5–6 is where that promise is established: <code>PartitionFieldStats.update</code> sets a bound for every ordinary value and for nothing else, which is what licenses the one branch that skips a manifest on an <em>absent</em> bound rather than a present one. Read the two together and the division is clean — 2.3 proves the row is trustworthy, this chapter spends the trust.</p>
 <p>Two factories, two callers:</p>
 <ul>
-<li><code>forRowFilter(rowFilter, spec, caseSensitive)</code> does the projection for you. This is what the metadata-table scans use (Chapter 4.5).</li>
+<li><code>forRowFilter(rowFilter, spec, caseSensitive)</code> does the projection for you. This is what the metadata-table scans use (<a href="../chapter_4.5_split_planning/">Chapter 4.5</a>).</li>
 <li><code>forPartitionFilter(partitionFilter, spec, caseSensitive)</code> takes an expression that is <em>already</em> over partition values. <code>ManifestGroup</code> uses this one, because it needs to combine an explicit partition filter with the projected row filter before evaluating.</li>
 </ul>
 <p>The constructor does the rest: <code>Binder.bind(spec.partitionType(), rewriteNot(partitionFilter), caseSensitive)</code>. Note <code>rewriteNot</code> appearing a second time — the evaluator does not trust its caller to have done it.</p>
@@ -3705,8 +3699,7 @@
 </span><span id="__span-6-265"><a id="__codelineno-6-265" name="__codelineno-6-265"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ROWS_MIGHT_MATCH</span><span class="p">;</span>
 </span><span id="__span-6-266"><a id="__codelineno-6-266" name="__codelineno-6-266"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java` L245–L266](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java#L245-L266) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java#L245-L266"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/expressions/ManifestEvaluator.java</code> L245–L266</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Three exits, and only two of them prune.</p>
 <p><code>fieldStats.lowerBound() == null</code> means every partition value for this field in this manifest is null, and the comment says why that settles it: <em>"values are all null and literal cannot contain null"</em>. An Iceberg literal is never null — <code>IS NULL</code> is a separate predicate — so equality against one cannot hold.</p>
 <p>Then the interval test. If <code>lower &gt; lit</code>, every value in the manifest exceeds the literal. If <code>upper &lt; lit</code>, every value falls short. Otherwise the literal lies inside <code>[lower, upper]</code> and <em>some file in this manifest might</em> have that partition value — might, not does, because the bounds are an interval over many files, not an enumeration.</p>
@@ -3831,8 +3824,7 @@
 </span><span id="__span-7-333"><a id="__codelineno-7-333" name="__codelineno-7-333"></a><span class="w">  </span><span class="n">matchingManifests</span><span class="w"> </span><span class="o">=</span>
 </span><span id="__span-7-334"><a id="__codelineno-7-334" name="__codelineno-7-334"></a><span class="w">      </span><span class="n">CloseableIterable</span><span class="p">.</span><span class="na">count</span><span class="p">(</span><span class="n">scanMetrics</span><span class="p">.</span><span class="na">scannedDataManifests</span><span class="p">(),</span><span class="w"> </span><span class="n">matchingManifests</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestGroup.java` L276–L334](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestGroup.java#L276-L334) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestGroup.java#L276-L334"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestGroup.java</code> L276–L334</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>This is <code>ManifestGroup</code>'s private <code>entries(BiFunction)</code>, the method every public entry point funnels through. Read the first sixty lines as a pipeline of <code>CloseableIterable.filter</code> calls.</p>
 <p><strong>The evaluator cache.</strong> A Caffeine <code>LoadingCache&lt;Integer, ManifestEvaluator&gt;</code> keyed by <em>partition spec ID</em>. This is not a micro-optimisation: one snapshot legitimately contains manifests written under several specs, and the projection of a row filter depends on the spec. Building one evaluator per manifest would redo the binding thousands of times; building one globally would be wrong.</p>
 <p>The cached expression is worth reading character by character:</p>
@@ -3848,13 +3840,12 @@
 </span><span id="__span-8-290"><a id="__codelineno-8-290" name="__codelineno-8-290"></a><span class="w">    </span><span class="n">spec</span><span class="p">,</span>
 </span><span id="__span-8-291"><a id="__codelineno-8-291" name="__codelineno-8-291"></a><span class="w">    </span><span class="n">caseSensitive</span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/ManifestGroup.java` L286–L291](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestGroup.java#L286-L291) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/ManifestGroup.java#L286-L291"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/ManifestGroup.java</code> L286–L291</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Two sources combine. <code>partitionFilter</code> is an explicit partition-level predicate set by <code>filterPartitions(...)</code> — used by delete and rewrite paths, left as <code>alwaysTrue()</code> by <code>DataTableScan</code>. <code>dataFilter</code> is the user's row filter, projected. <code>forPartitionFilter</code> is used precisely because the projection has already happened here.</p>
 <p><strong>The filter itself.</strong> <code>CloseableIterable.filter(scanMetrics.skippedDataManifests(), closeableDataManifests, manifest -&gt; evalCache.get(manifest.partitionSpecId()).eval(manifest))</code>. The counter is passed <em>into</em> the filter, so every rejection increments <code>skipped-data-manifests</code> without a separate bookkeeping pass.</p>
 <p><strong>Two more cheap filters.</strong> With <code>ignoreDeleted</code> set — <code>DataTableScan</code> always sets it — manifests with no added and no existing files are dropped, because a read has no interest in a manifest that only records deletions. <code>ignoreExisting</code> is the mirror image, used by incremental scans. Both comments say the same defensive thing: <em>"if either the added or existing files count is missing, the manifest must be scanned."</em></p>
 <p><strong>And a counter.</strong> <code>CloseableIterable.count(scanMetrics.scannedDataManifests(), matchingManifests)</code> tallies survivors. <code>scanned</code> plus <code>skipped</code> equals <code>total-data-manifests</code>, and the ratio is the direct measure of whether this stage did anything.</p>
-<p>Everything after line L334 — opening a <code>ManifestReader</code>, applying the partition and metrics evaluators per entry — belongs to Chapter 4.3.</p>
+<p>Everything after line L334 — opening a <code>ManifestReader</code>, applying the partition and metrics evaluators per entry — belongs to <a href="../chapter_4.3_file_pruning/">Chapter 4.3</a>.</p>
 <p>One consequence of the per-spec cache deserves stating plainly, because it surfaces as a support question rather than as an error. Suppose a table was originally partitioned by <code>days(ts)</code> and later evolved to add <code>bucket(16, customer_id)</code>. Manifests written before the change are evaluated with an evaluator built from the old spec, in which <code>customer_id</code> is not a partition source — so a filter on <code>customer_id</code> projects to <code>alwaysTrue()</code> for them and prunes nothing. Manifests written after the change prune normally. The same query, the same filter, and two completely different pruning ratios depending on when the data was written. Nothing is wrong; the older manifests simply do not carry the summary that would answer the question.</p>
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
@@ -3884,7 +3875,7 @@
 <li>A predicate that cannot be projected becomes <code>alwaysTrue()</code> — produced by an empty partition-field list leaving the conjunction's identity element untouched, not by the dead <code>parts == null</code> branch — and that is safe only because <code>NOT</code> has been pushed to the leaves first, hence the explicit <code>[BUG]</code> throw.</li>
 <li><code>ManifestEvaluator</code> returns <code>ROWS_CANNOT_MATCH</code> only when the partition summary proves impossibility; every other path, including a missing summary, returns <code>ROWS_MIGHT_MATCH</code>.</li>
 <li>Evaluators are cached per partition spec ID, because one snapshot can hold manifests written under several specs and the projection depends on the spec.</li>
-<li>This stage prunes on partition values only. Anything else in the filter survives to Chapter 4.3.</li>
+<li>This stage prunes on partition values only. Anything else in the filter survives to <a href="../chapter_4.3_file_pruning/">Chapter 4.3</a>.</li>
 </ul>
 <h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
 <table>
@@ -3929,7 +3920,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 4.3 opens the manifests that survived and prunes inside them, using column statistics — and makes the correctness argument that every stage in this pipeline depends on.</p>
+<p><strong>Next:</strong> <a href="../chapter_4.3_file_pruning/">Chapter 4.3</a> opens the manifests that survived and prunes inside them, using column statistics — and makes the correctness argument that every stage in this pipeline depends on.</p>
 
 
 
@@ -3967,7 +3958,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../chapter_4.1_table_scan/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 4.1 `TableScan` and `planFiles`">
+          <a href="../chapter_4.1_table_scan/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 4.1 TableScan and planFiles">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3977,20 +3968,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                4.1 `TableScan` and `planFiles`
+                4.1 TableScan and planFiles
               </div>
             </div>
           </a>
         
         
           
-          <a href="../chapter_4.3_file_pruning/" class="md-footer__link md-footer__link--next" aria-label="Next: 4.3 File pruning with `InclusiveMetricsEvaluator`">
+          <a href="../chapter_4.3_file_pruning/" class="md-footer__link md-footer__link--next" aria-label="Next: 4.3 File pruning with InclusiveMetricsEvaluator">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                4.3 File pruning with `InclusiveMetricsEvaluator`
+                4.3 File pruning with InclusiveMetricsEvaluator
               </div>
             </div>
             <div class="md-footer__button md-icon">

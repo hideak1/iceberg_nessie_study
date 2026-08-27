@@ -29,7 +29,7 @@
     
     
       
-        <title>3.2 `TableMetadata` and `MetadataUpdate` - Iceberg & Nessie Internals</title>
+        <title>3.2 TableMetadata and MetadataUpdate - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              3.2 `TableMetadata` and `MetadataUpdate`
+              3.2 TableMetadata and MetadataUpdate
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1105,7 +1105,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1123,7 +1123,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1298,7 +1298,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1466,7 +1466,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1494,7 +1494,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1522,7 +1522,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1718,7 +1718,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1746,7 +1746,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1912,7 +1912,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1940,7 +1940,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1968,7 +1968,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2136,7 +2136,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2164,7 +2164,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2192,7 +2192,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2332,7 +2332,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2360,7 +2360,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2554,7 +2554,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2748,7 +2748,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2944,7 +2944,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2972,7 +2972,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3028,7 +3028,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3301,11 +3301,11 @@
 <h1 id="chapter-32-tablemetadata-and-metadataupdate">Chapter 3.2 — <code>TableMetadata</code> and <code>MetadataUpdate</code><a class="headerlink" href="#chapter-32-tablemetadata-and-metadataupdate" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> <code>TableMetadata</code> is immutable, so how does a table ever change — and why does the new object carry a <em>list of the changes</em> that produced it, when the file it will be written to has no field for such a list?</p>
-<p><strong>Prerequisites:</strong> Chapter 2.2 (<code>metadata.json</code> field by field), Chapter 3.1 (the api/core split)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part02_table_spec/chapter_2.2_metadata_json/">Chapter 2.2</a> (<code>metadata.json</code> field by field), <a href="../chapter_3.1_module_map/">Chapter 3.1</a> (the api/core split)</p>
 <p><strong>Source covered:</strong> <code>core/.../TableMetadata.java</code>, <code>core/.../MetadataUpdate.java</code>, <code>core/.../rest/CatalogHandlers.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
-<p><code>TableMetadata</code> is the in-memory form of <code>metadata.json</code>: schemas, partition specs, sort orders, properties, every snapshot, every ref, the metadata log. Chapter 2.2 walked the file. This chapter is about the object, and the object has one property the file does not — nothing you can reach through its public API ever changes value.</p>
+<p><code>TableMetadata</code> is the in-memory form of <code>metadata.json</code>: schemas, partition specs, sort orders, properties, every snapshot, every ref, the metadata log. <a href="../../part02_table_spec/chapter_2.2_metadata_json/">Chapter 2.2</a> walked the file. This chapter is about the object, and the object has one property the file does not — nothing you can reach through its public API ever changes value.</p>
 <p>That is the right decision for a format built on optimistic concurrency. A writer holds a <code>TableMetadata</code> for the whole duration of a commit attempt and needs it to be a stable photograph; a reader may be scanning against it on another thread. Nothing may mutate underneath either of them.</p>
 <p>That is almost, but not quite, "every field is final". Five are not: <code>snapshotsSupplier</code>, <code>snapshots</code>, <code>snapshotsById</code>, <code>refs</code> and <code>snapshotsLoaded</code>. They exist for one purpose — a <code>TableMetadata</code> handed over by a REST catalog may arrive with its snapshot list replaced by a supplier, and <code>ensureSnapshotsLoaded()</code> fills the four <code>volatile</code> fields from it on first access, under <code>synchronized</code>, exactly once, then drops the supplier. It is lazy initialisation of a value that was always fixed, not mutation. Section 6 shows the <code>hasChanges()</code> clause that keeps it from being mistaken for a change.</p>
 <p>So a change means constructing a whole new object. <code>TableMetadata.Builder</code> does that. What is not obvious, and is the subject of this chapter, is that the builder produces <strong>two</strong> outputs and only one of them ends up in the file.</p>
@@ -3314,8 +3314,8 @@
     BASE["base : TableMetadata"] --&gt; BF["buildFrom(base)"] --&gt; B["Builder"]
     B --&gt;|"mutate fields"| NEW["new TableMetadata&lt;br/&gt;the state"]
     B --&gt;|"changes.add(...)"| LOG["List of MetadataUpdate&lt;br/&gt;the diff"]
-    NEW --&gt; LOCAL["local commit: write the state&lt;br/&gt;the diff is never serialized&lt;br/&gt;Chapter 3.4"]
-    LOG --&gt; REST["REST commit: send the diff&lt;br/&gt;the state is never sent&lt;br/&gt;Chapter 6.3"]
+    NEW --&gt; LOCAL["local commit: write the state&lt;br/&gt;the diff is never serialized&lt;br/&gt;[Chapter 3.4](../part03_iceberg_core/chapter_3.4_commit_protocol.md)"]
+    LOG --&gt; REST["REST commit: send the diff&lt;br/&gt;the state is never sent&lt;br/&gt;[Chapter 6.3](../part06_catalogs/chapter_6.3_rest_catalog.md)"]
     REST --&gt; SRV["CatalogHandlers.commit&lt;br/&gt;update.applyTo(serverBuilder)"]
     SRV --&gt; NEW2["server's own new TableMetadata"]</code></pre>
 <p>Same builder, two halves, two destinations. A local commit uses the state and throws the diff away. A REST commit sends the diff and throws the state away. Hold onto that shape; sections 6 and 7 are where it pays.</p>
@@ -3397,8 +3397,7 @@
 </span><span id="__span-0-1010"><a id="__codelineno-0-1010" name="__codelineno-0-1010"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">nextRowId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="p">.</span><span class="na">nextRowId</span><span class="p">;</span>
 </span><span id="__span-0-1011"><a id="__codelineno-0-1011" name="__codelineno-0-1011"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L974–L1011](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L974-L1011) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L974-L1011"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableMetadata.java</code> L974–L1011</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Thirty-eight lines, and exactly one of them is not a copy. The fourth, <code>this.lastUpdatedMillis = null;</code>, is a deliberate reset: a new version of the table is a new point in time, so <code>build()</code> stamps <code>System.currentTimeMillis()</code> into whatever is still null. (<code>withMetadataLocation</code> is the single caller that puts the base value back, and only when the metadata is being attached to the file it already came from.)</p>
 <p>Two of the copies matter more than the rest:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">this</span><span class="p">.</span><span class="na">changes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lists</span><span class="p">.</span><span class="na">newArrayList</span><span class="p">(</span><span class="n">base</span><span class="p">.</span><span class="na">changes</span><span class="p">);</span>
@@ -3408,7 +3407,7 @@
 <p>That inheritance exists for transactions. A transaction runs several updates in sequence, each building on the metadata the previous one produced, and the accumulated log across all of them is exactly what a multi-update commit has to send. Section 7 shows the receiver.</p>
 <h2 id="4-every-mutator-does-two-things">4. Every mutator does two things<a class="headerlink" href="#4-every-mutator-does-two-things" title="Permanent link">&para;</a></h2>
 <h3 id="what-a-ref-is-before-the-method-that-sets-one">What a ref is, before the method that sets one<a class="headerlink" href="#what-a-ref-is-before-the-method-that-sets-one" title="Permanent link">&para;</a></h3>
-<p>Chapter 1.2 said <code>refs()</code> generalises <code>currentSnapshotId</code> to named branches and tags, and left the detail here. It is one small class:</p>
+<p><a href="../../part01_foundations/chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> said <code>refs()</code> generalises <code>currentSnapshotId</code> to named branches and tags, and left the detail here. It is one small class:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SnapshotRef — five fields, and the constant that makes one of them special</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-26">26</a></span>
 <span class="normal"><a href="#__codelineno-2-27">27</a></span>
 <span class="normal"><a href="#__codelineno-2-28">28</a></span>
@@ -3477,13 +3476,12 @@
 </span><span id="__span-2-58"><a id="__codelineno-2-58" name="__codelineno-2-58"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SnapshotRefType</span><span class="p">.</span><span class="na">BRANCH</span><span class="p">;</span>
 </span><span id="__span-2-59"><a id="__codelineno-2-59" name="__codelineno-2-59"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/SnapshotRef.java` L26–L60](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/SnapshotRef.java#L26-L60) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/SnapshotRef.java#L26-L60"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/SnapshotRef.java</code> L26–L60</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>A snapshot id, a <code>SnapshotRefType</code> that is <code>BRANCH</code> or <code>TAG</code>, and three nullable retention fields. <code>MAIN_BRANCH = "main"</code> is a plain string constant; nothing in the type marks the main branch as different, which is why the special-casing below is in the <em>builder</em> rather than in the ref.</p>
 <p>The three retention fields are where branch and tag stop being the same thing, and <code>SnapshotRef.Builder</code> is where the difference is enforced. <code>maxRefAgeMs</code> takes any positive value on either kind — it governs how long the ref itself survives. The other two are branch-only, and the builder refuses them by name: <code>minSnapshotsToKeep</code> and <code>maxSnapshotAgeMs</code> each open with a <code>Preconditions.checkArgument</code> on <code>value == null || !type.equals(SnapshotRefType.TAG)</code>, failing with <em>"Tags do not support setting minSnapshotsToKeep"</em> and <em>"Tags do not support setting maxSnapshotAgeMs"</em>.</p>
 <p>The asymmetry follows from what the two are for. A branch accumulates history, so it needs a policy saying how much of that history expiry must leave alone. A tag names one snapshot and never moves, so "keep the last N snapshots on it" has no referent to be a policy about.</p>
 <p>That is the whole difference in the format. A tag is a branch that may not move and may not retain — and <code>isBranch()</code> is the one-line test every caller uses, because the <code>type</code> field is the only thing separating them.</p>
-<p>Nearly every builder method changes state and describes what it changed in the same breath. <code>setRef</code> is the specimen — it is the method behind every branch move, and therefore behind every commit in Chapter 3.3:</p>
+<p>Nearly every builder method changes state and describes what it changed in the same breath. <code>setRef</code> is the specimen — it is the method behind every branch move, and therefore behind every commit in <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a>:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Builder.setRef()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1308">1308</a></span>
 <span class="normal"><a href="#__codelineno-3-1309">1309</a></span>
 <span class="normal"><a href="#__codelineno-3-1310">1310</a></span>
@@ -3554,10 +3552,9 @@
 </span><span id="__span-3-1341"><a id="__codelineno-3-1341" name="__codelineno-3-1341"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span>
 </span><span id="__span-3-1342"><a id="__codelineno-3-1342" name="__codelineno-3-1342"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L1308–L1342](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L1308-L1342) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L1308-L1342"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableMetadata.java</code> L1308–L1342</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Four things happen in order, and only the third is the "real" work.</p>
-<p><strong>It short-circuits an identity change.</strong> <code>if (existingRef != null &amp;&amp; existingRef.equals(ref)) return this;</code> — setting a ref to what it already is records nothing. This is one of the paths that lets <code>build()</code> return the base object unchanged, which Chapter 3.3 relies on when it declines to commit a no-op.</p>
+<p><strong>It short-circuits an identity change.</strong> <code>if (existingRef != null &amp;&amp; existingRef.equals(ref)) return this;</code> — setting a ref to what it already is records nothing. This is one of the paths that lets <code>build()</code> return the base object unchanged, which <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> relies on when it declines to commit a no-op.</p>
 <p><strong>It special-cases <code>main</code>.</strong> Moving the main branch also sets <code>currentSnapshotId</code> and appends a <code>SnapshotLogEntry</code>. The timestamp chosen for that entry is worth reading twice: <code>isAddedSnapshot(snapshotId) ? snapshot.timestampMillis() : this.lastUpdatedMillis</code>. A brand new snapshot logs its own creation time; a <em>rollback</em> to an existing snapshot logs the time of the rollback, because that is when the change happened.</p>
 <p><strong>It mutates.</strong> <code>refs.put(name, ref)</code>.</p>
 <p><strong>It records.</strong> <code>changes.add(refUpdate)</code> with a fully populated <code>MetadataUpdate.SetSnapshotRef</code> — name, snapshot ID, type, and all three retention fields. Enough information to replay the operation somewhere else, which is the whole point.</p>
@@ -3631,8 +3628,7 @@
 </span><span id="__span-4-61"><a id="__codelineno-4-61" name="__codelineno-4-61"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-4-62"><a id="__codelineno-4-62" name="__codelineno-4-62"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/MetadataUpdate.java` L30–L62](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetadataUpdate.java#L30-L62) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/MetadataUpdate.java#L30-L62"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/MetadataUpdate.java</code> L30–L62</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The interface has two <code>applyTo</code> overloads — one for a table builder, one for a view builder — and both defaults throw <code>UnsupportedOperationException</code> naming the class that could not be applied. This is a hand-rolled visitor. A <code>MetadataUpdate</code> is not a passive record of what happened; it is the <em>inverse</em> of the builder mutator, able to reapply itself to any builder it is handed.</p>
 <p><code>AssignUUID</code> implements both overloads because a UUID means the same thing to a table and to a view. <code>SetCurrentSchema</code> implements only the table one and inherits the throwing default for views — the type system does not separate table updates from view updates, so the failure is deferred to runtime and made loud.</p>
 <p>There are 25 implementations in the file. They group cleanly:</p>
@@ -3671,8 +3667,7 @@
 </span><span id="__span-5-1531"><a id="__codelineno-5-1531" name="__codelineno-5-1531"></a><span class="w">      </span><span class="o">||</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">snapshotsSupplier</span><span class="p">;</span>
 </span><span id="__span-5-1532"><a id="__codelineno-5-1532" name="__codelineno-5-1532"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L1526–L1532](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L1526-L1532) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L1526-L1532"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableMetadata.java</code> L1526–L1532</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The first clause is the watermark comparison from section 3 — not <code>changes.isEmpty()</code>, which would be wrong for any builder that inherited a log. The other four clauses cover changes that produce no <code>MetadataUpdate</code> at all: attaching a metadata file location, suppressing historical snapshots, installing a lazy snapshot supplier.</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Builder.build()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1534">1534</a></span>
 <span class="normal"><a href="#__codelineno-6-1535">1535</a></span>
@@ -3800,14 +3795,13 @@
 </span><span id="__span-6-1595"><a id="__codelineno-6-1595" name="__codelineno-6-1595"></a><span class="w">      </span><span class="n">discardChanges</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">of</span><span class="p">()</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ImmutableList</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">changes</span><span class="p">));</span>
 </span><span id="__span-6-1596"><a id="__codelineno-6-1596" name="__codelineno-6-1596"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableMetadata.java` L1534–L1596](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L1534-L1596) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableMetadata.java#L1534-L1596"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableMetadata.java</code> L1534–L1596</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The first three lines are the ones to stop on:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">hasChanges</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">base</span><span class="p">;</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>Not a copy. The <strong>same reference</strong>. This is the mechanism behind two identity checks elsewhere in the codebase: <code>SnapshotProducer.commit</code>'s <code>if (updated.changes().isEmpty())</code>, which Chapter 3.3 reads next, and <code>BaseMetastoreTableOperations.commit</code>'s <code>if (base == metadata)</code> short circuit, which Chapter 3.4 reads after it. Both are cheap because this method makes them safe.</p>
+<p>Not a copy. The <strong>same reference</strong>. This is the mechanism behind two identity checks elsewhere in the codebase: <code>SnapshotProducer.commit</code>'s <code>if (updated.changes().isEmpty())</code>, which <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> reads next, and <code>BaseMetastoreTableOperations.commit</code>'s <code>if (base == metadata)</code> short circuit, which <a href="../chapter_3.4_commit_protocol/">Chapter 3.4</a> reads after it. Both are cheap because this method makes them safe.</p>
 <p>Then the precondition that explains why the log is in-memory only:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">Preconditions</span><span class="p">.</span><span class="na">checkArgument</span><span class="p">(</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="n">changes</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">discardChanges</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">metadataLocation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
@@ -3926,15 +3920,14 @@
 </span><span id="__span-9-665"><a id="__codelineno-9-665" name="__codelineno-9-665"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">current</span><span class="p">();</span>
 </span><span id="__span-9-666"><a id="__codelineno-9-666" name="__codelineno-9-666"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java` L613–L666](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java#L613-L666) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java#L613-L666"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java</code> L613–L666</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>This runs in the catalog <em>server</em>. It never receives a <code>TableMetadata</code>. It receives an <code>UpdateTableRequest</code> containing two lists, and it does two things with them:</p>
 <ul>
 <li><code>request.requirements().forEach(requirement -&gt; requirement.validate(base))</code> — the client's preconditions, checked against whatever the <strong>server's</strong> current metadata is.</li>
 <li><code>request.updates().forEach(update -&gt; update.applyTo(metadataBuilder))</code> — the client's changes, replayed onto a builder over the <strong>server's</strong> base.</li>
 </ul>
-<p>That is the same <code>Tasks.foreach(...).onlyRetryOn(CommitFailedException.class)</code> loop and the same <code>updated.changes().isEmpty()</code> no-op check as the client-side loop Chapter 3.3 is about to read. The protocol did not need re-inventing for HTTP, because the update log made the client's intent transportable.</p>
-<p><strong><code>changes()</code> is the wire format.</strong> Everything else in this chapter is the machinery that keeps it accurate for free, on every mutation, whether or not anyone will ever send it. Chapter 6.3 takes the REST spec apart properly, and 6.4 shows where this model runs out — multi-table commits.</p>
+<p>That is the same <code>Tasks.foreach(...).onlyRetryOn(CommitFailedException.class)</code> loop and the same <code>updated.changes().isEmpty()</code> no-op check as the client-side loop <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> is about to read. The protocol did not need re-inventing for HTTP, because the update log made the client's intent transportable.</p>
+<p><strong><code>changes()</code> is the wire format.</strong> Everything else in this chapter is the machinery that keeps it accurate for free, on every mutation, whether or not anyone will ever send it. <a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a> takes the REST spec apart properly, and 6.4 shows where this model runs out — multi-table commits.</p>
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title"><code>build()</code> can hand you back the object you started from</p>
@@ -3946,7 +3939,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Some builder validations are marked retryable on purpose</p>
-<p><code>Builder.addSnapshot</code> raises <code>RetryableValidationException</code>, not the plain <code>ValidationException</code>, when a snapshot's sequence number or <code>first-row-id</code> is behind the table's current state. The class javadoc is explicit: "This is specifically not a conflict... Retrying the commit with refreshed metadata can resolve the failure." <code>CatalogHandlers.commit</code> catches it and re-throws it as a <code>CommitFailedException</code>, with a comment noting that server-side retry cannot help because the stale values are in the request itself. Only the client, after a refresh, can fix it. Chapter 3.5 takes the whole exception taxonomy apart.</p>
+<p><code>Builder.addSnapshot</code> raises <code>RetryableValidationException</code>, not the plain <code>ValidationException</code>, when a snapshot's sequence number or <code>first-row-id</code> is behind the table's current state. The class javadoc is explicit: "This is specifically not a conflict... Retrying the commit with refreshed metadata can resolve the failure." <code>CatalogHandlers.commit</code> catches it and re-throws it as a <code>CommitFailedException</code>, with a comment noting that server-side retry cannot help because the stale values are in the request itself. Only the client, after a refresh, can fix it. <a href="../chapter_3.5_conflict_detection/">Chapter 3.5</a> takes the whole exception taxonomy apart.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">The update log never reaches storage</p>
@@ -3957,8 +3950,8 @@
 <li><code>TableMetadata</code> is immutable, so every change constructs a new object through a <code>Builder</code> that copies all state up front.</li>
 <li>The builder inherits the base object's change log and records <code>startingChangeCount</code> as a watermark, so accumulated changes survive across a transaction's updates.</li>
 <li>Every mutator both changes a field and appends a <code>MetadataUpdate</code> describing it; a <code>MetadataUpdate</code> can replay itself onto any builder via <code>applyTo</code>.</li>
-<li><code>build()</code> returns the base object unchanged when nothing happened, which is what makes the identity-based no-op checks in Chapters 3.3 and 3.4 correct.</li>
-<li>The change log is never written to <code>metadata.json</code>. It exists so a client can send its <em>intent</em> to a catalog server, which is what makes REST catalogs possible — Chapter 6.3 collects on this.</li>
+<li><code>build()</code> returns the base object unchanged when nothing happened, which is what makes the identity-based no-op checks in Chapters <a href="../chapter_3.3_snapshot_producer/">3.3</a> and <a href="../chapter_3.4_commit_protocol/">3.4</a> correct.</li>
+<li>The change log is never written to <code>metadata.json</code>. It exists so a client can send its <em>intent</em> to a catalog server, which is what makes REST catalogs possible — <a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a> collects on this.</li>
 </ul>
 <h2 id="source-map">Source map<a class="headerlink" href="#source-map" title="Permanent link">&para;</a></h2>
 <table>
@@ -3999,7 +3992,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 3.3 puts all of this to work from the writer's side — <code>TableMetadata.buildFrom(base)</code>, <code>setBranchSnapshot</code>, <code>build()</code>, then <code>ops.commit</code> — inside a retry loop, on a <code>SnapshotProducer</code>.</p>
+<p><strong>Next:</strong> <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> puts all of this to work from the writer's side — <code>TableMetadata.buildFrom(base)</code>, <code>setBranchSnapshot</code>, <code>build()</code>, then <code>ops.commit</code> — inside a retry loop, on a <code>SnapshotProducer</code>.</p>
 
 
 
@@ -4054,13 +4047,13 @@
         
         
           
-          <a href="../chapter_3.3_snapshot_producer/" class="md-footer__link md-footer__link--next" aria-label="Next: 3.3 `SnapshotProducer`: the life of a commit">
+          <a href="../chapter_3.3_snapshot_producer/" class="md-footer__link md-footer__link--next" aria-label="Next: 3.3 SnapshotProducer: the life of a commit">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                3.3 `SnapshotProducer`: the life of a commit
+                3.3 SnapshotProducer: the life of a commit
               </div>
             </div>
             <div class="md-footer__button md-icon">

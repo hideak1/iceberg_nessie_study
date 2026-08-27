@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2181,7 +2181,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2375,7 +2375,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2574,7 +2574,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2983,7 +2983,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3039,7 +3039,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3323,7 +3323,7 @@
 <h1 id="chapter-103-nessie-polaris-and-lakekeeper-compared">Chapter 10.3 — Nessie, Polaris, and Lakekeeper compared<a class="headerlink" href="#chapter-103-nessie-polaris-and-lakekeeper-compared" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> three catalogs all "implement the Iceberg REST spec" — what does that sentence actually guarantee, and where in the source do you look to find out what a given one will refuse to do?</p>
-<p><strong>Prerequisites:</strong> Chapter 6.3 (the REST catalog spec and <code>RESTSessionCatalog</code>), Chapter 7.5 (Nessie as an Iceberg REST catalog), Chapter 10.2 (what Nessie does behind <code>transactions/commit</code>)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part06_catalogs/chapter_6.3_rest_catalog/">Chapter 6.3</a> (the REST catalog spec and <code>RESTSessionCatalog</code>), <a href="../../part07_nessie_architecture/chapter_7.5_iceberg_rest_catalog/">Chapter 7.5</a> (Nessie as an Iceberg REST catalog), <a href="../chapter_10.2_multi_table_commits/">Chapter 10.2</a> (what Nessie does behind <code>transactions/commit</code>)</p>
 <p><strong>Source covered:</strong> <code>open-api/rest-catalog-open-api.yaml</code>, <code>core/.../rest/CatalogHandlers.java</code>, <code>core/.../rest/Endpoint.java</code>, <code>core/.../rest/RESTSessionCatalog.java</code>, Nessie's <code>catalog/service/rest/</code></p>
 </div>
 <h2 id="1-the-problem-and-what-this-chapter-can-honestly-claim">1. The problem, and what this chapter can honestly claim<a class="headerlink" href="#1-the-problem-and-what-this-chapter-can-honestly-claim" title="Permanent link">&para;</a></h2>
@@ -3332,7 +3332,7 @@
 <p>Apache Iceberg and Project Nessie are vendored at pinned tags, so every claim about them here is injected from source you can open. <strong>Apache Polaris and Lakekeeper are not vendored.</strong> Nothing in this book can verify a claim about their code, and this chapter will not make one. Section 7 is fenced off for exactly that reason and says almost nothing about them — deliberately. What it gives you instead is the procedure to answer the question yourself, against whatever version you are actually running.</p>
 </div>
 <p>That constraint turns out to be the chapter's subject rather than its limitation.</p>
-<p>"Implements the Iceberg REST catalog spec" reads like a binary property, and it is not one. The spec is a menu. It defines about thirty endpoints, several of them optional in practice, and it repeatedly specifies <em>what a server must do</em> without specifying <em>how</em> — most consequentially for <code>transactions/commit</code>, where the word doing all the work is "atomic". A server can implement the path, return <code>204</code>, and provide no atomicity whatsoever. The spec cannot stop it. Chapter 10.2 showed one server that genuinely provides it and one class of server that structurally cannot.</p>
+<p>"Implements the Iceberg REST catalog spec" reads like a binary property, and it is not one. The spec is a menu. It defines about thirty endpoints, several of them optional in practice, and it repeatedly specifies <em>what a server must do</em> without specifying <em>how</em> — most consequentially for <code>transactions/commit</code>, where the word doing all the work is "atomic". A server can implement the path, return <code>204</code>, and provide no atomicity whatsoever. The spec cannot stop it. <a href="../chapter_10.2_multi_table_commits/">Chapter 10.2</a> showed one server that genuinely provides it and one class of server that structurally cannot.</p>
 <p>So the useful question is never "does catalog X implement the REST spec". It is: <strong>which endpoints does it serve, and what does it do behind the ones I care about?</strong> Both halves are answerable from source, in every case, including for catalogs this book has never seen.</p>
 <h2 id="2-what-the-spec-fixes-and-what-it-leaves-open">2. What the spec fixes, and what it leaves open<a class="headerlink" href="#2-what-the-spec-fixes-and-what-it-leaves-open" title="Permanent link">&para;</a></h2>
 <div class="language-yaml highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">rest-catalog-open-api.yaml — transactions/commit</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1408">1408</a></span>
@@ -3385,8 +3385,7 @@
 </span><span id="__span-0-1431"><a id="__codelineno-0-1431" name="__codelineno-0-1431"></a><span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">is at the expected snapshot, a commit may add a new child snapshot and set the ref to the new</span>
 </span><span id="__span-0-1432"><a id="__codelineno-0-1432" name="__codelineno-0-1432"></a><span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">snapshot id.</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `open-api/rest-catalog-open-api.yaml` L1408–L1432](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/open-api/rest-catalog-open-api.yaml#L1408-L1432) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/open-api/rest-catalog-open-api.yaml#L1408-L1432"><code>apache/iceberg</code> · <code>open-api/rest-catalog-open-api.yaml</code> L1408–L1432</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read the summary line: <em>"Commit updates to multiple tables in an atomic operation."</em> Then read the description, which is precise about the request shape — a table identifier, requirements to validate, updates to apply — and completely silent about mechanism. It even pins down an error contract elsewhere in the same block (<code>409</code> for failed requirements, <code>500</code> when <em>"the commit state is unknown"</em>), which tells you the authors understood exactly how hard the guarantee is.</p>
 <p>This is the right way to write a spec. It is also why "spec-compliant" cannot mean what a procurement checklist wants it to mean. The spec states an obligation; the source is where you find out whether it is met.</p>
 <h2 id="3-what-the-reference-implementation-can-serve">3. What the reference implementation can serve<a class="headerlink" href="#3-what-the-reference-implementation-can-serve" title="Permanent link">&para;</a></h2>
@@ -3445,8 +3444,7 @@
 </span><span id="__span-1-571"><a id="__codelineno-1-571" name="__codelineno-1-571"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">LoadTableResponse</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">withTableMetadata</span><span class="p">(</span><span class="n">finalMetadata</span><span class="p">).</span><span class="na">build</span><span class="p">();</span>
 </span><span id="__span-1-572"><a id="__codelineno-1-572" name="__codelineno-1-572"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java` L546–L572](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java#L546-L572) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java#L546-L572"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/CatalogHandlers.java</code> L546–L572</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>(Catalog catalog, TableIdentifier ident, UpdateTableRequest request)</code>. One identifier. The method reaches through the <code>Catalog</code> for a <code>TableOperations</code> and commits it — including, in the create case, a comment cheerfully admitting <em>"this is a hacky way to get TableOperations for an uncommitted table"</em>.</p>
 <p>Now the negative result, which is the load-bearing one: <strong><code>CatalogHandlers</code> contains no <code>commitTransaction</code> method.</strong> Not a stub, not an unsupported-operation throw — no handler at all. A REST catalog assembled the obvious way, by wrapping a <code>Catalog</code> in these handlers, has nothing to route <code>POST /v1/{prefix}/transactions/commit</code> to. And it could not fix that locally, because <code>Catalog</code> has no method that accepts several tables.</p>
 <p>That single fact partitions the catalog landscape more sharply than any feature table. A server either has its own commit path underneath the REST layer, or it inherits Iceberg's per-table one and the multi-table endpoint is out of reach.</p>
@@ -3504,8 +3502,7 @@
 </span><span id="__span-2-142"><a id="__codelineno-2-142" name="__codelineno-2-142"></a><span class="w">        </span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">Endpoint</span><span class="p">.</span><span class="na">V1_COMMIT_TRANSACTION</span><span class="p">)</span>
 </span><span id="__span-2-143"><a id="__codelineno-2-143" name="__codelineno-2-143"></a><span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java` L125–L143](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L125-L143) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L125-L143"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java</code> L125–L143</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>The comment explains why the list is frozen: legacy servers predate the advertisement mechanism, so the set has to describe what a server from that era was assumed to do. Note what is in it. Of the fourteen <code>.add(...)</code> calls, <code>V1_COMMIT_TRANSACTION</code> is the last. <strong>A silent server is assumed to support multi-table commits.</strong></p>
 <p>Note also what is <em>not</em> in it: none of the three <code>HEAD</code> existence endpoints — <code>V1_TABLE_EXISTS</code>, <code>V1_NAMESPACE_EXISTS</code>, <code>V1_VIEW_EXISTS</code>. A client talking to a silent server is therefore assumed to be able to commit two tables atomically and assumed <em>not</em> to be able to ask whether one table exists. The two assumptions point in opposite directions, and both are frozen.</p>
 <p>When the assumption is wrong, this is the failure:</p>
@@ -3521,8 +3518,7 @@
 </span><span id="__span-3-145"><a id="__codelineno-3-145" name="__codelineno-3-145"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-146"><a id="__codelineno-3-146" name="__codelineno-3-146"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/Endpoint.java` L141–L146](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/Endpoint.java#L141-L146) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/Endpoint.java#L141-L146"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/Endpoint.java</code> L141–L146</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Six lines, and worth reading carefully because of where they run. This is client-side, before any request is sent, against the negotiated set. The message says <em>"Server does not support endpoint"</em>, but the client never asked the server — if the set came from <code>DEFAULT_ENDPOINTS</code>, the sentence is a statement about a hardcoded list. Read it as "my client believes the server does not support", which is a different and much weaker claim, and one you can fix from the client side.</p>
 <h2 id="5-what-nessie-declares">5. What Nessie declares<a class="headerlink" href="#5-what-nessie-declares" title="Permanent link">&para;</a></h2>
 <p>Nessie does advertise, and it does so as a plain list of constants:</p>
@@ -3592,8 +3588,7 @@
 </span><span id="__span-4-161"><a id="__codelineno-4-161" name="__codelineno-4-161"></a><span class="w">        </span><span class="c1">//</span>
 </span><span id="__span-4-162"><a id="__codelineno-4-162" name="__codelineno-4-162"></a><span class="w">        </span><span class="p">);</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java` L130–L163](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java#L130-L163) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java#L130-L163"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java</code> L130–L163</a> <span>@ nessie-0.108.4</span></p>
 <p>Six namespace endpoints, <code>V1_COMMIT_TRANSACTION</code>, ten table endpoints, seven view endpoints. This is a capability surface stated in code rather than prose, and it can be diffed against <code>Endpoint</code>'s constants in Iceberg to find the gaps precisely. One example readable directly from the block above: Iceberg defines <code>V1_REGISTER_VIEW</code>; Nessie's list has view create, load, list, exists, update, delete and rename, and no view registration.</p>
 <p>The most useful part is a few lines earlier, and it is a comment:</p>
 <p>```java title="Nessie: the "NOT implemented" block" linenums="88"
@@ -3604,29 +3599,29 @@ public static final String V1_TABLE_PLAN_FETCH_RESULT =
     "/v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}";
 public static final String V1_TABLE_PLAN_FETCH_SCAN_TASKS =
     "/v1/{prefix}/namespaces/{namespace}/tables/{table}/tasks";
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>&lt;p class="snip-src"&gt;:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java` L88–L95](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java#L88-L95) &lt;span&gt;@ nessie-0.108.4&lt;/span&gt;&lt;/p&gt;
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>&lt;p class="snip-src" markdown="1"&gt;:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java` L88–L95](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java#L88-L95) &lt;span&gt;@ nessie-0.108.4&lt;/span&gt;&lt;/p&gt;
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Three path constants, defined and then deliberately kept out of `ENDPOINTS`, under a bare `// NOT implemented`. These are the server-side scan-planning endpoints — the ones that let a catalog plan a scan on the client's behalf. Nessie names them, declines them, and says so in the source.
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>This is what an honest capability statement looks like, and it is the thing to go looking for in any catalog. A project that maintains a list like this is telling you the truth about itself in a form that cannot drift from the implementation.
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>Where that list becomes a response is worth one more snippet, because Nessie does something the spec does not require:
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>```java title="Nessie serves /v1/config per reference" linenums="197"
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>@Operation(operationId = "iceberg.v1.getConfig.reference")
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>@GET
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>@Path("{reference}/v1/config")
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>public IcebergConfigResponse getConfig(
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    @PathParam("reference") String reference, @QueryParam("warehouse") String warehouse) {
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>  IcebergConfigResponse.Builder configResponse = IcebergConfigResponse.builder();
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>  icebergConfigurer.icebergWarehouseConfig(
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>      reference, warehouse, configResponse::putDefault, configResponse::putOverride);
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>  configResponse.endpoints(ENDPOINTS);
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>  return configResponse.build();
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>}
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Three path constants, defined and then deliberately kept out of `ENDPOINTS`, under a bare `// NOT implemented`. These are the server-side scan-planning endpoints — the ones that let a catalog plan a scan on the client's behalf. Nessie names them, declines them, and says so in the source.
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>This is what an honest capability statement looks like, and it is the thing to go looking for in any catalog. A project that maintains a list like this is telling you the truth about itself in a form that cannot drift from the implementation.
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>Where that list becomes a response is worth one more snippet, because Nessie does something the spec does not require:
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>```java title="Nessie serves /v1/config per reference" linenums="197"
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>@Operation(operationId = "iceberg.v1.getConfig.reference")
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>@GET
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>@Path("{reference}/v1/config")
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>public IcebergConfigResponse getConfig(
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>    @PathParam("reference") String reference, @QueryParam("warehouse") String warehouse) {
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>  IcebergConfigResponse.Builder configResponse = IcebergConfigResponse.builder();
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>  icebergConfigurer.icebergWarehouseConfig(
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>      reference, warehouse, configResponse::putDefault, configResponse::putOverride);
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>  configResponse.endpoints(ENDPOINTS);
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>  return configResponse.build();
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>}
 </span></code></pre></div></p>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java` L197–L207](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java#L197-L207) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java#L197-L207"><code>projectnessie/nessie</code> · <code>catalog/service/rest/src/main/java/org/projectnessie/catalog/service/rest/IcebergApiV1GenericResource.java</code> L197–L207</a> <span>@ nessie-0.108.4</span></p>
 <p><code>configResponse.endpoints(ENDPOINTS)</code> is the constant list going out on the wire. The <code>@Path("{reference}/v1/config")</code> above it is the part the spec never asked for: the same handler is mapped a second time under a Nessie reference, so pointing a stock client's URI at <code>…/iceberg/mybranch/</code> produces a config response whose <code>prefix</code> default names that branch. The advertised capability surface is identical either way; the reference is not.</p>
 <h3 id="an-endpoint-is-a-verb-and-a-path-not-a-name">An endpoint is a verb and a path, not a name<a class="headerlink" href="#an-endpoint-is-a-verb-and-a-path-not-a-name" title="Permanent link">&para;</a></h3>
 <p>Diffing two capability lists sounds like set subtraction on constant names. It is not, and <code>Endpoint</code>'s own fields say why:</p>
@@ -3638,8 +3633,7 @@ public static final String V1_TABLE_PLAN_FETCH_SCAN_TASKS =
 </span><span id="__span-6-96"><a id="__codelineno-6-96" name="__codelineno-6-96"></a><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">httpMethod</span><span class="p">;</span>
 </span><span id="__span-6-97"><a id="__codelineno-6-97" name="__codelineno-6-97"></a><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">path</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/Endpoint.java` L94–L98](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/Endpoint.java#L94-L98) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/Endpoint.java#L94-L98"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/Endpoint.java</code> L94–L98</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Two constants can name the same path and differ only in method — <code>V1_FETCH_TABLE_SCAN_PLAN</code> is <code>GET</code> on the scan-plan path and <code>V1_CANCEL_TABLE_SCAN_PLAN</code> is <code>DELETE</code> on the same one — so Nessie's three declined <em>paths</em> cover four of Iceberg's declined <em>endpoints</em>. And two projects can name the same endpoint differently: Iceberg's <code>V1_TABLE_CREDENTIALS</code> (<code>GET .../credentials</code>) is Nessie's <code>V1_LOAD_CREDENTIALS</code>. Diff on the pair, never on the identifier. The wire format agrees — the spec describes each entry as <em>"&lt;HTTP verb&gt; &lt;resource path from OpenAPI REST spec&gt;"</em>, and the client splits it on a space.</p>
 <h3 id="the-endpoint-list-is-not-the-only-thing-negotiated">The endpoint list is not the only thing negotiated<a class="headerlink" href="#the-endpoint-list-is-not-the-only-thing-negotiated" title="Permanent link">&para;</a></h3>
 <p>Two other things arrive in the same <code>/v1/config</code> response, and each has its own default direction.</p>
@@ -3684,8 +3678,7 @@ public static final String V1_TABLE_PLAN_FETCH_SCAN_TASKS =
 </span><span id="__span-7-415"><a id="__codelineno-7-415" name="__codelineno-7-415"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 </span><span id="__span-7-416"><a id="__codelineno-7-416" name="__codelineno-7-416"></a><span class="w">    </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java` L398–L416](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L398-L416) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java#L398-L416"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java</code> L398–L416</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Absent the <code>HEAD</code> endpoint it falls back to a load-based check, under the comment <em>"fallback in order to work with 1.7.x and older servers"</em> — which is exactly the case a silent server produces, since <code>V1_TABLE_EXISTS</code> is not in <code>DEFAULT_ENDPOINTS</code>. Reading <code>Endpoint.check</code> alone and concluding "unadvertised means unusable" gets this one backwards.</p>
 <h2 id="6-the-comparison-that-can-be-made-from-source">6. The comparison that can be made from source<a class="headerlink" href="#6-the-comparison-that-can-be-made-from-source" title="Permanent link">&para;</a></h2>
 <p>Two of the four positions on the board are fully verifiable here.</p>
@@ -3726,7 +3719,7 @@ public static final String V1_TABLE_PLAN_FETCH_SCAN_TASKS =
 <tr>
 <td>Which Iceberg spec versions can it parse?</td>
 <td>Any that <code>iceberg-core</code> supports</td>
-<td>v1 and v2 only — Chapter 10.4</td>
+<td>v1 and v2 only — <a href="../chapter_10.4_v3_and_contributing/">Chapter 10.4</a></td>
 </tr>
 </tbody>
 </table>
@@ -3742,11 +3735,11 @@ public static final String V1_TABLE_PLAN_FETCH_SCAN_TASKS =
 <li><strong>Find the multi-table path.</strong> Search for the literal string <code>transactions/commit</code>. If the only thing that answers it is Iceberg's <code>CatalogHandlers</code>, the endpoint is not served. If there is a handler, follow it.</li>
 <li><strong>Find the last write.</strong> Trace that handler to the final storage write before the response is produced. Whatever that write is — a row update, a conditional put, a database transaction — <em>that</em> is the atomic step, and its scope is the real answer to "is this atomic".</li>
 <li><strong>Find the endpoint list.</strong> Look for the constants that populate <code>ConfigResponse.endpoints</code>. Diff them against <code>Endpoint</code>'s constants in <code>iceberg-core</code>. Anything missing is a client-side <code>UnsupportedOperationException</code> waiting to happen.</li>
-<li><strong>Find the format-version ceiling.</strong> Look for any <code>switch</code> or enum over <code>format-version</code>. Chapter 10.4 shows what that looks like when a server parses metadata itself.</li>
-<li><strong>Find the format-version answer for each door.</strong> A project that both hosts an Iceberg REST server and ships a <code>Catalog</code> client can answer differently on each. Chapter 10.4 shows exactly that, in one project at one version.</li>
+<li><strong>Find the format-version ceiling.</strong> Look for any <code>switch</code> or enum over <code>format-version</code>. <a href="../chapter_10.4_v3_and_contributing/">Chapter 10.4</a> shows what that looks like when a server parses metadata itself.</li>
+<li><strong>Find the format-version answer for each door.</strong> A project that both hosts an Iceberg REST server and ships a <code>Catalog</code> client can answer differently on each. <a href="../chapter_10.4_v3_and_contributing/">Chapter 10.4</a> shows exactly that, in one project at one version.</li>
 <li><strong>Find what they admit.</strong> Search the source for the equivalent of Nessie's <code>// NOT implemented</code>. Its presence or absence is itself informative.</li>
 </ol>
-<p>A catalog whose unit of commit is a row in a relational database gets multi-table atomicity from a database transaction. One whose unit of commit is a reference gets it from a pointer swap, as Chapter 10.2 showed. One whose unit of commit is a <code>Catalog</code> call gets it from nothing. Which of these describes any particular product is a question for its source tree, not for this book.</p>
+<p>A catalog whose unit of commit is a row in a relational database gets multi-table atomicity from a database transaction. One whose unit of commit is a reference gets it from a pointer swap, as <a href="../chapter_10.2_multi_table_commits/">Chapter 10.2</a> showed. One whose unit of commit is a <code>Catalog</code> call gets it from nothing. Which of these describes any particular product is a question for its source tree, not for this book.</p>
 <h2 id="8-gotchas">8. Gotchas<a class="headerlink" href="#8-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">A silent server is assumed to be a capable one</p>
@@ -3817,7 +3810,7 @@ public static final String V1_TABLE_PLAN_FETCH_SCAN_TASKS =
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 10.4 applies the same method to format versions instead of endpoints — where v3 support actually stops in each of these two trees, and what it takes to move it.</p>
+<p><strong>Next:</strong> <a href="../chapter_10.4_v3_and_contributing/">Chapter 10.4</a> applies the same method to format versions instead of endpoints — where v3 support actually stops in each of these two trees, and what it takes to move it.</p>
 
 
 

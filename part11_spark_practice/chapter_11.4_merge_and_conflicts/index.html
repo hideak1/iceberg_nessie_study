@@ -29,7 +29,7 @@
     
     
       
-        <title>11.4 `MERGE INTO`, row-level operations, and commit conflicts - Iceberg & Nessie Internals</title>
+        <title>11.4 MERGE INTO, row-level operations, and commit conflicts - Iceberg & Nessie Internals</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              11.4 `MERGE INTO`, row-level operations, and commit conflicts
+              11.4 MERGE INTO, row-level operations, and commit conflicts
             
           </span>
         </div>
@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1091,7 +1091,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1119,7 +1119,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1287,7 +1287,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1315,7 +1315,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1343,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1539,7 +1539,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1567,7 +1567,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1733,7 +1733,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1761,7 +1761,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -1957,7 +1957,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -1985,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2013,7 +2013,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2181,7 +2181,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2375,7 +2375,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2569,7 +2569,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2770,7 +2770,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2798,7 +2798,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -2863,7 +2863,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -2881,7 +2881,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3245,13 +3245,13 @@
 <h1 id="chapter-114-merge-into-row-level-operations-and-commit-conflicts">Chapter 11.4 — <code>MERGE INTO</code>, row-level operations, and commit conflicts<a class="headerlink" href="#chapter-114-merge-into-row-level-operations-and-commit-conflicts" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> two <code>MERGE INTO</code> jobs run against the same table at the same time — which one fails, what exception does the loser see, and which table property decided that outcome?</p>
-<p><strong>Prerequisites:</strong> Chapter 5.4 (what copy-on-write and merge-on-read actually write), Chapter 5.3 (position deletes and <code>RowDelta</code>), Chapter 3.5 (the validators), Chapter 3.3 (the retry loop), Chapter 11.3 (distribution mode)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part05_write_path/chapter_5.4_cow_mor/">Chapter 5.4</a> (what copy-on-write and merge-on-read actually write), <a href="../../part05_write_path/chapter_5.3_deletes/">Chapter 5.3</a> (position deletes and <code>RowDelta</code>), <a href="../../part03_iceberg_core/chapter_3.5_conflict_detection/">Chapter 3.5</a> (the validators), <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> (the retry loop), <a href="../chapter_11.3_write_distribution/">Chapter 11.3</a> (distribution mode)</p>
 <p><strong>Source covered:</strong> <code>spark/v3.5/.../spark/source/SparkRowLevelOperationBuilder.java</code>, <code>.../source/SparkWrite.java</code>, <code>.../source/SparkPositionDeltaWrite.java</code>, <code>.../spark/SparkWriteUtil.java</code>, <code>api/.../exceptions/ValidationException.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
 <p><code>MERGE INTO</code> reads like one operation. It is not one code path. Spark asks the table for a <code>RowLevelOperationBuilder</code>, and Iceberg answers by reading <strong>two table properties</strong> and building one of four combinations: copy-on-write or merge-on-read, crossed with serializable or snapshot isolation. The properties are read once, in a constructor, before the plan is built. Nothing in the SQL mentions them.</p>
-<p>Chapters 5.3 and 5.4 own what those writers do to files. This chapter is about the other half — what happens when two of these jobs overlap — and it turns on one asymmetry that is easy to miss.</p>
-<p>Chapter 3.3 established that <code>SnapshotProducer.commit()</code> retries on <code>CommitFailedException</code> and on nothing else. A merge that loses a conflict does not raise <code>CommitFailedException</code>. It raises <code>ValidationException</code>. So the loser does not back off and try again: it fails the Spark job, having already scanned the table and written every output file. That asymmetry, not the copy-on-write/merge-on-read distinction, is what makes concurrent merges expensive.</p>
+<p>Chapters <a href="../../part05_write_path/chapter_5.3_deletes/">5.3</a> and <a href="../../part05_write_path/chapter_5.4_cow_mor/">5.4</a> own what those writers do to files. This chapter is about the other half — what happens when two of these jobs overlap — and it turns on one asymmetry that is easy to miss.</p>
+<p><a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> established that <code>SnapshotProducer.commit()</code> retries on <code>CommitFailedException</code> and on nothing else. A merge that loses a conflict does not raise <code>CommitFailedException</code>. It raises <code>ValidationException</code>. So the loser does not back off and try again: it fails the Spark job, having already scanned the table and written every output file. That asymmetry, not the copy-on-write/merge-on-read distinction, is what makes concurrent merges expensive.</p>
 <h2 id="2-the-2-2-and-where-it-is-decided">2. The 2 × 2, and where it is decided<a class="headerlink" href="#2-the-2-2-and-where-it-is-decided" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart TD
     M["MERGE INTO t USING s ON …"] --&gt; B["SparkRowLevelOperationBuilder"]
@@ -3303,8 +3303,7 @@
 </span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">RowLevelOperationMode</span><span class="p">.</span><span class="na">fromName</span><span class="p">(</span><span class="n">modeName</span><span class="p">);</span>
 </span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkRowLevelOperationBuilder.java` L75–L93](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkRowLevelOperationBuilder.java#L75-L93) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkRowLevelOperationBuilder.java#L75-L93"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkRowLevelOperationBuilder.java</code> L75–L93</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>One property per command, each with its own default, all read from <code>table.properties()</code>. <code>DELETE_MODE_DEFAULT</code>, <code>UPDATE_MODE_DEFAULT</code> and <code>MERGE_MODE_DEFAULT</code> are all <code>RowLevelOperationMode.COPY_ON_WRITE.modeName()</code> in this release — so an untouched table does copy-on-write for all three commands. The sibling <code>isolationLevel(properties, command)</code> has the identical shape, and <code>DELETE_ISOLATION_LEVEL_DEFAULT</code>, <code>UPDATE_ISOLATION_LEVEL_DEFAULT</code> and <code>MERGE_ISOLATION_LEVEL_DEFAULT</code> are all the string <code>"serializable"</code>.</p>
 <p>Six properties govern the three commands, and they are independent of each other:</p>
 <table>
@@ -3338,8 +3337,8 @@
 </tbody>
 </table>
 <p>Setting <code>write.merge.mode=merge-on-read</code> does nothing for <code>DELETE FROM</code> on the same table. Tables configured for merge-on-read one command at a time are a common source of "why is this one slow" — and the answer is a property nobody set.</p>
-<p>Both are captured in the builder's constructor and <code>build()</code> is a two-way switch on <code>mode</code>. There is no write option and no session conf for either: <code>mode()</code> and <code>isolationLevel()</code> read <code>table.properties()</code> and nothing else, which is the opposite of the three-level precedence Chapter 11.3 described for <code>distribution-mode</code>. To change how a merge behaves, you <code>ALTER TABLE … SET TBLPROPERTIES</code>.</p>
-<p><strong>What each mode writes</strong> is Chapter 5.4's subject and is not repeated here. The Spark-side consequences are two. Copy-on-write rewrites every data file that contains a matched row, so its write amplification is per <em>file touched</em>, not per row changed — and the rewritten output goes through exactly the distribution and ordering machinery of Chapter 11.3, via <code>copyOnWriteRequirements</code>. Merge-on-read writes position deletes plus new rows, which is cheaper to write and moves the cost to every subsequent read.</p>
+<p>Both are captured in the builder's constructor and <code>build()</code> is a two-way switch on <code>mode</code>. There is no write option and no session conf for either: <code>mode()</code> and <code>isolationLevel()</code> read <code>table.properties()</code> and nothing else, which is the opposite of the three-level precedence <a href="../chapter_11.3_write_distribution/">Chapter 11.3</a> described for <code>distribution-mode</code>. To change how a merge behaves, you <code>ALTER TABLE … SET TBLPROPERTIES</code>.</p>
+<p><strong>What each mode writes</strong> is <a href="../../part05_write_path/chapter_5.4_cow_mor/">Chapter 5.4</a>'s subject and is not repeated here. The Spark-side consequences are two. Copy-on-write rewrites every data file that contains a matched row, so its write amplification is per <em>file touched</em>, not per row changed — and the rewritten output goes through exactly the distribution and ordering machinery of <a href="../chapter_11.3_write_distribution/">Chapter 11.3</a>, via <code>copyOnWriteRequirements</code>. Merge-on-read writes position deletes plus new rows, which is cheaper to write and moves the cost to every subsequent read.</p>
 <h2 id="3-the-merge-on-read-shuffle-is-not-the-same-shuffle">3. The merge-on-read shuffle is not the same shuffle<a class="headerlink" href="#3-the-merge-on-read-shuffle-is-not-the-same-shuffle" title="Permanent link">&para;</a></h2>
 <p>Merge-on-read needs something the plain write path does not: all position deletes for one data file must be produced by one task, because a position delete addresses rows by <code>(file path, position)</code>.</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWriteUtil.positionDeltaRequirements()</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-136">136</a></span>
@@ -3376,11 +3375,10 @@
 </span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java` L136–L152](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java#L136-L152) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>Note that <code>UPDATE</code> and <code>MERGE</code> take a different branch from <code>DELETE</code>. Both branches build their clustering from <code>SPEC_ID</code>, <code>PARTITION</code> and — when the table is unpartitioned — <code>FILE_PATH</code>, rather than from the partition transforms alone. The two branches differ in what they do with the transforms: <code>UPDATE</code> and <code>MERGE</code> <code>concat</code> the metadata columns <em>in front of</em> <code>clustering(table)</code>, so the transforms are still there behind them, while <code>DELETE</code> clusters on the metadata columns and nothing else. <code>DELETE</code> additionally picks its ordering with a bare conditional: <code>fanoutEnabled ? EMPTY_ORDERING : POSITION_DELETE_ORDERING</code>, where <code>POSITION_DELETE_ORDERING</code> is <code>orderBy(SPEC_ID, PARTITION, FILE_PATH, ROW_POSITION)</code> — the ordering that position-delete files are required to be written in (Chapter 5.3).</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java#L136-L152"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/SparkWriteUtil.java</code> L136–L152</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>Note that <code>UPDATE</code> and <code>MERGE</code> take a different branch from <code>DELETE</code>. Both branches build their clustering from <code>SPEC_ID</code>, <code>PARTITION</code> and — when the table is unpartitioned — <code>FILE_PATH</code>, rather than from the partition transforms alone. The two branches differ in what they do with the transforms: <code>UPDATE</code> and <code>MERGE</code> <code>concat</code> the metadata columns <em>in front of</em> <code>clustering(table)</code>, so the transforms are still there behind them, while <code>DELETE</code> clusters on the metadata columns and nothing else. <code>DELETE</code> additionally picks its ordering with a bare conditional: <code>fanoutEnabled ? EMPTY_ORDERING : POSITION_DELETE_ORDERING</code>, where <code>POSITION_DELETE_ORDERING</code> is <code>orderBy(SPEC_ID, PARTITION, FILE_PATH, ROW_POSITION)</code> — the ordering that position-delete files are required to be written in (<a href="../../part05_write_path/chapter_5.3_deletes/">Chapter 5.3</a>).</p>
 <p>This is why merge-on-read has its own <code>write.merge.distribution-mode</code>, <code>write.update.distribution-mode</code> and <code>write.delete.distribution-mode</code> properties rather than inheriting <code>write.distribution-mode</code>. The thing being clustered is different.</p>
-<p>Two consequences follow for tuning, and both are Chapter 11.3's rules applied to a different clustering key.</p>
+<p>Two consequences follow for tuning, and both are <a href="../chapter_11.3_write_distribution/">Chapter 11.3</a>'s rules applied to a different clustering key.</p>
 <p>First, the small-file arithmetic applies to <em>delete</em> files too. With <code>distribution-mode=none</code> on a merge-on-read <code>MERGE</code>, <code>positionDeltaUpdateMergeDistribution</code> returns <code>Distributions.unspecified()</code>, so every task that touched a data file writes its own delete file for it. The read path then has to open all of them.</p>
 <p>Second, whether an ordering was requested decides which delete writer the task gets, and here Iceberg overrides your preference:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkPositionDeltaWrite.newDeleteWriter(), with the comment that explains the override</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-495">495</a></span>
@@ -3435,12 +3433,11 @@
 </span><span id="__span-2-519"><a id="__codelineno-2-519" name="__codelineno-2-519"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-2-520"><a id="__codelineno-2-520" name="__codelineno-2-520"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java` L495–L520](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java#L495-L520) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java#L495-L520"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java</code> L495–L520</a> <span>@ apache-iceberg-1.11.0</span></p>
 <blockquote>
 <p><em>The spec requires position deletes to be ordered by file and position for V2 tables. Use a fanout writer if the input is unordered no matter whether fanout writers are enabled; clustered writers assume that the position deletes are already ordered by file and position.</em></p>
 </blockquote>
-<p><code>inputOrdered</code> is <code>writeRequirements.hasOrdering()</code>. On a V2 table, <code>fanout-enabled=false</code> does not get you a <code>ClusteredPositionDeleteWriter</code> unless the plan actually sorts — the code refuses, because a clustered writer fed unsorted deletes would produce a file that violates the V2 spec. <code>FanoutPositionOnlyDeleteWriter</code> delegates to <code>SortingPositionOnlyDeleteWriter</code>, which by its own javadoc <em>"keeps an in-memory bitmap of deleted positions per each seen data file and flushes the result into a file when closed"</em> — the same heap trade as Chapter 11.3's fanout data writers, now per data file rather than per partition. On a V3 table <code>useDVs()</code> wins first and a <code>PartitioningDVWriter</code> is used regardless (Chapter 5.4).</p>
+<p><code>inputOrdered</code> is <code>writeRequirements.hasOrdering()</code>. On a V2 table, <code>fanout-enabled=false</code> does not get you a <code>ClusteredPositionDeleteWriter</code> unless the plan actually sorts — the code refuses, because a clustered writer fed unsorted deletes would produce a file that violates the V2 spec. <code>FanoutPositionOnlyDeleteWriter</code> delegates to <code>SortingPositionOnlyDeleteWriter</code>, which by its own javadoc <em>"keeps an in-memory bitmap of deleted positions per each seen data file and flushes the result into a file when closed"</em> — the same heap trade as <a href="../chapter_11.3_write_distribution/">Chapter 11.3</a>'s fanout data writers, now per data file rather than per partition. On a V3 table <code>useDVs()</code> wins first and a <code>PartitioningDVWriter</code> is used regardless (<a href="../../part05_write_path/chapter_5.4_cow_mor/">Chapter 5.4</a>).</p>
 <h2 id="4-isolation-levels-differ-by-exactly-one-line">4. Isolation levels differ by exactly one line<a class="headerlink" href="#4-isolation-levels-differ-by-exactly-one-line" title="Permanent link">&para;</a></h2>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWrite: serializable</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-469">469</a></span>
 <span class="normal"><a href="#__codelineno-3-470">470</a></span>
@@ -3486,8 +3483,7 @@
 </span><span id="__span-3-489"><a id="__codelineno-3-489" name="__codelineno-3-489"></a><span class="w">  </span><span class="n">commitOperation</span><span class="p">(</span><span class="n">overwriteFiles</span><span class="p">,</span><span class="w"> </span><span class="n">commitMsg</span><span class="p">);</span>
 </span><span id="__span-3-490"><a id="__codelineno-3-490" name="__codelineno-3-490"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java` L469–L490](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java#L469-L490) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java#L469-L490"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java</code> L469–L490</a> <span>@ apache-iceberg-1.11.0</span></p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWrite: snapshot</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-492">492</a></span>
 <span class="normal"><a href="#__codelineno-4-493">493</a></span>
 <span class="normal"><a href="#__codelineno-4-494">494</a></span>
@@ -3526,8 +3522,7 @@
 </span><span id="__span-4-509"><a id="__codelineno-4-509" name="__codelineno-4-509"></a><span class="w">  </span><span class="n">commitOperation</span><span class="p">(</span><span class="n">overwriteFiles</span><span class="p">,</span><span class="w"> </span><span class="n">commitMsg</span><span class="p">);</span>
 </span><span id="__span-4-510"><a id="__codelineno-4-510" name="__codelineno-4-510"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java` L492–L510](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java#L492-L510) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java#L492-L510"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java</code> L492–L510</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Put them side by side and the difference is <code>overwriteFiles.validateNoConflictingData();</code>. Everything else — <code>validateFromSnapshot(scanSnapshotId)</code>, <code>conflictDetectionFilter(...)</code>, <code>validateNoConflictingDeletes()</code> — is identical.</p>
 <p><code>validateNoConflictingData</code> is the check that rejects a commit when a concurrent snapshot <strong>added</strong> data matching the conflict filter. Its javadoc on <code>OverwriteFiles</code> names the boundary precisely: it <em>"should be called while committing non-idempotent overwrite operations"</em> and <em>"Calling this method with a correct conflict detection filter is required to maintain isolation for non-idempotent overwrite operations."</em></p>
 <p>That is the test for whether dropping to <code>snapshot</code> isolation is safe. A <code>MERGE</code> with a <code>NOT MATCHED … INSERT</code> branch is non-idempotent: if a concurrent job inserted the same key, snapshot isolation lets both inserts land and you get a duplicate. A merge that only sets a column on rows it already matched does not depend on rows it did not see, and is safe to downgrade. The code cannot tell these apart; you have to.</p>
@@ -3576,8 +3571,7 @@
 </span><span id="__span-5-260"><a id="__codelineno-5-260" name="__codelineno-5-260"></a><span class="w">    </span><span class="n">rowDelta</span><span class="p">.</span><span class="na">validateNoConflictingDataFiles</span><span class="p">();</span>
 </span><span id="__span-5-261"><a id="__codelineno-5-261" name="__codelineno-5-261"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java` L240–L262](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java#L240-L262) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java#L240-L262"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkPositionDeltaWrite.java</code> L240–L262</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p><code>rowDelta.validateDataFilesExist(referencedDataFiles)</code> is called unconditionally — this is the check that catches a concurrent compaction having replaced the very files this merge wrote deletes against. <code>validateDeletedFiles()</code> and <code>validateNoConflictingDeleteFiles()</code> are added for <code>UPDATE</code> and <code>MERGE</code> but not <code>DELETE</code>. And <code>validateNoConflictingDataFiles()</code> is the serializable-only addition, mirroring the copy-on-write side.</p>
 <h2 id="5-what-the-loser-actually-experiences">5. What the loser actually experiences<a class="headerlink" href="#5-what-the-loser-actually-experiences" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>sequenceDiagram
@@ -3617,9 +3611,8 @@
 </span><span id="__span-6-34"><a id="__codelineno-6-34" name="__codelineno-6-34"></a><span class="cm"> */</span>
 </span><span id="__span-6-35"><a id="__codelineno-6-35" name="__codelineno-6-35"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ValidationException</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">RuntimeException</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">CleanableFailure</span><span class="w"> </span><span class="p">{</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/exceptions/ValidationException.java` L25–L35](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/exceptions/ValidationException.java#L25-L35) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p><em>"A ValidationException will cause the operation to abort."</em> It <code>extends RuntimeException</code> and <code>implements CleanableFailure</code> — it is a sibling of <code>CommitFailedException</code>, not a subclass. Chapter 3.3's <code>.onlyRetryOn(CommitFailedException.class)</code> therefore does not catch it, and it escapes the retry loop on the first attempt. <code>commit.retry.num-retries</code> has no effect on this.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/exceptions/ValidationException.java#L25-L35"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/exceptions/ValidationException.java</code> L25–L35</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p><em>"A ValidationException will cause the operation to abort."</em> It <code>extends RuntimeException</code> and <code>implements CleanableFailure</code> — it is a sibling of <code>CommitFailedException</code>, not a subclass. <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a>'s <code>.onlyRetryOn(CommitFailedException.class)</code> therefore does not catch it, and it escapes the retry loop on the first attempt. <code>commit.retry.num-retries</code> has no effect on this.</p>
 <p><code>CleanableFailure</code> decides the other half — whether the losing job's data files are deleted or leaked:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">SparkWrite: cleanupOnAbort is decided by the exception type</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-235">235</a></span>
 <span class="normal"><a href="#__codelineno-7-236">236</a></span>
@@ -3657,16 +3650,15 @@
 </span><span id="__span-7-251"><a id="__codelineno-7-251" name="__codelineno-7-251"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-7-252"><a id="__codelineno-7-252" name="__codelineno-7-252"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java` L235–L252](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java#L235-L252) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p><code>cleanupOnAbort = e instanceof CleanableFailure;</code> and then Spark's own abort path calls <code>SparkCleanupUtil.deleteFiles(...)</code> only if that flag is set. A <code>ValidationException</code> implements <code>CleanableFailure</code>, so the loser's files are removed. A <code>CommitStateUnknownException</code> does not, so its files are kept and the log says <em>"Skipping cleanup of written files"</em> — the same "when unsure, delete nothing" rule as Chapter 3.3 §6, enforced here at the Spark layer.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java#L235-L252"><code>apache/iceberg</code> · <code>spark/v3.5/spark/src/main/java/org/apache/iceberg/spark/source/SparkWrite.java</code> L235–L252</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p><code>cleanupOnAbort = e instanceof CleanableFailure;</code> and then Spark's own abort path calls <code>SparkCleanupUtil.deleteFiles(...)</code> only if that flag is set. A <code>ValidationException</code> implements <code>CleanableFailure</code>, so the loser's files are removed. A <code>CommitStateUnknownException</code> does not, so its files are kept and the log says <em>"Skipping cleanup of written files"</em> — the same "when unsure, delete nothing" rule as <a href="../../part03_iceberg_core/chapter_3.3_snapshot_producer/">Chapter 3.3</a> §6, enforced here at the Spark layer.</p>
 <h2 id="6-what-actually-reduces-conflicts">6. What actually reduces conflicts<a class="headerlink" href="#6-what-actually-reduces-conflicts" title="Permanent link">&para;</a></h2>
 <p>Each of these is a consequence of a specific line above, not general advice.</p>
 <p><strong>Narrow the conflict detection filter.</strong> Both isolation paths call <code>conflictDetectionFilter()</code>, which starts from <code>Expressions.alwaysTrue()</code> and ANDs in <code>scan.filterExpressions()</code>. If the scan pushed nothing down, the filter stays <code>alwaysTrue</code> and the merge validates against the <em>entire</em> table — any concurrent write anywhere conflicts. Writing the <code>ON</code> clause so a partition predicate is pushable is not a micro-optimisation; it is what makes concurrent merges possible at all.</p>
 <p><strong>Keep writers on disjoint partitions.</strong> Given a narrow filter, two merges touching different partitions produce no conflicting files for the validator to find. This is a partition-design consequence, not a setting.</p>
 <p><strong>Drop to <code>snapshot</code> isolation where the merge is idempotent.</strong> One validator disappears. Use the javadoc's test, above.</p>
 <p><strong>Set <code>validateFromSnapshot</code> implicitly by scanning.</strong> Both writers call it only when <code>scan.snapshotId() != null</code>, and the upstream comment says why it matters: <em>"set the read snapshot ID to check only snapshots that happened after the table was read; otherwise, the validation will go through all snapshots present in the table."</em> That is a cost control, not a correctness control — but on a table with a long history it is the difference between checking three snapshots and checking three thousand.</p>
-<p><strong>Schedule compaction away from merge windows.</strong> <code>validateDataFilesExist</code> is unconditional on the merge-on-read path. Chapter 11.5 takes this up.</p>
+<p><strong>Schedule compaction away from merge windows.</strong> <code>validateDataFilesExist</code> is unconditional on the merge-on-read path. <a href="../chapter_11.5_production_maintenance/">Chapter 11.5</a> takes this up.</p>
 <h2 id="7-gotchas">7. Gotchas<a class="headerlink" href="#7-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition danger">
 <p class="admonition-title">A lost merge is not retried — the whole Spark job fails</p>
@@ -3682,7 +3674,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Compaction and merge-on-read merges conflict through <code>validateDataFilesExist</code></p>
-<p><code>rowDelta.validateDataFilesExist(referencedDataFiles)</code> is called with no condition. Position deletes address rows by <code>(file path, position)</code>; if <code>rewrite_data_files</code> replaced those data files while the merge was running, the deletes reference files that are no longer in the table and the commit is rejected with <em>"Cannot commit, missing data files"</em>. This is the concrete reason Chapter 11.5 argues for scheduling compaction outside write windows.</p>
+<p><code>rowDelta.validateDataFilesExist(referencedDataFiles)</code> is called with no condition. Position deletes address rows by <code>(file path, position)</code>; if <code>rewrite_data_files</code> replaced those data files while the merge was running, the deletes reference files that are no longer in the table and the commit is rejected with <em>"Cannot commit, missing data files"</em>. This is the concrete reason <a href="../chapter_11.5_production_maintenance/">Chapter 11.5</a> argues for scheduling compaction outside write windows.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">An optimised-away scan skips validation entirely</p>
@@ -3694,7 +3686,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title"><code>CommitStateUnknownException</code> leaves the written files behind, deliberately</p>
-<p><code>cleanupOnAbort</code> is set from <code>e instanceof CleanableFailure</code>, and <code>CommitStateUnknownException</code> is not one. When Spark cannot tell whether the commit landed, it logs <em>"Skipping cleanup of written files"</em> and leaves them. Those files then become the input to <code>remove_orphan_files</code> — the leak that Chapter 11.5's last job exists to clean.</p>
+<p><code>cleanupOnAbort</code> is set from <code>e instanceof CleanableFailure</code>, and <code>CommitStateUnknownException</code> is not one. When Spark cannot tell whether the commit landed, it logs <em>"Skipping cleanup of written files"</em> and leaves them. Those files then become the input to <code>remove_orphan_files</code> — the leak that <a href="../chapter_11.5_production_maintenance/">Chapter 11.5</a>'s last job exists to clean.</p>
 </div>
 <h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <ul>
@@ -3744,7 +3736,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 11.5 runs the three maintenance procedures that clean up after everything in this part — including the files a lost merge leaked — and works out the order they must run in, and which of them can destroy a table that is not even its argument.</p>
+<p><strong>Next:</strong> <a href="../chapter_11.5_production_maintenance/">Chapter 11.5</a> runs the three maintenance procedures that clean up after everything in this part — including the files a lost merge leaked — and works out the order they must run in, and which of them can destroy a table that is not even its argument.</p>
 
 
 

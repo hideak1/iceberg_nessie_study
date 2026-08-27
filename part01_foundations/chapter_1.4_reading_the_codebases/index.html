@@ -1029,7 +1029,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1253,7 +1253,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1281,7 +1281,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1449,7 +1449,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1477,7 +1477,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1505,7 +1505,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1701,7 +1701,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1729,7 +1729,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1895,7 +1895,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1923,7 +1923,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1951,7 +1951,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2119,7 +2119,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2147,7 +2147,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2175,7 +2175,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2315,7 +2315,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2343,7 +2343,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2537,7 +2537,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2731,7 +2731,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2927,7 +2927,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2955,7 +2955,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -3011,7 +3011,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3267,7 +3267,7 @@
 <h1 id="chapter-14-reading-these-codebases-module-maps-and-navigation">Chapter 1.4 — Reading these codebases: module maps and navigation<a class="headerlink" href="#chapter-14-reading-these-codebases-module-maps-and-navigation" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> given a class name, an interface, or a config string, where in these two repositories do you actually look — and why does the obvious search so often return nothing?</p>
-<p><strong>Prerequisites:</strong> Chapter 1.2 (<code>TableMetadata</code> and the one atomic pointer), Chapter 1.3 (<code>CommitObj</code>, <code>Operation</code>, <code>IcebergTable</code>)</p>
+<p><strong>Prerequisites:</strong> <a href="../chapter_1.2_iceberg_core_idea/">Chapter 1.2</a> (<code>TableMetadata</code> and the one atomic pointer), <a href="../chapter_1.3_nessie_core_idea/">Chapter 1.3</a> (<code>CommitObj</code>, <code>Operation</code>, <code>IcebergTable</code>)</p>
 <p><strong>Source covered:</strong> <code>settings.gradle</code>, <code>settings.gradle.kts</code>, <code>gradle/projects.main.properties</code>, <code>core/.../CatalogUtil.java</code>, <code>versioned/storage/common/.../PersistLoader.java</code></p>
 </div>
 <h2 id="1-the-search-that-fails">1. The search that fails<a class="headerlink" href="#1-the-search-that-fails" title="Permanent link">&para;</a></h2>
@@ -3333,8 +3333,7 @@
 </span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a>include 'open-api'
 </span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a>include 'mr'
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `settings.gradle` L20–L45](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/settings.gradle#L20-L45) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/settings.gradle#L20-L45"><code>apache/iceberg</code> · <code>settings.gradle</code> L20–L45</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Twenty-five <code>include</code> lines, with <code>api</code> second and <code>core</code> fourth. The lines immediately below rename each project to its published artifact — <code>project(':core').name = 'iceberg-core'</code> — which is why the coordinate you see in a dependency report (<code>org.apache.iceberg:iceberg-core</code>) never quite matches the directory on disk.</p>
 <p>The split those first four lines encode is the one navigation rule worth memorising:</p>
 <blockquote>
@@ -3388,7 +3387,7 @@
 <tr>
 <td><code>data/</code></td>
 <td><code>iceberg-data</code></td>
-<td>Generic record read/write, <code>DeleteFilter</code>, and <code>TableMigrationUtil</code> (Chapter 1.1)</td>
+<td>Generic record read/write, <code>DeleteFilter</code>, and <code>TableMigrationUtil</code> (<a href="../chapter_1.1_why_table_formats/">Chapter 1.1</a>)</td>
 </tr>
 <tr>
 <td><code>parquet/</code>, <code>orc/</code>, <code>arrow/</code></td>
@@ -3462,8 +3461,7 @@
 </span><span id="__span-1-151"><a id="__codelineno-1-151" name="__codelineno-1-151"></a>  project(":iceberg-spark:spark-runtime-3.4_${scalaVersion}").name = "iceberg-spark-runtime-3.4_${scalaVersion}"
 </span><span id="__span-1-152"><a id="__codelineno-1-152" name="__codelineno-1-152"></a>}
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `settings.gradle` L142–L153](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/settings.gradle#L142-L153) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/settings.gradle#L142-L153"><code>apache/iceberg</code> · <code>settings.gradle</code> L142–L153</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read the three halves separately, because there are three. <code>include ":iceberg-spark:spark-3.4_${scalaVersion}"</code> creates the project. <code>projectDir = file('spark/v3.4/spark')</code> says where the code is. <code>.name = "iceberg-spark-3.4_${scalaVersion}"</code> says what Gradle calls it — and renaming a project <em>changes its path</em>, so the path you can actually invoke is <code>:iceberg-spark:iceberg-spark-3.4_2.12</code>, with <code>iceberg-</code> twice. The path in the <code>include</code> line is dead the moment the <code>.name =</code> assignment further down the same block runs. The whole block only executes if <code>sparkVersions.contains("3.4")</code>.</p>
 <p>Neither name is derivable from the other by inspection, which is the practical point: the directory says <code>spark/v3.4/spark</code>, the artifact says <code>iceberg-spark-3.4_2.12</code>, and only the settings file connects them.</p>
 <p>Two consequences you will hit in the first hour:</p>
@@ -3546,15 +3544,14 @@
 </span><span id="__span-2-101"><a id="__codelineno-2-101" name="__codelineno-2-101"></a>nessie-versioned-transfer-related=versioned/transfer-related
 </span><span id="__span-2-102"><a id="__codelineno-2-102" name="__codelineno-2-102"></a>nessie-versioned-transfer=versioned/transfer
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `gradle/projects.main.properties` L67–L102](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/gradle/projects.main.properties#L67-L102) <span>@ nessie-0.108.4</span></p>
-
-<p>Artifact name on the left, directory on the right, one per line. This answers "where does <code>nessie-versioned-storage-common</code> live" and "what is the artifact for <code>versioned/spi</code>" in both directions, and it is the fastest thing to grep in the entire repository. That is the whole navigation rule for this side of the book; <strong>Chapter 7.1 reads the loader that consumes this file, groups the modules into bands, and draws the layer stack they form.</strong> What matters here is only that the file exists and that nothing else answers the question.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/gradle/projects.main.properties#L67-L102"><code>projectnessie/nessie</code> · <code>gradle/projects.main.properties</code> L67–L102</a> <span>@ nessie-0.108.4</span></p>
+<p>Artifact name on the left, directory on the right, one per line. This answers "where does <code>nessie-versioned-storage-common</code> live" and "what is the artifact for <code>versioned/spi</code>" in both directions, and it is the fastest thing to grep in the entire repository. That is the whole navigation rule for this side of the book; <strong><a href="../../part07_nessie_architecture/chapter_7.1_project_map/">Chapter 7.1</a> reads the loader that consumes this file, groups the modules into bands, and draws the layer stack they form.</strong> What matters here is only that the file exists and that nothing else answers the question.</p>
 <p>A third source of projects has no file at all. Nessie's Spark extensions are generated from a matrix: <code>integrations/spark-scala.properties</code> lists <code>sparkVersions=4.0,3.5,3.4</code> and a Scala version list per Spark version, and <code>settings.gradle.kts</code> loops over the cross product creating <code>nessie-spark-extensions-${sparkVersion}_${scalaVersion}</code> projects that all share one directory, <code>integrations/spark-extensions/v${sparkVersion}</code>. Searching for a project name that a Gradle error mentions will not find it in any file, because the string was assembled at configuration time.</p>
 <h2 id="5-the-same-rule-stated-for-both-projects">5. The same rule, stated for both projects<a class="headerlink" href="#5-the-same-rule-stated-for-both-projects" title="Permanent link">&para;</a></h2>
 <p>Iceberg and Nessie fail a code search for opposite-looking reasons that turn out to be the same reason.</p>
 <p>Iceberg's module list is static and its directories match its <code>include</code> lines, right up until an engine module renames itself; there, the answer is in <code>settings.gradle</code>. Nessie's module list is not in the build script at all; there, the answer is in <code>gradle/projects.main.properties</code>. In both cases the mapping from a name you have to a directory you need is <strong>data read at configuration time</strong>, and in both cases exactly one file holds it.</p>
 <p>The api/core rule of section 2 has an equivalent on the Nessie side, and it is worth carrying forward even before the modules mean anything. Nessie splits contract from behaviour twice over. <code>api/model</code> holds the wire types a client and a server both compile against; <code>versioned/spi</code> holds <code>VersionStore</code>, the interface between the service layer and storage; and <code>versioned/storage/common</code> holds the engine that implements it. Three names, one rule: <strong>when a Nessie type has an obvious interface and an obvious implementation, they are in different Gradle modules, and the implementation is the one further down that list.</strong></p>
-<p>The rule has the same practical payoff as <code>api/</code> → <code>core/</code>. A search that lands on <code>VersionStore</code> and finds no logic has landed on the contract; <code>versioned/storage/store</code> holds the class that satisfies it. A search that lands on <code>Reference</code> may have landed on any of three unrelated types, which is Chapter 1.3's second gotcha and the reason this book keeps naming packages.</p>
+<p>The rule has the same practical payoff as <code>api/</code> → <code>core/</code>. A search that lands on <code>VersionStore</code> and finds no logic has landed on the contract; <code>versioned/storage/store</code> holds the class that satisfies it. A search that lands on <code>Reference</code> may have landed on any of three unrelated types, which is <a href="../chapter_1.3_nessie_core_idea/">Chapter 1.3</a>'s second gotcha and the reason this book keeps naming packages.</p>
 <p>That is the first of two places a search dies. The second is worse, because the file that would answer it is not a build file:</p>
 <h2 id="6-from-an-interface-to-the-class-that-implements-it">6. From an interface to the class that implements it<a class="headerlink" href="#6-from-an-interface-to-the-class-that-implements-it" title="Permanent link">&para;</a></h2>
 <p>Iceberg's registry is a block of constants. Read it top to bottom and the whole <code>type=</code> mechanism falls out:</p>
@@ -3614,8 +3611,7 @@
 </span><span id="__span-3-87"><a id="__codelineno-3-87" name="__codelineno-3-87"></a><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ICEBERG_CATALOG_BIGQUERY</span><span class="w"> </span><span class="o">=</span>
 </span><span id="__span-3-88"><a id="__codelineno-3-88" name="__codelineno-3-88"></a><span class="w">    </span><span class="s">"org.apache.iceberg.gcp.bigquery.BigQueryMetastoreCatalog"</span><span class="p">;</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/CatalogUtil.java` L61–L88](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/CatalogUtil.java#L61-L88) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/CatalogUtil.java#L61-L88"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/CatalogUtil.java</code> L61–L88</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Seven short names, then the fully-qualified class each one resolves to. This is what a Spark session's <code>spark.sql.catalog.x.type=nessie</code> finally means — but note <em>which</em> method does the mapping, because opening the wrong one is its own failed search. <code>CatalogUtil.buildIcebergCatalog</code> holds the <code>switch</code> over the short names and turns <code>nessie</code> into the string <code>"org.apache.iceberg.nessie.NessieCatalog"</code>; <code>CatalogUtil.loadCatalog</code> receives an already-resolved class name and only reflects on it, <code>DynConstructors.builder(Catalog.class).impl(impl).buildChecked()</code>. A reader who goes straight to <code>loadCatalog</code> finds no mapping at all. <code>buildIcebergCatalog</code> consults <code>type</code> only when <code>catalog-impl</code> is absent, and its <code>else</code> branch is a <code>Preconditions.checkArgument</code> refusing both at once — <em>"Cannot create catalog %s, both type and catalog-impl are set"</em> — so the two properties are mutually exclusive by construction, and <code>loadCatalog</code> is the single funnel they both end in.</p>
 <p>The package prefix then names the module, most of the time — <code>org.apache.iceberg.hadoop</code>, <code>.rest</code> and <code>.jdbc</code> are subpackages of <code>core/</code>; <code>org.apache.iceberg.aws.glue</code> is <code>aws/</code>; <code>org.apache.iceberg.nessie</code> is <code>nessie/</code>. The javadoc on <code>ICEBERG_CATALOG_TYPE</code> lists only <code>hive</code> and <code>hadoop</code>, so it is out of date with the seven type constants beneath it; trust the constants.</p>
 <p>Nessie makes the same hop, and the answer is not in Java at all:</p>
@@ -3651,8 +3647,7 @@
 </span><span id="__span-4-51"><a id="__codelineno-4-51" name="__codelineno-4-51"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">cast</span><span class="p">(</span><span class="n">candidates</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
 </span><span id="__span-4-52"><a id="__codelineno-4-52" name="__codelineno-4-52"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`projectnessie/nessie` · `versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/PersistLoader.java` L37–L52](https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/PersistLoader.java#L37-L52) <span>@ nessie-0.108.4</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/projectnessie/nessie/blob/nessie-0.108.4/versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/PersistLoader.java#L37-L52"><code>projectnessie/nessie</code> · <code>versioned/storage/common/src/main/java/org/projectnessie/versioned/storage/common/persist/PersistLoader.java</code> L37–L52</a> <span>@ nessie-0.108.4</span></p>
 <p>A <code>ServiceLoader</code>, filtered by predicate, then three assertions in a row: something was on the classpath, something matched, and <em>exactly</em> one thing matched. The <code>ServiceLoader.load(BackendFactory.class)</code> call itself is one level down, in the private <code>loader()</code> helper, which is why the method above shows only <code>ServiceLoader&lt;BackendFactory&lt;C&gt;&gt; loader = loader();</code>.</p>
 <p><code>findFactoryByName("jdbc")</code> is <code>findFactory(f -&gt; f.name().equals("jdbc"))</code>, and the class it returns is named in <code>versioned/storage/jdbc/src/main/resources/META-INF/services/org.projectnessie.versioned.storage.common.persist.BackendFactory</code> — a 16-line resource file with exactly one meaningful line under a 15-line Apache licence header: <code>org.projectnessie.versioned.storage.jdbc.JdbcBackendFactory</code>.</p>
 <p>When a Nessie server refuses to start with "No BackendFactory on class path", that resource is what is missing, and no Java search will tell you so.</p>
@@ -3681,7 +3676,7 @@
 <li>Neither repository contains a compile-time reference from an abstraction to its implementation, which is exactly what a code search follows — hence the failed search this chapter opens with.</li>
 <li>Iceberg's 25 static <code>include</code> lines are the whole module list; <code>api/</code> holds interfaces, <code>core/</code> holds <code>Base*</code> implementations in the same package, and no dependency arrow ever runs from <code>api</code> to <code>core</code>.</li>
 <li>Every engine module is conditional and renamed twice over: the directory is <code>spark/v3.4/spark</code>, the <code>include</code> path is <code>:iceberg-spark:spark-3.4_2.12</code>, and the path you can actually invoke — after the <code>.name =</code> line runs — is <code>:iceberg-spark:iceberg-spark-3.4_2.12</code>. The block only executes when a version property selects it.</li>
-<li>Nessie's <code>settings.gradle.kts</code> declares nothing. <code>gradle/projects.main.properties</code> maps 120 artifact names to directories and is the single fastest file to grep in that repository; Chapter 7.1 turns it into a map of the architecture.</li>
+<li>Nessie's <code>settings.gradle.kts</code> declares nothing. <code>gradle/projects.main.properties</code> maps 120 artifact names to directories and is the single fastest file to grep in that repository; <a href="../../part07_nessie_architecture/chapter_7.1_project_map/">Chapter 7.1</a> turns it into a map of the architecture.</li>
 <li>Both projects split contract from behaviour across module boundaries: <code>api/</code> → <code>core/</code> in Iceberg, <code>api/model</code> → <code>versioned/spi</code> → <code>versioned/storage/common</code> in Nessie. A search that finds an interface with no logic in it has found the contract, not the bug.</li>
 <li>The two registries that end a search are <code>CatalogUtil</code>'s <code>ICEBERG_CATALOG_*</code> constants and the <code>META-INF/services</code> files behind <code>PersistLoader.findFactory</code>.</li>
 </ul>
@@ -3728,7 +3723,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Part 2 opens the files themselves. Chapter 2.1 walks the directory an Iceberg table leaves behind after one real write, and names every file in it.</p>
+<p><strong>Next:</strong> Part 2 opens the files themselves. <a href="../../part02_table_spec/chapter_2.1_table_directory_anatomy/">Chapter 2.1</a> walks the directory an Iceberg table leaves behind after one real write, and names every file in it.</p>
 
 
 

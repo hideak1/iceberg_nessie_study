@@ -867,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    2.2 `metadata.json`, field by field
+    2.2 metadata.json, field by field
   
 
     
@@ -1231,7 +1231,7 @@
   <span class="md-ellipsis">
     
   
-    3.2 `TableMetadata` and `MetadataUpdate`
+    3.2 TableMetadata and MetadataUpdate
   
 
     
@@ -1259,7 +1259,7 @@
   <span class="md-ellipsis">
     
   
-    3.3 `SnapshotProducer`: the life of a commit
+    3.3 SnapshotProducer: the life of a commit
   
 
     
@@ -1427,7 +1427,7 @@
   <span class="md-ellipsis">
     
   
-    4.1 `TableScan` and `planFiles`
+    4.1 TableScan and planFiles
   
 
     
@@ -1455,7 +1455,7 @@
   <span class="md-ellipsis">
     
   
-    4.2 Manifest pruning with `ManifestEvaluator`
+    4.2 Manifest pruning with ManifestEvaluator
   
 
     
@@ -1483,7 +1483,7 @@
   <span class="md-ellipsis">
     
   
-    4.3 File pruning with `InclusiveMetricsEvaluator`
+    4.3 File pruning with InclusiveMetricsEvaluator
   
 
     
@@ -1679,7 +1679,7 @@
   <span class="md-ellipsis">
     
   
-    5.2 `FastAppend` vs `MergeAppend`
+    5.2 FastAppend vs MergeAppend
   
 
     
@@ -1707,7 +1707,7 @@
   <span class="md-ellipsis">
     
   
-    5.3 Position deletes, equality deletes, and `RowDelta`
+    5.3 Position deletes, equality deletes, and RowDelta
   
 
     
@@ -1873,7 +1873,7 @@
   <span class="md-ellipsis">
     
   
-    6.1 The `Catalog` SPI
+    6.1 The Catalog SPI
   
 
     
@@ -1901,7 +1901,7 @@
   <span class="md-ellipsis">
     
   
-    6.2 `HadoopCatalog` and `HiveCatalog`: where atomicity leaks
+    6.2 HadoopCatalog and HiveCatalog: where atomicity leaks
   
 
     
@@ -1929,7 +1929,7 @@
   <span class="md-ellipsis">
     
   
-    6.3 The REST Catalog spec and `RESTSessionCatalog`
+    6.3 The REST Catalog spec and RESTSessionCatalog
   
 
     
@@ -2097,7 +2097,7 @@
   <span class="md-ellipsis">
     
   
-    7.2 The data model: `Reference`, `Content`, `Operation`
+    7.2 The data model: Reference, Content, Operation
   
 
     
@@ -2125,7 +2125,7 @@
   <span class="md-ellipsis">
     
   
-    7.3 REST API v2: `TreeApi`, and where `ContentApi` went
+    7.3 REST API v2: TreeApi, and where ContentApi went
   
 
     
@@ -2153,7 +2153,7 @@
   <span class="md-ellipsis">
     
   
-    7.4 From HTTP to the `VersionStore`
+    7.4 From HTTP to the VersionStore
   
 
     
@@ -2293,7 +2293,7 @@
   <span class="md-ellipsis">
     
   
-    8.1 The `Persist` SPI and the storage abstraction
+    8.1 The Persist SPI and the storage abstraction
   
 
     
@@ -2321,7 +2321,7 @@
   <span class="md-ellipsis">
     
   
-    8.2 `CommitObj` and the commit log DAG
+    8.2 CommitObj and the commit log DAG
   
 
     
@@ -2515,7 +2515,7 @@
   <span class="md-ellipsis">
     
   
-    9.1 Commit: from `Operation` to `CommitObj`
+    9.1 Commit: from Operation to CommitObj
   
 
     
@@ -2709,7 +2709,7 @@
   <span class="md-ellipsis">
     
   
-    10.1 `NessieCatalog` and `NessieTableOperations`
+    10.1 NessieCatalog and NessieTableOperations
   
 
     
@@ -2905,7 +2905,7 @@
   <span class="md-ellipsis">
     
   
-    11.1 Wiring Spark to Iceberg: `SparkCatalog` vs `SparkSessionCatalog`
+    11.1 Wiring Spark to Iceberg: SparkCatalog vs SparkSessionCatalog
   
 
     
@@ -2933,7 +2933,7 @@
   <span class="md-ellipsis">
     
   
-    11.2 Bringing existing tables in: `snapshot`, `migrate`, `add_files`, `register_table`
+    11.2 Bringing existing tables in: snapshot, migrate, add_files, register_table
   
 
     
@@ -2989,7 +2989,7 @@
   <span class="md-ellipsis">
     
   
-    11.4 `MERGE INTO`, row-level operations, and commit conflicts
+    11.4 MERGE INTO, row-level operations, and commit conflicts
   
 
     
@@ -3223,7 +3223,7 @@
 <h1 id="chapter-31-module-map-and-the-core-abstractions">Chapter 3.1 — Module map and the core abstractions<a class="headerlink" href="#chapter-31-module-map-and-the-core-abstractions" title="Permanent link">&para;</a></h1>
 <div class="chapter-meta">
 <p><strong>The question this chapter answers:</strong> when you hold an Iceberg <code>Table</code>, which code is actually running, and where is the line between the interfaces an engine programs against and the machinery that implements them?</p>
-<p><strong>Prerequisites:</strong> Chapter 1.4 (reading these codebases), Chapter 2.2 (<code>metadata.json</code> field by field)</p>
+<p><strong>Prerequisites:</strong> <a href="../../part01_foundations/chapter_1.4_reading_the_codebases/">Chapter 1.4</a> (reading these codebases), <a href="../../part02_table_spec/chapter_2.2_metadata_json/">Chapter 2.2</a> (<code>metadata.json</code> field by field)</p>
 <p><strong>Source covered:</strong> <code>api/.../Table.java</code>, <code>core/.../BaseTable.java</code>, <code>core/.../TableOperations.java</code>, <code>api/.../io/FileIO.java</code></p>
 </div>
 <h2 id="1-the-problem">1. The problem<a class="headerlink" href="#1-the-problem" title="Permanent link">&para;</a></h2>
@@ -3408,8 +3408,7 @@
 </span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ops</span><span class="p">.</span><span class="na">current</span><span class="p">().</span><span class="na">schema</span><span class="p">();</span>
 </span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseTable.java` L67–L107](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTable.java#L67-L107) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTable.java#L67-L107"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseTable.java</code> L67–L107</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Read past the boilerplate to the pattern: <code>schema()</code> is <code>ops.current().schema()</code>, <code>schemas()</code> is <code>ops.current().schemasById()</code>. Every accessor re-derives from <code>ops.current()</code> rather than caching. That is why <code>refresh()</code> is one line — there is nothing local to invalidate.</p>
 <p>The write side is the same trick with a different shape:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">BaseTable — the write side</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-189">189</a></span>
@@ -3490,12 +3489,11 @@
 </span><span id="__span-1-226"><a id="__codelineno-1-226" name="__codelineno-1-226"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">StreamingDelete</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">ops</span><span class="p">).</span><span class="na">reportWith</span><span class="p">(</span><span class="n">reporter</span><span class="p">);</span>
 </span><span id="__span-1-227"><a id="__codelineno-1-227" name="__codelineno-1-227"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/BaseTable.java` L189–L227](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTable.java#L189-L227) <span>@ apache-iceberg-1.11.0</span></p>
-
-<p>This is the api-interface-to-core-implementation mapping table, written as code. <code>AppendFiles</code> becomes <code>MergeAppend</code>, <code>OverwriteFiles</code> becomes <code>BaseOverwriteFiles</code>, <code>RowDelta</code> becomes <code>BaseRowDelta</code>. Every one of them is constructed with <code>(name, ops)</code> and nothing else, because the same <code>ops</code> field is the only state a write operation needs — Chapter 3.3 follows one of them from that constructor to a committed snapshot.</p>
-<p>Note <code>newAppend()</code> returns <code>MergeAppend</code> while <code>newFastAppend()</code> returns <code>FastAppend</code>. The default append merges manifests; the fast one does not. Chapter 5.2 is about that choice.</p>
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/BaseTable.java#L189-L227"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/BaseTable.java</code> L189–L227</a> <span>@ apache-iceberg-1.11.0</span></p>
+<p>This is the api-interface-to-core-implementation mapping table, written as code. <code>AppendFiles</code> becomes <code>MergeAppend</code>, <code>OverwriteFiles</code> becomes <code>BaseOverwriteFiles</code>, <code>RowDelta</code> becomes <code>BaseRowDelta</code>. Every one of them is constructed with <code>(name, ops)</code> and nothing else, because the same <code>ops</code> field is the only state a write operation needs — <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> follows one of them from that constructor to a committed snapshot.</p>
+<p>Note <code>newAppend()</code> returns <code>MergeAppend</code> while <code>newFastAppend()</code> returns <code>FastAppend</code>. The default append merges manifests; the fast one does not. <a href="../../part05_write_path/chapter_5.2_append_strategies/">Chapter 5.2</a> is about that choice.</p>
 <h2 id="4-tableoperations-is-the-entire-catalog-contract">4. <code>TableOperations</code> is the entire catalog contract<a class="headerlink" href="#4-tableoperations-is-the-entire-catalog-contract" title="Permanent link">&para;</a></h2>
-<p>The atomicity contract lives in the javadoc on <code>commit</code>, which Chapter 3.3 quotes in full. Here is everything else the SPI asks of a catalog:</p>
+<p>The atomicity contract lives in the javadoc on <code>commit</code>, which <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> quotes in full. Here is everything else the SPI asks of a catalog:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">TableOperations — the SPI beyond commit</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-66"> 66</a></span>
 <span class="normal"><a href="#__codelineno-2-67"> 67</a></span>
 <span class="normal"><a href="#__codelineno-2-68"> 68</a></span>
@@ -3624,12 +3622,11 @@
 </span><span id="__span-2-128"><a id="__codelineno-2-128" name="__codelineno-2-128"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 </span><span id="__span-2-129"><a id="__codelineno-2-129" name="__codelineno-2-129"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/TableOperations.java` L66–L129](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableOperations.java#L66-L129) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/TableOperations.java#L66-L129"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/TableOperations.java</code> L66–L129</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Seven methods, and four of them — <code>encryption()</code>, <code>temp()</code>, <code>newSnapshotId()</code>, <code>requireStrictCleanup()</code> — already have bodies. Only three are abstract here: <code>io()</code>, <code>metadataFileLocation(String)</code> and <code>locationProvider()</code>. Add the three declared above this excerpt — <code>current()</code>, <code>refresh()</code>, <code>commit()</code> — and that is the whole required surface: six methods. <code>BaseMetastoreTableOperations</code> implements five of them for anything metastore-shaped — everything but <code>io()</code>, which a subclass must still supply (<code>HiveTableOperations</code>, <code>JdbcTableOperations</code> and the rest each override it), alongside <code>tableName()</code> and the two hooks the base class calls into, <code>doRefresh()</code> and <code>doCommit()</code>.</p>
 <p>Two of the defaults are worth naming now because later chapters lean on them.</p>
 <p><code>temp(TableMetadata)</code> returns operations backed by <em>uncommitted</em> metadata, so a transaction can compute file locations that reflect changes not yet visible to anyone else. The default ignores the request and returns <code>this</code>. <code>BaseMetastoreTableOperations</code> overrides it with an anonymous implementation whose <code>refresh()</code> and <code>commit()</code> both throw — a deliberately inert object, safe to hand to a transaction that must not touch the catalog.</p>
-<p><code>requireStrictCleanup()</code> defaults to <code>true</code> and decides whether a failed commit deletes the files it wrote. Chapter 3.3 meets the other end of this flag, in the <code>if (!strictCleanup || e instanceof CleanableFailure)</code> branch of <code>SnapshotProducer.commit</code>.</p>
+<p><code>requireStrictCleanup()</code> defaults to <code>true</code> and decides whether a failed commit deletes the files it wrote. <a href="../chapter_3.3_snapshot_producer/">Chapter 3.3</a> meets the other end of this flag, in the <code>if (!strictCleanup || e instanceof CleanableFailure)</code> branch of <code>SnapshotProducer.commit</code>.</p>
 <p>Now the seam itself. <code>Table</code> — the api interface — has no <code>operations()</code> method. This does:</p>
 <div class="language-java highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">HasTableOperations — the whole seam</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-21">21</a></span>
 <span class="normal"><a href="#__codelineno-3-22">22</a></span>
@@ -3639,8 +3636,7 @@
 </span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="w">  </span><span class="n">TableOperations</span><span class="w"> </span><span class="nf">operations</span><span class="p">();</span>
 </span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `core/src/main/java/org/apache/iceberg/HasTableOperations.java` L21–L24](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/HasTableOperations.java#L21-L24) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/core/src/main/java/org/apache/iceberg/HasTableOperations.java#L21-L24"><code>apache/iceberg</code> · <code>core/src/main/java/org/apache/iceberg/HasTableOperations.java</code> L21–L24</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Four lines, in <code>core</code>. That placement is the entire trick: engines compile against <code>Table</code> and never see <code>TableOperations</code>; integrations that genuinely need the SPI downcast to <code>HasTableOperations</code> and accept the core dependency that comes with it.</p>
 <h2 id="5-fileio-and-what-is-deliberately-missing">5. <code>FileIO</code>, and what is deliberately missing<a class="headerlink" href="#5-fileio-and-what-is-deliberately-missing" title="Permanent link">&para;</a></h2>
 <p>At the bottom sits the storage abstraction — and it is anaemic on purpose.</p>
@@ -3836,11 +3832,10 @@
 </span><span id="__span-4-124"><a id="__codelineno-4-124" name="__codelineno-4-124"></a><span class="w">  </span><span class="k">default</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">close</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
 </span><span id="__span-4-125"><a id="__codelineno-4-125" name="__codelineno-4-125"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-<p class="snip-src">:material-source-branch: [`apache/iceberg` · `api/src/main/java/org/apache/iceberg/io/FileIO.java` L30–L125](https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/io/FileIO.java#L30-L125) <span>@ apache-iceberg-1.11.0</span></p>
-
+<p class="snip-src"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14c-3.36 0-4.46 1.35-4.82 2.24C9.25 16.7 10 17.76 10 19a3 3 0 0 1-3 3 3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7.83A2.99 2.99 0 0 1 4 5a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v5.29c.88-.65 2.16-1.12 4-1.12 2.67 0 3.56-1.34 3.85-2.23A3.01 3.01 0 0 1 14 7a3 3 0 0 1 3-3 3 3 0 0 1 3 3c0 1.34-.88 2.5-2.09 2.86C17.65 11.29 16.68 14 13 14m-6 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M7 4a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m10 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> <a href="https://github.com/apache/iceberg/blob/apache-iceberg-1.11.0/api/src/main/java/org/apache/iceberg/io/FileIO.java#L30-L125"><code>apache/iceberg</code> · <code>api/src/main/java/org/apache/iceberg/io/FileIO.java</code> L30–L125</a> <span>@ apache-iceberg-1.11.0</span></p>
 <p>Ninety-six lines, and only three of them declare something an implementation must write: <code>newInputFile(String)</code>, <code>newOutputFile(String)</code>, <code>deleteFile(String)</code>. Everything else is <code>default</code> — convenience overloads that unwrap a <code>DataFile</code>, <code>ManifestFile</code> or <code>ManifestListFile</code> into a path and a length, plus <code>properties()</code>, <code>initialize()</code> and <code>close()</code>.</p>
 <p>What is <em>not</em> there matters more than what is. There is no <code>rename</code>. No <code>listPrefix</code>. No conditional or compare-and-swap put. Capabilities beyond the three arrive as separate opt-in interfaces — <code>SupportsPrefixOperations</code>, <code>SupportsBulkOperations</code>, <code>SupportsRecoveryOperations</code> — which callers must test for at runtime.</p>
-<p>The consequence is the load-bearing fact of the next three chapters. <strong>Iceberg does not permit storage to be the source of atomicity.</strong> A <code>FileIO</code> implementation is not asked whether it can rename atomically, because the answer on object storage is no and the design refuses to depend on it. The atomic swap has to come from the catalog, which is exactly where Chapter 3.4 goes looking for it.</p>
+<p>The consequence is the load-bearing fact of the next three chapters. <strong>Iceberg does not permit storage to be the source of atomicity.</strong> A <code>FileIO</code> implementation is not asked whether it can rename atomically, because the answer on object storage is no and the design refuses to depend on it. The atomic swap has to come from the catalog, which is exactly where <a href="../chapter_3.4_commit_protocol/">Chapter 3.4</a> goes looking for it.</p>
 <h2 id="6-gotchas">6. Gotchas<a class="headerlink" href="#6-gotchas" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">A <code>Table</code> is not necessarily a <code>HasTableOperations</code></p>
@@ -3909,7 +3904,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Next:</strong> Chapter 3.2 opens up the object every one of those <code>ops.current()</code> calls returns — <code>TableMetadata</code> — and asks why an immutable snapshot of a table also carries a log of the changes that produced it.</p>
+<p><strong>Next:</strong> <a href="../chapter_3.2_table_metadata/">Chapter 3.2</a> opens up the object every one of those <code>ops.current()</code> calls returns — <code>TableMetadata</code> — and asks why an immutable snapshot of a table also carries a log of the changes that produced it.</p>
 
 
 
@@ -3964,13 +3959,13 @@
         
         
           
-          <a href="../chapter_3.2_table_metadata/" class="md-footer__link md-footer__link--next" aria-label="Next: 3.2 `TableMetadata` and `MetadataUpdate`">
+          <a href="../chapter_3.2_table_metadata/" class="md-footer__link md-footer__link--next" aria-label="Next: 3.2 TableMetadata and MetadataUpdate">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                3.2 `TableMetadata` and `MetadataUpdate`
+                3.2 TableMetadata and MetadataUpdate
               </div>
             </div>
             <div class="md-footer__button md-icon">
